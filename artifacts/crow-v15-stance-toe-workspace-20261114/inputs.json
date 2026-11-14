@@ -1,0 +1,4109 @@
+{
+  "source_path": "artifacts/crow-v15-pitch-normal-support-20261114/trace.log.gz",
+  "source_sha256": "83505618117e9959be0024ed237e65b1dd8fbee5308d85afc0ab6eba34d59e5f",
+  "lane": 0,
+  "source_zero_based_interval": 304,
+  "records": [
+    {
+      "kind": "original",
+      "id": 0,
+      "angles": null
+    },
+    {
+      "kind": "front",
+      "id": 1,
+      "angles": [
+        -0.3,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 2,
+      "angles": [
+        -0.3,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 3,
+      "angles": [
+        -0.3,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 4,
+      "angles": [
+        -0.3,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 5,
+      "angles": [
+        -0.3,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 6,
+      "angles": [
+        -0.3,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 7,
+      "angles": [
+        -0.3,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 8,
+      "angles": [
+        -0.3,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 9,
+      "angles": [
+        -0.3,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 10,
+      "angles": [
+        -0.3,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 11,
+      "angles": [
+        -0.3,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 12,
+      "angles": [
+        -0.3,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 13,
+      "angles": [
+        -0.3,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 14,
+      "angles": [
+        -0.3,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 15,
+      "angles": [
+        -0.3,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 16,
+      "angles": [
+        -0.3,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 17,
+      "angles": [
+        -0.2,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 18,
+      "angles": [
+        -0.2,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 19,
+      "angles": [
+        -0.2,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 20,
+      "angles": [
+        -0.2,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 21,
+      "angles": [
+        -0.2,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 22,
+      "angles": [
+        -0.2,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 23,
+      "angles": [
+        -0.2,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 24,
+      "angles": [
+        -0.2,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 25,
+      "angles": [
+        -0.2,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 26,
+      "angles": [
+        -0.2,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 27,
+      "angles": [
+        -0.2,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 28,
+      "angles": [
+        -0.2,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 29,
+      "angles": [
+        -0.2,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 30,
+      "angles": [
+        -0.2,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 31,
+      "angles": [
+        -0.2,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 32,
+      "angles": [
+        -0.2,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 33,
+      "angles": [
+        -0.1,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 34,
+      "angles": [
+        -0.1,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 35,
+      "angles": [
+        -0.1,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 36,
+      "angles": [
+        -0.1,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 37,
+      "angles": [
+        -0.1,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 38,
+      "angles": [
+        -0.1,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 39,
+      "angles": [
+        -0.1,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 40,
+      "angles": [
+        -0.1,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 41,
+      "angles": [
+        -0.1,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 42,
+      "angles": [
+        -0.1,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 43,
+      "angles": [
+        -0.1,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 44,
+      "angles": [
+        -0.1,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 45,
+      "angles": [
+        -0.1,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 46,
+      "angles": [
+        -0.1,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 47,
+      "angles": [
+        -0.1,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 48,
+      "angles": [
+        -0.1,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 49,
+      "angles": [
+        0.0,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 50,
+      "angles": [
+        0.0,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 51,
+      "angles": [
+        0.0,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 52,
+      "angles": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 53,
+      "angles": [
+        0.0,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 54,
+      "angles": [
+        0.0,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 55,
+      "angles": [
+        0.0,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 56,
+      "angles": [
+        0.0,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 57,
+      "angles": [
+        0.0,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 58,
+      "angles": [
+        0.0,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 59,
+      "angles": [
+        0.0,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 60,
+      "angles": [
+        0.0,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 61,
+      "angles": [
+        0.0,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 62,
+      "angles": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 63,
+      "angles": [
+        0.0,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 64,
+      "angles": [
+        0.0,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 65,
+      "angles": [
+        0.1,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 66,
+      "angles": [
+        0.1,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 67,
+      "angles": [
+        0.1,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 68,
+      "angles": [
+        0.1,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 69,
+      "angles": [
+        0.1,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 70,
+      "angles": [
+        0.1,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 71,
+      "angles": [
+        0.1,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 72,
+      "angles": [
+        0.1,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 73,
+      "angles": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 74,
+      "angles": [
+        0.1,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 75,
+      "angles": [
+        0.1,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 76,
+      "angles": [
+        0.1,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 77,
+      "angles": [
+        0.1,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 78,
+      "angles": [
+        0.1,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 79,
+      "angles": [
+        0.1,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 80,
+      "angles": [
+        0.1,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 81,
+      "angles": [
+        0.2,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 82,
+      "angles": [
+        0.2,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 83,
+      "angles": [
+        0.2,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 84,
+      "angles": [
+        0.2,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 85,
+      "angles": [
+        0.2,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 86,
+      "angles": [
+        0.2,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 87,
+      "angles": [
+        0.2,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 88,
+      "angles": [
+        0.2,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 89,
+      "angles": [
+        0.2,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 90,
+      "angles": [
+        0.2,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 91,
+      "angles": [
+        0.2,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 92,
+      "angles": [
+        0.2,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 93,
+      "angles": [
+        0.2,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 94,
+      "angles": [
+        0.2,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 95,
+      "angles": [
+        0.2,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 96,
+      "angles": [
+        0.2,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 97,
+      "angles": [
+        0.3,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 98,
+      "angles": [
+        0.3,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 99,
+      "angles": [
+        0.3,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 100,
+      "angles": [
+        0.3,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 101,
+      "angles": [
+        0.3,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 102,
+      "angles": [
+        0.3,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 103,
+      "angles": [
+        0.3,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 104,
+      "angles": [
+        0.3,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 105,
+      "angles": [
+        0.3,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 106,
+      "angles": [
+        0.3,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 107,
+      "angles": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 108,
+      "angles": [
+        0.3,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 109,
+      "angles": [
+        0.3,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 110,
+      "angles": [
+        0.3,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 111,
+      "angles": [
+        0.3,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 112,
+      "angles": [
+        0.3,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 113,
+      "angles": [
+        0.4,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 114,
+      "angles": [
+        0.4,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 115,
+      "angles": [
+        0.4,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 116,
+      "angles": [
+        0.4,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 117,
+      "angles": [
+        0.4,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 118,
+      "angles": [
+        0.4,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 119,
+      "angles": [
+        0.4,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 120,
+      "angles": [
+        0.4,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 121,
+      "angles": [
+        0.4,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 122,
+      "angles": [
+        0.4,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 123,
+      "angles": [
+        0.4,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 124,
+      "angles": [
+        0.4,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 125,
+      "angles": [
+        0.4,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 126,
+      "angles": [
+        0.4,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 127,
+      "angles": [
+        0.4,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 128,
+      "angles": [
+        0.4,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 129,
+      "angles": [
+        0.5,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 130,
+      "angles": [
+        0.5,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 131,
+      "angles": [
+        0.5,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 132,
+      "angles": [
+        0.5,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 133,
+      "angles": [
+        0.5,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 134,
+      "angles": [
+        0.5,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 135,
+      "angles": [
+        0.5,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 136,
+      "angles": [
+        0.5,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 137,
+      "angles": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 138,
+      "angles": [
+        0.5,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 139,
+      "angles": [
+        0.5,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 140,
+      "angles": [
+        0.5,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 141,
+      "angles": [
+        0.5,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 142,
+      "angles": [
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 143,
+      "angles": [
+        0.5,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 144,
+      "angles": [
+        0.5,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 145,
+      "angles": [
+        0.6,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 146,
+      "angles": [
+        0.6,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 147,
+      "angles": [
+        0.6,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 148,
+      "angles": [
+        0.6,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 149,
+      "angles": [
+        0.6,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 150,
+      "angles": [
+        0.6,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 151,
+      "angles": [
+        0.6,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 152,
+      "angles": [
+        0.6,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 153,
+      "angles": [
+        0.6,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 154,
+      "angles": [
+        0.6,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 155,
+      "angles": [
+        0.6,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 156,
+      "angles": [
+        0.6,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 157,
+      "angles": [
+        0.6,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 158,
+      "angles": [
+        0.6,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 159,
+      "angles": [
+        0.6,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 160,
+      "angles": [
+        0.6,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 161,
+      "angles": [
+        0.7,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 162,
+      "angles": [
+        0.7,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 163,
+      "angles": [
+        0.7,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 164,
+      "angles": [
+        0.7,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 165,
+      "angles": [
+        0.7,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 166,
+      "angles": [
+        0.7,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 167,
+      "angles": [
+        0.7,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 168,
+      "angles": [
+        0.7,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 169,
+      "angles": [
+        0.7,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 170,
+      "angles": [
+        0.7,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 171,
+      "angles": [
+        0.7,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 172,
+      "angles": [
+        0.7,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 173,
+      "angles": [
+        0.7,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 174,
+      "angles": [
+        0.7,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 175,
+      "angles": [
+        0.7,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 176,
+      "angles": [
+        0.7,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 177,
+      "angles": [
+        0.8,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 178,
+      "angles": [
+        0.8,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 179,
+      "angles": [
+        0.8,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 180,
+      "angles": [
+        0.8,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 181,
+      "angles": [
+        0.8,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 182,
+      "angles": [
+        0.8,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 183,
+      "angles": [
+        0.8,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 184,
+      "angles": [
+        0.8,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 185,
+      "angles": [
+        0.8,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 186,
+      "angles": [
+        0.8,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 187,
+      "angles": [
+        0.8,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 188,
+      "angles": [
+        0.8,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 189,
+      "angles": [
+        0.8,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 190,
+      "angles": [
+        0.8,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 191,
+      "angles": [
+        0.8,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 192,
+      "angles": [
+        0.8,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 193,
+      "angles": [
+        0.9,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 194,
+      "angles": [
+        0.9,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 195,
+      "angles": [
+        0.9,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 196,
+      "angles": [
+        0.9,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 197,
+      "angles": [
+        0.9,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 198,
+      "angles": [
+        0.9,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 199,
+      "angles": [
+        0.9,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 200,
+      "angles": [
+        0.9,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 201,
+      "angles": [
+        0.9,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 202,
+      "angles": [
+        0.9,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 203,
+      "angles": [
+        0.9,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 204,
+      "angles": [
+        0.9,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 205,
+      "angles": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 206,
+      "angles": [
+        0.9,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 207,
+      "angles": [
+        0.9,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 208,
+      "angles": [
+        0.9,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 209,
+      "angles": [
+        1.0,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 210,
+      "angles": [
+        1.0,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 211,
+      "angles": [
+        1.0,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 212,
+      "angles": [
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 213,
+      "angles": [
+        1.0,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 214,
+      "angles": [
+        1.0,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 215,
+      "angles": [
+        1.0,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 216,
+      "angles": [
+        1.0,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 217,
+      "angles": [
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 218,
+      "angles": [
+        1.0,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 219,
+      "angles": [
+        1.0,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 220,
+      "angles": [
+        1.0,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 221,
+      "angles": [
+        1.0,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 222,
+      "angles": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 223,
+      "angles": [
+        1.0,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 224,
+      "angles": [
+        1.0,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 225,
+      "angles": [
+        1.1,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 226,
+      "angles": [
+        1.1,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 227,
+      "angles": [
+        1.1,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 228,
+      "angles": [
+        1.1,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 229,
+      "angles": [
+        1.1,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 230,
+      "angles": [
+        1.1,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 231,
+      "angles": [
+        1.1,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 232,
+      "angles": [
+        1.1,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 233,
+      "angles": [
+        1.1,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 234,
+      "angles": [
+        1.1,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 235,
+      "angles": [
+        1.1,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 236,
+      "angles": [
+        1.1,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 237,
+      "angles": [
+        1.1,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 238,
+      "angles": [
+        1.1,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 239,
+      "angles": [
+        1.1,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 240,
+      "angles": [
+        1.1,
+        1.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 241,
+      "angles": [
+        1.2,
+        -0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 242,
+      "angles": [
+        1.2,
+        -0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 243,
+      "angles": [
+        1.2,
+        -0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 244,
+      "angles": [
+        1.2,
+        0.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 245,
+      "angles": [
+        1.2,
+        0.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 246,
+      "angles": [
+        1.2,
+        0.2
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 247,
+      "angles": [
+        1.2,
+        0.3
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 248,
+      "angles": [
+        1.2,
+        0.4
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 249,
+      "angles": [
+        1.2,
+        0.5
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 250,
+      "angles": [
+        1.2,
+        0.6
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 251,
+      "angles": [
+        1.2,
+        0.7
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 252,
+      "angles": [
+        1.2,
+        0.8
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 253,
+      "angles": [
+        1.2,
+        0.9
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 254,
+      "angles": [
+        1.2,
+        1.0
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 255,
+      "angles": [
+        1.2,
+        1.1
+      ]
+    },
+    {
+      "kind": "front",
+      "id": 256,
+      "angles": [
+        1.2,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 257,
+      "angles": [
+        -0.3,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 258,
+      "angles": [
+        -0.3,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 259,
+      "angles": [
+        -0.3,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 260,
+      "angles": [
+        -0.3,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 261,
+      "angles": [
+        -0.3,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 262,
+      "angles": [
+        -0.3,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 263,
+      "angles": [
+        -0.3,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 264,
+      "angles": [
+        -0.3,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 265,
+      "angles": [
+        -0.3,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 266,
+      "angles": [
+        -0.3,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 267,
+      "angles": [
+        -0.3,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 268,
+      "angles": [
+        -0.3,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 269,
+      "angles": [
+        -0.3,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 270,
+      "angles": [
+        -0.3,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 271,
+      "angles": [
+        -0.3,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 272,
+      "angles": [
+        -0.3,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 273,
+      "angles": [
+        -0.2,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 274,
+      "angles": [
+        -0.2,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 275,
+      "angles": [
+        -0.2,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 276,
+      "angles": [
+        -0.2,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 277,
+      "angles": [
+        -0.2,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 278,
+      "angles": [
+        -0.2,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 279,
+      "angles": [
+        -0.2,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 280,
+      "angles": [
+        -0.2,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 281,
+      "angles": [
+        -0.2,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 282,
+      "angles": [
+        -0.2,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 283,
+      "angles": [
+        -0.2,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 284,
+      "angles": [
+        -0.2,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 285,
+      "angles": [
+        -0.2,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 286,
+      "angles": [
+        -0.2,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 287,
+      "angles": [
+        -0.2,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 288,
+      "angles": [
+        -0.2,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 289,
+      "angles": [
+        -0.1,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 290,
+      "angles": [
+        -0.1,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 291,
+      "angles": [
+        -0.1,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 292,
+      "angles": [
+        -0.1,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 293,
+      "angles": [
+        -0.1,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 294,
+      "angles": [
+        -0.1,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 295,
+      "angles": [
+        -0.1,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 296,
+      "angles": [
+        -0.1,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 297,
+      "angles": [
+        -0.1,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 298,
+      "angles": [
+        -0.1,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 299,
+      "angles": [
+        -0.1,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 300,
+      "angles": [
+        -0.1,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 301,
+      "angles": [
+        -0.1,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 302,
+      "angles": [
+        -0.1,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 303,
+      "angles": [
+        -0.1,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 304,
+      "angles": [
+        -0.1,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 305,
+      "angles": [
+        0.0,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 306,
+      "angles": [
+        0.0,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 307,
+      "angles": [
+        0.0,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 308,
+      "angles": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 309,
+      "angles": [
+        0.0,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 310,
+      "angles": [
+        0.0,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 311,
+      "angles": [
+        0.0,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 312,
+      "angles": [
+        0.0,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 313,
+      "angles": [
+        0.0,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 314,
+      "angles": [
+        0.0,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 315,
+      "angles": [
+        0.0,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 316,
+      "angles": [
+        0.0,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 317,
+      "angles": [
+        0.0,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 318,
+      "angles": [
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 319,
+      "angles": [
+        0.0,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 320,
+      "angles": [
+        0.0,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 321,
+      "angles": [
+        0.1,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 322,
+      "angles": [
+        0.1,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 323,
+      "angles": [
+        0.1,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 324,
+      "angles": [
+        0.1,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 325,
+      "angles": [
+        0.1,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 326,
+      "angles": [
+        0.1,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 327,
+      "angles": [
+        0.1,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 328,
+      "angles": [
+        0.1,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 329,
+      "angles": [
+        0.1,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 330,
+      "angles": [
+        0.1,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 331,
+      "angles": [
+        0.1,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 332,
+      "angles": [
+        0.1,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 333,
+      "angles": [
+        0.1,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 334,
+      "angles": [
+        0.1,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 335,
+      "angles": [
+        0.1,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 336,
+      "angles": [
+        0.1,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 337,
+      "angles": [
+        0.2,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 338,
+      "angles": [
+        0.2,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 339,
+      "angles": [
+        0.2,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 340,
+      "angles": [
+        0.2,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 341,
+      "angles": [
+        0.2,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 342,
+      "angles": [
+        0.2,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 343,
+      "angles": [
+        0.2,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 344,
+      "angles": [
+        0.2,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 345,
+      "angles": [
+        0.2,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 346,
+      "angles": [
+        0.2,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 347,
+      "angles": [
+        0.2,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 348,
+      "angles": [
+        0.2,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 349,
+      "angles": [
+        0.2,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 350,
+      "angles": [
+        0.2,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 351,
+      "angles": [
+        0.2,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 352,
+      "angles": [
+        0.2,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 353,
+      "angles": [
+        0.3,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 354,
+      "angles": [
+        0.3,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 355,
+      "angles": [
+        0.3,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 356,
+      "angles": [
+        0.3,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 357,
+      "angles": [
+        0.3,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 358,
+      "angles": [
+        0.3,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 359,
+      "angles": [
+        0.3,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 360,
+      "angles": [
+        0.3,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 361,
+      "angles": [
+        0.3,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 362,
+      "angles": [
+        0.3,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 363,
+      "angles": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 364,
+      "angles": [
+        0.3,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 365,
+      "angles": [
+        0.3,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 366,
+      "angles": [
+        0.3,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 367,
+      "angles": [
+        0.3,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 368,
+      "angles": [
+        0.3,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 369,
+      "angles": [
+        0.4,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 370,
+      "angles": [
+        0.4,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 371,
+      "angles": [
+        0.4,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 372,
+      "angles": [
+        0.4,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 373,
+      "angles": [
+        0.4,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 374,
+      "angles": [
+        0.4,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 375,
+      "angles": [
+        0.4,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 376,
+      "angles": [
+        0.4,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 377,
+      "angles": [
+        0.4,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 378,
+      "angles": [
+        0.4,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 379,
+      "angles": [
+        0.4,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 380,
+      "angles": [
+        0.4,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 381,
+      "angles": [
+        0.4,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 382,
+      "angles": [
+        0.4,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 383,
+      "angles": [
+        0.4,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 384,
+      "angles": [
+        0.4,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 385,
+      "angles": [
+        0.5,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 386,
+      "angles": [
+        0.5,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 387,
+      "angles": [
+        0.5,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 388,
+      "angles": [
+        0.5,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 389,
+      "angles": [
+        0.5,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 390,
+      "angles": [
+        0.5,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 391,
+      "angles": [
+        0.5,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 392,
+      "angles": [
+        0.5,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 393,
+      "angles": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 394,
+      "angles": [
+        0.5,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 395,
+      "angles": [
+        0.5,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 396,
+      "angles": [
+        0.5,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 397,
+      "angles": [
+        0.5,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 398,
+      "angles": [
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 399,
+      "angles": [
+        0.5,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 400,
+      "angles": [
+        0.5,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 401,
+      "angles": [
+        0.6,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 402,
+      "angles": [
+        0.6,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 403,
+      "angles": [
+        0.6,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 404,
+      "angles": [
+        0.6,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 405,
+      "angles": [
+        0.6,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 406,
+      "angles": [
+        0.6,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 407,
+      "angles": [
+        0.6,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 408,
+      "angles": [
+        0.6,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 409,
+      "angles": [
+        0.6,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 410,
+      "angles": [
+        0.6,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 411,
+      "angles": [
+        0.6,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 412,
+      "angles": [
+        0.6,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 413,
+      "angles": [
+        0.6,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 414,
+      "angles": [
+        0.6,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 415,
+      "angles": [
+        0.6,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 416,
+      "angles": [
+        0.6,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 417,
+      "angles": [
+        0.7,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 418,
+      "angles": [
+        0.7,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 419,
+      "angles": [
+        0.7,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 420,
+      "angles": [
+        0.7,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 421,
+      "angles": [
+        0.7,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 422,
+      "angles": [
+        0.7,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 423,
+      "angles": [
+        0.7,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 424,
+      "angles": [
+        0.7,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 425,
+      "angles": [
+        0.7,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 426,
+      "angles": [
+        0.7,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 427,
+      "angles": [
+        0.7,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 428,
+      "angles": [
+        0.7,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 429,
+      "angles": [
+        0.7,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 430,
+      "angles": [
+        0.7,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 431,
+      "angles": [
+        0.7,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 432,
+      "angles": [
+        0.7,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 433,
+      "angles": [
+        0.8,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 434,
+      "angles": [
+        0.8,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 435,
+      "angles": [
+        0.8,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 436,
+      "angles": [
+        0.8,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 437,
+      "angles": [
+        0.8,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 438,
+      "angles": [
+        0.8,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 439,
+      "angles": [
+        0.8,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 440,
+      "angles": [
+        0.8,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 441,
+      "angles": [
+        0.8,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 442,
+      "angles": [
+        0.8,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 443,
+      "angles": [
+        0.8,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 444,
+      "angles": [
+        0.8,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 445,
+      "angles": [
+        0.8,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 446,
+      "angles": [
+        0.8,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 447,
+      "angles": [
+        0.8,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 448,
+      "angles": [
+        0.8,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 449,
+      "angles": [
+        0.9,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 450,
+      "angles": [
+        0.9,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 451,
+      "angles": [
+        0.9,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 452,
+      "angles": [
+        0.9,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 453,
+      "angles": [
+        0.9,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 454,
+      "angles": [
+        0.9,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 455,
+      "angles": [
+        0.9,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 456,
+      "angles": [
+        0.9,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 457,
+      "angles": [
+        0.9,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 458,
+      "angles": [
+        0.9,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 459,
+      "angles": [
+        0.9,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 460,
+      "angles": [
+        0.9,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 461,
+      "angles": [
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 462,
+      "angles": [
+        0.9,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 463,
+      "angles": [
+        0.9,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 464,
+      "angles": [
+        0.9,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 465,
+      "angles": [
+        1.0,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 466,
+      "angles": [
+        1.0,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 467,
+      "angles": [
+        1.0,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 468,
+      "angles": [
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 469,
+      "angles": [
+        1.0,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 470,
+      "angles": [
+        1.0,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 471,
+      "angles": [
+        1.0,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 472,
+      "angles": [
+        1.0,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 473,
+      "angles": [
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 474,
+      "angles": [
+        1.0,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 475,
+      "angles": [
+        1.0,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 476,
+      "angles": [
+        1.0,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 477,
+      "angles": [
+        1.0,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 478,
+      "angles": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 479,
+      "angles": [
+        1.0,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 480,
+      "angles": [
+        1.0,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 481,
+      "angles": [
+        1.1,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 482,
+      "angles": [
+        1.1,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 483,
+      "angles": [
+        1.1,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 484,
+      "angles": [
+        1.1,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 485,
+      "angles": [
+        1.1,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 486,
+      "angles": [
+        1.1,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 487,
+      "angles": [
+        1.1,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 488,
+      "angles": [
+        1.1,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 489,
+      "angles": [
+        1.1,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 490,
+      "angles": [
+        1.1,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 491,
+      "angles": [
+        1.1,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 492,
+      "angles": [
+        1.1,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 493,
+      "angles": [
+        1.1,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 494,
+      "angles": [
+        1.1,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 495,
+      "angles": [
+        1.1,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 496,
+      "angles": [
+        1.1,
+        1.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 497,
+      "angles": [
+        1.2,
+        -0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 498,
+      "angles": [
+        1.2,
+        -0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 499,
+      "angles": [
+        1.2,
+        -0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 500,
+      "angles": [
+        1.2,
+        0.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 501,
+      "angles": [
+        1.2,
+        0.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 502,
+      "angles": [
+        1.2,
+        0.2
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 503,
+      "angles": [
+        1.2,
+        0.3
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 504,
+      "angles": [
+        1.2,
+        0.4
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 505,
+      "angles": [
+        1.2,
+        0.5
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 506,
+      "angles": [
+        1.2,
+        0.6
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 507,
+      "angles": [
+        1.2,
+        0.7
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 508,
+      "angles": [
+        1.2,
+        0.8
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 509,
+      "angles": [
+        1.2,
+        0.9
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 510,
+      "angles": [
+        1.2,
+        1.0
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 511,
+      "angles": [
+        1.2,
+        1.1
+      ]
+    },
+    {
+      "kind": "rear",
+      "id": 512,
+      "angles": [
+        1.2,
+        1.2
+      ]
+    }
+  ]
+}
