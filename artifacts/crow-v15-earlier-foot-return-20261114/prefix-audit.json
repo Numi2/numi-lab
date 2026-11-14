@@ -1,0 +1,12 @@
+{
+  "candidate_finished_first_zero_based": 257,
+  "state_prefix_mismatch_count": 0,
+  "target_prefix_mismatch_count": 0,
+  "contact_substep_prefix_mismatch_count": 0,
+  "first_state_mismatches": [],
+  "first_target_mismatches": [],
+  "first_contact_mismatches": [],
+  "observer_errors": [],
+  "prefix_pass": true,
+  "scope": "same-run logged prefix only; contact/state epoch synchronization is not independently established"
+}
