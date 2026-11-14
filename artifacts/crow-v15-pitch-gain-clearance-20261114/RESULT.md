@@ -1,0 +1,5 @@
+# Increased stance pitch gain: failed release/support
+
+Increasing pitch-change feedback from 0.50 to 0.80, within the unchanged correction and slew limits, increased the longest qualifying release/support streak from 34 to 37 intervals and delayed first root height below 0.1 m from step 378 to 381. Both failed the required 100 intervals. The candidate stance toe reached the 12 rad/s accepted-state threshold at step 379, before its root-height failure, so it also failed that physical gate.
+
+The control reproduced all 450 states of the previous candidate, and both lanes shared the exact 171-state prefix before the first logged control difference. Input/prebuild binary hashes matched, pitch feedback reconstructed, all 32 contact substeps were present, and no nonfoot support, native or observer errors were recorded. Substep toe extrema and actuator efforts were not established. Toes stayed open; regrip and landing were not tested. Contact/state epochs are independently unverified; this is a constructed stationary perch probe, not walking or biological qualification.
