@@ -1,0 +1,5 @@
+# Contact-triggered load transfer: failed grip gate
+
+The stationary constructed paired trial completed 450 intervals with no missing or invalid observed substeps. Both lanes matched in logged state and targets until zero-based interval 292. The candidate latched its new lateral goal at interval 291 when the preceding measured returning-foot upward impulse was 0.000410 N s; the target goal is computed earlier in the control loop, and the first logged difference occurred at 292. The control never latched.
+
+Neither lane achieved the terminal 100-interval bilateral supported-grip gate: the candidate had a best streak of two intervals and control zero. In both lanes the right stance grip gate first failed at 294 and returning-foot opposing contact first appeared at 297. The root fell below 0.1 m at one-based intervals 366 and 369 respectively; toe speeds reached the 12 rad/s cap before the fall in both. This is not a successful grip or release-to-landing transition. Full raw contact, substep, state and target traces, hashes, and audits are retained. The observer epochs are not independently synchronized.

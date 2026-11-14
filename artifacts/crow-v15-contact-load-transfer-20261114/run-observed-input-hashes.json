@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-contact-load-transfer-20261114/probe.cpp": "da8b55f096468f7959d3ab534ad3a63d9702ac978610761c2276ad1affa9893a",
+  "build/crow-v15-contact-load-transfer-20261114/probe": "1ffac776b234872b2756d10e95a0ef8e19581686363d7dbb640551edabde70b9",
+  "build/crow-v15-perch-toe-substep-velocity-20261114/libmetalrobo.dylib": "e951669314cc97fcf193094b4a4bd76e9d3deb46b726b28cadf074d118c970a3",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}

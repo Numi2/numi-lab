@@ -1,0 +1,16 @@
+{
+  "control_never_latched": true,
+  "first_candidate_latch": {
+    "interval": 291,
+    "latch": 1,
+    "previous_interval_upward_impulse_Ns": 0.000409685483
+  },
+  "previous_candidate_sample": {
+    "interval": 290,
+    "latch": 0,
+    "previous_interval_upward_impulse_Ns": -4.26270174e-12
+  },
+  "first_logged_state_or_target_difference": 292,
+  "difference_not_before_latch": true,
+  "interpretation": "Control goal is calculated before latch in this loop; logged contact and state epochs are not independently synchronized."
+}
