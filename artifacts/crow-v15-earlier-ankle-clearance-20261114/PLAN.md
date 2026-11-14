@@ -1,0 +1,5 @@
+# Earlier ankle response for rear-toe clearance
+
+At the prior candidate's retained tick 279, native fixed-state geometry found the released rear toe 1.239 mm from the perch and the foot 3.393 mm away. The local ankle derivatives suggest a +0.05 rad ankle change could move the rear toe about 1.0 mm farther away while reducing the foot gap by about 1.17 mm. This is a local hypothesis, not a dynamic prediction. Both lanes retain the prior pitch-gain candidate; lane 1 doubles only the existing ankle-clearance increase per 20 ms from 0.004 to 0.008 rad, keeping its 0.30 rad cap, unchanged decrease rate, feedback gates, physical force and velocity limits, contacts and toe model.
+
+Require lane 0 to reproduce all 450 previous candidate states, exact paired prefix, reconstructed commands and valid joint bounds, 32 complete substeps, no observer/native error, nonfoot support or accepted-state toe-speed threshold before failure, and at least 100 consecutive unchanged clearance, stance-contact, posture, load and speed gates. Preserve failures. Toes stay open; this is not a regrip or landing test. Contact/state epochs remain independently unverified.
