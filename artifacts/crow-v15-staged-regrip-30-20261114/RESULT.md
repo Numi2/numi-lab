@@ -1,0 +1,3 @@
+# Staged regrip after 30 clearance intervals: failed
+
+The control exactly reproduces its prior 450 logged intervals; the candidate first differs at zero-based interval 272 when its earlier return begins. The returning foot first produces opposing contact at interval 297, after the stance foot first loses its opposing support gate at interval 294. No interval meets the full bilateral-grip gate, versus one in the prior 40-interval staged-return trial. Root height first falls below 0.1 m at one-based interval 366 (control: 368). Fifteen toe velocity substeps hit 12 rad/s just before the fall. The 32-substep records are present and finite with no observer errors or nonfoot support impulses. Earlier initiation did not solve the transfer in this constructed stationary test.

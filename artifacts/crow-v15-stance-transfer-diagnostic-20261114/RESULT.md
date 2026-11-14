@@ -1,0 +1,3 @@
+# Retrospective stance-foot transfer diagnostic
+
+For the 30-clearance staged-return candidate, recorded right-foot oriented-box reconstruction shows the closest front-toe gap changing from -0.269 mm at zero-based interval 285 to +0.084 mm at interval 294; the recorded final-substep front-toe impulse falls to zero at 294 while rear-toe contact remains. The right-foot sole still carries impulse at 294. By interval 305 the foot and front toes are separated from the perch. This identifies loss of front opposing contact during load transfer; it does not by itself identify the dynamic cause or prove how to restore grip. Contact and state epochs have not been independently aligned.
