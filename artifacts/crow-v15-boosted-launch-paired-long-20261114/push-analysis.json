@@ -1,0 +1,99 @@
+{
+  "arm": "push",
+  "rows": [
+    {
+      "lane": 0,
+      "first_episode_steps": 760,
+      "physical_failure": true,
+      "short_prefix_mismatch_count": 0,
+      "short_prefix_first_mismatch": []
+    },
+    {
+      "lane": 1,
+      "first_episode_steps": 764,
+      "physical_failure": true,
+      "short_prefix_mismatch_count": 0,
+      "short_prefix_first_mismatch": []
+    },
+    {
+      "lane": 2,
+      "first_episode_steps": 1800,
+      "physical_failure": false,
+      "short_prefix_mismatch_count": 0,
+      "short_prefix_first_mismatch": []
+    },
+    {
+      "lane": 3,
+      "first_episode_steps": 1800,
+      "physical_failure": false,
+      "short_prefix_mismatch_count": 0,
+      "short_prefix_first_mismatch": []
+    },
+    {
+      "lane": 4,
+      "first_episode_steps": 1800,
+      "physical_failure": false,
+      "short_prefix_mismatch_count": 0,
+      "short_prefix_first_mismatch": []
+    },
+    {
+      "lane": 5,
+      "first_episode_steps": 1800,
+      "physical_failure": false,
+      "short_prefix_mismatch_count": 0,
+      "short_prefix_first_mismatch": []
+    },
+    {
+      "lane": 6,
+      "first_episode_steps": 1800,
+      "physical_failure": false,
+      "short_prefix_mismatch_count": 0,
+      "short_prefix_first_mismatch": [],
+      "first_unloaded": 377,
+      "first_later_foot_load": null,
+      "first_later_ground_contact": null,
+      "missing_or_duplicate_contact_intervals": [],
+      "missing_or_duplicate_contact_count": 0,
+      "missing_or_duplicate_toe_intervals": [],
+      "missing_or_duplicate_toe_count": 0,
+      "toe_speed_threshold_count": 0,
+      "first_toe_speed_threshold": [],
+      "nonfoot_substep_count": 0,
+      "first_nonfoot": [],
+      "height_range_450_to_end_m": [
+        0.407702088,
+        0.905378163
+      ],
+      "finite_states": 1800
+    },
+    {
+      "lane": 7,
+      "first_episode_steps": 1800,
+      "physical_failure": false,
+      "short_prefix_mismatch_count": 0,
+      "short_prefix_first_mismatch": [],
+      "first_unloaded": 377,
+      "first_later_foot_load": null,
+      "first_later_ground_contact": null,
+      "missing_or_duplicate_contact_intervals": [],
+      "missing_or_duplicate_contact_count": 0,
+      "missing_or_duplicate_toe_intervals": [],
+      "missing_or_duplicate_toe_count": 0,
+      "toe_speed_threshold_count": 0,
+      "first_toe_speed_threshold": [],
+      "nonfoot_substep_count": 0,
+      "first_nonfoot": [],
+      "height_range_450_to_end_m": [
+        0.564476848,
+        1.40706277
+      ],
+      "finite_states": 1800
+    }
+  ],
+  "teacher_off": true,
+  "runtime_input_hashes_match_500_step_trial": true,
+  "observer_errors": [],
+  "duplicate_state_keys": [],
+  "duplicate_state_count": 0,
+  "scope": "used-seed scripted flight; contact/state epochs not independently aligned; no landing or navigation qualification"
+}
