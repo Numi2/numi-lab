@@ -1,0 +1,2 @@
+ea565ae3a8d0f1e55e7848c3bda786416e0638df0edacacc6fb8be2e7f9e6575  artifacts/crow-v15-pretransfer-pitch-feedback-20261114/trace.log.gz
+1fc6cb49ad873dd14bfbd7cfe6a10eb77de601aac96d8d0229b030b633ae4439  artifacts/crow-v15-pretransfer-pitch-feedback-20261114/substeps.log.gz
