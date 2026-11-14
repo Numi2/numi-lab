@@ -5,9 +5,9 @@ RENDERER=/tmp/crow-capsule-render-20261115
 BASE=/tmp/crow-48s-multiview-20261114
 RUN="$1"
 COUNT="$2"
-OUT="$BASE/render-$RUN"
+OUT="$BASE/render-first-episode-$RUN"
 mkdir -p "$OUT"
-swift "$BASE/make_render_splice.swift" "$BASE/replay.json" "$REPO/artifacts/crow-v15-recorded-restart-20261114/$RUN/replay.json" "$OUT/presentation-splice.json" > "$OUT/splice.log" 2>&1
+swift "$BASE/make_round_render_splice.swift" "$BASE/replay.json" "$REPO/artifacts/crow-v15-recorded-restart-20261114/$RUN/replay.json" "$OUT/presentation-splice.json" > "$OUT/splice.log" 2>&1
 cd "$RENDERER"
 while read -r view yaw pitch distance; do
   CROW_RENDER_ROUND_PERCH=1 CROW_WORLD_UP_CAMERA=1 CROW_CAPTURE_WARMUP_FRAMES=2 .build/arm64-apple-macosx/release/birdflow-capture \
