@@ -1,0 +1,11 @@
+--- artifacts/crow-v15-role6-wing-handoff-20261114/push.metal	2026-11-14 19:41:34
++++ artifacts/crow-v15-phase-aligned-handoff-20261114/push.metal	2026-11-14 19:51:28
+@@ -5830,7 +5830,7 @@
+             else launchTarget+=launchRamp*.06f*sin(launchPhase+3.14159265359f);
+             const float seconds=float(state.episode.x)*dispatch.timing.x;
+             const uint arm=6u;
+-            const float start=arm>=6u ? 7.42f : 7.44f;
++            const float start=7.50f;
+             targetCandidate=defaultQ[binding.indices.z];
+             if (arm>=2u && seconds>=start && seconds<36.02f) {
+                 const float phase=kTwoPi*6.4f*(seconds-start);
