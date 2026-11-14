@@ -1,0 +1,72 @@
+{
+  "trace_sha256": "6d697d49594f92970784d8c59cef5d8d96084ed36c89c657e5dcb781725a067a",
+  "reference_sha256": "0a2dfdb9330f360baf7dd07b1a25d728957898173c3df83137aff23249a7452b",
+  "duplicate_states": [],
+  "rows": [
+    {
+      "lane": 6,
+      "peak_height_m_and_step": [
+        0.76571548,
+        536
+      ],
+      "baseline_peak_height_m_and_step": [
+        0.899341524,
+        614
+      ],
+      "peak_reduction_m": 0.133626044,
+      "peak_gate_pass": true,
+      "height_windows": [
+        {
+          "steps": [
+            1000,
+            1150
+          ],
+          "target_m": 0.55,
+          "mae_m": 0.019690220370860885
+        },
+        {
+          "steps": [
+            1550,
+            1800
+          ],
+          "target_m": 0.8,
+          "mae_m": 0.01837795622709159
+        }
+      ],
+      "height_gate_pass": true
+    },
+    {
+      "lane": 7,
+      "peak_height_m_and_step": [
+        1.23137307,
+        536
+      ],
+      "baseline_peak_height_m_and_step": [
+        1.39972341,
+        614
+      ],
+      "peak_reduction_m": 0.16835033999999993,
+      "peak_gate_pass": true,
+      "height_windows": [
+        {
+          "steps": [
+            1000,
+            1150
+          ],
+          "target_m": 0.8,
+          "mae_m": 0.0165477893377483
+        },
+        {
+          "steps": [
+            1550,
+            1800
+          ],
+          "target_m": 0.55,
+          "mae_m": 0.010974289924302761
+        }
+      ],
+      "height_gate_pass": true
+    }
+  ],
+  "scope": "matched used-seed obstacle-free development trial"
+}
