@@ -1,0 +1,24 @@
+{
+  "commit": "ef70674c",
+  "total_bytes": 116227365,
+  "aggregate_sha256": "ec1182254d68755de9d1ee3dec5656b08452b4638024ece7606f75f6a39140eb",
+  "gzip_eof": true,
+  "parts": [
+    {
+      "name": "run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "e766355f02857e4fbdb139e28d8ba2015c95ef5f4bbd4b3de6727df2d2412c71"
+    },
+    {
+      "name": "run.stderr.gz.part001",
+      "bytes": 41943040,
+      "sha256": "36200402807afdcec1bbbaaadcffa3593a5c22755cf9ced7406b05f0b0e7385d"
+    },
+    {
+      "name": "run.stderr.gz.part002",
+      "bytes": 32341285,
+      "sha256": "3e0f94060cd892f0c353fdbe65312434b5abcde9be76148610a4f6e123c14e24"
+    }
+  ],
+  "method": "streamed GitHub contents API, independently of local git objects"
+}
