@@ -9,8 +9,8 @@ with gzip.open(A/'trace.log.gz','rt') as f:
 bad=[];active=0
 for e in (0,1):
  for t in range(1,450):
-  p=pitch[e,t];b=balance[e,t];last=pitch[e,t-1];event=events[e,t];limit=.02 if e==0 else .06
-  gate=bool(p[0]) and bool(p[1]) and (bool(event[0]) or bool(event[8]));requested=max(-limit,min(limit,-1.5*(b[2]-.004)-.1*b[4])) if gate else 0.
+  p=pitch[e,t];b=balance[e,t];last=pitch[e,t-1];event=events[e,t];limit=(.14 if e==1 else .10)
+  gate=bool(p[0]) and bool(p[1]) and (bool(event[0]) or bool(event[8]));requested=max(-limit,min(limit,-3.0*(b[2]-.004)-.1*b[4]-(.80*(p[2]-p[4])+.04*p[3]))) if gate else 0.
   applied=last[-1]+max(-.002,min(.002,requested-last[-1]));active+=bool(gate)
   if abs(requested-p[-2])>2e-7 or abs(applied-p[-1])>2e-7:bad.append([e,t,requested,p[-2],applied,p[-1]])
 out={'active_samples':active,'mismatches':bad,'pass':active>0 and not bad,'scope':'Reconstructs target from logged prior balance and contact gate and post-step persistent release flag; flag is latched before target selection in source. Contact/state epoch not independently synchronized.'};(A/'pitch-audit.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))
