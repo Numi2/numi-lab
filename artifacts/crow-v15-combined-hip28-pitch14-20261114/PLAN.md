@@ -1,0 +1,5 @@
+# Combined released-hip and stance-pitch development probe
+
+The separately measured 0.28-rad released-hip cap extended the prior clearance streak from 44 to 47 intervals but reached a stance-toe speed limit before falling. The separately measured 0.14-rad stance-pitch cap delayed the fall by ten intervals while preserving a 44-interval streak and did not reach the accepted toe-speed threshold until after the fall. Test the interaction: both lanes use the 0.14-rad stance pitch cap and all earlier-ankle controls, while lane 1 alone uses the 0.28-rad released-hip cap versus the 0.26-rad control. This does not presume additive effects.
+
+Require 450-state exact control parity to the stance-pitch candidate, paired pre-intervention parity, reconstructed feedback, joint bounds, 32 complete substeps, no native/observer error, nonfoot support or accepted-state toe-speed threshold before failure, and 100 consecutive unchanged clearance, stance-contact, posture, load and speed gates. Preserve failures. Toes stay open; this constructed perch test does not establish regrip, walking or landing. Contact/state epochs are not independently verified.
