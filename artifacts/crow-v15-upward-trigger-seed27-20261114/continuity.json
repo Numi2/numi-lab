@@ -1,0 +1,69 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "push": {
+        "first_unloaded": 376,
+        "first_later_load": null,
+        "continuous": true,
+        "missing_substeps": 0,
+        "missing_aero_substeps": 0,
+        "toe_speed_threshold_substeps": 0,
+        "nonfoot_abs_impulse": 0.0,
+        "teacher_off": true,
+        "physical_failure": false,
+        "observer_errors": []
+      },
+      "hold": {
+        "first_unloaded": 415,
+        "first_later_load": null,
+        "continuous": true,
+        "missing_substeps": 0,
+        "missing_aero_substeps": 0,
+        "toe_speed_threshold_substeps": 0,
+        "nonfoot_abs_impulse": 0.0,
+        "teacher_off": true,
+        "physical_failure": false,
+        "observer_errors": []
+      },
+      "wing_target_max_difference_rad": 0.6876020759999999,
+      "wing_target_count": 264,
+      "expected_shaders": true,
+      "matched_nonshader_inputs": true,
+      "pass": true
+    },
+    {
+      "lane": 7,
+      "push": {
+        "first_unloaded": 377,
+        "first_later_load": null,
+        "continuous": true,
+        "missing_substeps": 0,
+        "missing_aero_substeps": 0,
+        "toe_speed_threshold_substeps": 0,
+        "nonfoot_abs_impulse": 0.0,
+        "teacher_off": true,
+        "physical_failure": false,
+        "observer_errors": []
+      },
+      "hold": {
+        "first_unloaded": 415,
+        "first_later_load": 422,
+        "continuous": false,
+        "missing_substeps": 0,
+        "missing_aero_substeps": 0,
+        "toe_speed_threshold_substeps": 0,
+        "nonfoot_abs_impulse": 0.0,
+        "teacher_off": true,
+        "physical_failure": false,
+        "observer_errors": []
+      },
+      "wing_target_max_difference_rad": 0.6876020759999999,
+      "wing_target_count": 264,
+      "expected_shaders": true,
+      "matched_nonshader_inputs": true,
+      "pass": true
+    }
+  ],
+  "scope": "development continuity and endogenous-trigger target differences; combine with independent q/v parity, modeled forces and COM checks; not a qualification"
+}

@@ -1,0 +1,46 @@
+{
+  "push": {
+    "6": {
+      "first_three_unloaded_intervals": 376,
+      "aero_pre_release_missing": 0,
+      "aero_pre_release_vertical_impulse_Ns": 0.01429818158847372,
+      "flap_pre_release_max_displacement_rad": 0.547714651,
+      "pre_release_interval_bounds": [
+        371,
+        375
+      ]
+    },
+    "7": {
+      "first_three_unloaded_intervals": 377,
+      "aero_pre_release_missing": 0,
+      "aero_pre_release_vertical_impulse_Ns": 0.06291064447030076,
+      "flap_pre_release_max_displacement_rad": 0.47299391,
+      "pre_release_interval_bounds": [
+        371,
+        376
+      ]
+    }
+  },
+  "hold": {
+    "6": {
+      "first_three_unloaded_intervals": null,
+      "aero_pre_release_missing": 0,
+      "aero_pre_release_vertical_impulse_Ns": 2.804839131854817e-06,
+      "flap_pre_release_max_displacement_rad": 1.83579999999961e-05,
+      "pre_release_interval_bounds": [
+        371,
+        400
+      ]
+    },
+    "7": {
+      "first_three_unloaded_intervals": null,
+      "aero_pre_release_missing": 0,
+      "aero_pre_release_vertical_impulse_Ns": 2.831557122807953e-06,
+      "flap_pre_release_max_displacement_rad": 1.8566999999969358e-05,
+      "pre_release_interval_bounds": [
+        371,
+        400
+      ]
+    }
+  }
+}

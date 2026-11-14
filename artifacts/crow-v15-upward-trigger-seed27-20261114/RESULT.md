@@ -1,0 +1,7 @@
+# Upward-triggered stroke: second development seed
+
+On used seed 20261127 the pushed lanes first unloaded at intervals 376 and 377 and stayed unloaded through 500. Held-leg lane 6 also stayed unloaded after interval 415; held-leg lane 7 recontacted at 422. This repeats the qualitative short-screen outcome of seed 20261126. Because one held-leg control also flies and trigger timing is endogenous, the comparison does not establish leg necessity or a leg-only takeoff.
+
+The pushed lanes had approximately 0.548 and 0.473 rad observer flap displacement through first unloading, with modeled net vertical aero impulses of +0.0143 and +0.0629 N s over the observed pre-unload windows. Held-leg aero tracing ends at 400, before its first unload, so its complete pre-unload impulse is unavailable. The q/contact epoch relation is inferred from other lanes. Candidate q/v/actions/contacts matched through interval 368 and six unaffected lanes matched through 500; expected shaders and common inputs matched. Complete registered contact/toe/leg substeps had no reported observer errors, nonfoot impulse, toe-speed threshold or physical failure; teacher was off.
+
+The observer streams and seed were compared with the first trial, but a seed difference alone does not establish an independent start distribution. This 500-step used-seed screen is not general flight, disturbed-start, grip, landing or unused-layout qualification. Full failure and control evidence is retained.
