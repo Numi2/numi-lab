@@ -1,0 +1,21 @@
+{
+  "exit_code": 0,
+  "files": {
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-recorded-restart-20261114/neural-diagnostics-smoke-initial.policypack": {
+      "size": 3223969,
+      "sha256": "8c12e41a6144b09e693bc5b6e0ca5d475adcba431f091f87778c99aef5819ca4"
+    },
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-recorded-restart-20261114/neural-diagnostics-smoke-updated.policypack": {
+      "size": 3223969,
+      "sha256": "3c83b5e599793ec87163d5029e6d0332837ebc353e812781d42b048ef9c5d770"
+    },
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-recorded-restart-20261114/neural-diagnostics-smoke.rollout": {
+      "size": 500648,
+      "sha256": "24906e6ba53b1a3dca1ee6abd3dd52509ae99aafc51b3c44cfddf70b983b2d3d"
+    },
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-recorded-restart-20261114/neural-diagnostics-smoke-learner.safetensors": {
+      "size": 9653956,
+      "sha256": "fad4f099cb68fe64e178b9b37c40ba5a89890e07c484e02f82d9ab73ed594129"
+    }
+  }
+}

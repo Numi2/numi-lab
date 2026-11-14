@@ -1,0 +1,1 @@
+task_train failed: Waypoint-expert navigation is deterministic execution only; training requires a masked stage-aware objective.

@@ -1,0 +1,7 @@
+# Neural balance v1 development training
+
+Four sequential PPO updates were run with four environments and 128 steps per update (2,048 transitions total) and 16 physics substeps. Each update starts from the preceding policy and optimizer state, uses a new development seed 20261128–20261131, and retains its rollout and checkpoint. An initial 128-transition smoke update preceded this series. A fixed 0.0003 learning rate was used; no adaptive KL trial was performed.
+
+Post-final-optimizer-step four-action KLs were 0.00336, 0.01005, 0.00362 and 0.02687. The corresponding actor-gradient norms before clipping were 2.039, 1.581, 1.978 and 1.939; combined clipping reduced them to 0.870, 0.801, 0.823 and 0.867. Per-action final KL, critic norms, likelihood parity, mean shifts, rewards, command and raw rollout evidence are in each update's stdout and retained artifacts. Likelihood parity remained within 5.1e-6. Reward is a development diagnostic and must not be used as proof of balance.
+
+This is a four-action masked neural residual over a scripted terminal carrier on a reconstructed, randomized, relocated round-branch fixture; it does not establish unassisted original-course navigation or biological realism. The stage is initialized to landing. Train/validation observation semantics, action/plant mapping, target bounds, termination, and held-out all-substep contact evidence remain qualification requirements. The seed 20261208 was used during development and is not held out.

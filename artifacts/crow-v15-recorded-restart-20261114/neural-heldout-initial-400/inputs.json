@@ -1,0 +1,6 @@
+{
+  "policy_sha256": "36cc0aef8764f33e9f3877a656336d4b2995c43ee98fef4adf5586719ac7c759",
+  "host_sha256": "370d618de51f947bd36fc6679544095f38a01aa0d8a6b7c49db11b8724e8ef74",
+  "shader_sha256": "b251b33912e18b95947242ad8cab136805a7f9d0eaa01dff7491d96443eeec23",
+  "scope": "first-episode held-out seed; no teacher, fixed development branch, randomized reconstructed start"
+}

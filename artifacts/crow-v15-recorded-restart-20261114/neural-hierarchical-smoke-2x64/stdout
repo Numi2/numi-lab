@@ -1,0 +1,390 @@
+{
+  "action_carrier" : "v15_goal_memory_hierarchical_rgbd_history",
+  "birdflow_journey_student_authority" : 0,
+  "birdflow_journey_teacher" : false,
+  "birdflow_journey_variant" : "v15-hierarchical-navigation",
+  "birdflow_navigation_curriculum" : false,
+  "birdflow_navigation_curriculum_stage" : -1,
+  "candidate_deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-recorded-restart-20261114\/neural-hierarchical-smoke-updated.policypack.deployment.policypack",
+  "checkpoint_directory" : "",
+  "checkpoint_interval" : 0,
+  "control_steps_per_submission" : 1,
+  "deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-recorded-restart-20261114\/neural-hierarchical-smoke-updated.policypack.deployment.policypack",
+  "deployment_selection_performed" : false,
+  "device" : "Apple M4 Pro",
+  "difficulty_sampling_exponent_override" : 0,
+  "elapsed_seconds" : 11.523882374999999,
+  "end_to_end_environment_steps_per_second" : 11.10736779799872,
+  "environments" : 2,
+  "failed_environment_steps" : 0,
+  "final_physical_evidence" : {
+    "control_steps" : 64,
+    "evidence_windows" : 0,
+    "last_balance_failure_rate" : 0,
+    "last_clean_miss_rate" : 0,
+    "last_completed_episode_count" : 0,
+    "last_contact_rate" : 0,
+    "last_mean_tracking_per_million" : 0,
+    "pending_completed_episode_count" : 0,
+    "pending_timeout_episode_count" : 0
+  },
+  "final_policy_revision" : 2,
+  "gpu_milliseconds" : 6269.0834993263707,
+  "host_requested_resets" : 0,
+  "incumbent_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-recorded-restart-20261114\/neural-hierarchical-smoke-updated.policypack.incumbent.policypack",
+  "independent_cued_lifetimes" : false,
+  "independent_lifetime_history" : [
+
+  ],
+  "initial_policy_revision" : 1,
+  "last_learning_update" : {
+    "actor_gradient_norm" : 1.9230186343193054,
+    "approximate_kl" : 0.0005993442609906197,
+    "behavior_logprob_max_abs_error" : 2.0861625671386719e-06,
+    "behavior_policy_fingerprint" : 17068419751389082061,
+    "clip_fraction" : 0,
+    "critic_gradient_norm" : 1.4400572180747986,
+    "deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-recorded-restart-20261114\/neural-hierarchical-smoke-updated.policypack.deployment.policypack",
+    "done_count" : 0,
+    "entropy" : -2.3236458301544189,
+    "gradient_norm" : 2.4297951459884644,
+    "imagination_fraction" : 0,
+    "imagination_loss" : 0,
+    "impact_sequence_metrics" : [
+
+    ],
+    "kl_divergence" : 0.0006642286898568273,
+    "learner_state" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-recorded-restart-20261114\/neural-hierarchical-smoke-learner.safetensors",
+    "learning_rate" : 0.0003000000142492354,
+    "loss" : 0.13477922603487968,
+    "maximum_reward" : 0.039583221077919006,
+    "mean_action_standard_deviation" : 0.13535326719284058,
+    "mean_contact_reward" : 0,
+    "mean_dodge_cbf_buffer_reward" : 0,
+    "mean_dodge_cbf_correction_reward" : 0,
+    "mean_dodge_evasion_reward" : 0,
+    "mean_dodge_link_clearance_reward" : 0,
+    "mean_dodge_miss_reward" : 0,
+    "mean_dodge_predicted_clearance_reward" : 0,
+    "mean_dodge_safe_action_rate_reward" : 0,
+    "mean_dodge_safe_stillness_reward" : 0,
+    "mean_reward" : 0.025660654529929161,
+    "mean_root_height" : 0.44459420442581177,
+    "mean_task_reward" : 0.060639835894107819,
+    "mean_tilt" : 0,
+    "mean_tracking_score" : 0.61191308498382568,
+    "minibatch_updates" : 2,
+    "minimum_reward" : -0.01704115979373455,
+    "mlx_active_memory_bytes" : 9699676,
+    "mlx_cache_memory_bytes" : 0,
+    "mlx_cache_released_bytes" : 39566557,
+    "mlx_peak_memory_bytes" : 45438156,
+    "outcomes" : {
+      "approach_pitch_full_envelope_fraction" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "approach_pitch_warning_fraction" : {
+        "direction" : 2,
+        "mean" : 0.265625,
+        "unit" : "ratio"
+      },
+      "done" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "figure_eight_tracking" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "forward_flight_tracking" : {
+        "direction" : 1,
+        "mean" : 0.036354638636112213,
+        "unit" : "ratio"
+      },
+      "ground_support" : {
+        "direction" : 1,
+        "mean" : 0.01003124937415123,
+        "unit" : "ratio"
+      },
+      "liftoff" : {
+        "direction" : 1,
+        "mean" : 0.019687499850988388,
+        "unit" : "ratio"
+      },
+      "navigation_completion" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "navigation_progress" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "m"
+      },
+      "navigation_waypoints_reached" : {
+        "direction" : 1,
+        "mean" : 5,
+        "unit" : "count"
+      },
+      "physics_error" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "push_off" : {
+        "direction" : 1,
+        "mean" : -0.005871341563761234,
+        "unit" : "m\/s"
+      },
+      "reward" : {
+        "direction" : 1,
+        "mean" : 0.025660654529929161,
+        "unit" : "reward"
+      },
+      "root_height" : {
+        "direction" : 0,
+        "mean" : 0.44459420442581177,
+        "unit" : "m"
+      },
+      "task_reward" : {
+        "direction" : 1,
+        "mean" : 0.060639835894107819,
+        "unit" : "reward"
+      },
+      "timeout" : {
+        "direction" : 0,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "tracking" : {
+        "direction" : 1,
+        "mean" : 0.61191308498382568,
+        "unit" : "ratio"
+      },
+      "walking_contact" : {
+        "direction" : 1,
+        "mean" : 0.010687500238418579,
+        "unit" : "ratio"
+      }
+    },
+    "policy_loss" : -0.004259197972714901,
+    "policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-recorded-restart-20261114\/neural-hierarchical-smoke-updated.policypack",
+    "policy_revision" : 2,
+    "policy_revision_after" : 2,
+    "policy_revision_before" : 1,
+    "recovery_phase_rates_by_difficulty_band" : {
+      "10" : {
+        "brace" : 0,
+        "foot_support" : 0,
+        "mean_root_height" : 0.44459420442581177,
+        "mean_tilt" : 0,
+        "quiet_stand" : 0,
+        "restored" : 0,
+        "rise" : 0,
+        "standing" : 0,
+        "support_transfer" : 0,
+        "transition_count" : 128,
+        "trunk_clear" : 0
+      }
+    },
+    "reward_standard_deviation" : 0.020211722701787949,
+    "samples" : 128,
+    "status" : "updated",
+    "task_fingerprint" : 679085549117120167,
+    "termination_reason_counts" : {
+
+    },
+    "timeout_count" : 0,
+    "update_seconds" : 5.092591124936007,
+    "value_loss" : 0.13671477511525154
+  },
+  "learner" : "mlx",
+  "learner_execution_identity" : "",
+  "learner_state" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-recorded-restart-20261114\/neural-hierarchical-smoke-learner.safetensors",
+  "learner_state_restored" : false,
+  "learning_update_history" : [
+    {
+      "actor_gradient_norm" : 1.9230186343193054,
+      "approximate_kl" : 0.0005993442609906197,
+      "clip_fraction" : 0,
+      "critic_gradient_norm" : 1.4400572180747986,
+      "done_count" : 0,
+      "gradient_norm" : 2.4297951459884644,
+      "kl_divergence" : 0.0006642286898568273,
+      "learning_rate" : 0.0003000000142492354,
+      "maximum_reward" : 0.039583221077919006,
+      "mean_action_standard_deviation" : 0.13535326719284058,
+      "mean_reward" : 0.025660654529929161,
+      "minibatch_updates" : 2,
+      "minimum_reward" : -0.01704115979373455,
+      "mlx_peak_memory_bytes" : 45438156,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0.265625,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.036354638636112213,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.01003124937415123,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.019687499850988388,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 5,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : -0.005871341563761234,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.025660654529929161,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.44459420442581177,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.060639835894107819,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.61191308498382568,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.010687500238418579,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 2,
+      "policy_revision_before" : 1,
+      "samples" : 128,
+      "timeout_count" : 0,
+      "update_seconds" : 5.092591124936007
+    }
+  ],
+  "life_checkpoint_count" : 0,
+  "life_checkpoint_enabled" : false,
+  "life_checkpoint_seconds" : 0,
+  "life_state_restored" : false,
+  "lifetime_updates_completed" : 1,
+  "maximum_active_contacts" : 22,
+  "maximum_episode_steps" : 5000,
+  "maximum_manifolds" : 14,
+  "minibatch_size" : 128,
+  "minibatches_per_epoch" : 1,
+  "motion_minibatch_size" : 0,
+  "native_submission_count" : 64,
+  "navigation_return_weighted_self_imitation" : false,
+  "navigation_self_imitation_minimum_waypoint" : 5,
+  "object_push_curriculum" : "",
+  "operation" : "swift_native_policy_training",
+  "physics" : "metal",
+  "policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-recorded-restart-20261114\/neural-hierarchical-smoke-updated.policypack",
+  "resumed_exploration_overridden" : false,
+  "resumed_learning_rate_overridden" : false,
+  "retained_buffer_bytes" : 8209718,
+  "retention_maximum_difficulty_band" : -1,
+  "retention_policy_pack" : "",
+  "retention_protected_actor_only" : false,
+  "retention_rollout_teacher_blend" : 0,
+  "rollout_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-v15-recorded-restart-20261114\/neural-hierarchical-smoke.rollout",
+  "samples_per_update" : 128,
+  "scheduler" : "swift",
+  "stage_high_water" : {
+    "articulation_point_queries" : 0,
+    "candidate_pairs" : 44,
+    "ccd_candidates" : 0,
+    "ccd_events" : 0,
+    "constraint_blocks" : 22,
+    "constraint_rows" : 66,
+    "dynamic_nodes" : 0,
+    "endpoint_runtime_records" : 0,
+    "hard_convex_pairs" : 0,
+    "island_constraint_references" : 0,
+    "island_node_references" : 0,
+    "islands" : 1,
+    "manifolds" : 14,
+    "mesh_triangle_candidates" : 0,
+    "operator_velocity_elements" : 0,
+    "quality_direct_tiles" : 0,
+    "quality_generalized_velocities" : 0,
+    "quality_krylov_vectors" : 0,
+    "quality_rows" : 0,
+    "raw_contacts" : 14,
+    "rod_candidate_pairs" : 0,
+    "rod_ccd_events" : 0,
+    "rod_factor_blocks" : 0,
+    "rod_manifolds" : 0,
+    "rod_raw_contacts" : 0,
+    "solver_tiles" : 1,
+    "spill_rows" : 0
+  },
+  "steps_per_update" : 64,
+  "submission_milliseconds" : 6281.5685379999995,
+  "training_samples" : 128,
+  "transient_private_bytes" : 1267436,
+  "updates" : 1,
+  "visual_observation" : true,
+  "visual_observation_config" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/artifacts\/crow-v15-hip-roll-journey-integration-20261111\/crow-navigation.hip-roll.visual-observation.json",
+  "visual_scene_fingerprint" : 10426923738543932648,
+  "world_source" : "american_crow_v15_goal_memory_navigation_development_v1"
+}

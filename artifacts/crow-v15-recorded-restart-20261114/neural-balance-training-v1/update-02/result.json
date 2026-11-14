@@ -1,0 +1,18 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 15.03902792930603,
+  "files": {
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-recorded-restart-20261114/neural-balance-v1-update-02.policypack": {
+      "size": 3223969,
+      "sha256": "02a8ecd19d7c3906faf9ab19dfae5c8328c088630afae16b75c7d28585dc3186"
+    },
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-recorded-restart-20261114/neural-balance-v1-update-02.rollout": {
+      "size": 1999792,
+      "sha256": "41fd139e8d093eaf7a215c1a0a7afd4491119526ce7101629d6aba8e044570d4"
+    },
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-recorded-restart-20261114/neural-balance-v1-update-02.safetensors": {
+      "size": 9653942,
+      "sha256": "ba6574de906b130dab9966089c3103aa2e37da951b36d2fadd872d2f656ecdda"
+    }
+  }
+}

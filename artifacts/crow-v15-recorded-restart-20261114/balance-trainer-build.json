@@ -1,0 +1,27 @@
+{
+  "command": [
+    "xcrun",
+    "swiftc",
+    "-O",
+    "-swift-version",
+    "6",
+    "-parse-as-library",
+    "-I",
+    "/Users/n/Developer/numi-crow-rl-20261107/include/metalrobo",
+    "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-recorded-restart-20261114/task_train-balance-16.swift",
+    "/Users/n/Developer/numi-crow-rl-20261107/apps/TrainingLifeCheckpoint.swift",
+    "/Users/n/Developer/numi-crow-rl-20261107/apps/RunInspector.swift",
+    "/Users/n/Developer/numi-crow-rl-20261107/bindings/swift/MetalRoboTaskRollout.swift",
+    "-L",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-recorded-restart-20261114/round-neural-host",
+    "-lmetalrobo",
+    "-framework",
+    "AppKit",
+    "-o",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-recorded-restart-20261114/metalrobo_task_train_balance_16"
+  ],
+  "sha256": {
+    "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-recorded-restart-20261114/task_train-balance-16.swift": "9be1d6ca8cb22c5962a82dc6eb8c8c8abcde4ae829b0b8c0d0eda842c78c16fd",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-recorded-restart-20261114/metalrobo_task_train_balance_16": "583c8519939f2b5dc5eaafcba8d5cf8ae70abe675cac08ade6c38e421508bc7a"
+  }
+}

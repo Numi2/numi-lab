@@ -1,0 +1,5 @@
+{
+  "DYLD_LIBRARY_PATH": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-recorded-restart-20261114/round-neural-host",
+  "CROW_RECORDED_STATE_RESTART": "/tmp/crow-48s-multiview-20261114/restart-input.txt",
+  "CROW_EXPERIMENT_GAIT_SMOOTH": "1"
+}
