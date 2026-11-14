@@ -1,0 +1,9 @@
+{
+  "first_stance_front_target_difference_zero_based": 121,
+  "prefix_pairs": 121,
+  "prefix_exact": true,
+  "archived_baseline_pairs": 450,
+  "archived_baseline_exact": true,
+  "max_stance_front_target_step_rad": 0.030000002000000026,
+  "note": "Control log reports stance foretoe position targets, not measured actuator effort."
+}
