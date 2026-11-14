@@ -1,0 +1,3 @@
+# Fixed-state clearance grid
+
+On lane 1 of the retained failed long-clearance trial, inspect zero-based ticks 300, 310, and 320. Using the native v15 forward kinematics and existing oriented-box gap calculation, vary hip -0.12 to +0.12 rad in 0.01 increments, knee -0.12 to +0.12 in 0.02 increments, and ankle -0.20 to +0.20 in 0.02 increments within configured limits. Find the smallest joint displacement yielding at least 3 mm clearance for the foot, every front toe, and both rear segments; list also the best attainable minimum gap. Compare every zero-offset calculation with recorded body poses. Retain full grid. This is fixed-state geometry, not dynamic feasibility, stable support, or evidence of grip; no geometry, friction or solver changes are authorized by it.
