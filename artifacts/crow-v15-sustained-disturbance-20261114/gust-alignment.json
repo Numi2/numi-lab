@@ -1,0 +1,10 @@
+{
+  "arm": "gust",
+  "replay_environment": 5,
+  "frames": 1800,
+  "shifted_qv_max_abs_error": 4.9902343590702e-08,
+  "same_number_mismatch_count": 1798,
+  "missing": [],
+  "pass_shifted": true,
+  "scope": "replay environment only; does not independently verify candidate lanes 6/7"
+}
