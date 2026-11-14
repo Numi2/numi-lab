@@ -1,0 +1,5 @@
+# Additional released-hip clearance
+
+The combined pitch-and-clearance trial passed 24 intervals but failed when the foot lost clearance. At its retained tick 265, a local native FK calculation found 0.948 mm foot and 4.626 mm rear-toe gaps; a hypothetical -0.05 rad hip change predicts a 7.3 mm foot increase and 1.7 mm rear decrease. This is a first-order local estimate, not a dynamic prediction.
+
+Both lanes retain the previous combined controller. Lane 1 alone widens the existing released-hip lift correction cap from 0.21 to 0.26 rad, with identical clearance feedback, slew, pitch, knee, ankle, contact, physical joint/force/speed and toe limits. Lane 0 must reproduce the prior combined candidate's full 450 states. Require paired prefix, reconstructed target feedback and all physical/joint bounds, 32 complete substeps, no observer/native errors or nonfoot support, no stance-toe speed threshold, and at least 100 consecutive intervals satisfying the unchanged clearance, stance contact, posture, load and speed gates. Preserve all failures. Toes stay open; this does not test regrip or landing. Contact/state epochs are independently unverified.
