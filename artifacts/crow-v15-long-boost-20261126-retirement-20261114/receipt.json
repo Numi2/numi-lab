@@ -1,0 +1,70 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-early-boost-20261114/push-20261126-rebound-long/run.stderr.gz",
+      "inode": 204352507,
+      "bytes": 253002804,
+      "mtime_ns": 1794642999403506685,
+      "sha256": "d4c2d3873aae301b26ec982915e4fd14bb2c406f4cc065e4143c3032bca848da",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-early-boost-20261114/push-20261126-rebound-long/run.stderr.gz.part000",
+      "inode": 204352810,
+      "bytes": 41943040,
+      "mtime_ns": 1794643041265183975,
+      "sha256": "97bc78776ed22da093ad981a656d28f051b11172810868df52fe7b05bbbe84fe",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-early-boost-20261114/push-20261126-rebound-long/run.stderr.gz.part001",
+      "inode": 204352811,
+      "bytes": 41943040,
+      "mtime_ns": 1794643041494965063,
+      "sha256": "d11b59c0f40e0ebd1a84af1ac98260b867886b02992a6e24d7b627bc5b46d01c",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-early-boost-20261114/push-20261126-rebound-long/run.stderr.gz.part002",
+      "inode": 204352841,
+      "bytes": 41943040,
+      "mtime_ns": 1794643041702309062,
+      "sha256": "2fc7b86805a85bb3cff0794e13f2102659666995b22689d30e23e656496e330e",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-early-boost-20261114/push-20261126-rebound-long/run.stderr.gz.part003",
+      "inode": 204352848,
+      "bytes": 41943040,
+      "mtime_ns": 1794643041903559983,
+      "sha256": "bd1951fbcbfc19b6466d23b21313840f524bcc9887a1ca4e0160fe3ef3787552",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-early-boost-20261114/push-20261126-rebound-long/run.stderr.gz.part004",
+      "inode": 204352852,
+      "bytes": 41943040,
+      "mtime_ns": 1794643042111292318,
+      "sha256": "96b76db078e39735e81ed5ab62ab9b68e7b6c7fda76fcc0e379fb1d3f97b3545",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-early-boost-20261114/push-20261126-rebound-long/run.stderr.gz.part005",
+      "inode": 204352855,
+      "bytes": 41943040,
+      "mtime_ns": 1794643042328196040,
+      "sha256": "05da8d5364cb5f5450b4f0f7183d2fbf1cc23d30f433b9b2c6f807ddd628b355",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-long-early-boost-20261114/push-20261126-rebound-long/run.stderr.gz.part006",
+      "inode": 204352867,
+      "bytes": 1344564,
+      "mtime_ns": 1794643042487059840,
+      "sha256": "f223d0f91fd1c8169887801755716b6a5f75e5c5f8e24fd0b92bec71327f1ae3",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 506005608
+}
