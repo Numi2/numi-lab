@@ -1,0 +1,60 @@
+{
+  "scope": "timing reanalysis of development samples, not a qualified flight or takeoff",
+  "near_launch": {
+    "lane": 7,
+    "first_fully_unloaded_contact_interval": 375,
+    "partially_loaded_interval_before": 374,
+    "preceding_interval_substeps_loaded": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "earlier_report_flap_displacement_rad": 0.23621785599999995,
+    "corrected_max_flap_displacement_through_end_of_last_partially_loaded_interval_rad": 0.68233418,
+    "independent_native_replay_displacement_rad": 0.6823341846466064,
+    "reference_observer_step": 370,
+    "reference_replay_frame": 369,
+    "enter_unloaded_observer_step": 375,
+    "enter_unloaded_replay_frame": 374,
+    "preceding_net_vertical_aero_impulse_Ns": 7.184532001975383e-05,
+    "preceding_positive_vertical_aero_impulse_Ns": 0.0004092613364839027,
+    "preceding_negative_vertical_aero_impulse_Ns": -0.0003374160164641489
+  },
+  "strong_disturbance_corrected": [
+    {
+      "lane": 6,
+      "accepted_frame_window": [
+        901,
+        950
+      ],
+      "peak_abs_pitch_delta_rad": 0.011822314418581392,
+      "peak_abs_world_y_rate_delta_rad_s": 0.03234484799999998,
+      "response_threshold_met": false,
+      "pitch_delta_at_accepted_frame_1100_rad": 0.001795475764257315,
+      "world_y_rate_delta_at_accepted_frame_1100_rad_s": 0.00014979769999999906
+    },
+    {
+      "lane": 7,
+      "accepted_frame_window": [
+        901,
+        950
+      ],
+      "peak_abs_pitch_delta_rad": 0.011212461975981025,
+      "peak_abs_world_y_rate_delta_rad_s": 0.02590447699999998,
+      "response_threshold_met": false,
+      "pitch_delta_at_accepted_frame_1100_rad": -0.0012896870637275626,
+      "world_y_rate_delta_at_accepted_frame_1100_rad_s": -0.0009758695999999983
+    }
+  ],
+  "caveats": [
+    "The replay alignment is directly established for the reproduced push lane 7; the same observer convention in other runs is inferred from shared host and needs independent validation.",
+    "Accepted final replay frame velocity is not independently observed.",
+    "Body transforms in the replay were not independently cross-checked against forward kinematics."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "environment": 7,
+  "frame_count": 500,
+  "trace_q_max_abs_difference": 4.918212948012979e-09,
+  "observer_shifted_qv_max_abs_difference_steps_1_to_499": 4.991455071490236e-08,
+  "observer_same_label_mismatch_count_steps_1_to_499": 490,
+  "first_two_observer_states_duplicated_all_lanes": true,
+  "missing": [],
+  "last_frame_q_matches_state_trace": true,
+  "last_frame_v_independently_observed": false,
+  "pass_for_physical_pose_presentation": true,
+  "scope": "native replay q matches same-run state trace; shifted observer q/v checked through frame 499 only; timing convention requires separate audit"
+}

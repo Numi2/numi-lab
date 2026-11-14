@@ -1,0 +1,5 @@
+# Development takeoff replay and failed original verification
+
+This is an exact-input used-seed reproduction of a 500-interval development takeoff, not a qualified mission. All eight lanes' original first-episode q/v, policy action and contact observations and their outcomes matched, as did non-replay input hashes. The preregistered verification failed because same-number native replay and support-observer q/v do not match; that failure is retained, not overwritten.
+
+An independent timing audit found native replay q agrees with the same-run state trace for all 500 frames and q/v agree with the observer shifted one interval for frames 1–499. The final velocity has no independent observer sample, and native replay body transforms were not independently checked against forward kinematics. See ../crow-v15-observer-timing-audit-20261114/RESULT.md. The replay can illustrate the recorded development trajectory with those limitations; it must not be represented as leg-only takeoff, qualified flight, a landing, or unused-layout execution.

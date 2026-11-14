@@ -1,0 +1,55 @@
+{
+  "checks": {
+    "all_lanes_exact": true,
+    "same_inputs": true,
+    "same_outcomes": true,
+    "candidate_replay_identity": true,
+    "replay_state_match": false
+  },
+  "pass": false,
+  "parity": [
+    {
+      "lane": 0,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 2,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 3,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 4,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 5,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 6,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 7,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  ],
+  "replay_state_max_abs_error": 33.79413981826172,
+  "missing_replay_steps": [],
+  "scope": "candidate development takeoff replay, not a mission or landing"
+}
