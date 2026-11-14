@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-coordinated-grip-fk-grid-20261114/kinematics.cpp": "cf935e80ade543481f8041f85208dd7ff315a633c524d0559558db6251bae2c6",
+  "artifacts/crow-v15-coordinated-grip-fk-grid-20261114/input.tsv": "d8c3931599b84185bb67d0159417a1e94049001c3b1c36ed8c4d6be2aabf4534",
+  "build/crow-v15-coordinated-grip-fk-grid-20261114/kinematics": "e8c387ab8748da135849a3eb1f72a087a940c72335202d0d840695af8aa1a5a5",
+  "build/crow-v15-hiproll-toe-observer-20261113/libmetalrobo.dylib": "2401d8c6aa048f7a4a75b51d2fbc1498b97b66fd3e3e6aeb19b3014fa5af7aea"
+}

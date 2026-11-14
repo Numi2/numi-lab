@@ -1,0 +1,106 @@
+{
+  "rows": [
+    {
+      "lane": 1,
+      "tick": 295,
+      "grid_points": 1872,
+      "baseline_gaps_m": [
+        0.0005005223210901022,
+        0.00846477784216404,
+        -0.00014848262071609497
+      ],
+      "baseline_max_abs_error_m": 2.3342597438302803e-09,
+      "qualifying_geometry_count": 0,
+      "smallest_displacement_examples": []
+    },
+    {
+      "lane": 1,
+      "tick": 310,
+      "grid_points": 1872,
+      "baseline_gaps_m": [
+        0.00434759259223938,
+        0.0018993569537997246,
+        -0.0005502626299858093
+      ],
+      "baseline_max_abs_error_m": 2.9823536071282852e-09,
+      "qualifying_geometry_count": 34,
+      "smallest_displacement_examples": [
+        {
+          "offset_rad": [
+            0.04,
+            -0.04,
+            -0.02
+          ],
+          "gaps_m": [
+            0.0022940929047763348,
+            0.00014353496953845024,
+            -6.64740800857544e-05
+          ]
+        },
+        {
+          "offset_rad": [
+            0.05,
+            -0.06,
+            0.0
+          ],
+          "gaps_m": [
+            0.001998334191739559,
+            -0.0003011939115822315,
+            -8.43629240989685e-05
+          ]
+        },
+        {
+          "offset_rad": [
+            0.04,
+            -0.06,
+            0.04
+          ],
+          "gaps_m": [
+            0.00250356737524271,
+            -0.00024124793708324432,
+            4.3489038944244385e-05
+          ]
+        },
+        {
+          "offset_rad": [
+            0.05,
+            -0.04,
+            -0.06
+          ],
+          "gaps_m": [
+            0.001777712837792933,
+            7.546180859208107e-05,
+            -0.00016713887453079224
+          ]
+        },
+        {
+          "offset_rad": [
+            0.06,
+            -0.06,
+            -0.04
+          ],
+          "gaps_m": [
+            0.0014843156095594168,
+            -0.0003675883635878563,
+            -0.00018846988677978516
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "tick": 325,
+      "grid_points": 1872,
+      "baseline_gaps_m": [
+        0.014494185335934162,
+        0.011409712955355644,
+        -0.00032661110162734985
+      ],
+      "baseline_max_abs_error_m": 3.6134569850188036e-09,
+      "qualifying_geometry_count": 0,
+      "smallest_displacement_examples": []
+    }
+  ],
+  "all_zero_offsets_match_pose": true,
+  "scope": "fixed-state nearest-collider geometry only; no dynamic feasibility, force or grip"
+}

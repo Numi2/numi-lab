@@ -1,0 +1,5 @@
+# Fixed-state coordinated grip geometry
+
+At candidate zero-based tick 310, 34 of 1,872 bounded hip/knee/ankle grid points put both nearest toe groups within the registered contact-gap window while keeping the foot outside the penetration limit. The smallest Euclidean joint displacement is hip +0.04, knee -0.04, ankle -0.02 rad relative to that fixed state: nearest front/rear gaps +0.144/-0.066 mm and foot gap +2.294 mm. No grid point met the geometry condition at ticks 295 or 325. Every zero-offset native FK result matches independently reconstructed recorded poses within 3.7 nm. All scanned joint positions satisfy the configured position limits.
+
+This is a static geometry screen, not a control target, dynamically reachable state, simultaneous force, stable grip, or landing. Different nearest shapes can determine each gap, and near contact does not establish collision response. A subsequent time-resolved physical test is necessary and the result may not transfer outside these retained poses.

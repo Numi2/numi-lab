@@ -1,0 +1,14 @@
+[
+  "xcrun",
+  "clang++",
+  "-std=c++20",
+  "-O2",
+  "-I/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-wide-contact-isolation-20261111/include",
+  "-Iinclude",
+  "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-coordinated-grip-fk-grid-20261114/kinematics.cpp",
+  "-L/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-hiproll-toe-observer-20261113",
+  "-lmetalrobo",
+  "-Wl,-rpath,/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-hiproll-toe-observer-20261113",
+  "-o",
+  "/Users/n/Developer/numi-crow-rl-20261107/build/crow-v15-coordinated-grip-fk-grid-20261114/kinematics"
+]
