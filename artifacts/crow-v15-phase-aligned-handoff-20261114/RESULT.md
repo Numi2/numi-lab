@@ -7,3 +7,4 @@ All eight lanes exactly reproduced the preceding blended candidate's logged stat
 This is a correlated used-seed development test, not a frozen or qualified flight controller, toe-grip fix, supported landing or autonomous mission; no reserved layouts or seeds were used. The exact source change, native binary/input hashes, replay and full trace split into ordered hash-manifested parts are retained.
 
 The GitHub archive parts were independently streamed in order, reproducing their individual and aggregate hashes and gzip EOF; see remote-verification.json.
+The verified duplicate original was removed from the native host; its complete ordered parts remain in Git. See retirement-receipt.json.
