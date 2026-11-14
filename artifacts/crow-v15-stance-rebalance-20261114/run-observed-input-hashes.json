@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-stance-rebalance-20261114/probe.cpp": "e1227049ed2a91a01757bae5a2155edb68383a38e3cc718753e255c2b0e53edd",
+  "build/crow-v15-stance-rebalance-20261114/probe": "dcc91d9826c326159e424e62c33e08ddafce3ab3d524e13360ec89370431b6bf",
+  "build/crow-v15-perch-toe-substep-velocity-20261114/libmetalrobo.dylib": "e951669314cc97fcf193094b4a4bd76e9d3deb46b726b28cadf074d118c970a3",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}
