@@ -1,0 +1,3 @@
+# Cross-seed scripted height screen
+
+With the exact unchanged shader and previously used development seed 20261127, all eight lanes passed the registered physical and 50 mm tracking gates. Level mean absolute error ranged from 29.7 to 37.5 mm, climb from 8.4 to 10.2 mm, and descent from 7.9 to 8.8 mm. Native trace and replay hashes match the copies; all raw trace parts are retained. There is no same-seed straight reference, so no prefix-parity claim is made. This is a second-seed scripted development test, not general flight, disturbed-start recovery, landing or unused-layout mission qualification.
