@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-height-turn-reference-20261114/extract.py", line 14, in <module>
+    assert total==manifest['bytes'] and whole.hexdigest()==manifest['sha256'] and z.eof and not z.unused_data and len(states)==12324
+AssertionError
