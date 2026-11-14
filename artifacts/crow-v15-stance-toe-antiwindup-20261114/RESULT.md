@@ -1,0 +1,5 @@
+# Stance foretoe target anti-windup: rejected
+
+The lane-1 contact-conditioned stance foretoe target first differed from lane 0 at zero-based interval 272; other logged state and command data matched before that intervention. Lane 0 exactly reproduced the prior observation-only control over 450 recorded intervals. Both lanes retained the original body, joint limits, materials and solver.
+
+The candidate had a two-interval qualifying bilateral opposed-toe regrip streak versus 11 intervals in the control, and first fell below 0.1 m at one-based interval 364 versus 370. Its longest qualifying unilateral release was 42 intervals versus 43, and both lanes reached the modeled 12 rad/s toe-speed threshold. Neither achieved the required terminal 100 supported intervals. Contact and toe-velocity substeps were complete and no observer errors or evaluated pre-fall nonfoot impulses were recorded. This exploratory target bound is rejected; it does not establish a toe-grip solution, biological parameters, landing or mission qualification. The recorded targets, source change, native build and raw traces are retained.

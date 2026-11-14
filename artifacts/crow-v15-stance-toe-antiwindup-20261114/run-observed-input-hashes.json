@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-stance-toe-antiwindup-20261114/probe.cpp": "2ecef9afc7aafd9f6e96ef8d426be66772e03b2e7529aa7460e7a4f2c9ca8c15",
+  "build/crow-v15-stance-toe-antiwindup-20261114/probe": "dc0d0be0661227d572b682baa8dd80695848f101bec93a48ddef96d664d47bcd",
+  "build/crow-v15-toe-slip-velocity-20261114/libmetalrobo.dylib": "122960e3389f4c8387f81e084db8b9dded063452bb521af652b4e3b7ff067758",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}
