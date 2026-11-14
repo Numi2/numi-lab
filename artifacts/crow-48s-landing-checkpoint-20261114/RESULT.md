@@ -1,0 +1,7 @@
+# Saved end of latest flight
+
+This package preserves the original replay frames 2398–2400 for lane 5 of seed 20261127, including q, v, 35 articulated body poses, six scene-body poses, actions, observations and outcomes. Its source replay and full run are archived in the preceding evidence commits. `recorded-state.json` is a recorded-state snapshot, not a complete native life checkpoint. The run exited without saving resident GPU buffers, solver caches, task/controller state or random state; the current v15 rollout does not expose the v13/v14 life-checkpoint interface.
+
+An independently compiled native kinematic calculation from the final q/v reproduced all 35 bird body positions to within 8.84e-7 m and orientations to within 4.22e-8 rad. This validates the pose mapping, not dynamic or controller continuity. The terminal observer sample labeled 2400 matches replay frame 2399 within float formatting precision, so its timing must not be assumed to coincide with replay frame 2400. The final replay frame's root pose and velocity match its saved root body state.
+
+This snapshot eliminates the need to rerun 48 seconds for a reconstructed physical start. A native initialization/import path, task phase/controller handling, and physical continuation still require validation. The original course collider masks were disabled and the originally placed landing perch was behind the bird at the end; restoration or alteration of the scene must be explicit. No landing or supported grip is claimed.

@@ -1,0 +1,7 @@
+# Recorded-state restart validation
+
+The requested starting point is lane 5, seed 20261127, accepted replay frame 2400. Preserve original three final frames, observations, actions, scene body poses, run identity and corresponding observer lines. The original process exited without a native v15 checkpoint; solver/contact caches, task/controller state and random state were not saved. The ordinary v15 rollout does not expose checkpoint restore. Therefore this is a recorded-state reconstruction, not a bit-exact continuation.
+
+Before advancing physics, independently compute v15 articulated body kinematics from the extracted `q` and `v` and compare all 35 named bird bodies to the saved body states. Require maximum position discrepancy below 0.002 m and angular discrepancy below 0.005 rad; fail closed for missing/misordered bodies, nonfinite values or mismatched sizes. This checks that the state can describe the same pose, not task memory, control phase, collision history, or future trajectory. Retain failure results. Original observer sample step 2400 must be compared against replay frame epochs and not equated by label alone.
+
+Only after this validation may a new native rollout initialize from the snapshot, with the restart explicitly labeled a reconstruction and with all saved scene objects restored. A resumed controller, collision-enabled scene, trajectory to branch, actual toe contact and supported hold must each be tested; none is implied by this checkpoint. The original flight was collision-disabled around course objects.

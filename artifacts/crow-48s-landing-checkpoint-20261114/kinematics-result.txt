@@ -1,0 +1,38 @@
+body crow_body position_error_m 0 angle_error_rad 0
+body crow_left_wing_sweep position_error_m 3.93213525449e-07 angle_error_rad 0
+body crow_right_wing_sweep position_error_m 4.15136283944e-07 angle_error_rad 0
+body crow_left_wing_flap_link position_error_m 5.25093686251e-07 angle_error_rad 0
+body crow_right_wing_flap_link position_error_m 5.56113726591e-07 angle_error_rad 0
+body crow_left_wing position_error_m 5.25093686251e-07 angle_error_rad 2.98023223877e-08
+body crow_right_wing position_error_m 5.56113726591e-07 angle_error_rad 0
+body crow_tail position_error_m 2.93351015949e-07 angle_error_rad 0
+body crow_left_hip_roll_link position_error_m 4.61696797275e-07 angle_error_rad 0
+body crow_left_thigh position_error_m 6.7603891512e-07 angle_error_rad 0
+body crow_left_shank position_error_m 5.58357880462e-07 angle_error_rad 0
+body crow_left_foot position_error_m 1.91793139173e-07 angle_error_rad 0
+body crow_right_hip_roll_link position_error_m 8.7986405045e-08 angle_error_rad 0
+body crow_right_thigh position_error_m 3.20874422836e-07 angle_error_rad 0
+body crow_right_shank position_error_m 8.65640165223e-07 angle_error_rad 0
+body crow_right_foot position_error_m 4.54760120377e-07 angle_error_rad 0
+body crow_neck_yaw_link position_error_m 7.43313654233e-08 angle_error_rad 0
+body crow_head position_error_m 5.83346167168e-07 angle_error_rad 0
+body crow_lower_beak position_error_m 4.53040030807e-07 angle_error_rad 0
+body crow_left_front_toe_1_proximal position_error_m 2.86619084561e-07 angle_error_rad 2.98023223877e-08
+body crow_left_front_toe_1_distal position_error_m 6.74198627315e-08 angle_error_rad 0
+body crow_left_front_toe_2_proximal position_error_m 3.80816199637e-07 angle_error_rad 2.98023223877e-08
+body crow_left_front_toe_2_distal position_error_m 6.00352427545e-07 angle_error_rad 4.21468485109e-08
+body crow_left_front_toe_3_proximal position_error_m 8.60361109319e-07 angle_error_rad 2.98023223877e-08
+body crow_left_front_toe_3_distal position_error_m 6.40385424401e-07 angle_error_rad 0
+body crow_left_rear_toe_proximal position_error_m 4.50854120231e-07 angle_error_rad 0
+body crow_left_rear_toe_distal position_error_m 6.024814895e-07 angle_error_rad 0
+body crow_right_front_toe_1_proximal position_error_m 5.45025703463e-07 angle_error_rad 0
+body crow_right_front_toe_1_distal position_error_m 3.09521692459e-07 angle_error_rad 0
+body crow_right_front_toe_2_proximal position_error_m 1.22021707141e-07 angle_error_rad 0
+body crow_right_front_toe_2_distal position_error_m 3.56711605466e-07 angle_error_rad 2.98023223877e-08
+body crow_right_front_toe_3_proximal position_error_m 7.88859398072e-07 angle_error_rad 2.98023223877e-08
+body crow_right_front_toe_3_distal position_error_m 8.83855465659e-07 angle_error_rad 4.21468485109e-08
+body crow_right_rear_toe_proximal position_error_m 1.77514812963e-07 angle_error_rad 0
+body crow_right_rear_toe_distal position_error_m 3.35747949435e-07 angle_error_rad 0
+max_position_error_m 8.83855465659e-07 body crow_right_front_toe_3_distal
+max_angle_error_rad 4.21468485109e-08 body crow_left_front_toe_2_distal
+pose_reconstruction PASS; not a native resident or controller checkpoint

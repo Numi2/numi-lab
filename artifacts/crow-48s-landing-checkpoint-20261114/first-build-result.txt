@@ -1,0 +1,1 @@
+Initial probe build failed: ArticulatedDynamicsDiagnostics has no member named message. No experiment ran. The revised source checks succeeded() and uses a fixed diagnostic message.
