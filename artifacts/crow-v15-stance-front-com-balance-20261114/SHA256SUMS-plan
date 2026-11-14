@@ -1,0 +1,13 @@
+27fee6ad75f8da8c2d04a7ff538d7d6336122a1fe1b460f77cc5f71e12cfeb86  artifacts/crow-v15-stance-front-com-balance-20261114/PLAN.md
+e1ef3fbf01764a72a7b9241c967a64b79310d2e31f6c3aa7e11aa2004a967aec  artifacts/crow-v15-stance-front-com-balance-20261114/probe.cpp
+87821433033ddb982ce5075a1b8a5ec36dc686d8951798748b83a650522a0870  artifacts/crow-v15-stance-front-com-balance-20261114/run.py
+9b029f5adf73017b51607b7847eea4616f83d851ccdf71e087d41e68b476fcd9  artifacts/crow-v15-stance-front-com-balance-20261114/analyze.py
+1747d2d97332a419c171fbbfa3fa2ec93689432f116b2c88d00ddbcf497fb17f  artifacts/crow-v15-stance-front-com-balance-20261114/compare.py
+7723f7b93410af944a967bea8e00c65c8f3a3c5fca4c2f59f4fb69a279f5a5ed  artifacts/crow-v15-stance-front-com-balance-20261114/correction-check.py
+3cecfd725d32cf51b71d163509457b2e62acdbd65bfa849dc7c37e9e4fe646be  artifacts/crow-v15-stance-front-com-balance-20261114/hip-check.py
+01454ba2d4f30775c57037b071d83d7cf538223cefae86a1f13e5d816b8d8b46  artifacts/crow-v15-stance-front-com-balance-20261114/clearance-intervals.py
+acf09a797238ed9dc288afa545cd185a2c3608c41d9fc27059a1ab20cd1287b6  artifacts/crow-v15-stance-front-com-balance-20261114/regrip-intervals.py
+ef8f79e6bc7b393adb228032e3c5638d7e925608523d568a054227aaa8d63e78  artifacts/crow-v15-stance-front-com-balance-20261114/joint-check.py
+ec24c6cf9aa778f0e45a3d48bc73a81c8b1aca718d954f40433686115978ca0d  artifacts/crow-v15-stance-front-com-balance-20261114/toe-speed.py
+28fca95257c8efa08c177d36e9c837e64cd6fd280aa8c3fe5a3062ee86eef34f  artifacts/crow-v15-stance-front-com-balance-20261114/geometry-audit.py
+b334d21cb893c36b87a9070ad907162688684530b6dcac6f6285bb0e942f6632  artifacts/crow-v15-stance-front-com-balance-20261114/bilateral-toe-audit.py
