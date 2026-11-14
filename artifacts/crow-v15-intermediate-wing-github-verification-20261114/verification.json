@@ -1,0 +1,19 @@
+{
+  "source_commit": "d1971126",
+  "files": [
+    {
+      "arm": "push",
+      "path": "crow-v15-intermediate-wing-amplitude-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "bytes": 34365707,
+      "sha256": "a31042bed2c16ddb809f69e8099de76c4cf1adfbc12cb51bbd4224fe4f2df4f1",
+      "gzip_eof": true
+    },
+    {
+      "arm": "hold",
+      "path": "crow-v15-intermediate-wing-amplitude-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "bytes": 34403411,
+      "sha256": "a2246048c0609814522161b8bf499c6307123e8bb652e38fb8d8130438f289a5",
+      "gzip_eof": true
+    }
+  ]
+}
