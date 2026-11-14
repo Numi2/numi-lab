@@ -1,0 +1,3 @@
+Identical gzip SHA256: c4f430bea6ba63d2e503ae93a146f17244c327a2bee15976108787ee697cefb3
+Archived observer: artifacts/crow-v15-airborne-gust-screen-20261114/observer.dylib.gz
+Binary SHA256 is recorded in binary-verification.txt and turn-hashes.json.
