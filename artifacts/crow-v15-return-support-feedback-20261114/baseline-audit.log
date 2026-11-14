@@ -1,0 +1,18 @@
+{
+  "first_changed_support_decision_zero_based": 289,
+  "rows": [
+    {
+      "lane": 0,
+      "comparison_intervals": 450,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "comparison_intervals": 289,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  ],
+  "scope": "Exact logged state, command and event parity; contact/state epochs remain unverified."
+}
