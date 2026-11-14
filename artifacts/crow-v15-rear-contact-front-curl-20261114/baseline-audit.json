@@ -1,0 +1,19 @@
+{
+  "first_candidate_curl_intervention_zero_based": 295,
+  "peak_distal_proximal_ratio": 1.0,
+  "rows": [
+    {
+      "lane": 0,
+      "comparison_intervals": 450,
+      "mismatches": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "comparison_intervals": 295,
+      "mismatches": 0,
+      "first_mismatches": []
+    }
+  ],
+  "scope": "Exact logged state, action and contact summary parity; contact/state epochs remain unverified."
+}
