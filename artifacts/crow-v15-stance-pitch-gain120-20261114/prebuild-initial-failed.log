@@ -1,0 +1,1 @@
+The initial prebuild command printed a compiler warning and then shasum reported that the expected probe binary was absent. The cause was not established. A separately invoked rebuild completed successfully and its binary was hashed and archived before simulation. No result was produced by the initial attempt.

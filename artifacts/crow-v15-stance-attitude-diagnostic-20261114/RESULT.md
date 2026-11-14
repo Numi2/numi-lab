@@ -1,0 +1,3 @@
+# Stance attitude during failed release
+
+In the retained combined hip-clearance and stance-pitch candidate, accepted body pitch grew from approximately 0.166 rad at tick 170 to 0.231 at 260, 0.265 at 290 and 0.324 at 315. Roll changed from approximately +0.045 rad at 170 to -0.149 at 315. The existing stance-hip pitch correction reached its -0.14 rad target bound as attitude worsened, while the hip-roll target also reached its existing bound. The guard and larger knee correction did not prevent the fall. These observations motivate a separately tested earlier pitch response; they do not establish causality or physical actuator effort, and contact/state epochs remain independently unverified.

@@ -1,0 +1,5 @@
+# Earlier stance-pitch response
+
+In the prior combined candidate, pitch rose steadily well before the 0.14 rad correction bound was reached. A previous increase from 0.50 to 0.80 improved the short release streak slightly, but did not qualify it. Test whether a stronger earlier response improves support: both lanes reproduce the combined 0.28-rad released-hip and 0.14-rad stance-pitch-cap candidate; lane 1 alone increases pitch-error feedback gain from 0.80 to 1.20. The +/-0.14 rad target bound, 0.002 rad/interval slew, velocity term, contact gates and physical joint/drive limits remain unchanged. This is a bounded intervention, not evidence that pitch drift causes the fall.
+
+Require exact 450-state control parity with the combined candidate, paired prefix before intervention, reconstructed feedback and joint bounds, 32 complete substeps, no native/observer error, nonfoot support or accepted-state toe-speed threshold before failure, and 100 consecutive unchanged clearance, stance-contact, posture, load and speed gates. Retain failures. Toes remain open and regrip, walking and landing are untested; contact/state epochs are independently unverified.
