@@ -1,0 +1,5 @@
+# Used-seed speed command authority screen
+
+In the registered teacher-off development run, all eight lanes matched the same-seed 0.35 m/s reference in recorded q/v/action/contact states through interval 500, and the existing flight, physical, turn and height-cycle screens passed. For intervals 1000–1200 the 0.25 m/s request decreased mean yaw-frame speed relative to the reference by 0.1092–0.1139 m/s in lanes 0–3; the 0.45 m/s request increased it by 0.1092–0.1107 m/s in lanes 4–7. All eight exceed the registered 0.01 m/s directional threshold.
+
+Mean actual speed was approximately 0.327–0.337 m/s for the low request and 0.555 m/s for the high request, so this does not demonstrate accurate setpoint tracking. This one used seed with correlated lanes establishes a directional response only; it does not qualify the continuous speed envelope, disturbed-start recovery, actor navigation, leg-powered takeoff or landing. The first analysis invocation supplied a doubled path and failed before reading the trace; its log is retained, followed by the corrected analyses and raw observation.

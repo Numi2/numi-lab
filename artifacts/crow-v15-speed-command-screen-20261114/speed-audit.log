@@ -1,0 +1,86 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "command_m_s": 0.25,
+      "reference_count": 201,
+      "candidate_count": 201,
+      "reference_mean_yaw_frame_speed_m_s": 0.44586019168138924,
+      "candidate_mean_yaw_frame_speed_m_s": 0.3366845737684219,
+      "mean_delta_m_s": -0.10917561791296732,
+      "directional_authority_pass": true
+    },
+    {
+      "lane": 1,
+      "command_m_s": 0.25,
+      "reference_count": 201,
+      "candidate_count": 201,
+      "reference_mean_yaw_frame_speed_m_s": 0.4409334687087644,
+      "candidate_mean_yaw_frame_speed_m_s": 0.3269880117642383,
+      "mean_delta_m_s": -0.11394545694452607,
+      "directional_authority_pass": true
+    },
+    {
+      "lane": 2,
+      "command_m_s": 0.25,
+      "reference_count": 201,
+      "candidate_count": 201,
+      "reference_mean_yaw_frame_speed_m_s": 0.44514158013152516,
+      "candidate_mean_yaw_frame_speed_m_s": 0.3317912001211614,
+      "mean_delta_m_s": -0.11335038001036374,
+      "directional_authority_pass": true
+    },
+    {
+      "lane": 3,
+      "command_m_s": 0.25,
+      "reference_count": 201,
+      "candidate_count": 201,
+      "reference_mean_yaw_frame_speed_m_s": 0.4411960618316842,
+      "candidate_mean_yaw_frame_speed_m_s": 0.3284138201087697,
+      "mean_delta_m_s": -0.11278224172291451,
+      "directional_authority_pass": true
+    },
+    {
+      "lane": 4,
+      "command_m_s": 0.45,
+      "reference_count": 201,
+      "candidate_count": 201,
+      "reference_mean_yaw_frame_speed_m_s": 0.44390724698902234,
+      "candidate_mean_yaw_frame_speed_m_s": 0.5546184475022387,
+      "mean_delta_m_s": 0.11071120051321631,
+      "directional_authority_pass": true
+    },
+    {
+      "lane": 5,
+      "command_m_s": 0.45,
+      "reference_count": 201,
+      "candidate_count": 201,
+      "reference_mean_yaw_frame_speed_m_s": 0.4451906205824209,
+      "candidate_mean_yaw_frame_speed_m_s": 0.5547490655560277,
+      "mean_delta_m_s": 0.10955844497360673,
+      "directional_authority_pass": true
+    },
+    {
+      "lane": 6,
+      "command_m_s": 0.45,
+      "reference_count": 201,
+      "candidate_count": 201,
+      "reference_mean_yaw_frame_speed_m_s": 0.4455388905837176,
+      "candidate_mean_yaw_frame_speed_m_s": 0.5547605162919974,
+      "mean_delta_m_s": 0.10922162570827981,
+      "directional_authority_pass": true
+    },
+    {
+      "lane": 7,
+      "command_m_s": 0.45,
+      "reference_count": 201,
+      "candidate_count": 201,
+      "reference_mean_yaw_frame_speed_m_s": 0.44443748847939557,
+      "candidate_mean_yaw_frame_speed_m_s": 0.5546624027967006,
+      "mean_delta_m_s": 0.11022491431730508,
+      "directional_authority_pass": true
+    }
+  ],
+  "all_pass": true,
+  "scope": "used-seed fixed-window directional effect, not setpoint accuracy or navigation"
+}

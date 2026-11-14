@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-speed-command-screen-20261114/analyze.py", line 27, in <module>
+    new=read(P/'run.stderr.gz',True);mode=sys.argv[3];assert mode in ('straight','turn');ref={'state':{(x['lane'],x['step']):x for x in json.load(gzip.open(refpath,'rt'))}};parityref={'state':{(x['lane'],x['step']):x for x in json.load(gzip.open(Path(sys.argv[4]),'rt'))}};stdout=json.loads((P/'run.stdout').read_text());meta=stdout['first_episode_navigation'];inputs=json.loads((P/'inputs.json').read_text());rinputs=json.loads((A/'reference-inputs.json').read_text())
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-speed-command-screen-20261114/analyze.py", line 6, in read
+    with gzip.open(p,'rt') as f:
+         ^^^^^^^^^^^^^^^^^
+  File "/Users/home/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/gzip.py", line 65, in open
+    binary_file = GzipFile(filename, gz_mode, compresslevel)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/home/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/gzip.py", line 201, in __init__
+    fileobj = self.myfileobj = builtins.open(filename, mode or 'rb')
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'artifacts/crow-v15-speed-command-screen-20261114/artifacts/crow-v15-speed-command-screen-20261114/turn-20261126-rebound-speed/run.stderr.gz'
