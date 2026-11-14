@@ -1,0 +1,11 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-matched-wing-leg-ablation-20261114/push.metal:5087:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=6u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-matched-wing-leg-ablation-20261114/push.metal:5112:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-matched-wing-leg-ablation-20261114/push.metal:5512:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+3 warnings generated.
+Built candidate metallib: c2e7f9973ff36eafcf0f212982583543b6e168412ec995474c521a5d77a14c3e

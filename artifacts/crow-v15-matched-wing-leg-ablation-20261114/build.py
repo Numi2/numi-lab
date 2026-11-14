@@ -7,4 +7,4 @@ subprocess.run(['xcrun','-sdk','macosx','metal','-std=metal4.0','-O3','-fno-fast
 replaced={p.name:p for p in (W/'shaders').glob('*.air')};airs=[str((B/'World.air') if p.name=='MetalRoboWorld.air' else replaced.get(p.name,p)) for p in sorted((R/'build/shaders').glob('MetalRobo*.air')) if p.name not in ('MetalRoboLocomotionTask.air','MetalRoboFlappingWingDynamics.air')]
 subprocess.run(['xcrun','-sdk','macosx','metallib',*airs,str(R/'build/crow-v15-energy-consistent-aero-20261113/aero.air'),str(B/(name+'.air')),'-o',str(B/(name+'.metallib'))],check=True)
 def h(p):return hashlib.sha256(p.read_bytes()).hexdigest()
-(A/(name+'-hashes.json')).write_text(json.dumps({'host':h(R/'build/crow-v15-launch-aero-observer-20261113/libmetalrobo.dylib'),'metallib':h(B/(name+'.metallib')),'task_source':h(A/(name+'.metal'))},indent=2)+'\n');print('Built candidate metallib:',h(B/(name+'.metallib')))
+(A/(name+'-hashes.json')).write_text(json.dumps({'host':h(B/'libmetalrobo.dylib'),'metallib':h(B/(name+'.metallib')),'task_source':h(A/(name+'.metal'))},indent=2)+'\n');print('Built candidate metallib:',h(B/(name+'.metallib')))
