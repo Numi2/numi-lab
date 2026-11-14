@@ -1,0 +1,73 @@
+{
+  "source_sha256": "5c049b8fad76f376ca073a470cb76825151103adcec44a775161b2357ca67698",
+  "rows": [
+    {
+      "lane": 6,
+      "peak_height_m_and_step": [
+        0.894674599,
+        614
+      ],
+      "windows": [
+        {
+          "ticks": [
+            1000,
+            1150
+          ],
+          "target_m": 0.55,
+          "samples": 151,
+          "mean_m": 0.5707760220662251,
+          "mean_absolute_error_m": 0.020776022066225117,
+          "max_absolute_error_m": 0.03578675999999992
+        },
+        {
+          "ticks": [
+            1550,
+            1800
+          ],
+          "target_m": 0.8,
+          "samples": 251,
+          "mean_m": 0.8184348259402391,
+          "mean_absolute_error_m": 0.018434825940239,
+          "max_absolute_error_m": 0.0335917
+        }
+      ],
+      "mean_height_change_m": 0.24765880387401396,
+      "satisfies_straight_switch_error_gate": true
+    },
+    {
+      "lane": 7,
+      "peak_height_m_and_step": [
+        1.39608157,
+        614
+      ],
+      "windows": [
+        {
+          "ticks": [
+            1000,
+            1150
+          ],
+          "target_m": 0.8,
+          "samples": 151,
+          "mean_m": 0.8161506096092715,
+          "mean_absolute_error_m": 0.016172006973509893,
+          "max_absolute_error_m": 0.03457619000000001
+        },
+        {
+          "ticks": [
+            1550,
+            1800
+          ],
+          "target_m": 0.55,
+          "samples": 251,
+          "mean_m": 0.5649487037011952,
+          "mean_absolute_error_m": 0.014973524880478047,
+          "max_absolute_error_m": 0.031954240999999994
+        }
+      ],
+      "mean_height_change_m": -0.25120190590807634,
+      "satisfies_straight_switch_error_gate": true
+    }
+  ],
+  "duplicate_states": [],
+  "scope": "retrospective application of straight-flight height windows to turn integration; development seed"
+}
