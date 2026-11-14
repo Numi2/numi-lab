@@ -1,0 +1,3 @@
+# Matched aligned-branch repeat
+
+The independent matched rerun reproduced the same printed 41-dimensional q values through step 279 exactly, the same first termination (step 279, reason 2), the same 166-interval grip streak (38–203), and the same per-gate failure counts. All 80,832 first-episode `CROW_SCENE_CONTACT` and `CROW_GROUND_CONTACT` text records before step 279 had matching SHA256 `23eaefa12ee13945df890a3bab564b088b495ac08e59804a99d4d116a156187e`. This demonstrates repeatability of the retained printed traces at this start, not robustness, biological validity, sustained landing or bit-for-bit restoration of the original GPU checkpoint. Both runs use the subsequently identified out-of-range experimental toe command; see `ROUND_TOE_LIMIT_CORRECTION.md`.

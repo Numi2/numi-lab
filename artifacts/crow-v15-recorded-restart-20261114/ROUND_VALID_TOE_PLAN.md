@@ -1,0 +1,3 @@
+# In-range front-toe target test
+
+Replace only the experimental stronger front-proximal cap of 1.30 radians with the modeled +1.20-radian joint limit on the x=17.770, +0.2-rad aligned capsule. Keep the 0.04/ramp rate, distal ratio, rear toes, checkpoint, policy, collider and observer unchanged. Confirm by construction that no front toe target exceeds its [-0.3,1.2] range. Compare first-episode grip, tilt and termination to the retained out-of-range-command control, with 400 intervals and no reset/termination. Require the final 250 consecutive intervals to satisfy every all-substep force and balance gate. Preserve failure and do not infer generalization.
