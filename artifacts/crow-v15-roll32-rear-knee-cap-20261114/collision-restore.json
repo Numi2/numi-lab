@@ -1,0 +1,38 @@
+{
+  "earlier_commit": "acb8adb6",
+  "aborted_registration": "eca11b9e",
+  "remote_binary_restored_sha256": "64865e04f7967a4888188c83ba66ef4dba56332cb0c72f81de3a1421e1805e42",
+  "restored_files": [
+    {
+      "file": "PLAN.md",
+      "sha256": "34242027530ee58919091692266df6ce0f48ffcb382882a20b5a40b3dbb38bf0",
+      "remote_match": true
+    },
+    {
+      "file": "compare.py",
+      "sha256": "cd93191da20b4c4a4ac10493ee4fb56216d6a9a296d3ddf7e3f71397e70a8856",
+      "remote_match": true
+    },
+    {
+      "file": "correction-check.py",
+      "sha256": "75404470f8e00ed164fbeef3e32693e59640ff01744d2d8ac520bcf4ca151875",
+      "remote_match": true
+    },
+    {
+      "file": "lift-audit.py",
+      "sha256": "47b8db8156c942cb54eaea8636255a3f7a33492a58522754b81b1625dd31f6e4",
+      "remote_match": true
+    },
+    {
+      "file": "probe.cpp",
+      "sha256": "cfb3480c6665c33ff96786cc43b2ae06cbb51bfd6f41ec86d1ec0ec0d136b083",
+      "remote_match": true
+    },
+    {
+      "file": "rear-knee-audit.py",
+      "sha256": "917153f9222f9504d69b5001a5bf99d97d6d5ba8ab67e59d63333b699b038306",
+      "remote_match": true
+    }
+  ],
+  "scope": "changed files only, matched earlier Git revision locally and checked on remote; extra preparation files remain on remote"
+}
