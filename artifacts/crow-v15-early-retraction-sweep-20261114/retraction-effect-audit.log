@@ -1,0 +1,93 @@
+{
+  "rows": [
+    {
+      "arm": "push",
+      "two_low_lane": 0,
+      "first_low_lane": 1,
+      "window": [
+        370,
+        390
+      ],
+      "missing": [],
+      "differences": []
+    },
+    {
+      "arm": "push",
+      "two_low_lane": 2,
+      "first_low_lane": 3,
+      "window": [
+        370,
+        390
+      ],
+      "missing": [],
+      "differences": []
+    },
+    {
+      "arm": "push",
+      "two_low_lane": 4,
+      "first_low_lane": 5,
+      "window": [
+        370,
+        390
+      ],
+      "missing": [],
+      "differences": []
+    },
+    {
+      "arm": "push",
+      "two_low_lane": 6,
+      "first_low_lane": 7,
+      "window": [
+        370,
+        390
+      ],
+      "missing": [],
+      "differences": []
+    },
+    {
+      "arm": "hold",
+      "two_low_lane": 0,
+      "first_low_lane": 1,
+      "window": [
+        370,
+        390
+      ],
+      "missing": [],
+      "differences": []
+    },
+    {
+      "arm": "hold",
+      "two_low_lane": 2,
+      "first_low_lane": 3,
+      "window": [
+        370,
+        390
+      ],
+      "missing": [],
+      "differences": []
+    },
+    {
+      "arm": "hold",
+      "two_low_lane": 4,
+      "first_low_lane": 5,
+      "window": [
+        370,
+        390
+      ],
+      "missing": [],
+      "differences": []
+    },
+    {
+      "arm": "hold",
+      "two_low_lane": 6,
+      "first_low_lane": 7,
+      "window": [
+        370,
+        390
+      ],
+      "missing": [],
+      "differences": []
+    }
+  ],
+  "scope": "Cross-lane logged target comparison; initial positions differ by lane and sensor/latch internals were not observed. An unchanged output does not prove which condition delayed release."
+}
