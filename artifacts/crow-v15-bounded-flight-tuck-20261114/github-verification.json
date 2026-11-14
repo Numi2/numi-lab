@@ -1,0 +1,17 @@
+{
+  "source_commit": "a9ec32a6",
+  "arms": {
+    "push": {
+      "path": "artifacts/crow-v15-bounded-flight-tuck-20261114/push-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 39152278,
+      "sha256": "7927860566d0472b462e981c5c405199d642ddc8e1abd3743de0df033bc49c72",
+      "gzip_eof": true
+    },
+    "hold": {
+      "path": "artifacts/crow-v15-bounded-flight-tuck-20261114/hold-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 38969999,
+      "sha256": "b1dc9bf533faee92832905888858d54a5ac2063d1857944a11531121ae1bca0e",
+      "gzip_eof": true
+    }
+  }
+}
