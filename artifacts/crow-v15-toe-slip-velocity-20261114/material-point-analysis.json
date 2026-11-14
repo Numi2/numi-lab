@@ -1,0 +1,239 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "foot",
+      "contact_points": 30,
+      "tangent_displacement_speed_m_s_p50": 0.02275359546710004,
+      "tangent_displacement_speed_m_s_p95": 0.031662961192427355,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.0
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "foretoe",
+      "contact_points": 87,
+      "tangent_displacement_speed_m_s_p50": 0.01616363211614394,
+      "tangent_displacement_speed_m_s_p95": 0.02552737383350751,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 1.0
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "rear_toe",
+      "contact_points": 30,
+      "tangent_displacement_speed_m_s_p50": 0.024228595813285174,
+      "tangent_displacement_speed_m_s_p95": 0.0448931623395936,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 1.0
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "foot",
+      "contact_points": 15,
+      "tangent_displacement_speed_m_s_p50": 0.029835898624992772,
+      "tangent_displacement_speed_m_s_p95": 0.03886356686890568,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.0
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "foretoe",
+      "contact_points": 19,
+      "tangent_displacement_speed_m_s_p50": 0.017050236557475618,
+      "tangent_displacement_speed_m_s_p95": 0.029250585068802643,
+      "fraction_ge_0_01": 0.9473684210526315,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.9473684210526315
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "rear_toe",
+      "contact_points": 15,
+      "tangent_displacement_speed_m_s_p50": 0.02479330784203426,
+      "tangent_displacement_speed_m_s_p95": 0.03435933666368478,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.8666666666666667
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "foot",
+      "contact_points": 7,
+      "tangent_displacement_speed_m_s_p50": 0.025322266556537843,
+      "tangent_displacement_speed_m_s_p95": 0.04016431793946013,
+      "fraction_ge_0_01": 0.8571428571428571,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.14285714285714285
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "foretoe",
+      "contact_points": 1,
+      "tangent_displacement_speed_m_s_p50": 0.030938133947256172,
+      "tangent_displacement_speed_m_s_p95": 0.030938133947256172,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 1.0
+    },
+    {
+      "lane": 0,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "rear_toe",
+      "contact_points": 15,
+      "tangent_displacement_speed_m_s_p50": 0.022594505165014326,
+      "tangent_displacement_speed_m_s_p95": 0.04269897230752485,
+      "fraction_ge_0_01": 0.8,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.4
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "foot",
+      "contact_points": 30,
+      "tangent_displacement_speed_m_s_p50": 0.02275359546710004,
+      "tangent_displacement_speed_m_s_p95": 0.031662961192427355,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.0
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "foretoe",
+      "contact_points": 87,
+      "tangent_displacement_speed_m_s_p50": 0.01616363211614394,
+      "tangent_displacement_speed_m_s_p95": 0.02552737383350751,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 1.0
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        290,
+        300
+      ],
+      "group": "rear_toe",
+      "contact_points": 30,
+      "tangent_displacement_speed_m_s_p50": 0.024228595813285174,
+      "tangent_displacement_speed_m_s_p95": 0.0448931623395936,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 1.0
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "foot",
+      "contact_points": 15,
+      "tangent_displacement_speed_m_s_p50": 0.029835898624992772,
+      "tangent_displacement_speed_m_s_p95": 0.03886356686890568,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.0
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "foretoe",
+      "contact_points": 19,
+      "tangent_displacement_speed_m_s_p50": 0.017050236557475618,
+      "tangent_displacement_speed_m_s_p95": 0.029250585068802643,
+      "fraction_ge_0_01": 0.9473684210526315,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.9473684210526315
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        300,
+        305
+      ],
+      "group": "rear_toe",
+      "contact_points": 15,
+      "tangent_displacement_speed_m_s_p50": 0.02479330784203426,
+      "tangent_displacement_speed_m_s_p95": 0.03435933666368478,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.8666666666666667
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "foot",
+      "contact_points": 7,
+      "tangent_displacement_speed_m_s_p50": 0.025322266556537843,
+      "tangent_displacement_speed_m_s_p95": 0.04016431793946013,
+      "fraction_ge_0_01": 0.8571428571428571,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.14285714285714285
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "foretoe",
+      "contact_points": 1,
+      "tangent_displacement_speed_m_s_p50": 0.030938133947256172,
+      "tangent_displacement_speed_m_s_p95": 0.030938133947256172,
+      "fraction_ge_0_01": 1.0,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 1.0
+    },
+    {
+      "lane": 1,
+      "intervals": [
+        305,
+        311
+      ],
+      "group": "rear_toe",
+      "contact_points": 15,
+      "tangent_displacement_speed_m_s_p50": 0.022594505165014326,
+      "tangent_displacement_speed_m_s_p95": 0.04269897230752485,
+      "fraction_ge_0_01": 0.8,
+      "fraction_ge_0_01_and_dynamic_ratio_ge_0_95": 0.4
+    }
+  ],
+  "scope": "Average material-point displacement from consecutive substep endpoint poses, using contact geometry at the first endpoint. Contacts need not persist through the next substep; CCD event timing and cone impulse association are not independently established. Samples and lanes are correlated."
+}
