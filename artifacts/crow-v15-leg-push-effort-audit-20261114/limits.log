@@ -1,0 +1,14 @@
+In file included from artifacts/crow-v15-leg-push-effort-audit-20261114/limits.cpp:2:
+In file included from artifacts/crow-v15-leg-push-effort-audit-20261114/../crow-v15-hip-roll-strong-drive-prototype-20261111/probe.cpp:2:
+artifacts/crow-v15-leg-push-effort-audit-20261114/../crow-v15-hip-roll-strong-drive-prototype-20261111/../crow-v15-two-segment-toe-prototype-20261111/probe.cpp:75:78: warning: non-void function does not return a value in all control paths [-Wreturn-type]
+   75 |   } catch(const std::exception& e){std::cerr<<e.what()<<std::endl;return 1;} }
+      |                                                                              ^
+1 warning generated.
+13 crow_left_hip_pitch -0.850000024 0.850000024 18 0.75
+14 crow_left_knee_pitch -0.100000001 1.54999995 22 0.75
+15 crow_left_ankle_pitch -0.899999976 0.699999988 24 0.600000024
+16 crow_right_hip_pitch -0.850000024 0.850000024 18 0.75
+17 crow_right_knee_pitch -0.100000001 1.54999995 22 0.75
+18 crow_right_ankle_pitch -0.899999976 0.699999988 24 0.600000024
+5994f33680d406172a8a7f472be8fca5f8397ab4d041ffe642fa1d71d4fc725b  build/crow-v15-leg-push-effort-audit-20261114/limits
+2401d8c6aa048f7a4a75b51d2fbc1498b97b66fd3e3e6aeb19b3014fa5af7aea  build/crow-v15-hiproll-toe-observer-20261113/libmetalrobo.dylib

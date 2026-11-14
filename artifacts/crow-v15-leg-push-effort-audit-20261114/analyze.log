@@ -1,0 +1,391 @@
+{
+  "input_sha256": "ef0c2b87b2ee3dec57028cff52fc2276d53b6ad56a876a85591f1eabb01bde27",
+  "source_compressed_sha256": "91be92ae998a273984921bb068e439e5e6f6e649072fa2afb2971be3c4684c41",
+  "rows": [
+    {
+      "lane": 6,
+      "intervals": [
+        350,
+        368
+      ],
+      "unique_substeps": 304,
+      "joints": [
+        {
+          "joint": "left_hip",
+          "min_effort_Nm": -0.0151636899,
+          "max_effort_Nm": -0.00345002348,
+          "abs_max_effort_Nm": 0.0151636899,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.011365016
+        },
+        {
+          "joint": "left_knee",
+          "min_effort_Nm": -0.0671254918,
+          "max_effort_Nm": -0.054468751,
+          "abs_max_effort_Nm": 0.0671254918,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.0123683773
+        },
+        {
+          "joint": "left_ankle",
+          "min_effort_Nm": 0.00807368848,
+          "max_effort_Nm": 0.0225796904,
+          "abs_max_effort_Nm": 0.0225796904,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.0159789603
+        },
+        {
+          "joint": "right_hip",
+          "min_effort_Nm": -0.0150554525,
+          "max_effort_Nm": -0.0037608156,
+          "abs_max_effort_Nm": 0.0150554525,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.0110293133
+        },
+        {
+          "joint": "right_knee",
+          "min_effort_Nm": -0.0695767924,
+          "max_effort_Nm": -0.0566509999,
+          "abs_max_effort_Nm": 0.0695767924,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.0106574548
+        },
+        {
+          "joint": "right_ankle",
+          "min_effort_Nm": 0.00755968457,
+          "max_effort_Nm": 0.0217976235,
+          "abs_max_effort_Nm": 0.0217976235,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.0165603124
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "intervals": [
+        369,
+        374
+      ],
+      "unique_substeps": 96,
+      "joints": [
+        {
+          "joint": "left_hip",
+          "min_effort_Nm": -0.378112465,
+          "max_effort_Nm": 0.75,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.07291666666666667,
+          "max_abs_observed_velocity_rad_s": 5.78854275
+        },
+        {
+          "joint": "left_knee",
+          "min_effort_Nm": -0.75,
+          "max_effort_Nm": 0.75,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.21875,
+          "max_abs_observed_velocity_rad_s": 14.0076313
+        },
+        {
+          "joint": "left_ankle",
+          "min_effort_Nm": -0.600000024,
+          "max_effort_Nm": 0.600000024,
+          "abs_max_effort_Nm": 0.600000024,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.2604166666666667,
+          "max_abs_observed_velocity_rad_s": 12.8617783
+        },
+        {
+          "joint": "right_hip",
+          "min_effort_Nm": -0.380679369,
+          "max_effort_Nm": 0.75,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.07291666666666667,
+          "max_abs_observed_velocity_rad_s": 5.7869339
+        },
+        {
+          "joint": "right_knee",
+          "min_effort_Nm": -0.75,
+          "max_effort_Nm": 0.75,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.21875,
+          "max_abs_observed_velocity_rad_s": 14.0106554
+        },
+        {
+          "joint": "right_ankle",
+          "min_effort_Nm": -0.600000024,
+          "max_effort_Nm": 0.600000024,
+          "abs_max_effort_Nm": 0.600000024,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.2604166666666667,
+          "max_abs_observed_velocity_rad_s": 13.0380383
+        }
+      ]
+    },
+    {
+      "lane": 6,
+      "intervals": [
+        375,
+        380
+      ],
+      "unique_substeps": 96,
+      "joints": [
+        {
+          "joint": "left_hip",
+          "min_effort_Nm": -0.75,
+          "max_effort_Nm": 0.311797261,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.041666666666666664,
+          "max_abs_observed_velocity_rad_s": 4.68483686
+        },
+        {
+          "joint": "left_knee",
+          "min_effort_Nm": -0.75,
+          "max_effort_Nm": 0.75,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.11458333333333333,
+          "max_abs_observed_velocity_rad_s": 12.0937901
+        },
+        {
+          "joint": "left_ankle",
+          "min_effort_Nm": -0.600000024,
+          "max_effort_Nm": 0.600000024,
+          "abs_max_effort_Nm": 0.600000024,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.3645833333333333,
+          "max_abs_observed_velocity_rad_s": 16.1469116
+        },
+        {
+          "joint": "right_hip",
+          "min_effort_Nm": -0.75,
+          "max_effort_Nm": 0.314216435,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.041666666666666664,
+          "max_abs_observed_velocity_rad_s": 4.68705034
+        },
+        {
+          "joint": "right_knee",
+          "min_effort_Nm": -0.75,
+          "max_effort_Nm": 0.75,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.11458333333333333,
+          "max_abs_observed_velocity_rad_s": 12.0785751
+        },
+        {
+          "joint": "right_ankle",
+          "min_effort_Nm": -0.600000024,
+          "max_effort_Nm": 0.600000024,
+          "abs_max_effort_Nm": 0.600000024,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.3645833333333333,
+          "max_abs_observed_velocity_rad_s": 16.0269718
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "intervals": [
+        350,
+        368
+      ],
+      "unique_substeps": 304,
+      "joints": [
+        {
+          "joint": "left_hip",
+          "min_effort_Nm": -0.0153367668,
+          "max_effort_Nm": -0.00356926327,
+          "abs_max_effort_Nm": 0.0153367668,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.0114576137
+        },
+        {
+          "joint": "left_knee",
+          "min_effort_Nm": -0.0672393739,
+          "max_effort_Nm": -0.0545448437,
+          "abs_max_effort_Nm": 0.0672393739,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.0124244336
+        },
+        {
+          "joint": "left_ankle",
+          "min_effort_Nm": 0.00807357952,
+          "max_effort_Nm": 0.0224520992,
+          "abs_max_effort_Nm": 0.0224520992,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.016132284
+        },
+        {
+          "joint": "right_hip",
+          "min_effort_Nm": -0.0150144175,
+          "max_effort_Nm": -0.00367635,
+          "abs_max_effort_Nm": 0.0150144175,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.0111430986
+        },
+        {
+          "joint": "right_knee",
+          "min_effort_Nm": -0.0693171248,
+          "max_effort_Nm": -0.0566202179,
+          "abs_max_effort_Nm": 0.0693171248,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.0106400521
+        },
+        {
+          "joint": "right_ankle",
+          "min_effort_Nm": 0.00774202123,
+          "max_effort_Nm": 0.0217208993,
+          "abs_max_effort_Nm": 0.0217208993,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 0.016454
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "intervals": [
+        369,
+        374
+      ],
+      "unique_substeps": 96,
+      "joints": [
+        {
+          "joint": "left_hip",
+          "min_effort_Nm": -0.378337204,
+          "max_effort_Nm": 0.75,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.07291666666666667,
+          "max_abs_observed_velocity_rad_s": 5.78840351
+        },
+        {
+          "joint": "left_knee",
+          "min_effort_Nm": -0.75,
+          "max_effort_Nm": 0.75,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.21875,
+          "max_abs_observed_velocity_rad_s": 14.0073643
+        },
+        {
+          "joint": "left_ankle",
+          "min_effort_Nm": -0.600000024,
+          "max_effort_Nm": 0.600000024,
+          "abs_max_effort_Nm": 0.600000024,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.2604166666666667,
+          "max_abs_observed_velocity_rad_s": 12.8693504
+        },
+        {
+          "joint": "right_hip",
+          "min_effort_Nm": -0.380620807,
+          "max_effort_Nm": 0.75,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.07291666666666667,
+          "max_abs_observed_velocity_rad_s": 5.78690386
+        },
+        {
+          "joint": "right_knee",
+          "min_effort_Nm": -0.75,
+          "max_effort_Nm": 0.75,
+          "abs_max_effort_Nm": 0.75,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.21875,
+          "max_abs_observed_velocity_rad_s": 14.0106354
+        },
+        {
+          "joint": "right_ankle",
+          "min_effort_Nm": -0.600000024,
+          "max_effort_Nm": 0.600000024,
+          "abs_max_effort_Nm": 0.600000024,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.2604166666666667,
+          "max_abs_observed_velocity_rad_s": 13.0331192
+        }
+      ]
+    },
+    {
+      "lane": 7,
+      "intervals": [
+        375,
+        380
+      ],
+      "unique_substeps": 96,
+      "joints": [
+        {
+          "joint": "left_hip",
+          "min_effort_Nm": -0.0236368198,
+          "max_effort_Nm": 0.0844962299,
+          "abs_max_effort_Nm": 0.0844962299,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 1.21338499
+        },
+        {
+          "joint": "left_knee",
+          "min_effort_Nm": -0.00220683776,
+          "max_effort_Nm": 0.639505446,
+          "abs_max_effort_Nm": 0.639505446,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 4.85393
+        },
+        {
+          "joint": "left_ankle",
+          "min_effort_Nm": -0.600000024,
+          "max_effort_Nm": 0.600000024,
+          "abs_max_effort_Nm": 0.600000024,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.10416666666666667,
+          "max_abs_observed_velocity_rad_s": 14.6392317
+        },
+        {
+          "joint": "right_hip",
+          "min_effort_Nm": -0.0218062364,
+          "max_effort_Nm": 0.0807442814,
+          "abs_max_effort_Nm": 0.0807442814,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 1.21066737
+        },
+        {
+          "joint": "right_knee",
+          "min_effort_Nm": -0.00220422586,
+          "max_effort_Nm": 0.658646882,
+          "abs_max_effort_Nm": 0.658646882,
+          "limit_Nm": 0.75,
+          "fraction_at_effort_limit": 0.0,
+          "max_abs_observed_velocity_rad_s": 4.84856844
+        },
+        {
+          "joint": "right_ankle",
+          "min_effort_Nm": -0.600000024,
+          "max_effort_Nm": 0.600000024,
+          "abs_max_effort_Nm": 0.600000024,
+          "limit_Nm": 0.600000024,
+          "fraction_at_effort_limit": 0.10416666666666667,
+          "max_abs_observed_velocity_rad_s": 14.7266026
+        }
+      ]
+    }
+  ],
+  "scope": "Retrospective used-seed observer audit; effort and accepted/presolve velocities are modeled; q/v and contact epochs inferred for these lanes."
+}

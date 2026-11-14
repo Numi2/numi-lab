@@ -1,0 +1,3 @@
+f80c49cb98f48c773ba4b3983a0a8fa72ca26161c2afef3b4901d52d9e15b3de  /Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-launch-aero-observer-20261113/MetalWorld-launch-aero-observer.mm
+                            if (crowTraceStep >= 335 && crowTraceStep <= 365) { std::fprintf(stderr,"CROW_Q_SUBSTEP %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane); for (NSUInteger j=0;j<crowTraceQStride;++j) std::fprintf(stderr," %.9g",coordinates[lane*crowTraceQStride+j]); std::fprintf(stderr,"\n"); }
+                            float up[2]={}, normal[2]={}, toe[16]={}, signedX[16]={}, other=0;
