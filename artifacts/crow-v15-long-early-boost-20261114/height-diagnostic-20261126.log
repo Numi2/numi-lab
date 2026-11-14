@@ -1,0 +1,22 @@
+{
+  "6": {
+    "first_height_below_floor": null,
+    "minimum_height": [
+      454,
+      0.407702088,
+      -0.000488341961
+    ],
+    "count_below_floor": 0,
+    "note": "state labels may lag same-run contact by one interval in these not-directly-checked lanes"
+  },
+  "7": {
+    "first_height_below_floor": null,
+    "minimum_height": [
+      450,
+      0.564476848,
+      0.544550061
+    ],
+    "count_below_floor": 0,
+    "note": "state labels may lag same-run contact by one interval in these not-directly-checked lanes"
+  }
+}
