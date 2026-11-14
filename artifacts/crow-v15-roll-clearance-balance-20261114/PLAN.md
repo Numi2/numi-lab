@@ -1,0 +1,5 @@
+# Increased lateral-balance command range
+
+The matched prior wider-hip trial retained clearance for 34 consecutive intervals and then recontacted, while the lateral balance target reached its 0.25 rad cap at step 270, before clearance failed. The causal role of the cap is unproven. Both lanes retain that previous candidate, with the same pitch, clearance, slew, physical effort, speed, geometry, contacts and toe limits; lane 1 alone may command up to 0.30 rad of lateral hip roll instead of 0.25 rad, within the existing physical joint limit of plus or minus 0.35 rad. Lane 0 must reproduce all 450 prior candidate states, and the paired prefix must match before the first action difference.
+
+Require at least 100 consecutive intervals of the unchanged clearance, stance contact, posture, load and speed gates, no pre-fall accepted-state toe speed threshold, no nonfoot support or errors, full 32 substeps, and reconstructed feedback and joint bounds. Preserve failed runs. Toes remain open; this does not test regrip or landing. Contact/state timing remains independently unverified.
