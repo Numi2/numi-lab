@@ -1,0 +1,7 @@
+# Closer wing-onset timing: continuous development launches, not qualification
+
+Both push and matched held-leg trials ran all 500 intervals on used seed 20261126 without physical termination. Candidate lanes 6 and 7 stayed unloaded after first release through interval 500 in both trials, with no recorded nonfoot impulse, missing contact/aero substeps, toe-speed threshold events, or observer errors. The two runs matched candidate q/v through 368 pre-push states; wing position targets matched exactly in the observed window. Other lanes matched for all 500 states.
+
+In lane 7, the push condition first unloaded at interval 375 versus 377 for the held-leg control. Its modeled net vertical aerodynamic impulse before first unloading was approximately 0.000072 N s, but maximum flap displacement was already 0.236 rad. Thus the nearly zero net aerodynamic impulse is not evidence that wing motion was absent or that the leg caused release by itself. In lane 6 both conditions first unloaded at 378 and the wings had moved about 0.68 rad by then. The foot-impulse differences across intervals 371–390 include wing and contact effects and do not isolate leg impulse. See the separate prior wing-held hop for a bounded isolated-leg comparison.
+
+These are single-seed, limited-window development results, not a qualified, robust leg-to-wing transition, a frozen flight controller, a landing, or evidence on unused layouts. Complete observations and replay inputs for both trials are retained.
