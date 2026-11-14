@@ -1,0 +1,67 @@
+{
+  "alignment": [
+    {
+      "arm": "control",
+      "replay_environment": 5,
+      "frame_alignment": {
+        "0": {
+          "compared": 2400,
+          "mismatches_above_1e-6": 2376,
+          "max_absolute_error": 30.232620240283204
+        },
+        "1": {
+          "compared": 2399,
+          "mismatches_above_1e-6": 0,
+          "max_absolute_error": 4.9975586335904154e-08
+        }
+      }
+    },
+    {
+      "arm": "gust",
+      "replay_environment": 5,
+      "frame_alignment": {
+        "0": {
+          "compared": 2400,
+          "mismatches_above_1e-6": 2376,
+          "max_absolute_error": 30.232620240283204
+        },
+        "1": {
+          "compared": 2399,
+          "mismatches_above_1e-6": 0,
+          "max_absolute_error": 4.9975586335904154e-08
+        }
+      }
+    }
+  ],
+  "frame_reanalysis": [
+    {
+      "lane": 6,
+      "accepted_frame_window": [
+        901,
+        1050
+      ],
+      "samples": 150,
+      "peak_abs_pitch_delta_rad": 0.07033436783862415,
+      "peak_abs_world_y_rate_delta_rad_s": 0.17534606879999998,
+      "response_threshold_met": true,
+      "pitch_delta_at_accepted_frame_1200_rad": 0.004307574274029058,
+      "world_y_rate_delta_at_accepted_frame_1200_rad_s": -0.018033764999999993,
+      "recovery_threshold_met": true
+    },
+    {
+      "lane": 7,
+      "accepted_frame_window": [
+        901,
+        1050
+      ],
+      "samples": 150,
+      "peak_abs_pitch_delta_rad": 0.06969012261615716,
+      "peak_abs_world_y_rate_delta_rad_s": 0.1729992776,
+      "response_threshold_met": true,
+      "pitch_delta_at_accepted_frame_1200_rad": -0.002359203628460871,
+      "world_y_rate_delta_at_accepted_frame_1200_rad_s": 0.007516682199999999,
+      "recovery_threshold_met": true
+    }
+  ],
+  "scope": "Replay alignment directly checked for recorded lane 5 only; offset applied to lanes 6 and 7 as a shared-host inference, not independently proven for those lanes."
+}

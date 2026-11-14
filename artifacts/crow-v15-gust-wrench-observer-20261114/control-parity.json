@@ -1,0 +1,37 @@
+{
+  "cases": [
+    {
+      "case": "control",
+      "errors": [],
+      "mismatch": {
+        "state": {
+          "count": 0,
+          "first": [],
+          "new_count": 19208,
+          "old_count": 19208
+        },
+        "target": {
+          "count": 0,
+          "first": [],
+          "new_count": 16528,
+          "old_count": 16528
+        },
+        "foot": {
+          "count": 0,
+          "first": [],
+          "new_count": 264448,
+          "old_count": 264448
+        },
+        "toe": {
+          "count": 0,
+          "first": [],
+          "new_count": 264448,
+          "old_count": 264448
+        }
+      },
+      "pass": true
+    }
+  ],
+  "pass": true,
+  "scope": "matched accepted state and observed target/contact/toe records; not independent observer epoch synchronization"
+}
