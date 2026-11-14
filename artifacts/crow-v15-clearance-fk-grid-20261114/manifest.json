@@ -1,0 +1,82 @@
+[
+  {
+    "name": "PLAN.md",
+    "bytes": 774,
+    "sha256": "6cf7fc276d7be9a73d99054e061ca577475aa0fdc7a862dab776a6d6ebb6cb86"
+  },
+  {
+    "name": "RESULT.md",
+    "bytes": 571,
+    "sha256": "f6e33ac2a935bea940bdab6c9c9d9ef7bfdae604da6069077db59fe3ccfa4e74"
+  },
+  {
+    "name": "analysis.json",
+    "bytes": 3059,
+    "sha256": "2f3da01211db67f9eff2c17e787d2cdd4a029478af81864b34ef494e431dc6fa"
+  },
+  {
+    "name": "analysis.log",
+    "bytes": 3059,
+    "sha256": "2f3da01211db67f9eff2c17e787d2cdd4a029478af81864b34ef494e431dc6fa"
+  },
+  {
+    "name": "analyze.py",
+    "bytes": 1172,
+    "sha256": "b2ae1a6ecc05113c015721c04b5f03e779953b38dffdc2367a86753e4bb383e8"
+  },
+  {
+    "name": "build-command.json",
+    "bytes": 596,
+    "sha256": "2587906de9aaf14df3ecba2c531de443cbf3277b1a96b51036c7dc3c0e58b5c3"
+  },
+  {
+    "name": "build-run.log",
+    "bytes": 789,
+    "sha256": "24cb95dc65247ce0ce4619f14438855a9566fc01295e087970f0935e3ec91d48"
+  },
+  {
+    "name": "build-run.py",
+    "bytes": 1098,
+    "sha256": "9f101569f5b9436f624c467b96145f84bb541ea02e7222b87dd6d4b6f9bc8042"
+  },
+  {
+    "name": "hashes.json",
+    "bytes": 529,
+    "sha256": "bf6a735767ce8fef4765028a30fb8dd256bef6c6eef1a33aee93d550802baf63"
+  },
+  {
+    "name": "input.tsv",
+    "bytes": 3281,
+    "sha256": "f4a32999b8f60c1438121ebcdf9a261798eff31fc3f554d8eca677e809406872"
+  },
+  {
+    "name": "kinematics.cpp",
+    "bytes": 2995,
+    "sha256": "c48486d3b1a2b5dfa66a661a9a6ce6f72bdea1cec07f6f180ce63daae1dd0e0f"
+  },
+  {
+    "name": "kinematics.gz",
+    "bytes": 30905,
+    "sha256": "fae547ad3c7d25e066b09acd86735bc58d45fec6bfe8d19ee6fb3ad5a176bc7c"
+  },
+  {
+    "name": "output.tsv",
+    "bytes": 2405128,
+    "sha256": "b0b8c66489c9e7186d34d9feeb437d674c3019dd29be666d70f0f7365d8b6e5e"
+  },
+  {
+    "name": "pose-crosscheck.json",
+    "bytes": 3543,
+    "sha256": "60c36faf05fb3637c55663765fb157b223db0dc7df22f39d7387c9983e944058"
+  },
+  {
+    "name": "pose-crosscheck.log",
+    "bytes": 3543,
+    "sha256": "60c36faf05fb3637c55663765fb157b223db0dc7df22f39d7387c9983e944058"
+  },
+  {
+    "name": "pose-crosscheck.py",
+    "bytes": 2637,
+    "sha256": "c66dc6094e8ef2bbb886b588e6f686c90601cece930cd980044b17cbeef46512"
+  }
+]
