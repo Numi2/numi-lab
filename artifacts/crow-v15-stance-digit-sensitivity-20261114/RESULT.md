@@ -1,0 +1,3 @@
+# Stance digit sensitivity
+
+At the first sampled lost-foretoe state, increasing all front toe proximal and distal joint angles together reduces modeled foretoe/perch separation at approximately 0.035–0.042 m per radian, while leaving rear toe geometry unchanged in this fixed-state perturbation. Increasing the rear angles reduces rear separation without moving the foretoes. The zero-perturbation results exactly match the previously independently cross-checked stance geometry. These are local finite differences, not reachable trajectories, forces or demonstrated contacts; a paired physical control test is required.
