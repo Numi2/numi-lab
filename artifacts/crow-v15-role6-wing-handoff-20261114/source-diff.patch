@@ -1,0 +1,76 @@
+--- /private/tmp/crow-release-gated-baseline.metal	2026-11-14 19:40:14
++++ artifacts/crow-v15-role6-wing-handoff-20261114/push.metal	2026-11-14 19:41:34
+@@ -5815,6 +5815,73 @@
+                 else targetCandidate=defaultQ[binding.indices.z]+ramp*.06f*sin(phase+3.14159265359f);
+             }
+         }
++        // Development-only: transition from release-gated launch to the prior role-6 wing law.
++        if (fixedFlightController && state.episode.z==10u && action<=5u &&
++            float(state.episode.x)*dispatch.timing.x>=10.02f &&
++            float(state.episode.x)*dispatch.timing.x<36.02f && (state.status.w & 8192u)!=0u) {
++            const float t=float(state.episode.x)*dispatch.timing.x;
++            const float onset=7.50f;
++            const float launchPhase=kTwoPi*6.4f*(t-onset);
++            const float launchRamp=smoothstep(onset,onset+0.04f,t);
++            const float amplitudes[4]={.70f,.75f,.80f,.85f};
++            float launchTarget=defaultQ[binding.indices.z];
++            if (action<=1u) launchTarget+=launchRamp*mix(.55f,amplitudes[environment%4u],smoothstep(7.50f,7.58f,t))*sin(launchPhase);
++            else if (action<=3u) launchTarget+=launchRamp*.12f;
++            else launchTarget+=launchRamp*.06f*sin(launchPhase+3.14159265359f);
++            const float seconds=float(state.episode.x)*dispatch.timing.x;
++            const uint arm=6u;
++            const float start=arm>=6u ? 7.42f : 7.44f;
++            targetCandidate=defaultQ[binding.indices.z];
++            if (arm>=2u && seconds>=start && seconds<36.02f) {
++                const float phase=kTwoPi*6.4f*(seconds-start);
++                const float blend=smoothstep(8.20f,8.60f,seconds);
++                // Signed, fixed wing-sweep identification: no injected body force.
++                const float speedGain=0.12f;
++                const float sweep=clamp(-0.04f+speedGain*(0.35f-state.commandExtension.z),-0.09f,0.025f);
++                if (action<=1u) {
++                    // Used-seed diagnostic: bounded feedback through physical flap targets.
++                    // airReturnTracking.y is the preceding accepted root height.
++                    const float heightEnvelope=smoothstep(9.0f,9.5f,seconds);
++                    const float heightSwitch=smoothstep(24.0f,24.5f,seconds);
++                    const float heightTarget=arm==6u ? mix(0.55f,0.80f,heightSwitch) : mix(0.80f,0.55f,heightSwitch);
++                    const float heightDelta=arm>=6u ? clamp(0.08f*(heightTarget-state.airReturnTracking.y)-0.003f,-0.020f,0.012f)*heightEnvelope : 0.0f;
++                    float amplitude=(arm>=6u ? mix(0.55f,0.70f,smoothstep(7.50f,7.58f,seconds)) : 0.70f)+heightDelta;
++                    if (arm>=6u) amplitude+=(arm==6u ? .04f : .08f)*smoothstep(7.90f,8.10f,seconds)*(1.0f-smoothstep(10.00f,10.50f,seconds));
++                    if (arm>=2u && seconds>9.0f) {
++                        const float onset=smoothstep(9.0f,9.5f,seconds);
++                        // In this journey band the task may reuse threatTeacher.x for
++                        // pitch rate after publishing navigation feedback. Recover
++                        // the earlier yaw-frame lateral speed from tracking error.
++                        const bool trackingFeedbackReused =
++                            (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK) == 0u;
++                        const float lateralSpeed = trackingFeedbackReused
++                            ? state.threatGeometry.y + state.commandAndPhase.y
++                            : state.threatTeacher.x;
++                        const float lateralGain=1.20f;
++                        const float bankLimit=0.18f;
++                        const float positionGain = arm<4u ? 0.0f : arm<6u ? 0.10f : 0.20f;
++                        const float courseCorrection=clamp(positionGain*state.airReturnTracking.x,-0.20f,0.20f);
++                        const float targetBank=clamp(lateralGain*(lateralSpeed+courseCorrection),-bankLimit,bankLimit);
++                        const float delta=onset*clamp(0.08f*(targetBank-state.threatTeacher.y)-0.025f*state.threatTeacher.z,-0.025f,0.025f);
++                        amplitude+=(action==0u ? delta : -delta);
++                    }
++                    targetCandidate+=amplitude*smoothstep(start,start+0.04f,seconds)*sin(phase);
++                }
++                else if (action<=3u) targetCandidate+=mix(0.12f,sweep,blend)*smoothstep(start,start+0.04f,seconds);
++                else {
++                    // Reduced symmetric twist is a joint-target experiment;
++                    // it does not change physical drive limits or body forces.
++                    const float twistAmplitude=arm<4u ? 0.06f : arm<6u ? 0.10f : mix(0.06f,0.0f,smoothstep(10.0f,10.5f,seconds));
++                    const float twistPhase=3.14159265359f;
++                    targetCandidate+=twistAmplitude*smoothstep(start,start+0.04f,seconds)*sin(phase+twistPhase);
++                    const float turnEnvelope=smoothstep(12.0f,12.5f,seconds)*(1.0f-smoothstep(23.5f,24.0f,seconds));
++                    const float phaseGate=smoothstep(-0.2f,0.2f,0.55f*sin(phase)-0.83f*cos(phase));
++                    const float turnSign=arm==6u ? 1.0f : arm==7u ? -1.0f : 0.0f;
++                    targetCandidate+=(action==4u ? 1.0f : -1.0f)*turnSign*0.0f*turnEnvelope*phaseGate;
++                }
++            }
++            targetCandidate=mix(launchTarget,targetCandidate,smoothstep(10.02f,10.52f,t));
++        }
+         // Diagnostic ablation: match the tail across push and hold arms.
+         if (fixedFlightController && state.episode.z==10u && action==6u && float(state.episode.x)*dispatch.timing.x>=6.30f && float(state.episode.x)*dispatch.timing.x<10.02f) targetCandidate=.27f;
+         const float target = clamp(
