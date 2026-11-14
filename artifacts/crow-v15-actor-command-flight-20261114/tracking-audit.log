@@ -1,0 +1,375 @@
+{
+  "worst_substep_by_lane_and_side": [
+    {
+      "lane": 0,
+      "interval": 1082,
+      "substep": 0,
+      "side": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": 0.0,
+      "position_rad": 0.0723775402,
+      "speed_rad_s": 0.0109978979,
+      "absolute_error_rad": 0.0723775402
+    },
+    {
+      "lane": 0,
+      "interval": 1023,
+      "substep": 0,
+      "side": 1,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0700000003,
+      "position_rad": 0.000256333413,
+      "speed_rad_s": -0.0223669074,
+      "absolute_error_rad": 0.07025633371300001
+    },
+    {
+      "lane": 1,
+      "interval": 612,
+      "substep": 9,
+      "side": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0378478244,
+      "position_rad": 0.0416545421,
+      "speed_rad_s": 0.0274008531,
+      "absolute_error_rad": 0.0795023665
+    },
+    {
+      "lane": 1,
+      "interval": 601,
+      "substep": 0,
+      "side": 1,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0613516495,
+      "position_rad": 0.00105593412,
+      "speed_rad_s": -0.09129823,
+      "absolute_error_rad": 0.06240758362
+    },
+    {
+      "lane": 2,
+      "interval": 871,
+      "substep": 4,
+      "side": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": 0.0,
+      "position_rad": 0.068171367,
+      "speed_rad_s": 0.120756179,
+      "absolute_error_rad": 0.068171367
+    },
+    {
+      "lane": 2,
+      "interval": 602,
+      "substep": 0,
+      "side": 1,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0586232021,
+      "position_rad": 0.00868515112,
+      "speed_rad_s": 0.184167102,
+      "absolute_error_rad": 0.06730835322
+    },
+    {
+      "lane": 3,
+      "interval": 785,
+      "substep": 4,
+      "side": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": 0.0,
+      "position_rad": 0.0663257316,
+      "speed_rad_s": 0.107730359,
+      "absolute_error_rad": 0.0663257316
+    },
+    {
+      "lane": 3,
+      "interval": 859,
+      "substep": 0,
+      "side": 1,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0609400719,
+      "position_rad": 0.000334599143,
+      "speed_rad_s": -0.0315774828,
+      "absolute_error_rad": 0.061274671042999995
+    },
+    {
+      "lane": 4,
+      "interval": 665,
+      "substep": 2,
+      "side": 0,
+      "effort_Nm": 0.150000006,
+      "target_rad": 0.0584610775,
+      "position_rad": -0.0274160933,
+      "speed_rad_s": -0.26177004,
+      "absolute_error_rad": 0.0858771708
+    },
+    {
+      "lane": 4,
+      "interval": 667,
+      "substep": 15,
+      "side": 1,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0613769703,
+      "position_rad": 0.0504514575,
+      "speed_rad_s": 0.651121855,
+      "absolute_error_rad": 0.11182842779999999
+    },
+    {
+      "lane": 5,
+      "interval": 707,
+      "substep": 3,
+      "side": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": 0.0,
+      "position_rad": 0.065536581,
+      "speed_rad_s": 0.160164922,
+      "absolute_error_rad": 0.065536581
+    },
+    {
+      "lane": 5,
+      "interval": 1112,
+      "substep": 0,
+      "side": 1,
+      "effort_Nm": 0.150000006,
+      "target_rad": 0.0398161709,
+      "position_rad": -0.0221284721,
+      "speed_rad_s": 0.625083745,
+      "absolute_error_rad": 0.06194464300000001
+    },
+    {
+      "lane": 6,
+      "interval": 602,
+      "substep": 4,
+      "side": 0,
+      "effort_Nm": 0.150000006,
+      "target_rad": 0.059643425,
+      "position_rad": -0.0332139209,
+      "speed_rad_s": -0.0370675623,
+      "absolute_error_rad": 0.0928573459
+    },
+    {
+      "lane": 6,
+      "interval": 602,
+      "substep": 4,
+      "side": 1,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.059643425,
+      "position_rad": 0.0339555554,
+      "speed_rad_s": 0.21541436,
+      "absolute_error_rad": 0.0935989804
+    },
+    {
+      "lane": 7,
+      "interval": 707,
+      "substep": 3,
+      "side": 0,
+      "effort_Nm": -0.150000006,
+      "target_rad": 0.0,
+      "position_rad": 0.0670991465,
+      "speed_rad_s": 0.20241195,
+      "absolute_error_rad": 0.0670991465
+    },
+    {
+      "lane": 7,
+      "interval": 626,
+      "substep": 1,
+      "side": 1,
+      "effort_Nm": -0.150000006,
+      "target_rad": -0.0452559702,
+      "position_rad": 0.0183200371,
+      "speed_rad_s": 0.24470827,
+      "absolute_error_rad": 0.0635760073
+    }
+  ],
+  "largest_interval_target_changes": [
+    {
+      "lane": 4,
+      "interval": 596,
+      "side": 0,
+      "previous_target": 0.0558554716,
+      "target": -0.0700000003,
+      "absolute_interval_change_rad": 0.12585547190000002
+    },
+    {
+      "lane": 4,
+      "interval": 596,
+      "side": 1,
+      "previous_target": -0.0558554716,
+      "target": 0.0700000003,
+      "absolute_interval_change_rad": 0.12585547190000002
+    },
+    {
+      "lane": 4,
+      "interval": 667,
+      "side": 0,
+      "previous_target": -0.0479514115,
+      "target": 0.0613769703,
+      "absolute_interval_change_rad": 0.1093283818
+    },
+    {
+      "lane": 4,
+      "interval": 667,
+      "side": 1,
+      "previous_target": 0.0479514115,
+      "target": -0.0613769703,
+      "absolute_interval_change_rad": 0.1093283818
+    },
+    {
+      "lane": 4,
+      "interval": 666,
+      "side": 0,
+      "previous_target": 0.0584610775,
+      "target": -0.0479514115,
+      "absolute_interval_change_rad": 0.106412489
+    },
+    {
+      "lane": 4,
+      "interval": 666,
+      "side": 1,
+      "previous_target": -0.0584610775,
+      "target": 0.0479514115,
+      "absolute_interval_change_rad": 0.106412489
+    },
+    {
+      "lane": 2,
+      "interval": 589,
+      "side": 0,
+      "previous_target": 0.0574062392,
+      "target": -0.0481686331,
+      "absolute_interval_change_rad": 0.1055748723
+    },
+    {
+      "lane": 2,
+      "interval": 589,
+      "side": 1,
+      "previous_target": -0.0574062392,
+      "target": 0.0481686331,
+      "absolute_interval_change_rad": 0.1055748723
+    },
+    {
+      "lane": 6,
+      "interval": 589,
+      "side": 0,
+      "previous_target": 0.0602773651,
+      "target": -0.0443835966,
+      "absolute_interval_change_rad": 0.1046609617
+    },
+    {
+      "lane": 6,
+      "interval": 589,
+      "side": 1,
+      "previous_target": -0.0602773651,
+      "target": 0.0443835966,
+      "absolute_interval_change_rad": 0.1046609617
+    },
+    {
+      "lane": 6,
+      "interval": 602,
+      "side": 0,
+      "previous_target": -0.0445198119,
+      "target": 0.059643425,
+      "absolute_interval_change_rad": 0.1041632369
+    },
+    {
+      "lane": 6,
+      "interval": 602,
+      "side": 1,
+      "previous_target": 0.0445198119,
+      "target": -0.059643425,
+      "absolute_interval_change_rad": 0.1041632369
+    },
+    {
+      "lane": 3,
+      "interval": 589,
+      "side": 0,
+      "previous_target": 0.0593443848,
+      "target": -0.0396254733,
+      "absolute_interval_change_rad": 0.0989698581
+    },
+    {
+      "lane": 3,
+      "interval": 589,
+      "side": 1,
+      "previous_target": -0.0593443848,
+      "target": 0.0396254733,
+      "absolute_interval_change_rad": 0.0989698581
+    },
+    {
+      "lane": 1,
+      "interval": 596,
+      "side": 0,
+      "previous_target": 0.0509039722,
+      "target": -0.0456134528,
+      "absolute_interval_change_rad": 0.096517425
+    },
+    {
+      "lane": 1,
+      "interval": 596,
+      "side": 1,
+      "previous_target": -0.0509039722,
+      "target": 0.0456134528,
+      "absolute_interval_change_rad": 0.096517425
+    },
+    {
+      "lane": 4,
+      "interval": 665,
+      "side": 0,
+      "previous_target": -0.0367614254,
+      "target": 0.0584610775,
+      "absolute_interval_change_rad": 0.0952225029
+    },
+    {
+      "lane": 4,
+      "interval": 665,
+      "side": 1,
+      "previous_target": 0.0367614254,
+      "target": -0.0584610775,
+      "absolute_interval_change_rad": 0.0952225029
+    },
+    {
+      "lane": 2,
+      "interval": 587,
+      "side": 0,
+      "previous_target": 0.057894703,
+      "target": -0.0365650207,
+      "absolute_interval_change_rad": 0.0944597237
+    },
+    {
+      "lane": 2,
+      "interval": 587,
+      "side": 1,
+      "previous_target": -0.057894703,
+      "target": 0.0365650207,
+      "absolute_interval_change_rad": 0.0944597237
+    },
+    {
+      "lane": 2,
+      "interval": 588,
+      "side": 0,
+      "previous_target": -0.0365650207,
+      "target": 0.0574062392,
+      "absolute_interval_change_rad": 0.09397125989999999
+    },
+    {
+      "lane": 2,
+      "interval": 588,
+      "side": 1,
+      "previous_target": 0.0365650207,
+      "target": -0.0574062392,
+      "absolute_interval_change_rad": 0.09397125989999999
+    },
+    {
+      "lane": 3,
+      "interval": 581,
+      "side": 0,
+      "previous_target": 0.058196377,
+      "target": -0.0356986262,
+      "absolute_interval_change_rad": 0.0938950032
+    },
+    {
+      "lane": 3,
+      "interval": 581,
+      "side": 1,
+      "previous_target": -0.058196377,
+      "target": 0.0356986262,
+      "absolute_interval_change_rad": 0.0938950032
+    }
+  ],
+  "scope": "recorded pronation observer and drive target; maximum errors are over observer coverage"
+}

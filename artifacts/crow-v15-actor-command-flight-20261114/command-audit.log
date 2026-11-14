@@ -1,0 +1,221 @@
+{
+  "ranked_fixed_offset_and_lag_hypotheses": [
+    {
+      "action_offset": 4,
+      "candidate_state_lag_intervals": 0,
+      "samples": 4928,
+      "median_abs_difference_rad": 2.9999999984209325e-09,
+      "mean_abs_difference_rad": 0.017345998599100337,
+      "max_abs_difference_rad": 0.10112425853404887,
+      "fraction_within_0_001_rad": 0.5984172077922078
+    },
+    {
+      "action_offset": 0,
+      "candidate_state_lag_intervals": 2,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.0165848013,
+      "mean_abs_difference_rad": 0.022875523130277027,
+      "max_abs_difference_rad": 0.11645665360000002,
+      "fraction_within_0_001_rad": 0.03469967532467533
+    },
+    {
+      "action_offset": 0,
+      "candidate_state_lag_intervals": 0,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.01953021586,
+      "mean_abs_difference_rad": 0.02362978696320892,
+      "max_abs_difference_rad": 0.10701421156647645,
+      "fraction_within_0_001_rad": 0.3106737012987013
+    },
+    {
+      "action_offset": 0,
+      "candidate_state_lag_intervals": 3,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.01968660531,
+      "mean_abs_difference_rad": 0.025958455598147072,
+      "max_abs_difference_rad": 0.12646858392785307,
+      "fraction_within_0_001_rad": 0.028814935064935064
+    },
+    {
+      "action_offset": 0,
+      "candidate_state_lag_intervals": 1,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.020998442800000003,
+      "mean_abs_difference_rad": 0.02650076497529073,
+      "max_abs_difference_rad": 0.12598012227785305,
+      "fraction_within_0_001_rad": 0.028409090909090908
+    },
+    {
+      "action_offset": 0,
+      "candidate_state_lag_intervals": -2,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.021306997599999995,
+      "mean_abs_difference_rad": 0.026743969826385074,
+      "max_abs_difference_rad": 0.1259000257,
+      "fraction_within_0_001_rad": 0.025974025974025976
+    },
+    {
+      "action_offset": 4,
+      "candidate_state_lag_intervals": 1,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.01853304375,
+      "mean_abs_difference_rad": 0.02690181621129565,
+      "max_abs_difference_rad": 0.12486924072785306,
+      "fraction_within_0_001_rad": 0.03591720779220779
+    },
+    {
+      "action_offset": 4,
+      "candidate_state_lag_intervals": -1,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.019143074750000003,
+      "mean_abs_difference_rad": 0.027125254871188356,
+      "max_abs_difference_rad": 0.1067614254,
+      "fraction_within_0_001_rad": 0.03551136363636364
+    },
+    {
+      "action_offset": 8,
+      "candidate_state_lag_intervals": 3,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.0231861659,
+      "mean_abs_difference_rad": 0.028542465387568904,
+      "max_abs_difference_rad": 0.12315578229999999,
+      "fraction_within_0_001_rad": 0.026582792207792208
+    },
+    {
+      "action_offset": 8,
+      "candidate_state_lag_intervals": 2,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.024157070774999997,
+      "mean_abs_difference_rad": 0.02864316330503269,
+      "max_abs_difference_rad": 0.11948490965,
+      "fraction_within_0_001_rad": 0.03145292207792208
+    },
+    {
+      "action_offset": 4,
+      "candidate_state_lag_intervals": 2,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.022300621335,
+      "mean_abs_difference_rad": 0.029005943637291684,
+      "max_abs_difference_rad": 0.10112425853404887,
+      "fraction_within_0_001_rad": 0.023944805194805196
+    },
+    {
+      "action_offset": 0,
+      "candidate_state_lag_intervals": -1,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.025018209189999998,
+      "mean_abs_difference_rad": 0.029670698285090474,
+      "max_abs_difference_rad": 0.1400000003,
+      "fraction_within_0_001_rad": 0.025162337662337664
+    },
+    {
+      "action_offset": 8,
+      "candidate_state_lag_intervals": -2,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.024446019550000003,
+      "mean_abs_difference_rad": 0.02995413195196039,
+      "max_abs_difference_rad": 0.12510091949669763,
+      "fraction_within_0_001_rad": 0.026176948051948052
+    },
+    {
+      "action_offset": 12,
+      "candidate_state_lag_intervals": 2,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.023670445015,
+      "mean_abs_difference_rad": 0.030028685620228982,
+      "max_abs_difference_rad": 0.11998879130000001,
+      "fraction_within_0_001_rad": 0.026785714285714284
+    },
+    {
+      "action_offset": 4,
+      "candidate_state_lag_intervals": -2,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.023830814599999996,
+      "mean_abs_difference_rad": 0.030421305495362913,
+      "max_abs_difference_rad": 0.10112425853404887,
+      "fraction_within_0_001_rad": 0.020292207792207792
+    },
+    {
+      "action_offset": 8,
+      "candidate_state_lag_intervals": 1,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.025868389965,
+      "mean_abs_difference_rad": 0.030955180456132898,
+      "max_abs_difference_rad": 0.12404242500000001,
+      "fraction_within_0_001_rad": 0.024350649350649352
+    },
+    {
+      "action_offset": 12,
+      "candidate_state_lag_intervals": 3,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.025304748950000004,
+      "mean_abs_difference_rad": 0.031055017212652164,
+      "max_abs_difference_rad": 0.13483351767785307,
+      "fraction_within_0_001_rad": 0.020495129870129872
+    },
+    {
+      "action_offset": 4,
+      "candidate_state_lag_intervals": 3,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.025908453749999998,
+      "mean_abs_difference_rad": 0.03155126468131058,
+      "max_abs_difference_rad": 0.12482894952785306,
+      "fraction_within_0_001_rad": 0.026379870129870128
+    },
+    {
+      "action_offset": 12,
+      "candidate_state_lag_intervals": 1,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.025662729099999997,
+      "mean_abs_difference_rad": 0.031842962940949,
+      "max_abs_difference_rad": 0.13857388462785308,
+      "fraction_within_0_001_rad": 0.030641233766233768
+    },
+    {
+      "action_offset": 8,
+      "candidate_state_lag_intervals": 0,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.027248774505000004,
+      "mean_abs_difference_rad": 0.03197630396468681,
+      "max_abs_difference_rad": 0.11998879130000001,
+      "fraction_within_0_001_rad": 0.040381493506493504
+    },
+    {
+      "action_offset": 12,
+      "candidate_state_lag_intervals": 0,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.02826471970000001,
+      "mean_abs_difference_rad": 0.03239302581265684,
+      "max_abs_difference_rad": 0.11998879130000001,
+      "fraction_within_0_001_rad": 0.1028814935064935
+    },
+    {
+      "action_offset": 8,
+      "candidate_state_lag_intervals": -1,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.025916794885,
+      "mean_abs_difference_rad": 0.032735867603359364,
+      "max_abs_difference_rad": 0.136069141,
+      "fraction_within_0_001_rad": 0.027800324675324676
+    },
+    {
+      "action_offset": 12,
+      "candidate_state_lag_intervals": -2,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.031739108615000004,
+      "mean_abs_difference_rad": 0.034710007841343704,
+      "max_abs_difference_rad": 0.11648613057785306,
+      "fraction_within_0_001_rad": 0.022727272727272728
+    },
+    {
+      "action_offset": 12,
+      "candidate_state_lag_intervals": -1,
+      "samples": 4928,
+      "median_abs_difference_rad": 0.03127660315,
+      "mean_abs_difference_rad": 0.03532701368049136,
+      "max_abs_difference_rad": 0.13857388462785308,
+      "fraction_within_0_001_rad": 0.026582792207792208
+    }
+  ],
+  "scope": "exploratory reconstruction from recorded policy actions and differential target; actor head can switch with waypoint and observer epochs are not independently aligned, so a mismatch does not by itself establish non-consumption and a match is not full provenance"
+}
