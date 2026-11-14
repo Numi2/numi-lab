@@ -1,0 +1,62 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "roll_difference_rad": 0.14849235047691503,
+      "pitch_difference_rad": 0.08099378187515395,
+      "forward_velocity_difference_m_s": -0.002285709599999998,
+      "roll_pitch_changed": true
+    },
+    {
+      "lane": 1,
+      "roll_difference_rad": -0.10608266031835283,
+      "pitch_difference_rad": 0.07858141779907873,
+      "forward_velocity_difference_m_s": 0.028727194428,
+      "roll_pitch_changed": true
+    },
+    {
+      "lane": 2,
+      "roll_difference_rad": 0.0725149253342694,
+      "pitch_difference_rad": -0.0794058948362962,
+      "forward_velocity_difference_m_s": 0.04921490595,
+      "roll_pitch_changed": true
+    },
+    {
+      "lane": 3,
+      "roll_difference_rad": -0.08696627589127046,
+      "pitch_difference_rad": -0.07940904271157898,
+      "forward_velocity_difference_m_s": 0.0492332308,
+      "roll_pitch_changed": true
+    },
+    {
+      "lane": 4,
+      "roll_difference_rad": 0.07175777032499109,
+      "pitch_difference_rad": 0.08012306107422389,
+      "forward_velocity_difference_m_s": -0.0827185251,
+      "roll_pitch_changed": true
+    },
+    {
+      "lane": 5,
+      "roll_difference_rad": -0.06301936200030808,
+      "pitch_difference_rad": 0.07910640491021032,
+      "forward_velocity_difference_m_s": -0.0734212826,
+      "roll_pitch_changed": true
+    },
+    {
+      "lane": 6,
+      "roll_difference_rad": 0.07166171419214852,
+      "pitch_difference_rad": -0.07943283067515794,
+      "forward_velocity_difference_m_s": -0.04922846518,
+      "roll_pitch_changed": true
+    },
+    {
+      "lane": 7,
+      "roll_difference_rad": -0.06502617930018201,
+      "pitch_difference_rad": -0.07944540318425196,
+      "forward_velocity_difference_m_s": -0.0493008438,
+      "roll_pitch_changed": true
+    }
+  ],
+  "all_changed": true,
+  "scope": "first accepted state after initial contact solve; not exact pre-solve reset state"
+}
