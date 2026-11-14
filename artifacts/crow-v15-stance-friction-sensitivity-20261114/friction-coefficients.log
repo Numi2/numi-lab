@@ -1,0 +1,16 @@
+{
+  "baseline": [
+    {
+      "static": 0.800000012,
+      "dynamic": 0.600000024,
+      "contact_rows": 359212
+    }
+  ],
+  "high": [
+    {
+      "static": 1.19999993,
+      "dynamic": 0.900000036,
+      "contact_rows": 362834
+    }
+  ]
+}
