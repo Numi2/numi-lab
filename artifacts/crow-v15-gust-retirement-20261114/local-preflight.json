@@ -1,0 +1,46 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-airborne-gust-screen-20261114/turn-20261126-rebound-gust/run.stderr.gz",
+      "inode": 204547746,
+      "bytes": 158858604,
+      "mtime_ns": 1794672160019638261,
+      "sha256": "d5282d341ebfe8ea42fe086d0f73ccbc3c2e58a9752138b2c5f65b21f4f5c7e9",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-airborne-gust-screen-20261114/turn-20261126-rebound-gust/run.stderr.gz.part000",
+      "inode": 204548248,
+      "bytes": 41943040,
+      "mtime_ns": 1794672186373420547,
+      "sha256": "bac856fb60e5044fbd431ac43290c525b9e15266153d4b2b412e1ea8f3b3a356",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-airborne-gust-screen-20261114/turn-20261126-rebound-gust/run.stderr.gz.part001",
+      "inode": 204548254,
+      "bytes": 41943040,
+      "mtime_ns": 1794672186951145782,
+      "sha256": "0c6921698c2e0c187458e7f32e78b19a41a9d8bf2196d394b7b279eb9dab8858",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-airborne-gust-screen-20261114/turn-20261126-rebound-gust/run.stderr.gz.part002",
+      "inode": 204548270,
+      "bytes": 41943040,
+      "mtime_ns": 1794672187359767726,
+      "sha256": "36834e239983cf4341dd5c9af93248c66d43b6253577c28b2936c8e344cce3c7",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-airborne-gust-screen-20261114/turn-20261126-rebound-gust/run.stderr.gz.part003",
+      "inode": 204548276,
+      "bytes": 33029484,
+      "mtime_ns": 1794672187773344250,
+      "sha256": "342251ea5d7dce610bd35c5afdd7e04be04778293ca1871fc4937fd8d6520968",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 317717208
+}

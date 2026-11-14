@@ -1,0 +1,213 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [
+        702,
+        703,
+        704,
+        705,
+        706
+      ],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.01650661928,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        3.6008235294114484e-06,
+        0.00030475143018585446,
+        0.001092574185557271
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 1,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [
+        702,
+        703,
+        704,
+        705,
+        706
+      ],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.0175831337,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        0.0001089853529411789,
+        0.0003692452412038659,
+        0.0015210961418199013
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [
+        702,
+        703,
+        704,
+        705,
+        706
+      ],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.01757475826,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        3.567396078430147e-05,
+        0.0003789875907373315,
+        0.0015170065985484285
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 3,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [
+        702,
+        703,
+        704,
+        705,
+        706
+      ],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.01650923544,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        0.00020751764705881741,
+        0.00031850987286300174,
+        0.0011421592080748978
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 4,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [
+        702,
+        703,
+        704,
+        705,
+        706
+      ],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.01650856389,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        7.798274509803815e-05,
+        0.0003198958397190377,
+        0.001107390822306031
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 5,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [
+        702,
+        703,
+        704,
+        705,
+        706
+      ],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.01757675502,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        1.6191411764702767e-05,
+        0.0003493990057048321,
+        0.001509047546035369
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 6,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [
+        702,
+        703,
+        704,
+        705,
+        706
+      ],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.017575669080000002,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        0.00011663335294118061,
+        0.00030100053109363993,
+        0.0015024159013961532
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [
+        702,
+        703,
+        704,
+        705,
+        706
+      ],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.016509290359999998,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        3.98695882352912e-05,
+        0.00025704477185393006,
+        0.001105528792554279
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    }
+  ],
+  "observer_errors": [],
+  "original_shared_inputs_checks": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "height_lane_gates": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "shared_nonhost_inputs_match": true,
+  "instrumented_host_hash_identified": true,
+  "all_pass": false,
+  "scope": "used-seed finite gust engineering screen; does not establish a general recovery envelope or navigation"
+}

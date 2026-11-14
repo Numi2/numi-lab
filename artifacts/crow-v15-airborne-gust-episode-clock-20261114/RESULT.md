@@ -1,0 +1,5 @@
+# Episode-clock gust: measurable response, registered timing gate failed
+
+All eight lanes matched the same-seed reference in q/v/action/contact through interval 690. The native pre-aero wrench observer recorded the requested signed 0.08 N lateral force and 0.004 N m roll torque for five complete observed steps 702–706, and zero corresponding components outside the pulse. Peak lateral-velocity or roll-rate deviation was 0.0165–0.0176 in the prescribed response window. Over intervals 850–900, all eight lanes met the registered height, attitude and velocity deviation thresholds, and the physical and individual altitude screens passed with the instrumented host identity reported separately.
+
+The preregistered audit accepted pulse starts at observer step 700 or 701, so this run **fails that timing gate**. Its measured response and recovery are exploratory until the offset between task episode counter and observer labels is directly observed. A separately registered observer-only replay tests that mapping; this run does not qualify flight, disturbed-start recovery in general, navigation, or biological realism.
