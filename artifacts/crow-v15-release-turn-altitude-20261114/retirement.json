@@ -1,0 +1,16 @@
+{
+  "archive_commit": "d9d0b269",
+  "remote_verification_commit": "9b25ca47",
+  "removed": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-release-turn-altitude-20261114/push-20261126-rebound-integrated/run.stderr.gz",
+  "bytes": 161426877,
+  "sha256": "ef23a4a00cfb2a8ad055098deb2acf1985490e11476044f89c2902d992768bd1",
+  "checks": [
+    "regular file",
+    "not symlink",
+    "single link",
+    "exact size and sha256",
+    "lsof no open handles",
+    "independent GitHub streamed part and aggregate verification with gzip EOF"
+  ],
+  "retired": true
+}
