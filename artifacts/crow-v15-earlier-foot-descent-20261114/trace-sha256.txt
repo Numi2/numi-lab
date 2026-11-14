@@ -1,0 +1,2 @@
+172cb306d92ffd0e8bde80685f7f0d7e1acc409cb6370157def38b223fd5ba07  artifacts/crow-v15-earlier-foot-descent-20261114/trace.log.gz
+3f53c680e9dc6ab872b28221302c7f2db42e8ec3f2bc8551fed2cd562a2c6cab  artifacts/crow-v15-earlier-foot-descent-20261114/substeps.log.gz
