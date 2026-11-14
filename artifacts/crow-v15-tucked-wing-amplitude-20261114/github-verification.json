@@ -1,0 +1,17 @@
+{
+  "source_commit": "ba030280",
+  "arms": {
+    "push": {
+      "path": "artifacts/crow-v15-tucked-wing-amplitude-20261114/push-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 38515641,
+      "sha256": "6c81f3dc0e4fc0a061913d1cbc11bab2e8f445d67d24be4b45ae61c8fa1e34c5",
+      "gzip_eof": true
+    },
+    "hold": {
+      "path": "artifacts/crow-v15-tucked-wing-amplitude-20261114/hold-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 38706715,
+      "sha256": "6ecf08b43e9b1e7bc8a63549415cae3b01fd3f1f6243b575d1865263edcb726e",
+      "gzip_eof": true
+    }
+  }
+}
