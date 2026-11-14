@@ -1,0 +1,14 @@
+{
+  "archive_commit": "96762cb9",
+  "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-gust-wrench-observer-20261114/push-20261126-rebound-gust/run.stderr.gz",
+  "bytes": 191120361,
+  "sha256": "883c7bebc8853e39c4a1da432583496f7e3259c5b38d6de598c9aceb6ea4a57d",
+  "retired": true,
+  "checks": [
+    "regular file",
+    "single link",
+    "exact size and sha256",
+    "lsof no open handles",
+    "independent GitHub streamed part and aggregate verification with gzip EOF"
+  ]
+}
