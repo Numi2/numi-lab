@@ -1,0 +1,141 @@
+{
+  "scope": "Exact logged state parity to short launch through available ticks 1-450, used seed 20261126",
+  "rows": [
+    {
+      "lane": 0,
+      "compared": 450,
+      "missing_steps": [],
+      "mismatch_count": {
+        "q": 0,
+        "v": 0,
+        "policy_action": 0,
+        "contacts": 0
+      },
+      "first_mismatch": {
+        "q": null,
+        "v": null,
+        "policy_action": null,
+        "contacts": null
+      }
+    },
+    {
+      "lane": 1,
+      "compared": 450,
+      "missing_steps": [],
+      "mismatch_count": {
+        "q": 0,
+        "v": 0,
+        "policy_action": 0,
+        "contacts": 0
+      },
+      "first_mismatch": {
+        "q": null,
+        "v": null,
+        "policy_action": null,
+        "contacts": null
+      }
+    },
+    {
+      "lane": 2,
+      "compared": 450,
+      "missing_steps": [],
+      "mismatch_count": {
+        "q": 0,
+        "v": 0,
+        "policy_action": 0,
+        "contacts": 0
+      },
+      "first_mismatch": {
+        "q": null,
+        "v": null,
+        "policy_action": null,
+        "contacts": null
+      }
+    },
+    {
+      "lane": 3,
+      "compared": 450,
+      "missing_steps": [],
+      "mismatch_count": {
+        "q": 0,
+        "v": 0,
+        "policy_action": 0,
+        "contacts": 0
+      },
+      "first_mismatch": {
+        "q": null,
+        "v": null,
+        "policy_action": null,
+        "contacts": null
+      }
+    },
+    {
+      "lane": 4,
+      "compared": 450,
+      "missing_steps": [],
+      "mismatch_count": {
+        "q": 0,
+        "v": 0,
+        "policy_action": 0,
+        "contacts": 0
+      },
+      "first_mismatch": {
+        "q": null,
+        "v": null,
+        "policy_action": null,
+        "contacts": null
+      }
+    },
+    {
+      "lane": 5,
+      "compared": 450,
+      "missing_steps": [],
+      "mismatch_count": {
+        "q": 0,
+        "v": 0,
+        "policy_action": 0,
+        "contacts": 0
+      },
+      "first_mismatch": {
+        "q": null,
+        "v": null,
+        "policy_action": null,
+        "contacts": null
+      }
+    },
+    {
+      "lane": 6,
+      "compared": 450,
+      "missing_steps": [],
+      "mismatch_count": {
+        "q": 0,
+        "v": 0,
+        "policy_action": 0,
+        "contacts": 0
+      },
+      "first_mismatch": {
+        "q": null,
+        "v": null,
+        "policy_action": null,
+        "contacts": null
+      }
+    },
+    {
+      "lane": 7,
+      "compared": 450,
+      "missing_steps": [],
+      "mismatch_count": {
+        "q": 0,
+        "v": 0,
+        "policy_action": 0,
+        "contacts": 0
+      },
+      "first_mismatch": {
+        "q": null,
+        "v": null,
+        "policy_action": null,
+        "contacts": null
+      }
+    }
+  ]
+}
