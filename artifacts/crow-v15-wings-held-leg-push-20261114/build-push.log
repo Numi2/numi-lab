@@ -1,0 +1,17 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-wings-held-leg-push-20261114/push.metal:5255:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=6u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-wings-held-leg-push-20261114/push.metal:5280:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-wings-held-leg-push-20261114/push.metal:5684:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-wings-held-leg-push-20261114/push.metal:5810:29: warning: unused variable 'phase' [-Wunused-variable]
+                const float phase=kTwoPi*6.4f*(t-onset);
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-wings-held-leg-push-20261114/push.metal:5811:29: warning: unused variable 'ramp' [-Wunused-variable]
+                const float ramp=smoothstep(onset,onset+0.04f,t);
+                            ^
+5 warnings generated.
+Built candidate metallib: ec78077daa93b65e31655fd6e71510bb176b459a97a5bb25beab0ac3cb54bd7f
