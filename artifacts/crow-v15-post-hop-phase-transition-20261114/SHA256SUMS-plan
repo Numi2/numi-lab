@@ -1,0 +1,10 @@
+a49d6b2d82f6070a30febc61d10c256c5c73d89956d1fbc57f61c4685d9d74cb  artifacts/crow-v15-post-hop-phase-transition-20261114/PLAN.md
+20a7c69f8f2b63128aa31e59f0d28d9090c4e641e0ec4e0839dc010cf05eed2b  artifacts/crow-v15-post-hop-phase-transition-20261114/push.metal
+dec613ea95b88453dd5cae9fb13345808926bc31c08832a0e8100a57da5e296c  artifacts/crow-v15-post-hop-phase-transition-20261114/hold.metal
+5bec59c13ca67c1aaddde6aad594ef5ad4f50af59e15d29e5d12b87afef113d3  artifacts/crow-v15-post-hop-phase-transition-20261114/build.py
+32b36d57398baf7461aadf87c3128cfc5926909b6a2686291000d188d1fad906  artifacts/crow-v15-post-hop-phase-transition-20261114/run.py
+12df55523e6ddbd13cb0d7f7a36d260d2d2a9ca44c951c6e3bb2602995c457d9  artifacts/crow-v15-post-hop-phase-transition-20261114/extract.py
+b0d406728d131972777e97a6d2d8e4c7a99ebbc366bd4365f9ef8f1b08566492  artifacts/crow-v15-post-hop-phase-transition-20261114/continuity.py
+d43f8aa8474ab5a1a5f7a0b4c11223519dc76005459e149c6beaf51462dc0cc3  artifacts/crow-v15-post-hop-phase-transition-20261114/initial-release-analysis.py
+da420430a1995094e2a35d8b322f8582e43338654aeb5845f6c52314e151162a  artifacts/crow-v15-post-hop-phase-transition-20261114/release-diagnostic.py
+85e02c728a5f7582efa17c6ad38ea35e17de43b5dc0fc659a9d5906322aaa36a  artifacts/crow-v15-post-hop-phase-transition-20261114/fk-input.py
