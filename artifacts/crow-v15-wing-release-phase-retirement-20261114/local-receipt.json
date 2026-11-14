@@ -1,0 +1,22 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-wing-release-phase-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204377510,
+      "bytes": 34422786,
+      "mtime_ns": 1794647366137694654,
+      "sha256": "80b8863411bb9a251651f6528186dde29912dc20429a0e8c7d4c181d3e9cb9e7",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-wing-release-phase-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204377668,
+      "bytes": 39433801,
+      "mtime_ns": 1794647381405720398,
+      "sha256": "773bdc47ccb3987aa46344837d894606ac81c0ae461008611bc388db9b313296",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 73856587
+}
