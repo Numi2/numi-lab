@@ -1,0 +1,5 @@
+# Longer clearance before regrip: failed development trial
+
+The staged single-foot release did not complete regrip. Lane 0 reproduces the previous slower-return control; lane 1 waits for 100 consecutive measured clearance intervals before initiating the return. Both had 450 observed intervals and complete, finite 32-substep records, with no reported nonfoot impulse or observer errors. Lane 1's longest independently qualified release was 67 intervals and its return never triggered; no terminal bilateral supported grip occurred. Its root first fell below 0.1 m at interval 432 (control: 368). Maximum observed pre-fall toe speed was 8.60 rad/s in lane 1 (control: 11.45 rad/s).
+
+The first interruption was loss of raised-foot clearance, not loss of stance grip: at zero-based interval 310 the rear digit's perch gap was 0.389 mm, below the 1 mm strict threshold, while the opposing stance-foot grip was still valid. Raised-foot contact followed by interval 320; stance opposing grip was first lost at interval 345. Hip-lift command reached its 0.28 rad cap. This is a constructed stationary development test, not a walking, landing, or autonomous mission qualification.
