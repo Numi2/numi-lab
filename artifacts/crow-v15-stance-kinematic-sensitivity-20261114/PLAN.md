@@ -1,0 +1,3 @@
+# Stance toe kinematic sensitivity
+
+In the failed matched stance-balance run, inspect both lanes' retained accepted poses at ticks 200, 210, 220, 225, 230, 235 and 240. At each pose, hold all other coordinates fixed and evaluate modeled stance foot, foretoe and rear-toe box/perch separation for independent plus/minus 0.02 rad perturbations of stance hip, knee and ankle. Compare zero-perturbation results against independent oriented-box geometry calculations and retain source/binary/model identities. This diagnostic can suggest bounded actuator hypotheses; perturbed coordinates are not a trajectory, contact force, reachable movement, or evidence of grip. The trace and failed result remain unchanged.
