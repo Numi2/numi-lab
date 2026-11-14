@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-contact-gated-stance-geometry-20261114/probe.cpp": "c0783505dc0480a949a522b933e84d9335b5acc92efb056cf1519264777ed04f",
+  "build/crow-v15-contact-gated-stance-geometry-20261114/probe": "f00967230dacb13c8fc38bccf8a7b15b2862bfd4bb6cbf2b583da3dd86e9d67e",
+  "build/crow-v15-perch-toe-substep-velocity-20261114/libmetalrobo.dylib": "e951669314cc97fcf193094b4a4bd76e9d3deb46b726b28cadf074d118c970a3",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}

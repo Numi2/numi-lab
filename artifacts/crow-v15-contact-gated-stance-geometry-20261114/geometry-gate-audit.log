@@ -1,0 +1,13 @@
+{
+  "lanes": {
+    "0": {
+      "first_active_zero_based": null,
+      "peak_offset_rad": 0.0
+    },
+    "1": {
+      "first_active_zero_based": 295,
+      "peak_offset_rad": 0.0199999996
+    }
+  },
+  "scope": "Controller latch is driven by preceding endpoint contact; observer epoch alignment is not independently verified."
+}

@@ -1,0 +1,64 @@
+{
+  "0": {
+    "return_step": 272,
+    "qualifying_steps": [
+      295,
+      296,
+      297,
+      298,
+      299,
+      300,
+      301,
+      302,
+      303,
+      304,
+      305,
+      306,
+      307
+    ],
+    "streaks": [
+      [
+        295,
+        307,
+        13
+      ]
+    ],
+    "failed_gate_counts": {
+      "both_up": 19,
+      "left_opp": 80,
+      "right_opp": 63,
+      "tilt": 40,
+      "speed": 21
+    }
+  },
+  "1": {
+    "return_step": 272,
+    "qualifying_steps": [
+      295,
+      296,
+      297,
+      298,
+      299,
+      300,
+      301,
+      302,
+      303,
+      304,
+      305
+    ],
+    "streaks": [
+      [
+        295,
+        305,
+        11
+      ]
+    ],
+    "failed_gate_counts": {
+      "both_up": 18,
+      "left_opp": 78,
+      "right_opp": 64,
+      "tilt": 40,
+      "speed": 22
+    }
+  }
+}

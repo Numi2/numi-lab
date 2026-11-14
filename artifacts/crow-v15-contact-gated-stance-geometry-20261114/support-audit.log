@@ -1,0 +1,12 @@
+{
+  "control_vs_prior_first_difference": 122,
+  "first_gate_difference_zero_based": 301,
+  "gate_difference_intervals": [
+    301,
+    302,
+    303,
+    305
+  ],
+  "gate_records": 900,
+  "scope": "Endpoint normal-only contacts; gate difference is not evidence of successful supported grip."
+}
