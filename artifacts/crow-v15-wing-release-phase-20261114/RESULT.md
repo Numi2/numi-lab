@@ -1,0 +1,7 @@
+# Opposing first-stroke phases: failed transition
+
+On used seed 20261126, both pushed lanes first unloaded at interval 375 with wing targets held at trim through that interval, observed pre-release flap motion about 0.00190 rad, and modeled vertical aerodynamic impulse about -0.000196 N s over intervals 371–374. The -pi/2 phase candidate recontacted at 376 and the +pi/2 candidate at 380. Both held-leg controls unloaded at 415 and stayed unloaded through 500, with substantial wing movement before their first fully unloaded intervals. Neither phase establishes a reliable leg-powered launch or leg necessity.
+
+The candidate push and hold arms had identical q/v/actions/contacts through step 368; all six untouched lanes matched through 500. Expected shader and shared input hashes matched; teacher was off. No observer error, reported physical failure, nonfoot impulse or toe-speed threshold appeared in the measured window. Contact and toe traces cover every substep through 500; the aero trace stops at 400. Consequently the original audit's 1,600 missing substeps concern aero, and held-leg pre-unload aero sums are partial. See the supplemental coverage audit and retained raw traces.
+
+This is a short used-seed phase identification, not an event-reset phase controller, general flight qualification, landing, unseen navigation or biological evidence. The state/contact epoch relationship for these lanes remains inferred.
