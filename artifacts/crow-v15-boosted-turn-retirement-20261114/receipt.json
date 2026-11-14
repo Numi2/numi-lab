@@ -1,0 +1,70 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-boosted-phase-turn-20261114/turn-20261126-rebound-turn/run.stderr.gz",
+      "inode": 204358314,
+      "bytes": 253672129,
+      "mtime_ns": 1794644207333267566,
+      "sha256": "33a12e770634e48b7bdc4cc6e5b3225108bfab8d6ea1e60c2eb9620a06ce518b",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-boosted-phase-turn-20261114/turn-20261126-rebound-turn/run.stderr.gz.part000",
+      "inode": 204358865,
+      "bytes": 41943040,
+      "mtime_ns": 1794644263597590002,
+      "sha256": "ecad19af980e1b46c1547ad7f37b3f7d705d4267c7a48dd06ff7079b1eb4e222",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-boosted-phase-turn-20261114/turn-20261126-rebound-turn/run.stderr.gz.part001",
+      "inode": 204358885,
+      "bytes": 41943040,
+      "mtime_ns": 1794644263849030597,
+      "sha256": "95ca7ccd1e7a83cb8014f5f55f20259a952af411ab00a5f0daacccfbdcb0ca9b",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-boosted-phase-turn-20261114/turn-20261126-rebound-turn/run.stderr.gz.part002",
+      "inode": 204358895,
+      "bytes": 41943040,
+      "mtime_ns": 1794644264060512384,
+      "sha256": "c087649d57223a82b3689bf8a379e786a209e59fb0b6bb46d8b9869faf3301ff",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-boosted-phase-turn-20261114/turn-20261126-rebound-turn/run.stderr.gz.part003",
+      "inode": 204358902,
+      "bytes": 41943040,
+      "mtime_ns": 1794644264279516012,
+      "sha256": "cb50b2064a276b2aba55719551a27b383089cefb4b00090f4261156b1d07b6e0",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-boosted-phase-turn-20261114/turn-20261126-rebound-turn/run.stderr.gz.part004",
+      "inode": 204358903,
+      "bytes": 41943040,
+      "mtime_ns": 1794644264517737727,
+      "sha256": "c0c23db3eeebb94446897a97b6e3de976b8bf1ba2e6bc4b481674081322b8498",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-boosted-phase-turn-20261114/turn-20261126-rebound-turn/run.stderr.gz.part005",
+      "inode": 204358904,
+      "bytes": 41943040,
+      "mtime_ns": 1794644264731154402,
+      "sha256": "37f3893032583cbea1e6820c64fe1c63d7b269b0306bb8a7d91f85f780548c40",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-boosted-phase-turn-20261114/turn-20261126-rebound-turn/run.stderr.gz.part006",
+      "inode": 204358906,
+      "bytes": 2013889,
+      "mtime_ns": 1794644264889380624,
+      "sha256": "18f8a16fa11e82525048f2170ee97a38575f5df2e526eb6e010fa509d3c8bc02",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 507344258
+}
