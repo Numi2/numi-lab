@@ -1,0 +1,46 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-perturbed-ground-start-20261114/turn-20261126-rebound-disturbed/run.stderr.gz",
+      "inode": 204514524,
+      "bytes": 153703086,
+      "mtime_ns": 1794668423404929904,
+      "sha256": "404e7b273d5c083c61b369678ba431494ee0f04fcdbed8d437f69c0f526903ef",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-perturbed-ground-start-20261114/turn-20261126-rebound-disturbed/run.stderr.gz.part000",
+      "inode": 204514881,
+      "bytes": 41943040,
+      "mtime_ns": 1794668547591651146,
+      "sha256": "a7116b9a985144e57a39040f51c961b7fe543c6a8e23e1a2b644eadbda474db0",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-perturbed-ground-start-20261114/turn-20261126-rebound-disturbed/run.stderr.gz.part001",
+      "inode": 204514902,
+      "bytes": 41943040,
+      "mtime_ns": 1794668547988578478,
+      "sha256": "af094164e179a9ea9124b414dd82f8f71e06c4cf96c4b776945ffdf9212c6bd9",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-perturbed-ground-start-20261114/turn-20261126-rebound-disturbed/run.stderr.gz.part002",
+      "inode": 204514917,
+      "bytes": 41943040,
+      "mtime_ns": 1794668548335485810,
+      "sha256": "5ade4b6c8fb693ce59ec92ff752ac7d628d7cc63016f2a0b6319f809f2334c9b",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-perturbed-ground-start-20261114/turn-20261126-rebound-disturbed/run.stderr.gz.part003",
+      "inode": 204514923,
+      "bytes": 27873966,
+      "mtime_ns": 1794668548722891450,
+      "sha256": "2b62aaadc040b074333371d1b85ed475d19ecc40b28b7a0b28e562101149b4f0",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 307406172
+}
