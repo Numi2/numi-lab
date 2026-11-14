@@ -1,0 +1,5 @@
+# Stance toe separation sensitivity
+
+The independent Python oriented-box check agrees with native forward kinematics to 1.04e-8 m for all 14 accepted poses. In both lanes at zero-based tick 225 the stance foretoe has separated by approximately 0.46–0.50 mm while the rear toe still overlaps the perch. At this pose increasing stance hip angle by one radian corresponds locally to roughly 0.15–0.16 m less foretoe separation but 0.16 m more rear-toe separation. Knee and ankle perturbations show the same tradeoff in this local finite-difference screen. By tick 230 the foretoe gap is about 3.9 mm.
+
+These are instantaneous geometric sensitivities at retained poses; they do not establish a feasible motion, physical force, contact or grip. The initial analysis encountered a NumPy boolean JSON serialization error; explicitly converting the result to a Python boolean allowed it to complete. This evidence motivates examining independent front and rear toe actuation rather than claiming the stance is fixed.
