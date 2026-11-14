@@ -1,0 +1,5 @@
+# Pitch correction on the aligned round capsule
+
+The +0.2 rad aligned midpoint fixture qualified for 166 consecutive intervals but pitched beyond the tilt limit by step 204. Test bounded negative hip pitch/rate feedback beginning at episode interval 100, after initial contact capture. Use exactly the aligned midpoint state, capsule, toe targets, policy and observer, and the prior earlier-balance coefficients (-0.50, -0.08; target correction clamped +/-0.16 rad). It is an exploratory motor-position correction, not a body force or a biologically validated controller.
+
+Run 400 intervals; evaluate only the first episode, compare state and contact through the point of activation with the retained no-balance aligned control, and report per-foot opposition, support, tilt, speed, ground/nonfoot contact and termination. Pass requires no termination/reset and the final 250 consecutive intervals satisfying all predeclared gates. The reconstructed forced-landing fixture cannot establish original-course autonomy. Preserve all failure evidence.

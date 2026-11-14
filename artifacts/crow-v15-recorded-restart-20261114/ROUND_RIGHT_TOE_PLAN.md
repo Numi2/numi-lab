@@ -1,0 +1,5 @@
+# Midpoint right-front toe opening test
+
+At x=17.770 the right-front proximal joints reach roughly 1.2 radians while the right front toes carry no opposing force for much of the initial low-tilt period; the left toes remain contact-constrained. Test the hypothesis that the right front toes have overclosed beyond useful contact by capping only the three right-front proximal motor targets at 0.80 rad (and keeping the existing 0.75 distal-to-proximal ratio). Leave the left foot, rear toes, checkpoint, policy, moved capsule and observer unchanged; never inject body forces. This is one forced-landing developmental test, not an anatomical calibration.
+
+Run 400 intervals and evaluate only the first episode. Compare actual right-front joint angles and opposing forces against the x=17.770 zero-yaw control. The existing pass requires no termination/reset or nonfoot/ground contact, all 16 substeps and at least the final 250 consecutive intervals meeting bilateral support, opposing force, tilt and speed criteria. Preserve failed results.

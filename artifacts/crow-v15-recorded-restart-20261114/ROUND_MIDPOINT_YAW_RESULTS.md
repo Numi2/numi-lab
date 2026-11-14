@@ -1,0 +1,3 @@
+# Midpoint round branch alignment result
+
+At x=17.770 m with +0.2 rad branch yaw and increased front-toe closure, the first episode maintained all bilateral support, opposed-contact, low-tilt and low-speed gates for 166 consecutive intervals (38–203, 3.32 seconds). Both opposed-contact failure counts fell from 115/305 to 87/86 relative to the zero-yaw midpoint control. Tilt then exceeded the predeclared limit and first termination was step 279, reason 2. This fails the requirement of 250 consecutive qualifying terminal intervals and no termination. Auto-reset after step 279 is excluded. This deliberately relocated, forced-landing development fixture does not show autonomous original-course landing.
