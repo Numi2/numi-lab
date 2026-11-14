@@ -1,7 +1,7 @@
-import collections, gzip, json, math
+import collections, gzip, json, math, sys
 from pathlib import Path
 
-run = Path(__file__).parent / 'near-perch-landingmode-500'
+run = Path(__file__).parent / (sys.argv[1] if len(sys.argv)>1 else 'near-perch-landingmode-500')
 state = {}
 interval = collections.defaultdict(lambda: {'up': [0., 0.], 'front_x': [0., 0.], 'rear_x': [0., 0.], 'nonfoot_scene': 0., 'ground_normal': 0., 'substeps': set()})
 with gzip.open(run / 'stderr.gz', 'rt') as stream:
@@ -52,6 +52,8 @@ for step in passed:
     else: streaks[-1].append(step)
 out = {'audited_intervals':len(rows),'qualification_streaks':[[s[0],s[-1],len(s)] for s in streaks],
        'failed_gate_counts':dict(failures),'intervals':rows,
+       'maximum_sampled_tilt_rad':max(math.acos(max(-1.,min(1.,1.-2*(s['q'][3]**2+s['q'][4]**2)))) for s in state.values()),
+       'last_sample_step':max(state), 'last_sample_root_xyz_m':state[max(state)]['q'][:3],
        'limitation':'Full-substep audit starts at observer step 348; state sample indexed step + 1. Capture transient and altered scene remain separate limitations.'}
 (run / 'hold-analysis.json').write_text(json.dumps(out, indent=2)+'\n')
 print(json.dumps({k:v for k,v in out.items() if k != 'intervals'}, indent=2))

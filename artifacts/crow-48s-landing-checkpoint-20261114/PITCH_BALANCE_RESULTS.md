@@ -1,0 +1,7 @@
+# Signed hip-balance screen
+
+The negative and positive arms both executed 600 control intervals from the recorded-state reconstruction with the moved-perch fixture and forced landing phase. Both first diverged from the baseline after the contact gate; negative first differed in q at observer step 27. These interventions are exploratory and use one shared initial state and seed.
+
+The negative arm's full-substep qualified streaks were 491-492, 494, and 519-600 (82 intervals at the end). It reached 1.211 radians peak tilt during capture; this did not meet the planned improvement over the baseline's 112-interval streak at 348-459. The positive arm had no qualifying intervals and reached 1.219 radians peak tilt. Both are retained failures of the planned comparison. For steps 348-600, their measured ground and nonfoot impulses were zero; pre-348 last-substep sampling also observed none but does not rule out a transient contact between sampled substeps.
+
+Corrections to run metadata: the retained comparison control was 500 intervals, not 600 as stated in the plan; the shared interval range is 1-500. The negative run's inputs.json retained the inherited phrase 'five-second' although command.json and the output show 600 intervals at 50 Hz, i.e. 12 s. The positive label was corrected before it started. Neither affects the simulator state or measured outcomes.
