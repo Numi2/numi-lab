@@ -1,0 +1,3 @@
+# Fixed-pose foot/perch translation sensitivity
+
+At the retained grip-loss posture, the common-angle grid gave one foretoe near-surface configuration. Reuse that exact 512-configuration fore/rear grid and translate the entire modeled bird in x by -4, -2, 0, +2 and +4 mm relative to the fixed perch. Compute the same box separating-axis gaps using the same native FK executable, then compare near-surface and penetration counts. Validate zero-offset output against the prior workspace audit. This is a fixed-pose sensitivity screen, not an actual foot reposition, dynamically reachable trajectory, friction/force analysis or proof of grip; no physics or controller is modified.
