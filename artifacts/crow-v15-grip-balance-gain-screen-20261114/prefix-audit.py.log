@@ -1,0 +1,76 @@
+{
+  "rows": [
+    {
+      "lane": 1,
+      "first_logged_target_difference_zero_based": null,
+      "state_prefix_mismatch_count": 0,
+      "target_prefix_mismatch_count": 0,
+      "contact_substep_prefix_mismatch_count": 0,
+      "first_state_mismatches": [],
+      "first_contact_mismatches": [],
+      "prefix_pass": true
+    },
+    {
+      "lane": 2,
+      "first_logged_target_difference_zero_based": null,
+      "state_prefix_mismatch_count": 0,
+      "target_prefix_mismatch_count": 0,
+      "contact_substep_prefix_mismatch_count": 0,
+      "first_state_mismatches": [],
+      "first_contact_mismatches": [],
+      "prefix_pass": false
+    },
+    {
+      "lane": 3,
+      "first_logged_target_difference_zero_based": null,
+      "state_prefix_mismatch_count": 0,
+      "target_prefix_mismatch_count": 0,
+      "contact_substep_prefix_mismatch_count": 0,
+      "first_state_mismatches": [],
+      "first_contact_mismatches": [],
+      "prefix_pass": false
+    },
+    {
+      "lane": 4,
+      "first_logged_target_difference_zero_based": null,
+      "state_prefix_mismatch_count": 0,
+      "target_prefix_mismatch_count": 0,
+      "contact_substep_prefix_mismatch_count": 0,
+      "first_state_mismatches": [],
+      "first_contact_mismatches": [],
+      "prefix_pass": false
+    },
+    {
+      "lane": 5,
+      "first_logged_target_difference_zero_based": null,
+      "state_prefix_mismatch_count": 0,
+      "target_prefix_mismatch_count": 0,
+      "contact_substep_prefix_mismatch_count": 0,
+      "first_state_mismatches": [],
+      "first_contact_mismatches": [],
+      "prefix_pass": false
+    },
+    {
+      "lane": 6,
+      "first_logged_target_difference_zero_based": null,
+      "state_prefix_mismatch_count": 0,
+      "target_prefix_mismatch_count": 0,
+      "contact_substep_prefix_mismatch_count": 0,
+      "first_state_mismatches": [],
+      "first_contact_mismatches": [],
+      "prefix_pass": false
+    },
+    {
+      "lane": 7,
+      "first_logged_target_difference_zero_based": null,
+      "state_prefix_mismatch_count": 0,
+      "target_prefix_mismatch_count": 0,
+      "contact_substep_prefix_mismatch_count": 0,
+      "first_state_mismatches": [],
+      "first_contact_mismatches": [],
+      "prefix_pass": false
+    }
+  ],
+  "observer_errors": [],
+  "scope": "same-run recorded prefix only; contact/state epoch synchronization is not independently established"
+}
