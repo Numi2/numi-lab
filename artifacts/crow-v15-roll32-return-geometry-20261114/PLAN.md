@@ -1,0 +1,3 @@
+# Return geometry at the improved stance
+
+The improved-stance return trial produced rear contact but no logged opposing front contact; assess its own two physically reached post-return states at zero-based ticks 290 and 310 in each lane. Using the prior native v15 FK and box-gap program unchanged, perturb the returning hip, knee, ankle and toe joints by plus and minus 0.02 rad and compute foot, nearest-front and nearest-rear gaps. Cross-check unperturbed FK with the recorded body-pose geometry and report each joint-limit violation. These static local probes do not establish dynamically reachable trajectories, contact force, landing, or grip; they are used only to design a future physical test. Retain all outputs even if the probe suggests no usable adjustment.
