@@ -1,0 +1,5 @@
+# Earlier clearance feedback: single support remains unqualified
+
+Beginning bounded clearance feedback at lift readiness rather than after twelve clearance intervals increased the longest fully qualifying release/support streak from 12 to 16 intervals, still far below the registered 100. The control reproduced all 450 states of the archived no-return lane, and paired states matched for 206 records before the first target difference. The feedback audit found no mismatch across 244 active records and measured a maximum 0.005000003 rad target change per interval. Full substep coverage was recorded without native/observer errors or nonfoot impulse.
+
+Root height first dropped below 0.1 m at recorded interval 333 for control and 336 for candidate. Both stance toes hit the 11.99 rad/s accepted-state threshold before that height failure. This is a small improvement in one constructed-start metric, not stable single-foot stance, a grip fix, or a successful walking/landing controller. Contact/state timing remains independently unverified in this probe; accepted-state speeds do not bound substep maxima. Preserve all raw observations, binary and failures.
