@@ -1,0 +1,5 @@
+# Wider clearance-control posture gate: support remains unqualified
+
+Allowing clearance feedback to remain active within the broader existing placement envelope extended the longest strictly qualifying release/support streak from 32 to 34 intervals, below the registered 100. The unchanged control exactly reproduced all 450 archived ankle-candidate states, and paired states matched for 254 records before the first target difference. The posture, hip, knee and ankle feedback reconstructions passed; all contact substeps were recorded without native/observer errors or nonfoot support.
+
+In the candidate, minimum clearance fell below 1 mm at interval 263, the released foot reloaded at 266, and stance upward support missed its criterion at 267. Root height fell below 0.1 m at interval 338 in both lanes; both stance toes reached the accepted-state 12 rad/s threshold before then. Toes remained open and regrip was not tested. This is not stable walking or landing. State/contact epoch alignment remains independently unverified, and accepted-state speed does not bound substep maxima. Full trace, executable and failure are retained.

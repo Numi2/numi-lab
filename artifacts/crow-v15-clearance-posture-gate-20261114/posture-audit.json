@@ -1,0 +1,5 @@
+{
+  "mismatches": [],
+  "pass": true,
+  "scope": "Reconstructs gates from logged model-relative COM and tilt; state/contact epoch not independently verified."
+}
