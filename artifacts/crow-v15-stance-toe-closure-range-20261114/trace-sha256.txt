@@ -1,0 +1,2 @@
+a30b701535162d3e9fb3959c585b046e0483e751e49bbf4014b5629104dcf9c2  artifacts/crow-v15-stance-toe-closure-range-20261114/trace.log.gz
+b7dda89eab4079eb90c788a208c9d14a0b6a8fadcb1f9707959e3c36ea5178db  artifacts/crow-v15-stance-toe-closure-range-20261114/substeps.log.gz

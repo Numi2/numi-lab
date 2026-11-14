@@ -1,0 +1,16 @@
+[
+  {
+    "lane": 0,
+    "return_zero_based": 272,
+    "first_postreturn_right_gate_loss": 302,
+    "first_postreturn_left_opposing_loaded": 295,
+    "scope": "accepted control-interval event only; epochs not independently aligned"
+  },
+  {
+    "lane": 1,
+    "return_zero_based": 272,
+    "first_postreturn_right_gate_loss": 304,
+    "first_postreturn_left_opposing_loaded": 295,
+    "scope": "accepted control-interval event only; epochs not independently aligned"
+  }
+]
