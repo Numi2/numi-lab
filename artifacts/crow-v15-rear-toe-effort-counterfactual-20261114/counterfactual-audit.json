@@ -1,0 +1,40 @@
+{
+  "lanes": [
+    {
+      "lane": 0,
+      "states": 450,
+      "first_accepted_state_different_from_archived_control_zero_based": 23,
+      "missing_or_invalid_effort_substeps": 0,
+      "max_abs_rear_proximal_effort_nm": 0.0399999991,
+      "saturated_fraction_intervals_280_360": 1.0,
+      "rear_proximal_angles": {
+        "280": 0.725027859,
+        "300": 0.748035133,
+        "310": 0.727954805,
+        "320": 0.695495844,
+        "340": 0.0402091518,
+        "360": -0.0783825293
+      },
+      "observed_effort_within_new_limit": true
+    },
+    {
+      "lane": 1,
+      "states": 450,
+      "first_accepted_state_different_from_archived_control_zero_based": 23,
+      "missing_or_invalid_effort_substeps": 0,
+      "max_abs_rear_proximal_effort_nm": 0.0399999991,
+      "saturated_fraction_intervals_280_360": 1.0,
+      "rear_proximal_angles": {
+        "280": 0.725027859,
+        "300": 0.748035133,
+        "310": 0.727954805,
+        "320": 0.695495844,
+        "340": 0.0402091518,
+        "360": -0.0783825293
+      },
+      "observed_effort_within_new_limit": true
+    }
+  ],
+  "observer_errors": [],
+  "scope": "Constructed-state parameter counterfactual; applied effort is modeled implicit-drive output and does not establish biological torque; contact epochs not independently synchronized."
+}

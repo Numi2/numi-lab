@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-rear-toe-effort-counterfactual-20261114/probe.cpp": "f8d0b69550801cb2a154d554914ec3e765daa2c79b21a07a4c0292c0d8472ec1",
+  "build/crow-v15-rear-toe-effort-counterfactual-20261114/probe": "fb731d902f7953dc1027aa16b814c31560e4aef987667e4b207c2099e2e30054",
+  "build/crow-v15-toe-slip-velocity-20261114/libmetalrobo.dylib": "122960e3389f4c8387f81e084db8b9dded063452bb521af652b4e3b7ff067758",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}
