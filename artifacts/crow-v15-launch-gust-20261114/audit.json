@@ -1,0 +1,352 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "checks": {
+        "shared_inputs_except_metallib": true,
+        "expected_metallib": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": false,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true
+      },
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": 396,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.254294664,
+        0.81632936
+      ],
+      "max_tilt": 0.20811911132458363,
+      "max_lateral": 0.6208497492,
+      "level_mae": 0.008171427014925368,
+      "climb_mae": 0.007957294533864545,
+      "descent_mae": 0.009040034147410343,
+      "pass": false
+    },
+    {
+      "lane": 1,
+      "checks": {
+        "shared_inputs_except_metallib": true,
+        "expected_metallib": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true
+      },
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.47306931,
+        0.815831959
+      ],
+      "max_tilt": 0.21061491597025878,
+      "max_lateral": 0.5667398716,
+      "level_mae": 0.010533144368159228,
+      "climb_mae": 0.008260436565737063,
+      "descent_mae": 0.007881700701195218,
+      "pass": true
+    },
+    {
+      "lane": 2,
+      "checks": {
+        "shared_inputs_except_metallib": true,
+        "expected_metallib": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true
+      },
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.538825631,
+        0.995813549
+      ],
+      "max_tilt": 0.2130163341289175,
+      "max_lateral": 0.6007698124,
+      "level_mae": 0.008523485383084567,
+      "climb_mae": 0.00802096361354582,
+      "descent_mae": 0.008991149215139424,
+      "pass": true
+    },
+    {
+      "lane": 3,
+      "checks": {
+        "shared_inputs_except_metallib": true,
+        "expected_metallib": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true
+      },
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.537237287,
+        1.19555092
+      ],
+      "max_tilt": 0.21455991359719898,
+      "max_lateral": 0.5042397771,
+      "level_mae": 0.014346268970149229,
+      "climb_mae": 0.008070763223107574,
+      "descent_mae": 0.009002347705179263,
+      "pass": true
+    },
+    {
+      "lane": 4,
+      "checks": {
+        "shared_inputs_except_metallib": true,
+        "expected_metallib": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": false,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true
+      },
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": 389,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.259654909,
+        0.816835105
+      ],
+      "max_tilt": 0.2079842108876719,
+      "max_lateral": 0.6229060295,
+      "level_mae": 0.008814614482587075,
+      "climb_mae": 0.007927089721115534,
+      "descent_mae": 0.008038427454183261,
+      "pass": false
+    },
+    {
+      "lane": 5,
+      "checks": {
+        "shared_inputs_except_metallib": true,
+        "expected_metallib": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true
+      },
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.472725123,
+        0.816021502
+      ],
+      "max_tilt": 0.21132174383696628,
+      "max_lateral": 0.5483350814,
+      "level_mae": 0.008066143691542287,
+      "climb_mae": 0.008054493573705183,
+      "descent_mae": 0.00904920959362548,
+      "pass": true
+    },
+    {
+      "lane": 6,
+      "checks": {
+        "shared_inputs_except_metallib": true,
+        "expected_metallib": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true,
+        "measured_external_disturbance": false,
+        "measurable_response": true,
+        "recovery_at_1200": true
+      },
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.518760681,
+        0.995903432
+      ],
+      "max_tilt": 0.23339409080850163,
+      "max_lateral": 0.6396433377999999,
+      "level_mae": 0.015243464741293528,
+      "climb_mae": 0.00793893971314741,
+      "descent_mae": 0.008879645143426276,
+      "wrench_active_substeps": 0,
+      "wrench_active_steps": [],
+      "wrench_max_force_N": null,
+      "wrench_torque_range_Nm": null,
+      "wrench_mean_world_y_Nm": 0,
+      "wrench_outside_window": [],
+      "peak_pitch_delta_rad": 0.07033436783862415,
+      "peak_world_y_angular_rate_delta_rad_s": 0.17534606879999998,
+      "pitch_delta_at_1200_rad": 0.004772718364915829,
+      "world_y_angular_rate_delta_at_1200_rad_s": -0.0038739549899999997,
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "checks": {
+        "shared_inputs_except_metallib": true,
+        "expected_metallib": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true,
+        "measured_external_disturbance": false,
+        "measurable_response": true,
+        "recovery_at_1200": true
+      },
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.520273566,
+        1.19548881
+      ],
+      "max_tilt": 0.21454133225123945,
+      "max_lateral": 0.5598566609,
+      "level_mae": 0.0237633005124378,
+      "climb_mae": 0.008264895840637457,
+      "descent_mae": 0.008810135474103569,
+      "wrench_active_substeps": 0,
+      "wrench_active_steps": [],
+      "wrench_max_force_N": null,
+      "wrench_torque_range_Nm": null,
+      "wrench_mean_world_y_Nm": 0,
+      "wrench_outside_window": [],
+      "peak_pitch_delta_rad": 0.06969012261615716,
+      "peak_world_y_angular_rate_delta_rad_s": 0.1729992776,
+      "pitch_delta_at_1200_rad": -0.0024788937862190996,
+      "world_y_angular_rate_delta_at_1200_rad_s": -0.00249651098,
+      "pass": false
+    }
+  ],
+  "errors": [],
+  "scope": "Used-seed in-flight disturbance screen only; no perturbed-start, generalized command, landing or mission qualification. Contact/state epoch synchronization not independently established."
+}

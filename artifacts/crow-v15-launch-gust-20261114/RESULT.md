@@ -1,0 +1,5 @@
+# Flight disturbance screen: inconclusive, observer incomplete
+
+The run reached 2,400 intervals. Lanes 6 and 7 showed peak pitch differences of 0.0703 and 0.0697 rad against the matched control and were within 0.0048 rad and 0.0039 rad/s at interval 1,200; both retained full recorded contact/toe coverage and avoided post-release recontact. The unaffected stronger lanes matched and passed the previously registered physical and height gates. The two weaker lanes 0 and 4 recontacted, as in the control.
+
+However, neither run recorded the required pre-aerodynamic wrench. The registered measured-disturbance gate therefore fails in both disturbed lanes: the response cannot establish the applied torque magnitude or force without this missing observation. This is an instrumentation failure, not evidence that the wrench was zero. The raw trial and its failed audit are retained. Re-run with an observation-only host that captures pre-aero wrench, checking exact physical parity with these runs before evaluating recovery. This is a used-seed midair test and cannot qualify disturbed starts, a general command controller, landing or the mission.
