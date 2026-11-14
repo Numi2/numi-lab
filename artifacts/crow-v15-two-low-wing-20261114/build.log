@@ -1,0 +1,22 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-two-low-wing-20261114/push.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-two-low-wing-20261114/push.metal:5124:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-two-low-wing-20261114/push.metal:5524:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+3 warnings generated.
+Built candidate metallib: 48c3b080389343b6d48b295655ca3a4061c9db31a5fe2281f5905c328c09d2c9
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-two-low-wing-20261114/hold.metal:5099:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=environment%8u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-two-low-wing-20261114/hold.metal:5124:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-two-low-wing-20261114/hold.metal:5524:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+3 warnings generated.
+Built candidate metallib: 31eee040c8ac639ed712721a5ce061e8e8072ea3fc92220fd187c713a050f330
