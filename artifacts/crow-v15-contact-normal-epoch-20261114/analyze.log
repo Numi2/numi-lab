@@ -1,0 +1,171 @@
+{
+  "prior_stdout_parity": {
+    "lines": 54480,
+    "different": 0,
+    "examples": []
+  },
+  "event_count": 900,
+  "event_duplicates": [],
+  "normal_substep_count": 28800,
+  "full_interval_count": 900,
+  "normal_or_full_duplicates": [],
+  "offset_comparisons": {
+    "0": {
+      "matched_count": 898,
+      "missing_count": 2,
+      "missing_examples": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "mismatch_count": 738,
+      "mismatch_examples": [
+        [
+          0,
+          2,
+          0.00333186821,
+          [
+            0.00333186821,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        [
+          1,
+          2,
+          0.00333186821,
+          [
+            0.00333186821,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        [
+          0,
+          3,
+          0.00067107123,
+          [
+            0.00266079698,
+            0.0
+          ],
+          [
+            0.00333186821,
+            0.0
+          ]
+        ],
+        [
+          1,
+          3,
+          0.00067107123,
+          [
+            0.00266079698,
+            0.0
+          ],
+          [
+            0.00333186821,
+            0.0
+          ]
+        ],
+        [
+          0,
+          4,
+          9.781471000000009e-05,
+          [
+            0.00275861169,
+            0.0
+          ],
+          [
+            0.00266079698,
+            0.0
+          ]
+        ],
+        [
+          1,
+          4,
+          9.781471000000009e-05,
+          [
+            0.00275861169,
+            0.0
+          ],
+          [
+            0.00266079698,
+            0.0
+          ]
+        ],
+        [
+          0,
+          5,
+          7.564807999999989e-05,
+          [
+            0.00283425977,
+            0.0
+          ],
+          [
+            0.00275861169,
+            0.0
+          ]
+        ],
+        [
+          1,
+          5,
+          7.564807999999989e-05,
+          [
+            0.00283425977,
+            0.0
+          ],
+          [
+            0.00275861169,
+            0.0
+          ]
+        ],
+        [
+          0,
+          6,
+          1.1307190000000005e-05,
+          [
+            0.00282295258,
+            0.0
+          ],
+          [
+            0.00283425977,
+            0.0
+          ]
+        ],
+        [
+          1,
+          6,
+          1.1307190000000005e-05,
+          [
+            0.00282295258,
+            0.0
+          ],
+          [
+            0.00283425977,
+            0.0
+          ]
+        ]
+      ],
+      "max_absolute_error_Ns": 0.012010572095
+    },
+    "1": {
+      "matched_count": 900,
+      "missing_count": 0,
+      "missing_examples": [],
+      "mismatch_count": 0,
+      "mismatch_examples": [],
+      "max_absolute_error_Ns": 0.0
+    }
+  },
+  "interpretation": "Event uses normal-only final contact impulse, while full-interval includes tangential vertical impulse. The latter can be negative; shares alone are not a center of pressure or proof of causality."
+}

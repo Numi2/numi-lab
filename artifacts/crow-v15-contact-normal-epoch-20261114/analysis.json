@@ -1,0 +1,1325 @@
+{
+  "prior_stdout_parity": {
+    "lines": 54480,
+    "different": 0,
+    "examples": []
+  },
+  "event_count": 900,
+  "event_duplicates": [],
+  "normal_substep_count": 28800,
+  "full_interval_count": 900,
+  "normal_or_full_duplicates": [],
+  "offset_comparisons": {
+    "0": {
+      "matched_count": 898,
+      "missing_count": 2,
+      "missing_examples": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "mismatch_count": 738,
+      "mismatch_examples": [
+        [
+          0,
+          2,
+          0.00333186821,
+          [
+            0.00333186821,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        [
+          1,
+          2,
+          0.00333186821,
+          [
+            0.00333186821,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        [
+          0,
+          3,
+          0.00067107123,
+          [
+            0.00266079698,
+            0.0
+          ],
+          [
+            0.00333186821,
+            0.0
+          ]
+        ],
+        [
+          1,
+          3,
+          0.00067107123,
+          [
+            0.00266079698,
+            0.0
+          ],
+          [
+            0.00333186821,
+            0.0
+          ]
+        ],
+        [
+          0,
+          4,
+          9.781471000000009e-05,
+          [
+            0.00275861169,
+            0.0
+          ],
+          [
+            0.00266079698,
+            0.0
+          ]
+        ],
+        [
+          1,
+          4,
+          9.781471000000009e-05,
+          [
+            0.00275861169,
+            0.0
+          ],
+          [
+            0.00266079698,
+            0.0
+          ]
+        ],
+        [
+          0,
+          5,
+          7.564807999999989e-05,
+          [
+            0.00283425977,
+            0.0
+          ],
+          [
+            0.00275861169,
+            0.0
+          ]
+        ],
+        [
+          1,
+          5,
+          7.564807999999989e-05,
+          [
+            0.00283425977,
+            0.0
+          ],
+          [
+            0.00275861169,
+            0.0
+          ]
+        ],
+        [
+          0,
+          6,
+          1.1307190000000005e-05,
+          [
+            0.00282295258,
+            0.0
+          ],
+          [
+            0.00283425977,
+            0.0
+          ]
+        ],
+        [
+          1,
+          6,
+          1.1307190000000005e-05,
+          [
+            0.00282295258,
+            0.0
+          ],
+          [
+            0.00283425977,
+            0.0
+          ]
+        ]
+      ],
+      "max_absolute_error_Ns": 0.012010572095
+    },
+    "1": {
+      "matched_count": 900,
+      "missing_count": 0,
+      "missing_examples": [],
+      "mismatch_count": 0,
+      "mismatch_examples": [],
+      "max_absolute_error_Ns": 0.0
+    }
+  },
+  "return_intervals": [
+    {
+      "lane": 0,
+      "event_interval": 285,
+      "observer_interval": 286,
+      "normal_final_substep_Ns": [
+        0.0,
+        0.00326559553
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0,
+        0.08850478239999998
+      ],
+      "normal_left_share": 0.0,
+      "full_left_share": 0.0,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 286,
+      "observer_interval": 287,
+      "normal_final_substep_Ns": [
+        0.0,
+        0.00331488717
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0,
+        0.08898572833
+      ],
+      "normal_left_share": 0.0,
+      "full_left_share": 0.0,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 287,
+      "observer_interval": 288,
+      "normal_final_substep_Ns": [
+        -1.04668206e-12,
+        0.00349280518
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        -0.0013884985858699998,
+        0.0907989014
+      ],
+      "normal_left_share": -2.9966803367877997e-10,
+      "full_left_share": -0.015529497040254558,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 288,
+      "observer_interval": 289,
+      "normal_final_substep_Ns": [
+        4.62192611e-12,
+        0.00403474877
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        -0.004033666383499998,
+        0.09189144712000001
+      ],
+      "normal_left_share": 1.1455300858064194e-09,
+      "full_left_share": -0.04591131655826397,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 289,
+      "observer_interval": 290,
+      "normal_final_substep_Ns": [
+        1.02598373e-11,
+        0.00377418683
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.00256440937579,
+        0.08565336256000004
+      ],
+      "normal_left_share": 2.7184232615504676e-09,
+      "full_left_share": 0.02906907893407832,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 290,
+      "observer_interval": 291,
+      "normal_final_substep_Ns": [
+        0.000121396079,
+        0.00329956715
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.008062136512700002,
+        0.08040222897999999
+      ],
+      "normal_left_share": 0.03548593506381708,
+      "full_left_share": 0.09113428291491314,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 291,
+      "observer_interval": 292,
+      "normal_final_substep_Ns": [
+        0.000658310833,
+        0.00314611918
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0096724220818,
+        0.07858140509
+      ],
+      "normal_left_share": 0.17303796646291467,
+      "full_left_share": 0.1095977635391506,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 292,
+      "observer_interval": 293,
+      "normal_final_substep_Ns": [
+        0.000845713424,
+        0.00365286693
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.011101116387000003,
+        0.07686927192999998
+      ],
+      "normal_left_share": 0.18799562471925563,
+      "full_left_share": 0.12619151284176777,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 293,
+      "observer_interval": 294,
+      "normal_final_substep_Ns": [
+        0.00118355267,
+        0.00352229108
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0103816258968,
+        0.07794125298000001
+      ],
+      "normal_left_share": 0.25150700551840466,
+      "full_left_share": 0.11754175168226959,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 294,
+      "observer_interval": 295,
+      "normal_final_substep_Ns": [
+        0.000321954722,
+        0.00364935608
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0098542235927,
+        0.07834606107000001
+      ],
+      "normal_left_share": 0.08107013982331973,
+      "full_left_share": 0.11172553048309335,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 295,
+      "observer_interval": 296,
+      "normal_final_substep_Ns": [
+        0.000409990724,
+        0.00363956625
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.009122852680400001,
+        0.07924818947
+      ],
+      "normal_left_share": 0.10124335245369485,
+      "full_left_share": 0.10323350792755936,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 296,
+      "observer_interval": 297,
+      "normal_final_substep_Ns": [
+        0.000376052194,
+        0.00349887158
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.008478981448999999,
+        0.07968106995000002
+      ],
+      "normal_left_share": 0.09704763652984313,
+      "full_left_share": 0.09617713822131659,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 297,
+      "observer_interval": 298,
+      "normal_final_substep_Ns": [
+        0.000420186756,
+        0.00337350671
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.003735753007600002,
+        0.08441285686000001
+      ],
+      "normal_left_share": 0.11075927977993359,
+      "full_left_share": 0.04238016927562597,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 298,
+      "observer_interval": 299,
+      "normal_final_substep_Ns": [
+        0.000341552339,
+        0.00333177461
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0003728563613999997,
+        0.08772713437
+      ],
+      "normal_left_share": 0.09298174209431091,
+      "full_left_share": 0.00423219523980164,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 299,
+      "observer_interval": 300,
+      "normal_final_substep_Ns": [
+        0.000440540374,
+        0.0041684201
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.003460920886,
+        0.08465608092
+      ],
+      "normal_left_share": 0.09558345672200268,
+      "full_left_share": 0.03927642583232265,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 300,
+      "observer_interval": 301,
+      "normal_final_substep_Ns": [
+        0.00079964858,
+        0.0038947924
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.00645098852855,
+        0.08198942627000003
+      ],
+      "normal_left_share": 0.17033946819371878,
+      "full_left_share": 0.07294163582615584,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 301,
+      "observer_interval": 302,
+      "normal_final_substep_Ns": [
+        0.00042815163,
+        0.00291923317
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0051941070285600015,
+        0.08302503754
+      ],
+      "normal_left_share": 0.12790630763454505,
+      "full_left_share": 0.05887732253539788,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 302,
+      "observer_interval": 303,
+      "normal_final_substep_Ns": [
+        0.000888300943,
+        0.00279258867
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0023130312857899994,
+        0.08620259699999999
+      ],
+      "normal_left_share": 0.2413277865934199,
+      "full_left_share": 0.02613133217923875,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 303,
+      "observer_interval": 304,
+      "normal_final_substep_Ns": [
+        0.000956961536,
+        0.00325624738
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0054311529813899995,
+        0.08299618887999999
+      ],
+      "normal_left_share": 0.2271336539628646,
+      "full_left_share": 0.061419385306225094,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 304,
+      "observer_interval": 305,
+      "normal_final_substep_Ns": [
+        0.000858605606,
+        0.00248801336
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.00729520620181,
+        0.08068037326000001
+      ],
+      "normal_left_share": 0.2565591167452913,
+      "full_left_share": 0.08292308213754741,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 305,
+      "observer_interval": 306,
+      "normal_final_substep_Ns": [
+        0.00064540538,
+        0.00131789688
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.006340735692740001,
+        0.07914336854799998
+      ],
+      "normal_left_share": 0.32873459841074093,
+      "full_left_share": 0.07417444154159054,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 306,
+      "observer_interval": 307,
+      "normal_final_substep_Ns": [
+        0.000486673089,
+        4.10901994e-05
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.036985663354,
+        0.0269075686396
+      ],
+      "normal_left_share": 0.9221427478887901,
+      "full_left_share": 0.5788666843102371,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 307,
+      "observer_interval": 308,
+      "normal_final_substep_Ns": [
+        0.00210154639,
+        0.00148389337
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.05184929001599999,
+        0.02822526689246399
+      ],
+      "normal_left_share": 0.5861335096032962,
+      "full_left_share": 0.6475126684156457,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 308,
+      "observer_interval": 309,
+      "normal_final_substep_Ns": [
+        0.00286892452,
+        0.0
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.09054424098000001,
+        0.016644832525000004
+      ],
+      "normal_left_share": 1.0,
+      "full_left_share": 0.8447152122811886,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 309,
+      "observer_interval": 310,
+      "normal_final_substep_Ns": [
+        0.00164913456,
+        0.000745011086
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.07268837269999999,
+        0.020868614759017533
+      ],
+      "normal_left_share": 0.6888196475244849,
+      "full_left_share": 0.7769422110971775,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 310,
+      "observer_interval": 311,
+      "normal_final_substep_Ns": [
+        0.00212881085,
+        0.0
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.059599436178,
+        0.025598753259600003
+      ],
+      "normal_left_share": 1.0,
+      "full_left_share": 0.6995387645139011,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 311,
+      "observer_interval": 312,
+      "normal_final_substep_Ns": [
+        0.00248247641,
+        0.000292617537
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.06484924141000001,
+        0.024933085291100002
+      ],
+      "normal_left_share": 0.8945558087082665,
+      "full_left_share": 0.7222940615684165,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 312,
+      "observer_interval": 313,
+      "normal_final_substep_Ns": [
+        0.00183511223,
+        0.00104732264
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.06327579496000002,
+        0.0267916807399
+      ],
+      "normal_left_share": 0.6366534935791975,
+      "full_left_share": 0.7025376748742417,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 313,
+      "observer_interval": 314,
+      "normal_final_substep_Ns": [
+        0.00203010486,
+        0.00159039942
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.061282693609999994,
+        0.02615286148427507
+      ],
+      "normal_left_share": 0.5607243364451983,
+      "full_left_share": 0.7008898558935615,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 314,
+      "observer_interval": 315,
+      "normal_final_substep_Ns": [
+        0.0016034306,
+        0.00145324564
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.06145046339,
+        0.0275560779964157
+      ],
+      "normal_left_share": 0.5245667104082963,
+      "full_left_share": 0.6904039010258481,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 315,
+      "observer_interval": 316,
+      "normal_final_substep_Ns": [
+        0.000451974251,
+        0.00237824605
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.021600120742,
+        0.07257727895900001
+      ],
+      "normal_left_share": 0.15969578440247365,
+      "full_left_share": 0.22935567143048483,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 316,
+      "observer_interval": 317,
+      "normal_final_substep_Ns": [
+        0.000561998575,
+        0.0019515513
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.013702934921999999,
+        0.07560263418999999
+      ],
+      "normal_left_share": 0.22358759640685466,
+      "full_left_share": 0.15343875032938717,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 317,
+      "observer_interval": 318,
+      "normal_final_substep_Ns": [
+        0.000465335237,
+        0.00223074388
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.014447184811000005,
+        0.07416477356999998
+      ],
+      "normal_left_share": 0.1725970258312713,
+      "full_left_share": 0.1630387712331358,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 318,
+      "observer_interval": 319,
+      "normal_final_substep_Ns": [
+        0.000443994679,
+        0.00235875254
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.014998475812000003,
+        0.07031218146700002
+      ],
+      "normal_left_share": 0.158414100276376,
+      "full_left_share": 0.17581010732280467,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 319,
+      "observer_interval": 320,
+      "normal_final_substep_Ns": [
+        0.000450571999,
+        0.00247931341
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.014736586458,
+        0.073158173943
+      ],
+      "normal_left_share": 0.15378485370654305,
+      "full_left_share": 0.16766171715774242,
+      "full_substeps": 32
+    },
+    {
+      "lane": 0,
+      "event_interval": 320,
+      "observer_interval": 321,
+      "normal_final_substep_Ns": [
+        0.000463319448,
+        0.00240198383
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.015592606763999999,
+        0.07440519602000001
+      ],
+      "normal_left_share": 0.16169996787334845,
+      "full_left_share": 0.1732554160396912,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 285,
+      "observer_interval": 286,
+      "normal_final_substep_Ns": [
+        0.0,
+        0.00294788135
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0,
+        0.08671663303
+      ],
+      "normal_left_share": 0.0,
+      "full_left_share": 0.0,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 286,
+      "observer_interval": 287,
+      "normal_final_substep_Ns": [
+        0.0,
+        0.00338318315
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0,
+        0.08757046749000001
+      ],
+      "normal_left_share": 0.0,
+      "full_left_share": 0.0,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 287,
+      "observer_interval": 288,
+      "normal_final_substep_Ns": [
+        -2.91108522e-12,
+        0.00332541671
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        -0.0023132697575589996,
+        0.0926663368
+      ],
+      "normal_left_share": -8.754046414075961e-10,
+      "full_left_share": -0.02560255930739353,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 288,
+      "observer_interval": 289,
+      "normal_final_substep_Ns": [
+        -4.39605904e-12,
+        0.00398945808
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0028583936031000004,
+        0.08510547272999999
+      ],
+      "normal_left_share": -1.1019188462920507e-09,
+      "full_left_share": 0.03249508829313944,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 289,
+      "observer_interval": 290,
+      "normal_final_substep_Ns": [
+        0.00133522146,
+        0.00367284752
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        8.139678519999986e-05,
+        0.0888872908
+      ],
+      "normal_left_share": 0.2666140313426753,
+      "full_left_share": 0.0009148925021744422,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 290,
+      "observer_interval": 291,
+      "normal_final_substep_Ns": [
+        0.000335423101,
+        0.00371871865
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        2.927208367999952e-05,
+        0.0884917318
+      ],
+      "normal_left_share": 0.0827359085106642,
+      "full_left_share": 0.0003306795268438682,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 291,
+      "observer_interval": 292,
+      "normal_final_substep_Ns": [
+        0.000765114091,
+        0.0036171407
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0049437538829,
+        0.08327915613999999
+      ],
+      "normal_left_share": 0.1745937028972718,
+      "full_left_share": 0.056037075648680726,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 292,
+      "observer_interval": 293,
+      "normal_final_substep_Ns": [
+        0.00112979102,
+        0.00311072567
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0058832404473,
+        0.08251334865000001
+      ],
+      "normal_left_share": 0.26642767912322496,
+      "full_left_share": 0.06655506176628818,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 293,
+      "observer_interval": 294,
+      "normal_final_substep_Ns": [
+        0.00076860463,
+        0.00365505903
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.007254743098599999,
+        0.08092661991000002
+      ],
+      "normal_left_share": 0.17374843321610034,
+      "full_left_share": 0.08227070722293632,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 294,
+      "observer_interval": 295,
+      "normal_final_substep_Ns": [
+        0.000712623354,
+        0.00401005289
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.007504208959299999,
+        0.08055081705000003
+      ],
+      "normal_left_share": 0.15089396714529474,
+      "full_left_share": 0.08522181298893074,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 295,
+      "observer_interval": 296,
+      "normal_final_substep_Ns": [
+        0.000707960455,
+        0.00314928289
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.007559475783100001,
+        0.08099742666000001
+      ],
+      "normal_left_share": 0.1835405214757069,
+      "full_left_share": 0.08536292004970647,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 296,
+      "observer_interval": 297,
+      "normal_final_substep_Ns": [
+        0.000345285225,
+        0.00377720594
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        -0.0010823448064000002,
+        0.08894259707
+      ],
+      "normal_left_share": 0.08375644996682484,
+      "full_left_share": -0.012318935793090244,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 297,
+      "observer_interval": 298,
+      "normal_final_substep_Ns": [
+        0.00034198811,
+        0.00335702812
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.00158015620622,
+        0.08668065683999998
+      ],
+      "normal_left_share": 0.0924538008853235,
+      "full_left_share": 0.017903259121264968,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 298,
+      "observer_interval": 299,
+      "normal_final_substep_Ns": [
+        0.000800778857,
+        0.00308750221
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0008706632606000004,
+        0.08770274906
+      ],
+      "normal_left_share": 0.20594675209985278,
+      "full_left_share": 0.00982984891051223,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 299,
+      "observer_interval": 300,
+      "normal_final_substep_Ns": [
+        0.00080465473,
+        0.00323976297
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.002247385679210001,
+        0.08598328419000001
+      ],
+      "normal_left_share": 0.1989544081957707,
+      "full_left_share": 0.025471705956006514,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 300,
+      "observer_interval": 301,
+      "normal_final_substep_Ns": [
+        0.000785646902,
+        0.00401943224
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0028878469448600005,
+        0.08508836572000004
+      ],
+      "normal_left_share": 0.16350342601703605,
+      "full_left_share": 0.03282531558685159,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 301,
+      "observer_interval": 302,
+      "normal_final_substep_Ns": [
+        0.000738677511,
+        0.00325616123
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0033397491789000006,
+        0.08528426498000002
+      ],
+      "normal_left_share": 0.1849079672275062,
+      "full_left_share": 0.03768447198647465,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 302,
+      "observer_interval": 303,
+      "normal_final_substep_Ns": [
+        0.000426290411,
+        0.00277181319
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0033719119561600006,
+        0.08477324328000001
+      ],
+      "normal_left_share": 0.13329474719540207,
+      "full_left_share": 0.038254081544537716,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 303,
+      "observer_interval": 304,
+      "normal_final_substep_Ns": [
+        0.00102297834,
+        0.00325609022
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.00220442580681,
+        0.08650552782
+      ],
+      "normal_left_share": 0.2390656577841791,
+      "full_left_share": 0.02484981354047035,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 304,
+      "observer_interval": 305,
+      "normal_final_substep_Ns": [
+        0.00107132539,
+        0.00299059763
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0005321021345700003,
+        0.08765237969
+      ],
+      "normal_left_share": 0.26374832430970097,
+      "full_left_share": 0.006033965654280749,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 305,
+      "observer_interval": 306,
+      "normal_final_substep_Ns": [
+        0.000432049797,
+        0.00363491941
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0034071085129099995,
+        0.08447290372999999
+      ],
+      "normal_left_share": 0.10623385007596396,
+      "full_left_share": 0.03877000498694035,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 306,
+      "observer_interval": 307,
+      "normal_final_substep_Ns": [
+        0.000545332965,
+        0.0033451647
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.00153307673727,
+        0.08715963384999997
+      ],
+      "normal_left_share": 0.14017049024498,
+      "full_left_share": 0.017285261969319513,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 307,
+      "observer_interval": 308,
+      "normal_final_substep_Ns": [
+        0.000535247382,
+        0.000116707757
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.030073631105999997,
+        0.0381817459946
+      ],
+      "normal_left_share": 0.8209880557441238,
+      "full_left_share": 0.4406045704161179,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 308,
+      "observer_interval": 309,
+      "normal_final_substep_Ns": [
+        0.00223750039,
+        0.00138487993
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.048252110202,
+        0.028375214230799993
+      ],
+      "normal_left_share": 0.6176878716037194,
+      "full_left_share": 0.6296984862666809,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 309,
+      "observer_interval": 310,
+      "normal_final_substep_Ns": [
+        0.0027046632,
+        7.17375294e-20
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.090125213709,
+        0.0163876636527471
+      ],
+      "normal_left_share": 1.0,
+      "full_left_share": 0.8461438273131043,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 310,
+      "observer_interval": 311,
+      "normal_final_substep_Ns": [
+        0.00227518147,
+        0.0
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.06991657602,
+        0.020192329901399998
+      ],
+      "normal_left_share": 1.0,
+      "full_left_share": 0.7759119401692289,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 311,
+      "observer_interval": 312,
+      "normal_final_substep_Ns": [
+        0.00252832705,
+        0.000337197562
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.06404905288000001,
+        0.02278464969758839
+      ],
+      "normal_left_share": 0.8823260632318729,
+      "full_left_share": 0.7376059177341925,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 312,
+      "observer_interval": 313,
+      "normal_final_substep_Ns": [
+        0.00228110817,
+        0.000293940509
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.06197013738899999,
+        0.024887731197000003
+      ],
+      "normal_left_share": 0.8858505039546866,
+      "full_left_share": 0.7134660152020874,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 313,
+      "observer_interval": 314,
+      "normal_final_substep_Ns": [
+        0.00186260778,
+        0.000845448463
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.06509565702999999,
+        0.0257025942239
+      ],
+      "normal_left_share": 0.6878024726460602,
+      "full_left_share": 0.7169263298691998,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 314,
+      "observer_interval": 315,
+      "normal_final_substep_Ns": [
+        0.00186704588,
+        0.00117029122
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.06204179988,
+        0.0271825842421081
+      ],
+      "normal_left_share": 0.6146982763289593,
+      "full_left_share": 0.6953457901720302,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 315,
+      "observer_interval": 316,
+      "normal_final_substep_Ns": [
+        0.00196011132,
+        0.0
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.06385510857999999,
+        0.023800466042010006
+      ],
+      "normal_left_share": 1.0,
+      "full_left_share": 0.7284774397447873,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 316,
+      "observer_interval": 317,
+      "normal_final_substep_Ns": [
+        0.00157393434,
+        0.00194152037
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.05990759909,
+        0.029421455228700003
+      ],
+      "normal_left_share": 0.4477185655451098,
+      "full_left_share": 0.6706395757450556,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 317,
+      "observer_interval": 318,
+      "normal_final_substep_Ns": [
+        0.000557231833,
+        0.00274356687
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.018386151083899998,
+        0.074927929893
+      ],
+      "normal_left_share": 0.16881727216311257,
+      "full_left_share": 0.19703511936694215,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 318,
+      "observer_interval": 319,
+      "normal_final_substep_Ns": [
+        0.000506874698,
+        0.00252111605
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.009228330046000002,
+        0.08117952185999998
+      ],
+      "normal_left_share": 0.1673963826787756,
+      "full_left_share": 0.10207443105268114,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 319,
+      "observer_interval": 320,
+      "normal_final_substep_Ns": [
+        0.000523531169,
+        0.00258972379
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.009934699817402,
+        0.0758315171
+      ],
+      "normal_left_share": 0.1681619963333045,
+      "full_left_share": 0.11583465115372538,
+      "full_substeps": 32
+    },
+    {
+      "lane": 1,
+      "event_interval": 320,
+      "observer_interval": 321,
+      "normal_final_substep_Ns": [
+        0.000565215421,
+        0.00254471856
+      ],
+      "full_interval_normal_and_friction_Ns": [
+        0.0085810394471,
+        0.08154445255000001
+      ],
+      "normal_left_share": 0.1817451510074355,
+      "full_left_share": 0.09521212319568935,
+      "full_substeps": 32
+    }
+  ],
+  "interpretation": "Event uses normal-only final contact impulse, while full-interval includes tangential vertical impulse. The latter can be negative; shares alone are not a center of pressure or proof of causality."
+}

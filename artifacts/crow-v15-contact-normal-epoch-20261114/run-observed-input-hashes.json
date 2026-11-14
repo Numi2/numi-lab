@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-contact-normal-epoch-20261114/probe.cpp": "71d8eac1a415230d58b12f3bbc3162fad570ac2baf9b6266e5087f342c1b1762",
+  "build/crow-v15-contact-normal-epoch-20261114/probe": "6003fb7abc9cea8b7cacbb13129df125160598020dcbe56c83fe3501d15812b2",
+  "build/crow-v15-contact-normal-epoch-20261114/libmetalrobo.dylib": "6827c38c30c22d6d9afc22df4ee2d2be8d0cf01eb48d5d751c9f16020d9c5fcc",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}
