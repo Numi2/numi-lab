@@ -1,0 +1,5 @@
+# Development diagnostic video, not mission evidence
+
+This 80-second compilation contains the previously archived 8-second walking comparison, including the support failure, followed by the complete 36-second seed-20261127 candidate replay twice from separate side and front cameras. It is a used development seed and training scene, not the unused-layout mission. The renderer removes root trajectory for its independent camera; scenery and the inherited waypoint counter are presentation elements and cannot establish obstacle clearance or waypoint completion. No landing is shown.
+
+The render inputs match the decompressed archived replay SHA-256. Each view has all 1800 frames, and nine sampled replay poses were independently checked against CPU forward kinematics; that check does not validate all frames, feather deformation, contact timing or biology. The crow mesh, feather and toe bridge geometry are estimated and are not exact physical reconstructions. The two angles show the same single run, not two separate successes. See the native renderer audit files and the separately archived flight trial for numerical evidence and its limitations.
