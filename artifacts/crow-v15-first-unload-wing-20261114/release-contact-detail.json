@@ -1,0 +1,201 @@
+{
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 6,
+      "first_wing_target_departure": 375,
+      "foot_contacts_around_departure": [
+        {
+          "interval": 373,
+          "foot_normal_impulse_sum_Ns": 0.171811561077,
+          "last_substep_normal_impulse_Ns": 0.001551968977,
+          "substeps_with_impulse_gt_1e-7": 16
+        },
+        {
+          "interval": 374,
+          "foot_normal_impulse_sum_Ns": 0.23314380092,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 11
+        },
+        {
+          "interval": 375,
+          "foot_normal_impulse_sum_Ns": 0.082088023307,
+          "last_substep_normal_impulse_Ns": 0.00032561528499999996,
+          "substeps_with_impulse_gt_1e-7": 10
+        },
+        {
+          "interval": 376,
+          "foot_normal_impulse_sum_Ns": 0.00017532317257000003,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 3
+        },
+        {
+          "interval": 377,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        },
+        {
+          "interval": 378,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        },
+        {
+          "interval": 379,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        }
+      ]
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "first_wing_target_departure": 375,
+      "foot_contacts_around_departure": [
+        {
+          "interval": 373,
+          "foot_normal_impulse_sum_Ns": 0.17185032339000006,
+          "last_substep_normal_impulse_Ns": 0.00155151746,
+          "substeps_with_impulse_gt_1e-7": 16
+        },
+        {
+          "interval": 374,
+          "foot_normal_impulse_sum_Ns": 0.232933079818,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 11
+        },
+        {
+          "interval": 375,
+          "foot_normal_impulse_sum_Ns": 0.010937862558450003,
+          "last_substep_normal_impulse_Ns": 1.649429755e-05,
+          "substeps_with_impulse_gt_1e-7": 9
+        },
+        {
+          "interval": 376,
+          "foot_normal_impulse_sum_Ns": 0.007538821414534269,
+          "last_substep_normal_impulse_Ns": 0.00439732708,
+          "substeps_with_impulse_gt_1e-7": 8
+        },
+        {
+          "interval": 377,
+          "foot_normal_impulse_sum_Ns": 0.0025811761777999997,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 4
+        },
+        {
+          "interval": 378,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        },
+        {
+          "interval": 379,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        }
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "first_wing_target_departure": 414,
+      "foot_contacts_around_departure": [
+        {
+          "interval": 412,
+          "foot_normal_impulse_sum_Ns": 0.29273548814000006,
+          "last_substep_normal_impulse_Ns": 0.009873216970000001,
+          "substeps_with_impulse_gt_1e-7": 16
+        },
+        {
+          "interval": 413,
+          "foot_normal_impulse_sum_Ns": 0.14770110824266,
+          "last_substep_normal_impulse_Ns": 7.72428666e-06,
+          "substeps_with_impulse_gt_1e-7": 16
+        },
+        {
+          "interval": 414,
+          "foot_normal_impulse_sum_Ns": 7.0547003010000005e-06,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 2
+        },
+        {
+          "interval": 415,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        },
+        {
+          "interval": 416,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        },
+        {
+          "interval": 417,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        },
+        {
+          "interval": 418,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        }
+      ]
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "first_wing_target_departure": 414,
+      "foot_contacts_around_departure": [
+        {
+          "interval": 412,
+          "foot_normal_impulse_sum_Ns": 0.29269416855999997,
+          "last_substep_normal_impulse_Ns": 0.00986784743,
+          "substeps_with_impulse_gt_1e-7": 16
+        },
+        {
+          "interval": 413,
+          "foot_normal_impulse_sum_Ns": 0.14772276254456002,
+          "last_substep_normal_impulse_Ns": 7.71791656e-06,
+          "substeps_with_impulse_gt_1e-7": 16
+        },
+        {
+          "interval": 414,
+          "foot_normal_impulse_sum_Ns": 7.05077966e-06,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 2
+        },
+        {
+          "interval": 415,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        },
+        {
+          "interval": 416,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        },
+        {
+          "interval": 417,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        },
+        {
+          "interval": 418,
+          "foot_normal_impulse_sum_Ns": 0.0,
+          "last_substep_normal_impulse_Ns": 0.0,
+          "substeps_with_impulse_gt_1e-7": 0
+        }
+      ]
+    }
+  ],
+  "scope": "Substep contact records; target/state epoch alignment is inferred; a last-substep zero is not proof of a whole contact-free interval."
+}

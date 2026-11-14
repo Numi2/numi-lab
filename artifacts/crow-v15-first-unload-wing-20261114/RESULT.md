@@ -1,0 +1,7 @@
+# First-unload wing trigger: failed leg-attribution screen
+
+On used seed 20261126, the earlier low-contact and upward-motion trigger allowed pushed lane 6 to remain unloaded from interval 377 through 500; pushed lane 7 unloaded at 378 and recontacted at 384. However, both held-leg controls unloaded at 415 and stayed unloaded through 500. The first pushed wing target departure was recorded at interval 375, before fully unloaded intervals 377/378, and pre-unload flap motion and modeled aerodynamic impulses were substantial. Neither the isolated wings-held requirement nor leg necessity was demonstrated. The held-leg pre-unload aerodynamic total in the original audit is incomplete because logging stops at interval 400.
+
+Push and hold matched q/v/actions/contacts through step 368 in both candidate lanes and through step 500 in all six untouched lanes. Both expected shader hashes and nonshader inputs matched. The original audit required aero samples through step 500; the separate coverage supplement identifies the exact missing ranges instead of interpreting those 1,600 missing substeps as missing contact records. Teacher was off. No toe threshold, nonfoot impulse, observer error or physical failure was recorded in the original measured window.
+
+These are short development trials on a used seed. Observer state/contact epochs for these lanes are inferred, not independently verified; no qualification of leg-powered flight, navigation, landing or biological realism follows. Both arms and the failed qualification remain archived.
