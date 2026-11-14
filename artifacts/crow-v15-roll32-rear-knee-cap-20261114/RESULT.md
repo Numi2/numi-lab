@@ -1,0 +1,5 @@
+# Increased knee clearance correction: failed
+
+Raising the knee correction cap from 0.13 to 0.18 rad extended the strict supported-release streak from 67 to 68 intervals; both lanes first fell below 0.1 m root height at one-based interval 432. The candidate therefore fails the 100-interval gate and is not promoted. No toe reached the accepted-state 12 rad/s threshold before the fall; that does not bound substep speeds or actuator effort.
+
+The control reproduced all 450 q/v states of the prior 0.32-rad roll-cap candidate exactly, and the two lanes matched through zero-based tick 238 before their first logged target difference at tick 239. Knee feedback reconstruction passed with the 0.18-rad cap and original slew; all 32 substeps were present, with no recorded native/observer errors or nonfoot support, and the runtime binary matched its prebuilt hash. Contact/state epochs remain independently unverified. This stationary constructed-perch probe held the released toes open, and does not establish walking, regrip or landing.
