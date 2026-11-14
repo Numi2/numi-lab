@@ -1,0 +1,19 @@
+{
+  "first_candidate_hip_intervention_zero_based": 295,
+  "peak_hip_offset_rad": 0.0500000007,
+  "rows": [
+    {
+      "lane": 0,
+      "comparison_intervals": 450,
+      "mismatches": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "comparison_intervals": 295,
+      "mismatches": 0,
+      "first_mismatches": []
+    }
+  ],
+  "scope": "Exact logged state, action and contact summary parity; contact/state epochs remain unverified."
+}
