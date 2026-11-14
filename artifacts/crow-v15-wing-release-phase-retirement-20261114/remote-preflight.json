@@ -1,0 +1,22 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-wing-release-phase-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "inode": 17111164,
+      "bytes": 34422786,
+      "mtime_ns": 1794647186612909938,
+      "sha256": "80b8863411bb9a251651f6528186dde29912dc20429a0e8c7d4c181d3e9cb9e7",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-wing-release-phase-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "inode": 17111178,
+      "bytes": 39433801,
+      "mtime_ns": 1794647300543674984,
+      "sha256": "773bdc47ccb3987aa46344837d894606ac81c0ae461008611bc388db9b313296",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 73856587
+}
