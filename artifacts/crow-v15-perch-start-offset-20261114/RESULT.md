@@ -1,0 +1,7 @@
+# Rearward start offset: geometric hint did not yield stable grip
+
+Lane 1 began 2 mm rearward of lane 0 against the fixed perch, with the same controller and physical parameters. The lane-0 control exactly matched all 4,950 selected logged state, control, event and target records from the earlier baseline. Each lane recorded 450 states and all 28,800 contact and toe-velocity substeps without observer errors; no pre-fall non-foot impulse was reported.
+
+The control released at one-based interval 172, returned at 273, held an 11-interval maximum bilateral qualifying streak and fell at 370. The offset lane released at 148, returned at 246, held a 10-interval maximum streak and fell at 347. Both reached the 12 rad/s toe-speed limit and neither achieved 100 terminal supported intervals. The earlier fall in absolute time follows an earlier release/return and is not a matched-time estimate of the offset's effect; the geometric sensitivity did not produce a qualified grip. This is a single constructed start-offset test, not a walking or landing qualification.
+
+The initial analyzer output incorrectly labeled both lanes with the control's +2 mm extra x shift. The first output and log are retained as `analysis-initial-metadata-error.json` and `analyze-initial-metadata-error.log`; the corrected analyzer records zero extra shift for lane 1. The dynamics and reported trace measurements were unchanged.
