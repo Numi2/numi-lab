@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-roll32-return-placement-ablation-20261114/probe.cpp": "dd0c5b19084ad766f7df95e9b6ab409c9221ff5a2bf792d07b52ec05ff757e77",
+  "build/crow-v15-roll32-return-placement-ablation-20261114/probe": "8653954fa7e5782051816f090602fbd3f2e0db5fba514433789fab486220f209",
+  "build/crow-v15-hiproll-toe-observer-20261113/libmetalrobo.dylib": "2401d8c6aa048f7a4a75b51d2fbc1498b97b66fd3e3e6aeb19b3014fa5af7aea",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}
