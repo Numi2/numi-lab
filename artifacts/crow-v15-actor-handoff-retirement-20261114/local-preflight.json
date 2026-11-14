@@ -1,0 +1,46 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-actor-command-flight-20261114/turn-20261126-rebound-actor/run.stderr.gz",
+      "inode": 204528857,
+      "bytes": 154495865,
+      "mtime_ns": 1794669673580600970,
+      "sha256": "b1d93fcc763ecf679181e5cd2a2ef1a20f85b59e869bccfd69865331f9b0dc41",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-actor-command-flight-20261114/turn-20261126-rebound-actor/run.stderr.gz.part000",
+      "inode": 204529313,
+      "bytes": 41943040,
+      "mtime_ns": 1794669692528617778,
+      "sha256": "a4bacc9d1e1c3b2a7b9301eb35e3e70245918c4acae0a56e31555d5db4a6f73d",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-actor-command-flight-20261114/turn-20261126-rebound-actor/run.stderr.gz.part001",
+      "inode": 204529315,
+      "bytes": 41943040,
+      "mtime_ns": 1794669692738363676,
+      "sha256": "e53504c4b99deb2d02a12779ffe23073357b41e4597bcb603a164eb2f8527c26",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-actor-command-flight-20261114/turn-20261126-rebound-actor/run.stderr.gz.part002",
+      "inode": 204529336,
+      "bytes": 41943040,
+      "mtime_ns": 1794669692904775026,
+      "sha256": "298d1eba3b12ff672904803885f0f6b93564c4733a5376b10bbf30fa8683974e",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-actor-command-flight-20261114/turn-20261126-rebound-actor/run.stderr.gz.part003",
+      "inode": 204529340,
+      "bytes": 28666745,
+      "mtime_ns": 1794669693062087210,
+      "sha256": "e20aa10df309d8ad5a2044fb78d2479e741ed45201421030f08c63314680289f",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 308991730
+}
