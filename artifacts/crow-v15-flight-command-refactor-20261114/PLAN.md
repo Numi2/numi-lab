@@ -1,0 +1,5 @@
+# Flight-command boundary parity screen
+
+Extract the existing diagnostic's speed, altitude, and signed phase-gated turn requests into a single explicitly clamped float3 command consumed by its joint-target controller. For this parity screen the provider is the exact existing time-and-lane diagnostic schedule: speed fixed at 0.35 m/s, altitude in [0.55, 0.80] m, and signed turn target in [-0.07, 0.07] rad. This is not a claim that those bounds are qualified for arbitrary commands, and the scheduled provider is not an autonomous navigation interface. No plant, actuation, reset, solver, feedback, toe or launch change is intended.
+
+On used training seed 20261126 require teacher-off continuous execution with all state, policy action and contact values matching the same-lane prior combined flight reference throughout all 1800 intervals; verify full contact, toe and wing substep and turn/height physical screens. Preserve the result if parity or any other gate fails. A later command-source integration and separate envelope trials are required before flight-controller qualification and freezing.
