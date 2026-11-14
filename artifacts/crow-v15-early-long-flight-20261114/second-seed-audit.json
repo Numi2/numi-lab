@@ -1,0 +1,270 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "reported_end": 1800,
+      "reason": 0,
+      "checks": {
+        "complete_first_episode": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": false,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_heading_lateral_speed_bounds": true
+      },
+      "pass": false,
+      "first_release": 376,
+      "first_recontact": 396,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_state_count": 0,
+      "missing_target_count": 0,
+      "missing_substep_count": 0,
+      "metrics": {
+        "height_min": 0.254684716,
+        "height_max": 0.876220465,
+        "tilt_max": 0.2084719427410111,
+        "yaw_deviation_max": 0.0010667273565786724,
+        "lateral_deviation_max": 0.025608729500000003,
+        "forward_speed_min": 0.320857733,
+        "forward_speed_max": 0.712610483
+      },
+      "first_bound_violation": null
+    },
+    {
+      "lane": 1,
+      "reported_end": 1800,
+      "reason": 0,
+      "checks": {
+        "complete_first_episode": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_heading_lateral_speed_bounds": true
+      },
+      "pass": true,
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_state_count": 0,
+      "missing_target_count": 0,
+      "missing_substep_count": 0,
+      "metrics": {
+        "height_min": 0.472588331,
+        "height_max": 0.876240969,
+        "tilt_max": 0.21135703860087762,
+        "yaw_deviation_max": 0.000869692667469682,
+        "lateral_deviation_max": 0.06282381198,
+        "forward_speed_min": 0.328295946,
+        "forward_speed_max": 0.722746372
+      },
+      "first_bound_violation": null
+    },
+    {
+      "lane": 2,
+      "reported_end": 1800,
+      "reason": 0,
+      "checks": {
+        "complete_first_episode": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_heading_lateral_speed_bounds": true
+      },
+      "pass": true,
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_state_count": 0,
+      "missing_target_count": 0,
+      "missing_substep_count": 0,
+      "metrics": {
+        "height_min": 0.590403616,
+        "height_max": 0.995844483,
+        "tilt_max": 0.21305500775252145,
+        "yaw_deviation_max": 0.0011022566859357963,
+        "lateral_deviation_max": 0.0336948093,
+        "forward_speed_min": 0.330117226,
+        "forward_speed_max": 0.733541071
+      },
+      "first_bound_violation": null
+    },
+    {
+      "lane": 3,
+      "reported_end": 1800,
+      "reason": 0,
+      "checks": {
+        "complete_first_episode": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_heading_lateral_speed_bounds": true
+      },
+      "pass": true,
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_state_count": 0,
+      "missing_target_count": 0,
+      "missing_substep_count": 0,
+      "metrics": {
+        "height_min": 0.598552525,
+        "height_max": 1.195086,
+        "tilt_max": 0.21455128920977226,
+        "yaw_deviation_max": 0.000862666712782784,
+        "lateral_deviation_max": 0.04675369330000001,
+        "forward_speed_min": 0.336746305,
+        "forward_speed_max": 0.740545034
+      },
+      "first_bound_violation": null
+    },
+    {
+      "lane": 4,
+      "reported_end": 1800,
+      "reason": 0,
+      "checks": {
+        "complete_first_episode": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": false,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_heading_lateral_speed_bounds": true
+      },
+      "pass": false,
+      "first_release": 376,
+      "first_recontact": 388,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_state_count": 0,
+      "missing_target_count": 0,
+      "missing_substep_count": 0,
+      "metrics": {
+        "height_min": 0.358918816,
+        "height_max": 0.875946999,
+        "tilt_max": 0.2266597184159248,
+        "yaw_deviation_max": 0.0011702035545973597,
+        "lateral_deviation_max": 0.0791745428,
+        "forward_speed_min": 0.34335041,
+        "forward_speed_max": 0.778056324
+      },
+      "first_bound_violation": null
+    },
+    {
+      "lane": 5,
+      "reported_end": 1800,
+      "reason": 0,
+      "checks": {
+        "complete_first_episode": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_heading_lateral_speed_bounds": true
+      },
+      "pass": true,
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_state_count": 0,
+      "missing_target_count": 0,
+      "missing_substep_count": 0,
+      "metrics": {
+        "height_min": 0.472750962,
+        "height_max": 0.876230001,
+        "tilt_max": 0.21116003169857897,
+        "yaw_deviation_max": 0.0008644323973543838,
+        "lateral_deviation_max": 0.08130945869999999,
+        "forward_speed_min": 0.328194946,
+        "forward_speed_max": 0.720134258
+      },
+      "first_bound_violation": null
+    },
+    {
+      "lane": 6,
+      "reported_end": 1800,
+      "reason": 0,
+      "checks": {
+        "complete_first_episode": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_heading_lateral_speed_bounds": true
+      },
+      "pass": true,
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_state_count": 0,
+      "missing_target_count": 0,
+      "missing_substep_count": 0,
+      "metrics": {
+        "height_min": 0.597725868,
+        "height_max": 0.995674193,
+        "tilt_max": 0.21312068750367327,
+        "yaw_deviation_max": 0.0010707909443554405,
+        "lateral_deviation_max": 0.0823606681,
+        "forward_speed_min": 0.339426637,
+        "forward_speed_max": 0.733648837
+      },
+      "first_bound_violation": null
+    },
+    {
+      "lane": 7,
+      "reported_end": 1800,
+      "reason": 0,
+      "checks": {
+        "complete_first_episode": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_heading_lateral_speed_bounds": true
+      },
+      "pass": true,
+      "first_release": 376,
+      "first_recontact": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_state_count": 0,
+      "missing_target_count": 0,
+      "missing_substep_count": 0,
+      "metrics": {
+        "height_min": 0.59631443,
+        "height_max": 1.19541192,
+        "tilt_max": 0.21458094105010034,
+        "yaw_deviation_max": 0.0015318277522187364,
+        "lateral_deviation_max": 0.1159578376,
+        "forward_speed_min": 0.321191907,
+        "forward_speed_max": 0.740421057
+      },
+      "first_bound_violation": null
+    }
+  ],
+  "observer_errors": [],
+  "scope": "Full-start used-seed engineering screen with teacher off. Contact and metadata epochs not independently aligned; no inference of fatal contact or biological, maneuver, landing, or unseen-layout qualification."
+}

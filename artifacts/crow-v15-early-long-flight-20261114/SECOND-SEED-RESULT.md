@@ -1,0 +1,5 @@
+# Second used-seed long flight screen
+
+With the same binary, body, solver and policies as the prior 1,800-interval screen, seed 20261127 and the training layout, all eight first episodes reached the horizon without reported physical termination and none completed the waypoint course. Six correlated stronger lanes (1, 2, 3, 5, 6, 7) met all predeclared physical bounds, with no observed recontact, nonfoot impulse or toe-speed cap; weaker lanes 0 and 4 recontacted at intervals 396 and 388. There were no reported observer errors, and all required state, target and 16-substep contact and toe observations were present. Individual metrics and failures are in second-seed-audit.json. Input hashes match the first screen exactly; the seed intentionally differs. Contact and state observer epochs are not independently synchronized.
+
+This repeat uses a previously used development seed, not either reserved layout. It is a 36-second engineering screen, not independent commanded straight/turn/climb/descent/recovery qualification, a supported landing, or a completed autonomous mission. Do not freeze the controller on this basis.
