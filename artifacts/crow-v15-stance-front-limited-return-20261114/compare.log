@@ -1,0 +1,9 @@
+{
+  "first_return_placement_difference_zero_based": 223,
+  "prefix_pairs": 223,
+  "prefix_exact": true,
+  "archived_baseline_pairs": 450,
+  "archived_baseline_exact": true,
+  "max_return_placement_step_per_interval": 0.05000001200000004,
+  "note": "Placement is a dimensionless controller target, not physical toe clearance or effort."
+}
