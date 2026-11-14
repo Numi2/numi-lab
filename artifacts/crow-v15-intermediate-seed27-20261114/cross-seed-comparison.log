@@ -1,0 +1,77 @@
+{
+  "push": {
+    "state": {
+      "old_count": 4000,
+      "new_count": 4000,
+      "exact_equal": false
+    },
+    "target": {
+      "old_count": 1328,
+      "new_count": 1328,
+      "exact_equal": false
+    },
+    "contact": {
+      "old_count": 21248,
+      "new_count": 21248,
+      "exact_equal": false
+    },
+    "leg": {
+      "old_count": 21248,
+      "new_count": 21248,
+      "exact_equal": false
+    },
+    "toe": {
+      "old_count": 21248,
+      "new_count": 21248,
+      "exact_equal": false
+    },
+    "aero": {
+      "old_count": 8448,
+      "new_count": 8448,
+      "exact_equal": false
+    },
+    "errors": {
+      "old_count": 0,
+      "new_count": 0,
+      "exact_equal": true
+    }
+  },
+  "hold": {
+    "state": {
+      "old_count": 4000,
+      "new_count": 4000,
+      "exact_equal": false
+    },
+    "target": {
+      "old_count": 1328,
+      "new_count": 1328,
+      "exact_equal": false
+    },
+    "contact": {
+      "old_count": 21248,
+      "new_count": 21248,
+      "exact_equal": false
+    },
+    "leg": {
+      "old_count": 21248,
+      "new_count": 21248,
+      "exact_equal": false
+    },
+    "toe": {
+      "old_count": 21248,
+      "new_count": 21248,
+      "exact_equal": false
+    },
+    "aero": {
+      "old_count": 8448,
+      "new_count": 8448,
+      "exact_equal": false
+    },
+    "errors": {
+      "old_count": 0,
+      "new_count": 0,
+      "exact_equal": true
+    }
+  },
+  "scope": "Comparison of serialized observer records only; seed difference does not by itself prove an independent starting-state distribution."
+}

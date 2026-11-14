@@ -1,0 +1,7 @@
+# Paired launch on a second development seed
+
+On used seed 20261127 both push lanes first became unloaded at interval 377 and stayed unloaded through 500. The lower-amplitude 0.55 rad held-leg control recontacted at 406, while the 0.60 rad held-leg control remained unloaded. This repeats the qualitative result on seed 20261126. Recorded observer streams differ between seeds, but a different seed alone does not demonstrate independent starting-state coverage.
+
+The 0.55 rad push and held controls had approximately 0.549 rad of flap displacement before unloading, and modeled net vertical aerodynamic impulses of +0.0393 and +0.0398 N s over intervals 371–376. This is a coupled leg-and-wing comparison, not a leg-only takeoff proof. Observer q/contact alignment was checked in other lanes and inferred here. Full contact, toe, leg and required aerodynamic substeps were present; no toe-speed threshold, nonfoot impulse, observer error or recorded physical failure appeared. Paired q/v, action and contact prefixes matched through interval 368; all six unaffected lanes matched through 500, wing targets through the checked window matched, and nonshader input hashes matched. The unchanged 0.60 rad held-leg control remained airborne, so leg necessity is not established.
+
+This is a 500-interval development screen, not qualification of flight, perturbed starts, grip, landing or navigation. No unused layout was exercised. All raw runs and diagnostic outputs are retained.
