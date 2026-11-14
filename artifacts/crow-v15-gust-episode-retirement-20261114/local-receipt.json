@@ -1,0 +1,46 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-airborne-gust-episode-clock-20261114/turn-20261126-rebound-gustclock/run.stderr.gz",
+      "inode": 204552867,
+      "bytes": 158876347,
+      "mtime_ns": 1794672620988784161,
+      "sha256": "96e81592c80b132e9c0666d490884b0a0849a8caa71645db31f6a8b6e58d46c2",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-airborne-gust-episode-clock-20261114/turn-20261126-rebound-gustclock/run.stderr.gz.part000",
+      "inode": 204553875,
+      "bytes": 41943040,
+      "mtime_ns": 1794672695073580058,
+      "sha256": "bac856fb60e5044fbd431ac43290c525b9e15266153d4b2b412e1ea8f3b3a356",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-airborne-gust-episode-clock-20261114/turn-20261126-rebound-gustclock/run.stderr.gz.part001",
+      "inode": 204553892,
+      "bytes": 41943040,
+      "mtime_ns": 1794672695512000010,
+      "sha256": "812fd735d5e9853e6dbd0fa8b0eb062d8c8c67602cb2bde8893182437a8c77ce",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-airborne-gust-episode-clock-20261114/turn-20261126-rebound-gustclock/run.stderr.gz.part002",
+      "inode": 204553906,
+      "bytes": 41943040,
+      "mtime_ns": 1794672695901000507,
+      "sha256": "3dda14a19060d6873efe55cb0f8cfa28cf62e1766970104b87a8fd4a55922951",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-airborne-gust-episode-clock-20261114/turn-20261126-rebound-gustclock/run.stderr.gz.part003",
+      "inode": 204553916,
+      "bytes": 33047227,
+      "mtime_ns": 1794672696261520111,
+      "sha256": "17952c6a85a525a7d856fe3bfe7840892e75843f2637597efc7ba6084339d11d",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 317752694
+}

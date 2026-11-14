@@ -1,0 +1,531 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "largest_adjacent_fraction_change": [
+        0.5046922427686465,
+        306,
+        307
+      ],
+      "intervals": [
+        {
+          "observer_interval": 285,
+          "left_total_upward_impulse_Ns": 0.0,
+          "right_total_upward_impulse_Ns": 0.0877684108,
+          "left_fraction_of_total": 0.0,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 286,
+          "left_total_upward_impulse_Ns": 0.0,
+          "right_total_upward_impulse_Ns": 0.08850478239999998,
+          "left_fraction_of_total": 0.0,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 287,
+          "left_total_upward_impulse_Ns": 0.0,
+          "right_total_upward_impulse_Ns": 0.08898572833,
+          "left_fraction_of_total": 0.0,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 288,
+          "left_total_upward_impulse_Ns": -0.0013884985858699998,
+          "right_total_upward_impulse_Ns": 0.0907989014,
+          "left_fraction_of_total": -0.015529497040254558,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 289,
+          "left_total_upward_impulse_Ns": -0.004033666383499998,
+          "right_total_upward_impulse_Ns": 0.09189144712000001,
+          "left_fraction_of_total": -0.04591131655826397,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 290,
+          "left_total_upward_impulse_Ns": 0.00256440937579,
+          "right_total_upward_impulse_Ns": 0.08565336256000004,
+          "left_fraction_of_total": 0.02906907893407832,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 291,
+          "left_total_upward_impulse_Ns": 0.008062136512700002,
+          "right_total_upward_impulse_Ns": 0.08040222897999999,
+          "left_fraction_of_total": 0.09113428291491314,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 292,
+          "left_total_upward_impulse_Ns": 0.0096724220818,
+          "right_total_upward_impulse_Ns": 0.07858140509,
+          "left_fraction_of_total": 0.1095977635391506,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 293,
+          "left_total_upward_impulse_Ns": 0.011101116387000003,
+          "right_total_upward_impulse_Ns": 0.07686927192999998,
+          "left_fraction_of_total": 0.12619151284176777,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 294,
+          "left_total_upward_impulse_Ns": 0.0103816258968,
+          "right_total_upward_impulse_Ns": 0.07794125298000001,
+          "left_fraction_of_total": 0.11754175168226959,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 295,
+          "left_total_upward_impulse_Ns": 0.0098542235927,
+          "right_total_upward_impulse_Ns": 0.07834606107000001,
+          "left_fraction_of_total": 0.11172553048309335,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 296,
+          "left_total_upward_impulse_Ns": 0.009122852680400001,
+          "right_total_upward_impulse_Ns": 0.07924818947,
+          "left_fraction_of_total": 0.10323350792755936,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 297,
+          "left_total_upward_impulse_Ns": 0.008478981448999999,
+          "right_total_upward_impulse_Ns": 0.07968106995000002,
+          "left_fraction_of_total": 0.09617713822131659,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 298,
+          "left_total_upward_impulse_Ns": 0.003735753007600002,
+          "right_total_upward_impulse_Ns": 0.08441285686000001,
+          "left_fraction_of_total": 0.04238016927562597,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 299,
+          "left_total_upward_impulse_Ns": 0.0003728563613999997,
+          "right_total_upward_impulse_Ns": 0.08772713437,
+          "left_fraction_of_total": 0.00423219523980164,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 300,
+          "left_total_upward_impulse_Ns": 0.003460920886,
+          "right_total_upward_impulse_Ns": 0.08465608092,
+          "left_fraction_of_total": 0.03927642583232265,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 301,
+          "left_total_upward_impulse_Ns": 0.00645098852855,
+          "right_total_upward_impulse_Ns": 0.08198942627000003,
+          "left_fraction_of_total": 0.07294163582615584,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 302,
+          "left_total_upward_impulse_Ns": 0.0051941070285600015,
+          "right_total_upward_impulse_Ns": 0.08302503754,
+          "left_fraction_of_total": 0.05887732253539788,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 303,
+          "left_total_upward_impulse_Ns": 0.0023130312857899994,
+          "right_total_upward_impulse_Ns": 0.08620259699999999,
+          "left_fraction_of_total": 0.02613133217923875,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 304,
+          "left_total_upward_impulse_Ns": 0.0054311529813899995,
+          "right_total_upward_impulse_Ns": 0.08299618887999999,
+          "left_fraction_of_total": 0.061419385306225094,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 305,
+          "left_total_upward_impulse_Ns": 0.00729520620181,
+          "right_total_upward_impulse_Ns": 0.08068037326000001,
+          "left_fraction_of_total": 0.08292308213754741,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 306,
+          "left_total_upward_impulse_Ns": 0.006340735692740001,
+          "right_total_upward_impulse_Ns": 0.07914336854799998,
+          "left_fraction_of_total": 0.07417444154159054,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 307,
+          "left_total_upward_impulse_Ns": 0.036985663354,
+          "right_total_upward_impulse_Ns": 0.0269075686396,
+          "left_fraction_of_total": 0.5788666843102371,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 308,
+          "left_total_upward_impulse_Ns": 0.05184929001599999,
+          "right_total_upward_impulse_Ns": 0.02822526689246399,
+          "left_fraction_of_total": 0.6475126684156457,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 309,
+          "left_total_upward_impulse_Ns": 0.09054424098000001,
+          "right_total_upward_impulse_Ns": 0.016644832525000004,
+          "left_fraction_of_total": 0.8447152122811886,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 310,
+          "left_total_upward_impulse_Ns": 0.07268837269999999,
+          "right_total_upward_impulse_Ns": 0.020868614759017533,
+          "left_fraction_of_total": 0.7769422110971775,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 311,
+          "left_total_upward_impulse_Ns": 0.059599436178,
+          "right_total_upward_impulse_Ns": 0.025598753259600003,
+          "left_fraction_of_total": 0.6995387645139011,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 312,
+          "left_total_upward_impulse_Ns": 0.06484924141000001,
+          "right_total_upward_impulse_Ns": 0.024933085291100002,
+          "left_fraction_of_total": 0.7222940615684165,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 313,
+          "left_total_upward_impulse_Ns": 0.06327579496000002,
+          "right_total_upward_impulse_Ns": 0.0267916807399,
+          "left_fraction_of_total": 0.7025376748742417,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 314,
+          "left_total_upward_impulse_Ns": 0.061282693609999994,
+          "right_total_upward_impulse_Ns": 0.02615286148427507,
+          "left_fraction_of_total": 0.7008898558935615,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 315,
+          "left_total_upward_impulse_Ns": 0.06145046339,
+          "right_total_upward_impulse_Ns": 0.0275560779964157,
+          "left_fraction_of_total": 0.6904039010258481,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 316,
+          "left_total_upward_impulse_Ns": 0.021600120742,
+          "right_total_upward_impulse_Ns": 0.07257727895900001,
+          "left_fraction_of_total": 0.22935567143048483,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 317,
+          "left_total_upward_impulse_Ns": 0.013702934921999999,
+          "right_total_upward_impulse_Ns": 0.07560263418999999,
+          "left_fraction_of_total": 0.15343875032938717,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 318,
+          "left_total_upward_impulse_Ns": 0.014447184811000005,
+          "right_total_upward_impulse_Ns": 0.07416477356999998,
+          "left_fraction_of_total": 0.1630387712331358,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 319,
+          "left_total_upward_impulse_Ns": 0.014998475812000003,
+          "right_total_upward_impulse_Ns": 0.07031218146700002,
+          "left_fraction_of_total": 0.17581010732280467,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 320,
+          "left_total_upward_impulse_Ns": 0.014736586458,
+          "right_total_upward_impulse_Ns": 0.073158173943,
+          "left_fraction_of_total": 0.16766171715774242,
+          "substep_count": 32
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "largest_adjacent_fraction_change": [
+        0.47360445637811344,
+        317,
+        318
+      ],
+      "intervals": [
+        {
+          "observer_interval": 285,
+          "left_total_upward_impulse_Ns": 0.0,
+          "right_total_upward_impulse_Ns": 0.08989658857999996,
+          "left_fraction_of_total": 0.0,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 286,
+          "left_total_upward_impulse_Ns": 0.0,
+          "right_total_upward_impulse_Ns": 0.08671663303,
+          "left_fraction_of_total": 0.0,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 287,
+          "left_total_upward_impulse_Ns": 0.0,
+          "right_total_upward_impulse_Ns": 0.08757046749000001,
+          "left_fraction_of_total": 0.0,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 288,
+          "left_total_upward_impulse_Ns": -0.0023132697575589996,
+          "right_total_upward_impulse_Ns": 0.0926663368,
+          "left_fraction_of_total": -0.02560255930739353,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 289,
+          "left_total_upward_impulse_Ns": 0.0028583936031000004,
+          "right_total_upward_impulse_Ns": 0.08510547272999999,
+          "left_fraction_of_total": 0.03249508829313944,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 290,
+          "left_total_upward_impulse_Ns": 8.139678519999986e-05,
+          "right_total_upward_impulse_Ns": 0.0888872908,
+          "left_fraction_of_total": 0.0009148925021744422,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 291,
+          "left_total_upward_impulse_Ns": 2.927208367999952e-05,
+          "right_total_upward_impulse_Ns": 0.0884917318,
+          "left_fraction_of_total": 0.0003306795268438682,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 292,
+          "left_total_upward_impulse_Ns": 0.0049437538829,
+          "right_total_upward_impulse_Ns": 0.08327915613999999,
+          "left_fraction_of_total": 0.056037075648680726,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 293,
+          "left_total_upward_impulse_Ns": 0.0058832404473,
+          "right_total_upward_impulse_Ns": 0.08251334865000001,
+          "left_fraction_of_total": 0.06655506176628818,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 294,
+          "left_total_upward_impulse_Ns": 0.007254743098599999,
+          "right_total_upward_impulse_Ns": 0.08092661991000002,
+          "left_fraction_of_total": 0.08227070722293632,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 295,
+          "left_total_upward_impulse_Ns": 0.007504208959299999,
+          "right_total_upward_impulse_Ns": 0.08055081705000003,
+          "left_fraction_of_total": 0.08522181298893074,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 296,
+          "left_total_upward_impulse_Ns": 0.007559475783100001,
+          "right_total_upward_impulse_Ns": 0.08099742666000001,
+          "left_fraction_of_total": 0.08536292004970647,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 297,
+          "left_total_upward_impulse_Ns": -0.0010823448064000002,
+          "right_total_upward_impulse_Ns": 0.08894259707,
+          "left_fraction_of_total": -0.012318935793090244,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 298,
+          "left_total_upward_impulse_Ns": 0.00158015620622,
+          "right_total_upward_impulse_Ns": 0.08668065683999998,
+          "left_fraction_of_total": 0.017903259121264968,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 299,
+          "left_total_upward_impulse_Ns": 0.0008706632606000004,
+          "right_total_upward_impulse_Ns": 0.08770274906,
+          "left_fraction_of_total": 0.00982984891051223,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 300,
+          "left_total_upward_impulse_Ns": 0.002247385679210001,
+          "right_total_upward_impulse_Ns": 0.08598328419000001,
+          "left_fraction_of_total": 0.025471705956006514,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 301,
+          "left_total_upward_impulse_Ns": 0.0028878469448600005,
+          "right_total_upward_impulse_Ns": 0.08508836572000004,
+          "left_fraction_of_total": 0.03282531558685159,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 302,
+          "left_total_upward_impulse_Ns": 0.0033397491789000006,
+          "right_total_upward_impulse_Ns": 0.08528426498000002,
+          "left_fraction_of_total": 0.03768447198647465,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 303,
+          "left_total_upward_impulse_Ns": 0.0033719119561600006,
+          "right_total_upward_impulse_Ns": 0.08477324328000001,
+          "left_fraction_of_total": 0.038254081544537716,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 304,
+          "left_total_upward_impulse_Ns": 0.00220442580681,
+          "right_total_upward_impulse_Ns": 0.08650552782,
+          "left_fraction_of_total": 0.02484981354047035,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 305,
+          "left_total_upward_impulse_Ns": 0.0005321021345700003,
+          "right_total_upward_impulse_Ns": 0.08765237969,
+          "left_fraction_of_total": 0.006033965654280749,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 306,
+          "left_total_upward_impulse_Ns": 0.0034071085129099995,
+          "right_total_upward_impulse_Ns": 0.08447290372999999,
+          "left_fraction_of_total": 0.03877000498694035,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 307,
+          "left_total_upward_impulse_Ns": 0.00153307673727,
+          "right_total_upward_impulse_Ns": 0.08715963384999997,
+          "left_fraction_of_total": 0.017285261969319513,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 308,
+          "left_total_upward_impulse_Ns": 0.030073631105999997,
+          "right_total_upward_impulse_Ns": 0.0381817459946,
+          "left_fraction_of_total": 0.4406045704161179,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 309,
+          "left_total_upward_impulse_Ns": 0.048252110202,
+          "right_total_upward_impulse_Ns": 0.028375214230799993,
+          "left_fraction_of_total": 0.6296984862666809,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 310,
+          "left_total_upward_impulse_Ns": 0.090125213709,
+          "right_total_upward_impulse_Ns": 0.0163876636527471,
+          "left_fraction_of_total": 0.8461438273131043,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 311,
+          "left_total_upward_impulse_Ns": 0.06991657602,
+          "right_total_upward_impulse_Ns": 0.020192329901399998,
+          "left_fraction_of_total": 0.7759119401692289,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 312,
+          "left_total_upward_impulse_Ns": 0.06404905288000001,
+          "right_total_upward_impulse_Ns": 0.02278464969758839,
+          "left_fraction_of_total": 0.7376059177341925,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 313,
+          "left_total_upward_impulse_Ns": 0.06197013738899999,
+          "right_total_upward_impulse_Ns": 0.024887731197000003,
+          "left_fraction_of_total": 0.7134660152020874,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 314,
+          "left_total_upward_impulse_Ns": 0.06509565702999999,
+          "right_total_upward_impulse_Ns": 0.0257025942239,
+          "left_fraction_of_total": 0.7169263298691998,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 315,
+          "left_total_upward_impulse_Ns": 0.06204179988,
+          "right_total_upward_impulse_Ns": 0.0271825842421081,
+          "left_fraction_of_total": 0.6953457901720302,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 316,
+          "left_total_upward_impulse_Ns": 0.06385510857999999,
+          "right_total_upward_impulse_Ns": 0.023800466042010006,
+          "left_fraction_of_total": 0.7284774397447873,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 317,
+          "left_total_upward_impulse_Ns": 0.05990759909,
+          "right_total_upward_impulse_Ns": 0.029421455228700003,
+          "left_fraction_of_total": 0.6706395757450556,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 318,
+          "left_total_upward_impulse_Ns": 0.018386151083899998,
+          "right_total_upward_impulse_Ns": 0.074927929893,
+          "left_fraction_of_total": 0.19703511936694215,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 319,
+          "left_total_upward_impulse_Ns": 0.009228330046000002,
+          "right_total_upward_impulse_Ns": 0.08117952185999998,
+          "left_fraction_of_total": 0.10207443105268114,
+          "substep_count": 32
+        },
+        {
+          "observer_interval": 320,
+          "left_total_upward_impulse_Ns": 0.009934699817402,
+          "right_total_upward_impulse_Ns": 0.0758315171,
+          "left_fraction_of_total": 0.11583465115372538,
+          "substep_count": 32
+        }
+      ]
+    }
+  ],
+  "duplicates": [],
+  "coverage_complete": true,
+  "scope": "post-hoc summed normal plus tangential vertical contact impulse by foot; fractions can be negative or exceed one when a foot pulls downward. Observer control-step alignment with accepted q and last-substep controller contact remains unverified; correlation is not a causal conclusion."
+}
