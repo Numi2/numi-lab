@@ -1,0 +1,52 @@
+{
+  "summary": [
+    {
+      "lane": 0,
+      "end": 697,
+      "first_nonfoot": {
+        "first_observed_step": 698,
+        "contacts": [
+          {
+            "a": "crow_tail",
+            "b": "locomotion_ground",
+            "normal_impulse": 2.70726082e-18
+          },
+          {
+            "a": "crow_tail",
+            "b": "locomotion_ground",
+            "normal_impulse": 4.8488954e-07
+          }
+        ]
+      }
+    },
+    {
+      "lane": 1,
+      "end": 701,
+      "first_nonfoot": {
+        "first_observed_step": 702,
+        "contacts": [
+          {
+            "a": "crow_body",
+            "b": "locomotion_ground",
+            "normal_impulse": 0.000403993996
+          },
+          {
+            "a": "crow_body",
+            "b": "locomotion_ground",
+            "normal_impulse": 0.000406639912
+          },
+          {
+            "a": "crow_tail",
+            "b": "locomotion_ground",
+            "normal_impulse": 4.3474481e-11
+          },
+          {
+            "a": "crow_tail",
+            "b": "locomotion_ground",
+            "normal_impulse": 8.84083223e-11
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,2641 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "metadata_first_episode_end": 697,
+      "termination_reason_code": 3,
+      "first_observed_positive_nonfoot_contact": {
+        "first_observed_step": 698,
+        "contacts": [
+          {
+            "a": "crow_tail",
+            "b": "locomotion_ground",
+            "normal_impulse": 2.70726082e-18
+          },
+          {
+            "a": "crow_tail",
+            "b": "locomotion_ground",
+            "normal_impulse": 4.8488954e-07
+          }
+        ]
+      },
+      "samples": [
+        {
+          "step": 370,
+          "position_m": [
+            0.160865858,
+            -0.013544607,
+            0.162659019
+          ],
+          "quaternion_xyzw": [
+            6.47174693e-06,
+            0.0135606602,
+            0.00102978037,
+            0.999907494
+          ],
+          "tilt_rad": 0.027122154787751734,
+          "linear_velocity_m_s": [
+            0.0217212532,
+            0.00014124054,
+            -0.00182503881
+          ],
+          "angular_velocity_rad_s": [
+            -0.000486444245,
+            0.132552207,
+            -9.0786918e-05
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 2.84398698e-13
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 4.02916832e-11
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 6.94884384e-12
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 4.75431569e-11
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 1.40111913e-12
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 3.09546069e-11
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 9.02428928e-06
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000771318155
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000333332748
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.0015498735
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 3.83618674e-17
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 2.0416066e-05
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 2.65232782e-15
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 3.82815451e-05
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 3.27427738e-11
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 9.5555959e-12
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 3.47295109e-11
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 1.54611418e-13
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 3.98160949e-11
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 9.74824605e-13
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000343062798
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00170216418
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 1.67478302e-05
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000667340355
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 6.62775946e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 2.12114301e-05
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 6.87979756e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 1.31715969e-05
+            }
+          ],
+          "policy_action": [
+            0.0222885516,
+            -0.0300462507,
+            0.0314403065,
+            -0.20641911,
+            0.149889156,
+            0.536970258,
+            0.356285453,
+            1,
+            0.5914464,
+            -0.000268688076,
+            0.167372361,
+            0.74356848,
+            0.58253628,
+            0.454740137,
+            -0.103744969,
+            0.583895624,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.349999994,
+            0.349999994,
+            0.0,
+            0.0,
+            0.269999892,
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            0.0,
+            0.0,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 375,
+          "position_m": [
+            0.163988546,
+            -0.0135299405,
+            0.179309174
+          ],
+          "quaternion_xyzw": [
+            -7.31941036e-05,
+            0.0141065875,
+            0.000944482221,
+            0.999900043
+          ],
+          "tilt_rad": 0.028214490614682928,
+          "linear_velocity_m_s": [
+            0.0422790162,
+            0.000256912375,
+            0.234819859
+          ],
+          "angular_velocity_rad_s": [
+            -4.59648618e-05,
+            -0.0858518183,
+            -0.00155993295
+          ],
+          "positive_contact_pairs": [],
+          "policy_action": [
+            0.0312999859,
+            0.20817557,
+            -0.0411278494,
+            -0.548416972,
+            0.356074721,
+            -0.155618757,
+            0.185934126,
+            0.678720474,
+            0.592243433,
+            0.0618747026,
+            0.238530934,
+            0.710598111,
+            0.558539569,
+            0.41221112,
+            -0.196407065,
+            0.510747492,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.119999997,
+            0.119999997,
+            0.899609327,
+            0.899609327,
+            -0.0599573739,
+            -0.0599573739,
+            0.269999892,
+            -0.325101703,
+            0.739275098,
+            -0.257757038,
+            -0.325101703,
+            0.739275098,
+            -0.257757038,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 378,
+          "position_m": [
+            0.165743381,
+            -0.0135160228,
+            0.183736786
+          ],
+          "quaternion_xyzw": [
+            -5.47059353e-05,
+            0.0137006687,
+            0.000943321269,
+            0.999905765
+          ],
+          "tilt_rad": 0.027402413172697822,
+          "linear_velocity_m_s": [
+            -0.00882673543,
+            0.000202433148,
+            -0.0277609136
+          ],
+          "angular_velocity_rad_s": [
+            0.00391540397,
+            0.0665417463,
+            -0.000356994249
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000363402069
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000373373594
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000343633816
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000355231517
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000340567494
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000385392632
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000312563905
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000343547435
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000366321387
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000378255558
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000311521202
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000313552096
+            }
+          ],
+          "policy_action": [
+            -0.0552442856,
+            -0.0618330948,
+            -0.129799768,
+            -0.547634065,
+            0.278638929,
+            -0.331961483,
+            0.084353596,
+            0.842153549,
+            0.589588344,
+            -0.0544641465,
+            0.294992566,
+            0.707792401,
+            0.537262857,
+            0.306032062,
+            -0.168416202,
+            0.503085554,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.119999997,
+            0.119999997,
+            -0.0918398798,
+            -0.0918398798,
+            0.0462306477,
+            0.0462306477,
+            0.258922458,
+            -0.325101703,
+            0.739275098,
+            -0.257757038,
+            -0.325101703,
+            0.739275098,
+            -0.257757038,
+            0.0,
+            0.0,
+            0.0,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 380,
+          "position_m": [
+            0.165233076,
+            -0.0135109145,
+            0.17624189
+          ],
+          "quaternion_xyzw": [
+            -3.95319075e-05,
+            0.0174842905,
+            0.000941781444,
+            0.999846697
+          ],
+          "tilt_rad": 0.03497045229178172,
+          "linear_velocity_m_s": [
+            -0.0140076429,
+            0.000118000746,
+            -0.375617445
+          ],
+          "angular_velocity_rad_s": [
+            -0.000627021538,
+            0.179459035,
+            1.5434849e-05
+          ],
+          "positive_contact_pairs": [],
+          "policy_action": [
+            -0.0133431051,
+            -0.0341663733,
+            0.0459619798,
+            -0.269928634,
+            0.16762951,
+            0.0748928338,
+            0.0228088684,
+            1,
+            0.584614873,
+            -0.136522382,
+            0.276093036,
+            0.756844938,
+            0.599844158,
+            0.400621951,
+            -0.149327829,
+            0.533756673,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.119999997,
+            0.119999997,
+            -0.0613056719,
+            -0.0613056719,
+            0.0364760719,
+            0.0364760719,
+            0.264371753,
+            -0.385619491,
+            0.923048258,
+            -0.568697929,
+            -0.385619491,
+            0.923048258,
+            -0.568697929,
+            0.0,
+            0.0,
+            0.0,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 400,
+          "position_m": [
+            0.150323018,
+            -0.0135309929,
+            0.169234261
+          ],
+          "quaternion_xyzw": [
+            0.000106501517,
+            0.0119932629,
+            0.000836125691,
+            0.9999277
+          ],
+          "tilt_rad": 0.023988046662400425,
+          "linear_velocity_m_s": [
+            -0.0102882711,
+            4.68297949e-05,
+            0.00451993197
+          ],
+          "angular_velocity_rad_s": [
+            -0.00102709059,
+            -0.11561995,
+            -7.51775151e-05
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000292666518
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000250532292
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000295432954
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000253459788
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00029425844
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000254223851
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000487375335
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000444890815
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000280307489
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000253229431
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000292327517
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000252849277
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000294207799
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000256797794
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000483853713
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00043559249
+            }
+          ],
+          "policy_action": [
+            0.156373709,
+            -0.203085989,
+            -0.00656869728,
+            -0.226870462,
+            0.226778746,
+            0.647653461,
+            0.26363644,
+            1,
+            0.599750161,
+            -0.0107854223,
+            0.161748841,
+            0.760802805,
+            0.574665785,
+            0.287704855,
+            -0.11853651,
+            0.557122767,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.119999997,
+            0.119999997,
+            0.543425381,
+            0.543425381,
+            -0.0163772143,
+            -0.0163772143,
+            0.270000011,
+            -0.434999704,
+            1.02999997,
+            -0.679999948,
+            -0.434999704,
+            1.02999997,
+            -0.679999948,
+            0.0,
+            0.0,
+            0.0,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 696,
+          "position_m": [
+            0.0257039256,
+            -0.0137007162,
+            0.138083681
+          ],
+          "quaternion_xyzw": [
+            0.00065034139,
+            -0.377495885,
+            0.00137354084,
+            0.926010013
+          ],
+          "tilt_rad": 0.7741824219453572,
+          "linear_velocity_m_s": [
+            0.0119682588,
+            0.000132310961,
+            -0.069628492
+          ],
+          "angular_velocity_rad_s": [
+            0.000927310379,
+            -0.44240132,
+            0.000745625352
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00236750417
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.92531769e-38
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00207758415
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.344739e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00253912783
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.93284883e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00194379233
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.06393224e-38
+            }
+          ],
+          "policy_action": [
+            -0.324398547,
+            -0.0378270671,
+            0.05355151,
+            -0.876052558,
+            0.273161709,
+            -0.866614997,
+            -0.615301132,
+            -0.236223549,
+            0.617314577,
+            -0.527903557,
+            0.00856238417,
+            0.498091012,
+            0.447122723,
+            0.112976618,
+            -0.19636561,
+            0.171714157,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -0.00350371469,
+            -0.00350371469,
+            0.941145062,
+            0.941607356,
+            0.0,
+            0.0,
+            0.270000011,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            0.0,
+            0.0,
+            0.0,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 697,
+          "position_m": [
+            0.0248477645,
+            -0.01370221,
+            0.137773737
+          ],
+          "quaternion_xyzw": [
+            0.000653187337,
+            -0.381371856,
+            0.00138735631,
+            0.924420476
+          ],
+          "tilt_rad": 0.7825609268940841,
+          "linear_velocity_m_s": [
+            -0.0350292772,
+            -3.60991762e-05,
+            -0.030330345
+          ],
+          "angular_velocity_rad_s": [
+            -0.000294575293,
+            -0.403013825,
+            0.00134024443
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00136414694
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.92531769e-38
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00105320266
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.344739e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00154903007
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.93284883e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00090503064
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.06393224e-38
+            }
+          ],
+          "policy_action": [
+            -0.248781264,
+            -0.114026941,
+            0.0655804276,
+            -0.755194366,
+            0.284271389,
+            -0.664203286,
+            -0.552045524,
+            -0.206425905,
+            0.586799264,
+            -0.514526904,
+            0.0372081697,
+            0.537604272,
+            0.422698826,
+            0.109805375,
+            -0.216918558,
+            0.220769808,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.00056376931,
+            0.00056376931,
+            0.474565864,
+            0.474663645,
+            0.0,
+            0.0,
+            0.270000011,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            0.0,
+            0.0,
+            0.0,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 698,
+          "position_m": [
+            0.0230930969,
+            -0.0136661325,
+            0.138221949
+          ],
+          "quaternion_xyzw": [
+            0.000522494665,
+            -0.384243935,
+            0.00149309961,
+            0.923230231
+          ],
+          "tilt_rad": 0.788778268902821,
+          "linear_velocity_m_s": [
+            -0.0714729801,
+            -0.000281393935,
+            0.00615228759
+          ],
+          "angular_velocity_rad_s": [
+            0.0148150874,
+            -0.325762928,
+            -0.00122940913
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_tail",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 2.70726082e-18
+            },
+            {
+              "pair": [
+                "crow_tail",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 4.8488954e-07
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00118869357
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.92531769e-38
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00113012514
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.344739e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00126303011
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.93284883e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000984954066
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.06393224e-38
+            }
+          ],
+          "policy_action": [
+            -0.1457894,
+            -0.0608279519,
+            0.0405741557,
+            -0.729593217,
+            0.341336608,
+            -0.48989138,
+            -0.547672808,
+            -0.263313055,
+            0.576737463,
+            -0.42427507,
+            0.0238910839,
+            0.508040071,
+            0.415786803,
+            0.150772303,
+            -0.247513235,
+            0.195372745,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.00620350707,
+            0.00620350707,
+            -0.0683523118,
+            -0.0686711371,
+            0.0,
+            0.0,
+            0.270000011,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            0.0,
+            0.0,
+            0.0,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "lane": 1,
+      "metadata_first_episode_end": 701,
+      "termination_reason_code": 3,
+      "first_observed_positive_nonfoot_contact": {
+        "first_observed_step": 702,
+        "contacts": [
+          {
+            "a": "crow_body",
+            "b": "locomotion_ground",
+            "normal_impulse": 0.000403993996
+          },
+          {
+            "a": "crow_body",
+            "b": "locomotion_ground",
+            "normal_impulse": 0.000406639912
+          },
+          {
+            "a": "crow_tail",
+            "b": "locomotion_ground",
+            "normal_impulse": 4.3474481e-11
+          },
+          {
+            "a": "crow_tail",
+            "b": "locomotion_ground",
+            "normal_impulse": 8.84083223e-11
+          }
+        ]
+      },
+      "samples": [
+        {
+          "step": 370,
+          "position_m": [
+            0.139797255,
+            -0.0207025427,
+            0.1626582
+          ],
+          "quaternion_xyzw": [
+            8.22334623e-05,
+            0.0135858124,
+            -0.00271044066,
+            0.999904037
+          ],
+          "tilt_rad": 0.02717295852505584,
+          "linear_velocity_m_s": [
+            0.0218909141,
+            -0.000223073992,
+            -0.00187918742
+          ],
+          "angular_velocity_rad_s": [
+            -0.000154350448,
+            0.131492823,
+            -0.000778448477
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 3.9362296e-13
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 4.31425798e-11
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 4.15622465e-14
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 4.50667281e-11
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 1.70685764e-12
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 3.25714074e-11
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 7.96472741e-05
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000888307288
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000295503065
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00142009521
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 6.89289634e-38
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 1.34089405e-05
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.58172107e-21
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 1.23023574e-05
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 3.13186976e-11
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 3.44467781e-13
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 3.96423588e-11
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 1.06170654e-11
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 4.86948364e-11
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 2.43222326e-13
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 8.7452041e-05
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00160024094
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 2.01269099e-08
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_proximal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000785109063
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 1.73496928e-14
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000245240633
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 6.53390722e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 6.0076829e-05
+            }
+          ],
+          "policy_action": [
+            0.12155059,
+            -0.0445558429,
+            0.0671661124,
+            -0.307373822,
+            0.142289028,
+            0.576753378,
+            0.420997262,
+            1,
+            0.614202619,
+            0.136893362,
+            0.158960745,
+            0.73923409,
+            0.563264072,
+            0.544787586,
+            -0.0802047551,
+            0.549590409,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.349999994,
+            0.349999994,
+            0.0,
+            0.0,
+            0.269984275,
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            0.0,
+            0.0,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0809615776,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 375,
+          "position_m": [
+            0.142738685,
+            -0.0207147487,
+            0.179540366
+          ],
+          "quaternion_xyzw": [
+            -8.31136058e-05,
+            0.0143609922,
+            -0.0028301077,
+            0.999892831
+          ],
+          "tilt_rad": 0.028723452814763652,
+          "linear_velocity_m_s": [
+            0.0369767509,
+            -0.000180700532,
+            0.242080659
+          ],
+          "angular_velocity_rad_s": [
+            -0.000746035541,
+            -0.0828599855,
+            -0.00197286974
+          ],
+          "positive_contact_pairs": [],
+          "policy_action": [
+            0.124582253,
+            0.228786647,
+            -0.0409358405,
+            -0.576854229,
+            0.337830961,
+            0.0108143184,
+            0.196551457,
+            0.583712041,
+            0.621894479,
+            0.24102053,
+            0.211066484,
+            0.71568799,
+            0.538321912,
+            0.558405399,
+            -0.21694535,
+            0.500394881,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.119999997,
+            0.119999997,
+            0.899609327,
+            0.899609327,
+            -0.0599573739,
+            -0.0599573739,
+            0.269984275,
+            -0.325101703,
+            0.739275098,
+            -0.257757038,
+            -0.325101703,
+            0.739275098,
+            -0.257757038,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 378,
+          "position_m": [
+            0.144279525,
+            -0.020721294,
+            0.184146777
+          ],
+          "quaternion_xyzw": [
+            -6.51097798e-05,
+            0.0139971329,
+            -0.00282816798,
+            0.999898016
+          ],
+          "tilt_rad": 0.027995482881451768,
+          "linear_velocity_m_s": [
+            0.00463116495,
+            -0.000125574137,
+            -0.0746726468
+          ],
+          "angular_velocity_rad_s": [
+            -0.0017480352,
+            0.0449680202,
+            0.00010792994
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000444803416
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000512776955
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000845649512
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000926051813
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00112730043
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00121744908
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00106756436
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00112155348
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000818323053
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000879554776
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000729666324
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000796656241
+            }
+          ],
+          "policy_action": [
+            0.0108739678,
+            0.098481521,
+            -0.08274398,
+            -0.630610049,
+            0.265157521,
+            -0.390622795,
+            0.0601618066,
+            0.824450493,
+            0.61132437,
+            0.134220213,
+            0.244399041,
+            0.749274433,
+            0.516967893,
+            0.459289253,
+            -0.14771615,
+            0.506013036,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.119999997,
+            0.119999997,
+            -0.0918398798,
+            -0.0918398798,
+            0.0462306477,
+            0.0462306477,
+            0.254112959,
+            -0.325101703,
+            0.739275098,
+            -0.257757038,
+            -0.325101703,
+            0.739275098,
+            -0.257757038,
+            0.0,
+            0.0,
+            0.0,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.075000003,
+            0.0562500022,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 380,
+          "position_m": [
+            0.144051611,
+            -0.0207238998,
+            0.175366685
+          ],
+          "quaternion_xyzw": [
+            -3.36245103e-05,
+            0.0178249273,
+            -0.00282075047,
+            0.99983716
+          ],
+          "tilt_rad": 0.035651806134814966,
+          "linear_velocity_m_s": [
+            -0.00735483784,
+            -5.52681704e-05,
+            -0.407164693
+          ],
+          "angular_velocity_rad_s": [
+            0.00070678984,
+            0.173771977,
+            6.104965e-05
+          ],
+          "positive_contact_pairs": [],
+          "policy_action": [
+            0.100449122,
+            0.0260877684,
+            0.0850868747,
+            -0.409442067,
+            0.209325314,
+            0.485890597,
+            0.115206346,
+            1,
+            0.602934778,
+            0.0219118074,
+            0.231380954,
+            0.763412595,
+            0.561875582,
+            0.543441474,
+            -0.139717653,
+            0.467948228,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.119999997,
+            0.119999997,
+            -0.0613056719,
+            -0.0613056719,
+            0.0364760719,
+            0.0364760719,
+            0.258717865,
+            -0.385619491,
+            0.923048258,
+            -0.568697929,
+            -0.385619491,
+            0.923048258,
+            -0.568697929,
+            0.0,
+            0.0,
+            0.0,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.125,
+            0.09375,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 400,
+          "position_m": [
+            0.144954085,
+            -0.0207966976,
+            0.169767529
+          ],
+          "quaternion_xyzw": [
+            0.000143810612,
+            0.0154265435,
+            -0.00276256888,
+            0.999877155
+          ],
+          "tilt_rad": 0.03085565163203862,
+          "linear_velocity_m_s": [
+            -0.00876054633,
+            -3.71066344e-05,
+            0.00655862223
+          ],
+          "angular_velocity_rad_s": [
+            -0.000235937347,
+            -0.103127025,
+            0.000200611714
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000267952331
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000243487506
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00026580409
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000242491515
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00026309723
+            },
+            {
+              "pair": [
+                "crow_left_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000240551773
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000417892734
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000399295997
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000281374174
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_1_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000223347073
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000280469132
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_2_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000224480376
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000280128937
+            },
+            {
+              "pair": [
+                "crow_right_front_toe_3_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000225279568
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000431933731
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000386542961
+            }
+          ],
+          "policy_action": [
+            0.253786087,
+            -0.0940108448,
+            0.0140149174,
+            -0.350810349,
+            0.202890441,
+            0.898374021,
+            0.215909183,
+            1,
+            0.609661102,
+            0.189622939,
+            0.171509296,
+            0.792563617,
+            0.529282808,
+            0.428394556,
+            -0.153689891,
+            0.48977229,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.119999997,
+            0.119999997,
+            0.543425381,
+            0.543425381,
+            -0.0163772143,
+            -0.0163772143,
+            0.269999802,
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            -0.435000002,
+            1.02999997,
+            -0.679999948,
+            0.0,
+            0.0,
+            0.0,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 700,
+          "position_m": [
+            0.0164891705,
+            -0.0200788025,
+            0.140408382
+          ],
+          "quaternion_xyzw": [
+            -0.000637625169,
+            -0.38075003,
+            -0.00168181187,
+            0.924676239
+          ],
+          "tilt_rad": 0.7812157282836772,
+          "linear_velocity_m_s": [
+            -0.0702200904,
+            0.000342370506,
+            -0.0119670061
+          ],
+          "angular_velocity_rad_s": [
+            -0.00200227089,
+            -0.439664483,
+            0.00018724869
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00134804181
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.99657932e-38
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00111158006
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.42473128e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00145726057
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.96441952e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00100234488
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 4.99935872e-38
+            }
+          ],
+          "policy_action": [
+            -0.176417053,
+            0.0855478123,
+            -0.0389590487,
+            -0.832996666,
+            0.412773579,
+            -0.0416222401,
+            -0.667862475,
+            -0.342196494,
+            0.517668843,
+            -0.20877789,
+            -0.186766282,
+            0.398799926,
+            0.324221522,
+            0.107955083,
+            -0.32904759,
+            0.00245046848,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0143318558,
+            0.0143318558,
+            -0.209538609,
+            -0.21012786,
+            0.0,
+            0.0,
+            0.270000011,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            0.0,
+            0.0,
+            0.0,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 701,
+          "position_m": [
+            0.0162597131,
+            -0.0200758241,
+            0.139208511
+          ],
+          "quaternion_xyzw": [
+            -0.000647264475,
+            -0.384745657,
+            -0.00167523581,
+            0.923020899
+          ],
+          "tilt_rad": 0.7898656842484303,
+          "linear_velocity_m_s": [
+            -0.0071311011,
+            8.62002125e-05,
+            -0.0659573078
+          ],
+          "angular_velocity_rad_s": [
+            -0.00167301844,
+            -0.414534211,
+            0.000566475384
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00126212335
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.99657932e-38
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00101332634
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.42473128e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.00138128328
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.96441952e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000889968534
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 4.99935872e-38
+            }
+          ],
+          "policy_action": [
+            -0.211958766,
+            0.270935386,
+            0.0603325889,
+            -0.828307271,
+            0.319156736,
+            -0.131470844,
+            -0.722916901,
+            -0.387347549,
+            0.555545628,
+            -0.25104633,
+            -0.173809081,
+            0.346166819,
+            0.351725578,
+            0.229706481,
+            -0.331521124,
+            8.08358964e-05,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0104265055,
+            0.0104265055,
+            0.278575093,
+            0.278497696,
+            0.0,
+            0.0,
+            0.270000011,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            0.0,
+            0.0,
+            0.0,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "step": 702,
+          "position_m": [
+            0.0173463933,
+            -0.0200638957,
+            0.137891814
+          ],
+          "quaternion_xyzw": [
+            -0.000682291458,
+            -0.385287881,
+            -0.00163515797,
+            0.9227947
+          ],
+          "tilt_rad": 0.791040845576318,
+          "linear_velocity_m_s": [
+            0.0319250003,
+            -0.000388145185,
+            -0.0132655408
+          ],
+          "angular_velocity_rad_s": [
+            0.00167459855,
+            0.19625397,
+            0.00282554375
+          ],
+          "positive_contact_pairs": [
+            {
+              "pair": [
+                "crow_body",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000403993996
+            },
+            {
+              "pair": [
+                "crow_body",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000406639912
+            },
+            {
+              "pair": [
+                "crow_tail",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 4.3474481e-11
+            },
+            {
+              "pair": [
+                "crow_tail",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 8.84083223e-11
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000663798535
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.99657932e-38
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000446817459
+            },
+            {
+              "pair": [
+                "crow_left_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.42473128e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000788696692
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 5.96441952e-38
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 0.000322504027
+            },
+            {
+              "pair": [
+                "crow_right_rear_toe_distal",
+                "locomotion_ground"
+              ],
+              "normal_impulse": 4.99935872e-38
+            }
+          ],
+          "policy_action": [
+            -0.244375587,
+            0.107299089,
+            -0.0348289013,
+            -0.832594514,
+            0.342523396,
+            -0.158335403,
+            -0.78243345,
+            -0.347039014,
+            0.55698359,
+            -0.248267382,
+            -0.248652041,
+            0.34844479,
+            0.340043783,
+            0.0931118503,
+            -0.35117209,
+            -0.0023586452,
+            0,
+            0
+          ],
+          "logged_joint_targets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0028557633,
+            0.0028557633,
+            0.810448527,
+            0.810963511,
+            0.0,
+            0.0,
+            0.270000011,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            -0.189999998,
+            0.415000021,
+            -0.211999997,
+            0.0,
+            0.0,
+            0.0,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.349999994,
+            0.262499988,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    }
+  ],
+  "scope": "observation-only diagnostics; metadata, state and contact epochs are not independently synchronized and contact is not assumed to cause termination"
+}
