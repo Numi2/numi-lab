@@ -1,0 +1,22 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-ramped-wing-transition-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204336201,
+      "bytes": 34441656,
+      "mtime_ns": 1794639865595525397,
+      "sha256": "3abe6dd61731ed5ce44f5e112322ea92a4b0e801ae0cb914ddac0c02e332024f",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-ramped-wing-transition-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204336443,
+      "bytes": 34459286,
+      "mtime_ns": 1794639983124642791,
+      "sha256": "affafea002b28e0dff7038777b7295575adbcba6c386f11e90a944f05f491d1e",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 68900942
+}

@@ -1,0 +1,22 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-ramped-wing-transition-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "inode": 17110222,
+      "bytes": 34441656,
+      "mtime_ns": 1794639837248780009,
+      "sha256": "3abe6dd61731ed5ce44f5e112322ea92a4b0e801ae0cb914ddac0c02e332024f",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-ramped-wing-transition-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "inode": 17110301,
+      "bytes": 34459286,
+      "mtime_ns": 1794639965132285831,
+      "sha256": "affafea002b28e0dff7038777b7295575adbcba6c386f11e90a944f05f491d1e",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 68900942
+}
