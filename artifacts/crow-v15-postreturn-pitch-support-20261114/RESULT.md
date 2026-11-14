@@ -1,0 +1,5 @@
+# Contact-gated post-return pitch feedback: failed recovery
+
+The two lanes matched logged states and targets through zero-based interval 302 and first differed at 303, when the experimental pitch-support condition could first differ. Both had 44 qualified release intervals and eight consecutive bilateral-grip intervals, with the same first returning-foot opposing contact at interval 295 and stance gate loss at 302. Neither met the terminal 100-interval grip requirement: the control and experimental roots fell below 0.1 m at one-based intervals 370 and 371. Before falling, both reached the modeled toe speed cap; the control had 17 and the candidate 126 threshold substeps. All 450 states per lane and all required toe substeps were present and finite, with no observer errors.
+
+This change did not restore post-return grip or prevent falling. The experiment is a constructed stationary trial; contact/state epochs are not independently synchronized. It does not qualify walking, takeoff, flight or landing. Both arms and observations are retained.

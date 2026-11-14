@@ -1,0 +1,77 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "foot": "left",
+      "samples": 450,
+      "joint_position_range_rad": [
+        -0.300000012,
+        1.20000005
+      ],
+      "configured_joint_position_limit_rad": [
+        -0.3,
+        1.2
+      ],
+      "first_accepted_speed_threshold_tick": 368,
+      "first_threshold_before_root_fall": 368,
+      "peak_accepted_speed_rad_s": 12.0,
+      "peak_accepted_speed_before_root_fall_rad_s": 12.0
+    },
+    {
+      "lane": 0,
+      "foot": "right",
+      "samples": 450,
+      "joint_position_range_rad": [
+        -0.299850255,
+        1.20000005
+      ],
+      "configured_joint_position_limit_rad": [
+        -0.3,
+        1.2
+      ],
+      "first_accepted_speed_threshold_tick": 370,
+      "first_threshold_before_root_fall": null,
+      "peak_accepted_speed_rad_s": 12.0,
+      "peak_accepted_speed_before_root_fall_rad_s": 9.49968052
+    },
+    {
+      "lane": 1,
+      "foot": "left",
+      "samples": 450,
+      "joint_position_range_rad": [
+        -0.300000012,
+        1.20000005
+      ],
+      "configured_joint_position_limit_rad": [
+        -0.3,
+        1.2
+      ],
+      "first_accepted_speed_threshold_tick": 366,
+      "first_threshold_before_root_fall": 366,
+      "peak_accepted_speed_rad_s": 12.0,
+      "peak_accepted_speed_before_root_fall_rad_s": 12.0
+    },
+    {
+      "lane": 1,
+      "foot": "right",
+      "samples": 450,
+      "joint_position_range_rad": [
+        -0.300000012,
+        1.20000005
+      ],
+      "configured_joint_position_limit_rad": [
+        -0.3,
+        1.2
+      ],
+      "first_accepted_speed_threshold_tick": 367,
+      "first_threshold_before_root_fall": 367,
+      "peak_accepted_speed_rad_s": 12.0,
+      "peak_accepted_speed_before_root_fall_rad_s": 12.0
+    }
+  ],
+  "falls_zero_based": {
+    "0": 369,
+    "1": 370
+  },
+  "scope": "accepted control states only, not substep extrema or actuator effort"
+}
