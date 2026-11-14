@@ -1,0 +1,23 @@
+{
+  "active_samples": 252,
+  "mismatches": [
+    [
+      0,
+      170,
+      0.0,
+      0.00145038485,
+      0.0,
+      0.00145038485
+    ],
+    [
+      1,
+      170,
+      0.0,
+      0.00145038485,
+      0.0,
+      0.00145038485
+    ]
+  ],
+  "pass": false,
+  "scope": "Reconstructs target from logged prior state and contact gate; contact/state epoch not independently synchronized."
+}

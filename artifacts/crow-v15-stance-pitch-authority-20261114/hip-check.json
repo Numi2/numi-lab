@@ -1,0 +1,37 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "state_samples": 450,
+      "target_samples": 450,
+      "accepted_position_range_rad": [
+        -0.382160515,
+        -0.115543716
+      ],
+      "peak_accepted_speed_rad_s": 2.21977305,
+      "target_range_rad": [
+        -0.382323802,
+        -0.114131406
+      ],
+      "position_in_configured_bounds": true,
+      "target_in_configured_bounds": true
+    },
+    {
+      "lane": 1,
+      "state_samples": 450,
+      "target_samples": 450,
+      "accepted_position_range_rad": [
+        -0.388032645,
+        -0.115543716
+      ],
+      "peak_accepted_speed_rad_s": 2.41500258,
+      "target_range_rad": [
+        -0.389429033,
+        -0.114131406
+      ],
+      "position_in_configured_bounds": true,
+      "target_in_configured_bounds": true
+    }
+  ],
+  "scope": "accepted-state hip measurements; not substep velocity or drive effort"
+}
