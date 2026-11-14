@@ -1,0 +1,12 @@
+{
+  "reference_records": 14408,
+  "candidate_records": 14408,
+  "mismatch_count": 0,
+  "first_mismatches": [],
+  "missing": [],
+  "missing_count": 0,
+  "extra": [],
+  "extra_count": 0,
+  "passed": true,
+  "scope": "exact logged q/v/policy-action/contact comparison; does not prove arbitrary command response"
+}
