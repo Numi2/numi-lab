@@ -1,0 +1,594 @@
+{
+  "source_root": [
+    0.128350154,
+    -0.0206289552,
+    0.190619513,
+    0.000331061514,
+    0.0370400213,
+    -0.002280758,
+    0.99931109
+  ],
+  "original": {
+    "id": 13,
+    "delta": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "leg_angles": [
+      -0.434862554,
+      1.03002632,
+      -0.679971814,
+      -0.434862554,
+      1.03002644,
+      -0.679971814
+    ],
+    "lowest_toe_origin_z_m": 0.029939225905598423,
+    "lowest_foot_origin_z_m": 0.038127940011922386,
+    "lowest_toe": "crow_right_rear_toe_distal",
+    "toe_origin_raise_vs_original_m": 0.0
+  },
+  "best_by_lowest_toe_origin": {
+    "id": 15,
+    "delta": [
+      0.0,
+      0.2,
+      -0.2
+    ],
+    "leg_angles": [
+      -0.434862554,
+      1.23002632,
+      -0.8799718139999999,
+      -0.434862554,
+      1.23002644,
+      -0.8799718139999999
+    ],
+    "lowest_toe_origin_z_m": 0.038723974184702,
+    "lowest_foot_origin_z_m": 0.04691268829102596,
+    "lowest_toe": "crow_right_rear_toe_distal",
+    "toe_origin_raise_vs_original_m": 0.008784748279103576
+  },
+  "rows": [
+    {
+      "id": 0,
+      "delta": [
+        -0.2,
+        -0.2,
+        -0.2
+      ],
+      "leg_angles": [
+        -0.634862554,
+        0.83002632,
+        -0.8799718139999999,
+        -0.634862554,
+        0.8300264400000001,
+        -0.8799718139999999
+      ],
+      "lowest_toe_origin_z_m": 0.004058489088056143,
+      "lowest_foot_origin_z_m": 0.050219133836338935,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.02588073681754228
+    },
+    {
+      "id": 1,
+      "delta": [
+        -0.2,
+        -0.2,
+        0.0
+      ],
+      "leg_angles": [
+        -0.634862554,
+        0.83002632,
+        -0.679971814,
+        -0.634862554,
+        0.8300264400000001,
+        -0.679971814
+      ],
+      "lowest_toe_origin_z_m": 0.009596394858439179,
+      "lowest_foot_origin_z_m": 0.044313315800438256,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.020342831047159244
+    },
+    {
+      "id": 2,
+      "delta": [
+        -0.2,
+        -0.2,
+        0.2
+      ],
+      "leg_angles": [
+        -0.634862554,
+        0.83002632,
+        -0.47997181399999994,
+        -0.634862554,
+        0.8300264400000001,
+        -0.47997181399999994
+      ],
+      "lowest_toe_origin_z_m": 0.016397007288326878,
+      "lowest_foot_origin_z_m": 0.03828615034166403,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.013542218617271545
+    },
+    {
+      "id": 3,
+      "delta": [
+        -0.2,
+        0.0,
+        -0.2
+      ],
+      "leg_angles": [
+        -0.634862554,
+        1.03002632,
+        -0.8799718139999999,
+        -0.634862554,
+        1.03002644,
+        -0.8799718139999999
+      ],
+      "lowest_toe_origin_z_m": 0.014154520853163923,
+      "lowest_foot_origin_z_m": 0.048871441795163,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.015784705052434497
+    },
+    {
+      "id": 4,
+      "delta": [
+        -0.2,
+        0.0,
+        0.0
+      ],
+      "leg_angles": [
+        -0.634862554,
+        1.03002632,
+        -0.679971814,
+        -0.634862554,
+        1.03002644,
+        -0.679971814
+      ],
+      "lowest_toe_origin_z_m": 0.02095513328305162,
+      "lowest_foot_origin_z_m": 0.04284427633638877,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.008984092622546801
+    },
+    {
+      "id": 5,
+      "delta": [
+        -0.2,
+        0.0,
+        0.2
+      ],
+      "leg_angles": [
+        -0.634862554,
+        1.03002632,
+        -0.47997181399999994,
+        -0.634862554,
+        1.03002644,
+        -0.47997181399999994
+      ],
+      "lowest_toe_origin_z_m": 0.028747333415437906,
+      "lowest_foot_origin_z_m": 0.036936047521761876,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.0011918924901605163
+    },
+    {
+      "id": 6,
+      "delta": [
+        -0.2,
+        0.2,
+        -0.2
+      ],
+      "leg_angles": [
+        -0.634862554,
+        1.23002632,
+        -0.8799718139999999,
+        -0.634862554,
+        1.23002644,
+        -0.8799718139999999
+      ],
+      "lowest_toe_origin_z_m": 0.027762259745428394,
+      "lowest_foot_origin_z_m": 0.04965140279876554,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.002176966160170029
+    },
+    {
+      "id": 7,
+      "delta": [
+        -0.2,
+        0.2,
+        0.0
+      ],
+      "leg_angles": [
+        -0.634862554,
+        1.23002632,
+        -0.679971814,
+        -0.634862554,
+        1.23002644,
+        -0.679971814
+      ],
+      "lowest_toe_origin_z_m": 0.03555445987781467,
+      "lowest_foot_origin_z_m": 0.04374317398413864,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": 0.005615233972216249
+    },
+    {
+      "id": 8,
+      "delta": [
+        -0.2,
+        0.2,
+        0.2
+      ],
+      "leg_angles": [
+        -0.634862554,
+        1.23002632,
+        -0.47997181399999994,
+        -0.634862554,
+        1.23002644,
+        -0.47997181399999994
+      ],
+      "lowest_toe_origin_z_m": 0.02551032473516185,
+      "lowest_foot_origin_z_m": 0.03818942425200406,
+      "lowest_toe": "crow_right_front_toe_1_distal",
+      "toe_origin_raise_vs_original_m": -0.0044289011704365736
+    },
+    {
+      "id": 9,
+      "delta": [
+        0.0,
+        -0.2,
+        -0.2
+      ],
+      "leg_angles": [
+        -0.434862554,
+        0.83002632,
+        -0.8799718139999999,
+        -0.434862554,
+        0.8300264400000001,
+        -0.8799718139999999
+      ],
+      "lowest_toe_origin_z_m": 0.00853928688094769,
+      "lowest_foot_origin_z_m": 0.04325620782294676,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.021399939024650733
+    },
+    {
+      "id": 10,
+      "delta": [
+        0.0,
+        -0.2,
+        0.0
+      ],
+      "leg_angles": [
+        -0.434862554,
+        0.83002632,
+        -0.679971814,
+        -0.434862554,
+        0.8300264400000001,
+        -0.679971814
+      ],
+      "lowest_toe_origin_z_m": 0.015339899310835396,
+      "lowest_foot_origin_z_m": 0.03722904236417253,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.014599326594763026
+    },
+    {
+      "id": 11,
+      "delta": [
+        0.0,
+        -0.2,
+        0.2
+      ],
+      "leg_angles": [
+        -0.434862554,
+        0.83002632,
+        -0.47997181399999994,
+        -0.434862554,
+        0.8300264400000001,
+        -0.47997181399999994
+      ],
+      "lowest_toe_origin_z_m": 0.023132099443221674,
+      "lowest_foot_origin_z_m": 0.031320813549545634,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.006807126462376748
+    },
+    {
+      "id": 12,
+      "delta": [
+        0.0,
+        0.0,
+        -0.2
+      ],
+      "leg_angles": [
+        -0.434862554,
+        1.03002632,
+        -0.8799718139999999,
+        -0.434862554,
+        1.03002644,
+        -0.8799718139999999
+      ],
+      "lowest_toe_origin_z_m": 0.022147025773212144,
+      "lowest_foot_origin_z_m": 0.04403616882654928,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.007792200132386278
+    },
+    {
+      "id": 13,
+      "delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "leg_angles": [
+        -0.434862554,
+        1.03002632,
+        -0.679971814,
+        -0.434862554,
+        1.03002644,
+        -0.679971814
+      ],
+      "lowest_toe_origin_z_m": 0.029939225905598423,
+      "lowest_foot_origin_z_m": 0.038127940011922386,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": 0.0
+    },
+    {
+      "id": 14,
+      "delta": [
+        0.0,
+        0.0,
+        0.2
+      ],
+      "leg_angles": [
+        -0.434862554,
+        1.03002632,
+        -0.47997181399999994,
+        -0.434862554,
+        1.03002644,
+        -0.47997181399999994
+      ],
+      "lowest_toe_origin_z_m": 0.019895090762945593,
+      "lowest_foot_origin_z_m": 0.032574190279787814,
+      "lowest_toe": "crow_right_front_toe_1_distal",
+      "toe_origin_raise_vs_original_m": -0.01004413514265283
+    },
+    {
+      "id": 15,
+      "delta": [
+        0.0,
+        0.2,
+        -0.2
+      ],
+      "leg_angles": [
+        -0.434862554,
+        1.23002632,
+        -0.8799718139999999,
+        -0.434862554,
+        1.23002644,
+        -0.8799718139999999
+      ],
+      "lowest_toe_origin_z_m": 0.038723974184702,
+      "lowest_foot_origin_z_m": 0.04691268829102596,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": 0.008784748279103576
+    },
+    {
+      "id": 16,
+      "delta": [
+        0.0,
+        0.2,
+        0.0
+      ],
+      "leg_angles": [
+        -0.434862554,
+        1.23002632,
+        -0.679971814,
+        -0.434862554,
+        1.23002644,
+        -0.679971814
+      ],
+      "lowest_toe_origin_z_m": 0.02867983904204917,
+      "lowest_foot_origin_z_m": 0.04135893855889139,
+      "lowest_toe": "crow_right_front_toe_1_distal",
+      "toe_origin_raise_vs_original_m": -0.0012593868635492542
+    },
+    {
+      "id": 17,
+      "delta": [
+        0.0,
+        0.2,
+        0.2
+      ],
+      "leg_angles": [
+        -0.434862554,
+        1.23002632,
+        -0.47997181399999994,
+        -0.434862554,
+        1.23002644,
+        -0.47997181399999994
+      ],
+      "lowest_toe_origin_z_m": 0.01866499498710477,
+      "lowest_foot_origin_z_m": 0.03638107838519859,
+      "lowest_toe": "crow_right_front_toe_1_distal",
+      "toe_origin_raise_vs_original_m": -0.011274230918493652
+    },
+    {
+      "id": 18,
+      "delta": [
+        0.2,
+        -0.2,
+        -0.2
+      ],
+      "leg_angles": [
+        -0.234862554,
+        0.83002632,
+        -0.8799718139999999,
+        -0.234862554,
+        0.8300264400000001,
+        -0.8799718139999999
+      ],
+      "lowest_toe_origin_z_m": 0.01889104862063884,
+      "lowest_foot_origin_z_m": 0.04078019167397597,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.011048177284959583
+    },
+    {
+      "id": 19,
+      "delta": [
+        0.2,
+        -0.2,
+        0.0
+      ],
+      "leg_angles": [
+        -0.234862554,
+        0.83002632,
+        -0.679971814,
+        -0.234862554,
+        0.8300264400000001,
+        -0.679971814
+      ],
+      "lowest_toe_origin_z_m": 0.02668324875302511,
+      "lowest_foot_origin_z_m": 0.03487196285934908,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": -0.003255977152573312
+    },
+    {
+      "id": 20,
+      "delta": [
+        0.2,
+        -0.2,
+        0.2
+      ],
+      "leg_angles": [
+        -0.234862554,
+        0.83002632,
+        -0.47997181399999994,
+        -0.234862554,
+        0.8300264400000001,
+        -0.47997181399999994
+      ],
+      "lowest_toe_origin_z_m": 0.016639113610372284,
+      "lowest_foot_origin_z_m": 0.0293182131272145,
+      "lowest_toe": "crow_right_front_toe_1_distal",
+      "toe_origin_raise_vs_original_m": -0.013300112295226138
+    },
+    {
+      "id": 21,
+      "delta": [
+        0.2,
+        0.0,
+        -0.2
+      ],
+      "leg_angles": [
+        -0.234862554,
+        1.03002632,
+        -0.8799718139999999,
+        -0.234862554,
+        1.03002644,
+        -0.8799718139999999
+      ],
+      "lowest_toe_origin_z_m": 0.03546799703212866,
+      "lowest_foot_origin_z_m": 0.043656711138452625,
+      "lowest_toe": "crow_right_rear_toe_distal",
+      "toe_origin_raise_vs_original_m": 0.0055287711265302394
+    },
+    {
+      "id": 22,
+      "delta": [
+        0.2,
+        0.0,
+        0.0
+      ],
+      "leg_angles": [
+        -0.234862554,
+        1.03002632,
+        -0.679971814,
+        -0.234862554,
+        1.03002644,
+        -0.679971814
+      ],
+      "lowest_toe_origin_z_m": 0.025423861889475832,
+      "lowest_foot_origin_z_m": 0.03810296140631805,
+      "lowest_toe": "crow_right_front_toe_1_distal",
+      "toe_origin_raise_vs_original_m": -0.00451536401612259
+    },
+    {
+      "id": 23,
+      "delta": [
+        0.2,
+        0.0,
+        0.2
+      ],
+      "leg_angles": [
+        -0.234862554,
+        1.03002632,
+        -0.47997181399999994,
+        -0.234862554,
+        1.03002644,
+        -0.47997181399999994
+      ],
+      "lowest_toe_origin_z_m": 0.015409017834531441,
+      "lowest_foot_origin_z_m": 0.033125101232625256,
+      "lowest_toe": "crow_right_front_toe_1_distal",
+      "toe_origin_raise_vs_original_m": -0.014530208071066981
+    },
+    {
+      "id": 24,
+      "delta": [
+        0.2,
+        0.2,
+        -0.2
+      ],
+      "leg_angles": [
+        -0.234862554,
+        1.23002632,
+        -0.8799718139999999,
+        -0.234862554,
+        1.23002644,
+        -0.8799718139999999
+      ],
+      "lowest_toe_origin_z_m": 0.03583601179329461,
+      "lowest_foot_origin_z_m": 0.04851511131013683,
+      "lowest_toe": "crow_right_front_toe_1_distal",
+      "toe_origin_raise_vs_original_m": 0.005896785887696189
+    },
+    {
+      "id": 25,
+      "delta": [
+        0.2,
+        0.2,
+        0.0
+      ],
+      "leg_angles": [
+        -0.234862554,
+        1.23002632,
+        -0.679971814,
+        -0.234862554,
+        1.23002644,
+        -0.679971814
+      ],
+      "lowest_toe_origin_z_m": 0.02582116773835022,
+      "lowest_foot_origin_z_m": 0.04353725113644404,
+      "lowest_toe": "crow_right_front_toe_1_distal",
+      "toe_origin_raise_vs_original_m": -0.004118058167248202
+    },
+    {
+      "id": 26,
+      "delta": [
+        0.2,
+        0.2,
+        0.2
+      ],
+      "leg_angles": [
+        -0.234862554,
+        1.23002632,
+        -0.47997181399999994,
+        -0.234862554,
+        1.23002644,
+        -0.47997181399999994
+      ],
+      "lowest_toe_origin_z_m": 0.0172867074265772,
+      "lowest_foot_origin_z_m": 0.03933373209777201,
+      "lowest_toe": "crow_right_front_toe_1_distal",
+      "toe_origin_raise_vs_original_m": -0.012652518479021223
+    }
+  ],
+  "limitations": "Static rigid FK at one retained airborne state, toe link origins only; this is not contact surface clearance, a reachable trajectory, or a dynamic trial."
+}

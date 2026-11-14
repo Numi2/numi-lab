@@ -1,0 +1,9 @@
+968b57b82cc6a05d32f394a4aba6057362da7c8c2b4a84e1ac7efa585981c2b3  build/crow-v15-flight-leg-clearance-audit-20261114/model-limits
+c7ad98414062d68d5112a067634dca427bbc22e476cd9aa05c968bfd31b2c9bf  build/crow-v15-hip-roll-walk-launch-matched-20261111/kinematics
+d1e9bb9c6c6978318382731dd31df8a8aee22104dc23bbbab73eec5c7b81e615  build/crow-v15-hip-roll-journey-integration-20261111/libmetalrobo.dylib
+crow_left_hip_pitch 14 -0.85 0.85 18 0.75
+crow_left_knee_pitch 15 -0.1 1.55 22 0.75
+crow_left_ankle_pitch 16 -0.9 0.7 24 0.6
+crow_right_hip_pitch 17 -0.85 0.85 18 0.75
+crow_right_knee_pitch 18 -0.1 1.55 22 0.75
+crow_right_ankle_pitch 19 -0.9 0.7 24 0.6

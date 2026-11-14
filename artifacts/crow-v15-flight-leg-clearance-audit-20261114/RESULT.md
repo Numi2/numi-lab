@@ -1,0 +1,5 @@
+# Static leg workspace diagnostic
+
+The retained phase-zero candidate, development seed 20261126, lane 1, step 385 was replayed through the same native v15 forward-kinematics executable previously checked against actual body origins. The documented joint limits admitted all 27 symmetric +/-0.2 rad and zero hip/knee/ankle perturbations. On that fixed root and toe posture, the unmodified lowest toe link origin was at z=0.02994 m; the best of these coarse samples, knee +0.2 and ankle -0.2 rad, raised the lowest toe origin by 0.00878 m. With knee unchanged, hip +0.2 and ankle -0.2 raised it 0.00553 m. The knee's nominal normalized command is already at +1, so the most favorable geometry is not an authorized bounded-command proposal.
+
+This is a static link-origin comparison, not toe surface or perch clearance, a dynamically reachable posture, contact evidence, or a takeoff result. Absolute obstacle position was not independently established here. A follow-up uses bounded hip/ankle commands, requiring physical contact traces and no recontact; it does not use the higher-knee pose as a simulation reset.
