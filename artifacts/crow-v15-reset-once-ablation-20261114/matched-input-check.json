@@ -1,0 +1,10 @@
+{
+  "fields_equal": {
+    "host_sha256": true,
+    "metallib_sha256": false,
+    "frozen_flight_sha256": true,
+    "landing_policy_sha256": true,
+    "route_policy_sha256": true
+  },
+  "scope": "runtime recorded hashes, shader intentionally changed"
+}
