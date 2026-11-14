@@ -1,0 +1,31 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "accepted_frame_window": [
+        901,
+        1050
+      ],
+      "peak_abs_pitch_delta_rad": 0.0706730308996848,
+      "peak_abs_world_y_rate_delta_rad_s": 0.146587268,
+      "response_threshold_met": true,
+      "pitch_delta_at_accepted_frame_1200_rad": 0.005254530753204367,
+      "world_y_rate_delta_at_accepted_frame_1200_rad_s": 0.010886311999999981,
+      "recovery_threshold_met": true
+    },
+    {
+      "lane": 7,
+      "accepted_frame_window": [
+        901,
+        1050
+      ],
+      "peak_abs_pitch_delta_rad": 0.07082269304605138,
+      "peak_abs_world_y_rate_delta_rad_s": 0.1609156168,
+      "response_threshold_met": true,
+      "pitch_delta_at_accepted_frame_1200_rad": -0.0014705783526314242,
+      "world_y_rate_delta_at_accepted_frame_1200_rad_s": -0.0017006399999999755,
+      "recovery_threshold_met": true
+    }
+  ],
+  "scope": "supplementary frame-labelled reanalysis; offset inferred from shared host but must be independently checked in this run; original preregistered analysis retained"
+}
