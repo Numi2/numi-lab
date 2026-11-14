@@ -1,0 +1,5 @@
+# Stance roll authority ablation
+
+The best open-foot support probe retained strict clearance for 63 of the required 100 intervals, with the hip-roll command saturating at 0.25 rad before lateral drift increased. Test whether that bound limits balance: preserve the -5 mm target and every other parameter, with lane 0 at the original +/-0.25 rad command and lane 1 at +/-0.32 rad. The physical hip-roll limit stays +/-0.35 rad, with unchanged drives, target slew and dynamics. This tests a controller limit, not an anatomical optimality claim.
+
+Require the control to reproduce all 450 states of the prior -5 mm candidate, exact state prefix before the first logged roll-target divergence, full unique 32-substep contact coverage, bounded targets and positions, no errors/nonfoot support, no accepted toe-speed threshold before fall, and at least 100 consecutive strict clearance, opposing stance contact, posture, load and speed intervals. Record all failures, target saturation, speed and first fall. Contact/state logging epochs remain independently unverified. This constructed open-toe stationary perch test is not walking or landing.
