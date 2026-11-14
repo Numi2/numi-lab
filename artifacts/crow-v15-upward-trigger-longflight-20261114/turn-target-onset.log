@@ -1,0 +1,10 @@
+{
+  "step": 898,
+  "actual_flap_mean": 0.839519143,
+  "expected_full_release_flap": 1.0108467244017234,
+  "difference": -0.17132758140172344,
+  "pronation_targets": [
+    -0.101528838,
+    0.0169896893
+  ]
+}

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-stance-pitch-gain120-20261114/geometry-audit.py", line 2, in <module>
+    import gzip,json,math,numpy as np
+ModuleNotFoundError: No module named 'numpy'

@@ -1,0 +1,825 @@
+{
+  "scope": "turn lane 7 full-release target reconstruction, not independent contact epoch proof",
+  "rows": [
+    {
+      "step": 840,
+      "actual_flap_mean": -0.335199565,
+      "expected_full_release_flap": -0.3352023158091897,
+      "difference": 2.7508091897110454e-06,
+      "pronation_targets": [
+        0.059200827,
+        0.059200827
+      ]
+    },
+    {
+      "step": 841,
+      "actual_flap_mean": -0.0435490608,
+      "expected_full_release_flap": -0.043518018798365976,
+      "difference": -3.1042001634021266e-05,
+      "pronation_targets": [
+        0.0340383761,
+        0.0340383761
+      ]
+    },
+    {
+      "step": 842,
+      "actual_flap_mean": 0.488508582,
+      "expected_full_release_flap": 0.48851619557664216,
+      "difference": -7.613576642140352e-06,
+      "pronation_targets": [
+        -0.0119824652,
+        -0.0119824652
+      ]
+    },
+    {
+      "step": 843,
+      "actual_flap_mean": 0.936032057,
+      "expected_full_release_flap": 0.9360314775702199,
+      "difference": 5.794297801564596e-07,
+      "pronation_targets": [
+        -0.0965346992,
+        -0.00478530815
+      ]
+    },
+    {
+      "step": 844,
+      "actual_flap_mean": 1.025108935,
+      "expected_full_release_flap": 1.0251112591551321,
+      "difference": -2.324155132127359e-06,
+      "pronation_targets": [
+        -0.138297573,
+        0.02170242
+      ]
+    },
+    {
+      "step": 845,
+      "actual_flap_mean": 0.7002094685,
+      "expected_full_release_flap": 0.7001886942975877,
+      "difference": 2.0774202412310316e-05,
+      "pronation_targets": [
+        -0.110218719,
+        0.0497812741
+      ]
+    },
+    {
+      "step": 846,
+      "actual_flap_mean": 0.16014568499999998,
+      "expected_full_release_flap": 0.16013092417185545,
+      "difference": 1.4760828144527727e-05,
+      "pronation_targets": [
+        -0.063623637,
+        0.0963763595
+      ]
+    },
+    {
+      "step": 847,
+      "actual_flap_mean": -0.2634135785,
+      "expected_full_release_flap": -0.26341670854126287,
+      "difference": 3.1300412628443297e-06,
+      "pronation_targets": [
+        0.0391931832,
+        0.0666817278
+      ]
+    },
+    {
+      "step": 848,
+      "actual_flap_mean": -0.310306996,
+      "expected_full_release_flap": -0.3103075820274652,
+      "difference": 5.860274652214059e-07,
+      "pronation_targets": [
+        0.0570631698,
+        0.0570631698
+      ]
+    },
+    {
+      "step": 849,
+      "actual_flap_mean": 0.04680994155,
+      "expected_full_release_flap": 0.04680024546773326,
+      "difference": 9.69608226673857e-06,
+      "pronation_targets": [
+        0.0262256246,
+        0.0262256246
+      ]
+    },
+    {
+      "step": 850,
+      "actual_flap_mean": 0.589033127,
+      "expected_full_release_flap": 0.5890545985368113,
+      "difference": -2.1471536811312752e-05,
+      "pronation_targets": [
+        -0.0206772201,
+        -0.0206772201
+      ]
+    },
+    {
+      "step": 851,
+      "actual_flap_mean": 0.985363245,
+      "expected_full_release_flap": 0.9853688989239641,
+      "difference": -5.653923964010765e-06,
+      "pronation_targets": [
+        -0.133542895,
+        0.0237145144
+      ]
+    },
+    {
+      "step": 852,
+      "actual_flap_mean": 0.9928413035,
+      "expected_full_release_flap": 0.992847243741058,
+      "difference": -5.940241058044471e-06,
+      "pronation_targets": [
+        -0.135503918,
+        0.0244960859
+      ]
+    },
+    {
+      "step": 853,
+      "actual_flap_mean": 0.6059660315,
+      "expected_full_release_flap": 0.6059887622373379,
+      "difference": -2.273073733793929e-05,
+      "pronation_targets": [
+        -0.102085009,
+        0.0579149835
+      ]
+    },
+    {
+      "step": 854,
+      "actual_flap_mean": 0.061797007949999996,
+      "expected_full_release_flap": 0.06176920958681892,
+      "difference": 2.779836318107798e-05,
+      "pronation_targets": [
+        -0.0551393703,
+        0.104860626
+      ]
+    },
+    {
+      "step": 855,
+      "actual_flap_mean": -0.30544522399999996,
+      "expected_full_release_flap": -0.30544534520138733,
+      "difference": 1.2120138737081732e-07,
+      "pronation_targets": [
+        0.0565795936,
+        0.0565795936
+      ]
+    },
+    {
+      "step": 856,
+      "actual_flap_mean": -0.2704482975,
+      "expected_full_release_flap": -0.27045197814258004,
+      "difference": 3.6806425800506304e-06,
+      "pronation_targets": [
+        0.0536299311,
+        0.0536299311
+      ]
+    },
+    {
+      "step": 857,
+      "actual_flap_mean": 0.143980838,
+      "expected_full_release_flap": 0.14396474316528282,
+      "difference": 1.609483471717854e-05,
+      "pronation_targets": [
+        0.0178205948,
+        0.0178205948
+      ]
+    },
+    {
+      "step": 858,
+      "actual_flap_mean": 0.684202641,
+      "expected_full_release_flap": 0.684217404413185,
+      "difference": -1.4763413185070462e-05,
+      "pronation_targets": [
+        -0.0289044157,
+        -0.0289044157
+      ]
+    },
+    {
+      "step": 859,
+      "actual_flap_mean": 1.020384785,
+      "expected_full_release_flap": 1.0203869510461498,
+      "difference": -2.166046149776335e-06,
+      "pronation_targets": [
+        -0.137922853,
+        0.0220771469
+      ]
+    },
+    {
+      "step": 860,
+      "actual_flap_mean": 0.9460724595000001,
+      "expected_full_release_flap": 0.9460727678235753,
+      "difference": -3.083235752265878e-07,
+      "pronation_targets": [
+        -0.131451294,
+        0.0285486989
+      ]
+    },
+    {
+      "step": 861,
+      "actual_flap_mean": 0.505986661,
+      "expected_full_release_flap": 0.5059957121863439,
+      "difference": -9.051186343866924e-06,
+      "pronation_targets": [
+        -0.0934549421,
+        0.0665450543
+      ]
+    },
+    {
+      "step": 862,
+      "actual_flap_mean": -0.030094862,
+      "expected_full_release_flap": -0.030115332169765918,
+      "difference": 2.04701697659182e-05,
+      "pronation_targets": [
+        -0.0472176559,
+        0.112782344
+      ]
+    },
+    {
+      "step": 863,
+      "actual_flap_mean": -0.3327240345,
+      "expected_full_release_flap": -0.3327269334814359,
+      "difference": 2.898981435905945e-06,
+      "pronation_targets": [
+        0.0589370802,
+        0.0589370802
+      ]
+    },
+    {
+      "step": 864,
+      "actual_flap_mean": -0.216676712,
+      "expected_full_release_flap": -0.2166726583347055,
+      "difference": -4.0536652944900275e-06,
+      "pronation_targets": [
+        0.0489803925,
+        0.0489803925
+      ]
+    },
+    {
+      "step": 865,
+      "actual_flap_mean": 0.245777592,
+      "expected_full_release_flap": 0.2457759107287864,
+      "difference": 1.6812712135827468e-06,
+      "pronation_targets": [
+        0.00901286025,
+        0.00901286025
+      ]
+    },
+    {
+      "step": 866,
+      "actual_flap_mean": 0.7719065844999999,
+      "expected_full_release_flap": 0.7719319204056551,
+      "difference": -2.533590565512167e-05,
+      "pronation_targets": [
+        -0.0364740454,
+        -0.0364740454
+      ]
+    },
+    {
+      "step": 867,
+      "actual_flap_mean": 1.040349845,
+      "expected_full_release_flap": 1.0403524787895417,
+      "difference": -2.6337895417949397e-06,
+      "pronation_targets": [
+        -0.139616504,
+        0.0203834921
+      ]
+    },
+    {
+      "step": 868,
+      "actual_flap_mean": 0.8858382705000001,
+      "expected_full_release_flap": 0.8858424357659814,
+      "difference": -4.165265981348476e-06,
+      "pronation_targets": [
+        -0.126230091,
+        0.0337699093
+      ]
+    },
+    {
+      "step": 869,
+      "actual_flap_mean": 0.402402282,
+      "expected_full_release_flap": 0.40241762284750593,
+      "difference": -1.5340847505929123e-05,
+      "pronation_targets": [
+        -0.0845177546,
+        0.0754822418
+      ]
+    },
+    {
+      "step": 870,
+      "actual_flap_mean": -0.1134265065,
+      "expected_full_release_flap": -0.11345607118473938,
+      "difference": 2.9564684739386005e-05,
+      "pronation_targets": [
+        -0.0400414355,
+        0.119958565
+      ]
+    },
+    {
+      "step": 871,
+      "actual_flap_mean": -0.344597429,
+      "expected_full_release_flap": -0.34459773886635103,
+      "difference": 3.0986635102259186e-07,
+      "pronation_targets": [
+        0.0599573515,
+        0.0599573515
+      ]
+    },
+    {
+      "step": 872,
+      "actual_flap_mean": -0.15008777350000002,
+      "expected_full_release_flap": -0.1500871341808777,
+      "difference": -6.393191223086347e-07,
+      "pronation_targets": [
+        0.0432182252,
+        0.0432182252
+      ]
+    },
+    {
+      "step": 873,
+      "actual_flap_mean": 0.3500077575,
+      "expected_full_release_flap": 0.35000000000002857,
+      "difference": 7.757499971450255e-06,
+      "pronation_targets": [
+        -1.20594154e-06,
+        -1.20594154e-06
+      ]
+    },
+    {
+      "step": 874,
+      "actual_flap_mean": 0.8501797019999999,
+      "expected_full_release_flap": 0.8501682549799545,
+      "difference": 1.1447020045407541e-05,
+      "pronation_targets": [
+        -0.0438264608,
+        -0.042613335
+      ]
+    },
+    {
+      "step": 875,
+      "actual_flap_mean": 1.0446543099999999,
+      "expected_full_release_flap": 1.0446536892438114,
+      "difference": 6.207561884519208e-07,
+      "pronation_targets": [
+        -0.139957398,
+        0.0200425945
+      ]
+    },
+    {
+      "step": 876,
+      "actual_flap_mean": 0.8133785725,
+      "expected_full_release_flap": 0.8133722143764602,
+      "difference": 6.358123539773608e-06,
+      "pronation_targets": [
+        -0.119960859,
+        0.0400391407
+      ]
+    },
+    {
+      "step": 877,
+      "actual_flap_mean": 0.297562942,
+      "expected_full_release_flap": 0.29756315494492164,
+      "difference": -2.1294492164036782e-07,
+      "pronation_targets": [
+        -0.0754798427,
+        0.0845201537
+      ]
+    },
+    {
+      "step": 878,
+      "actual_flap_mean": -0.1862713995,
+      "expected_full_release_flap": -0.18626575013221214,
+      "difference": -5.649367787852189e-06,
+      "pronation_targets": [
+        -0.0224322546,
+        0.114895508
+      ]
+    },
+    {
+      "step": 879,
+      "actual_flap_mean": -0.34065383650000003,
+      "expected_full_release_flap": -0.3406510664603125,
+      "difference": -2.7700396875163236e-06,
+      "pronation_targets": [
+        0.0596168526,
+        0.0596168526
+      ]
+    },
+    {
+      "step": 880,
+      "actual_flap_mean": -0.0721115172,
+      "expected_full_release_flap": -0.07209875719762426,
+      "difference": -1.2760002375739044e-05,
+      "pronation_targets": [
+        0.0364764929,
+        0.0364764929
+      ]
+    },
+    {
+      "step": 881,
+      "actual_flap_mean": 0.4542947855,
+      "expected_full_release_flap": 0.45428113503512924,
+      "difference": 1.3650464870784695e-05,
+      "pronation_targets": [
+        -0.00901524536,
+        -0.00901524536
+      ]
+    },
+    {
+      "step": 882,
+      "actual_flap_mean": 0.9170610305,
+      "expected_full_release_flap": 0.9170480109263197,
+      "difference": 1.3019573680272956e-05,
+      "pronation_targets": [
+        -0.0799418613,
+        -0.0180217158
+      ]
+    },
+    {
+      "step": 883,
+      "actual_flap_mean": 1.03306049,
+      "expected_full_release_flap": 1.0330544605841867,
+      "difference": 6.029415813291195e-06,
+      "pronation_targets": [
+        -0.138937652,
+        0.0210623443
+      ]
+    },
+    {
+      "step": 884,
+      "actual_flap_mean": 0.7302383485,
+      "expected_full_release_flap": 0.7302363196580198,
+      "difference": 2.0288419801950397e-06,
+      "pronation_targets": [
+        -0.112783387,
+        0.0472166091
+      ]
+    },
+    {
+      "step": 885,
+      "actual_flap_mean": 0.193856515,
+      "expected_full_release_flap": 0.19386263531509604,
+      "difference": -6.120315096030948e-06,
+      "pronation_targets": [
+        -0.0665427074,
+        0.093457289
+      ]
+    },
+    {
+      "step": 886,
+      "actual_flap_mean": -0.246754199,
+      "expected_full_release_flap": -0.24674647239025294,
+      "difference": -7.726609747071844e-06,
+      "pronation_targets": [
+        0.0246325005,
+        0.0782725811
+      ]
+    },
+    {
+      "step": 887,
+      "actual_flap_mean": -0.32087376700000003,
+      "expected_full_release_flap": -0.3208689164391936,
+      "difference": -4.850560806457516e-06,
+      "pronation_targets": [
+        0.0579231754,
+        0.0579231754
+      ]
+    },
+    {
+      "step": 888,
+      "actual_flap_mean": 0.015542149500000001,
+      "expected_full_release_flap": 0.01555091346182852,
+      "difference": -8.763961828518047e-06,
+      "pronation_targets": [
+        0.0289055072,
+        0.0289055072
+      ]
+    },
+    {
+      "step": 889,
+      "actual_flap_mean": 0.5561981205,
+      "expected_full_release_flap": 0.5561993728076605,
+      "difference": -1.2523076605708283e-06,
+      "pronation_targets": [
+        -0.0178228971,
+        -0.0178228971
+      ]
+    },
+    {
+      "step": 890,
+      "actual_flap_mean": 0.9709692005,
+      "expected_full_release_flap": 0.9709658719613442,
+      "difference": 3.328538655811286e-06,
+      "pronation_targets": [
+        -0.12520808,
+        0.0179460552
+      ]
+    },
+    {
+      "step": 891,
+      "actual_flap_mean": 1.0057858849999999,
+      "expected_full_release_flap": 1.005777171048061,
+      "difference": 8.713951938910114e-06,
+      "pronation_targets": [
+        -0.136580005,
+        0.0234199911
+      ]
+    },
+    {
+      "step": 892,
+      "actual_flap_mean": 0.6383807955,
+      "expected_full_release_flap": 0.638364777961714,
+      "difference": 1.6017538286061672e-05,
+      "pronation_targets": [
+        -0.104863428,
+        0.0551365688
+      ]
+    },
+    {
+      "step": 893,
+      "actual_flap_mean": 0.0937503129,
+      "expected_full_release_flap": 0.09374203831974182,
+      "difference": 8.2745802581774e-06,
+      "pronation_targets": [
+        -0.0579127409,
+        0.102087259
+      ]
+    },
+    {
+      "step": 894,
+      "actual_flap_mean": -0.293531567,
+      "expected_full_release_flap": -0.2935316453871305,
+      "difference": 7.838713050878354e-08,
+      "pronation_targets": [
+        0.0554435849,
+        0.0555660799
+      ]
+    },
+    {
+      "step": 895,
+      "actual_flap_mean": -0.28583499749999997,
+      "expected_full_release_flap": -0.2858213191099406,
+      "difference": -1.3678390059390644e-05,
+      "pronation_targets": [
+        0.0549154282,
+        0.0549154282
+      ]
+    },
+    {
+      "step": 896,
+      "actual_flap_mean": 0.1107461975,
+      "expected_full_release_flap": 0.11076979257680827,
+      "difference": -2.3595076808269333e-05,
+      "pronation_targets": [
+        0.0206801109,
+        0.0206801109
+      ]
+    },
+    {
+      "step": 897,
+      "actual_flap_mean": 0.653457433,
+      "expected_full_release_flap": 0.6534531820146163,
+      "difference": 4.250985383702499e-06,
+      "pronation_targets": [
+        -0.0262277965,
+        -0.0262277965
+      ]
+    },
+    {
+      "step": 898,
+      "actual_flap_mean": 0.839519143,
+      "expected_full_release_flap": 1.0108467244017234,
+      "difference": -0.17132758140172344,
+      "pronation_targets": [
+        -0.101528838,
+        0.0169896893
+      ]
+    },
+    {
+      "step": 899,
+      "actual_flap_mean": 0.5090644360000001,
+      "expected_full_release_flap": 0.9635446672378429,
+      "difference": -0.45448023123784287,
+      "pronation_targets": [
+        -0.034464974,
+        0.00701651117
+      ]
+    },
+    {
+      "step": 900,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 0.5398721930047776,
+      "difference": -0.18987219900477764,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 901,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": -0.00043408776459497034,
+      "difference": 0.35043408176459495,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 902,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": -0.32668184339801853,
+      "difference": 0.6766818373980186,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 903,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": -0.2388134269712059,
+      "difference": 0.5888134209712059,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 904,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 0.21047936555274285,
+      "difference": 0.13952062844725713,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 905,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 0.7471776039839135,
+      "difference": -0.39717760998391355,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 906,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 1.0426401323758476,
+      "difference": -0.6926401383758476,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 907,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 0.9143843379371692,
+      "difference": -0.5643843439371692,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 908,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 0.43854714206950507,
+      "difference": -0.08854714806950509,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 909,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": -0.09513040012802426,
+      "difference": 0.44513039412802424,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 910,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": -0.35924712970993944,
+      "difference": 0.7092471237099394,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 911,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": -0.18702698308412558,
+      "difference": 0.5370269770841256,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 912,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 0.3142260454559791,
+      "difference": 0.035773948544020884,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 913,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 0.8373975394211821,
+      "difference": -0.48739754542118213,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 914,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 1.061943783473118,
+      "difference": -0.711943789473118,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 915,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 0.8502867784967593,
+      "difference": -0.5002867844967593,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 916,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 0.33210737204430885,
+      "difference": 0.017892621955691135,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 917,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": -0.17510933955901942,
+      "difference": 0.5251093335590193,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 918,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": -0.36059503064092924,
+      "difference": 0.7105950246409292,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 919,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": -0.11070384463746857,
+      "difference": 0.46070383863746855,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "step": 920,
+      "actual_flap_mean": 0.349999994,
+      "expected_full_release_flap": 0.4214575409740383,
+      "difference": -0.07145754697403833,
+      "pronation_targets": [
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "first_error_gt_0_005": {
+    "step": 898,
+    "actual_flap_mean": 0.839519143,
+    "expected_full_release_flap": 1.0108467244017234,
+    "difference": -0.17132758140172344,
+    "pronation_targets": [
+      -0.101528838,
+      0.0169896893
+    ]
+  }
+}
