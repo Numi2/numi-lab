@@ -1,0 +1,3 @@
+# Local kinematics of the combined clearance failure
+
+The retained combined candidate passed 24 single-support intervals before clearance failed. Hip and knee clearance targets had saturated, while ankle correction was increasing. Use the previously hashed native v15 forward-kinematics executable on both lanes at zero-based ticks 240, 250, 260 and 265 to evaluate +/-0.02 rad hip, knee and ankle gap sensitivities and cross-check unchanged gaps against recorded body poses. These are local fixed-state derivatives, not contact dynamics or a proof of reachability. Use them to design the next bounded physical target experiment without changing joint limits.
