@@ -1,0 +1,70 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-turn-twist-reduction-20261114/turn-20261126-rebound-lowtwist/run.stderr.gz",
+      "inode": 204438345,
+      "bytes": 254162307,
+      "mtime_ns": 1794658178000000000,
+      "sha256": "ddfbe6c617790a29e79b0fe3022657bf6c5cfe48c7badfe35c3679aacf186a3a",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-turn-twist-reduction-20261114/turn-20261126-rebound-lowtwist/run.stderr.gz.part000",
+      "inode": 204438697,
+      "bytes": 41943040,
+      "mtime_ns": 1794658317873112852,
+      "sha256": "f1365b377414ba699b6724c9625feac73bd99b9395daab272655d12f2d80337f",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-turn-twist-reduction-20261114/turn-20261126-rebound-lowtwist/run.stderr.gz.part001",
+      "inode": 204438714,
+      "bytes": 41943040,
+      "mtime_ns": 1794658318310464883,
+      "sha256": "d423a02a20b2e5c160571c2743e6ba8d6bea0880d6b687ebf8953d4f1c85905b",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-turn-twist-reduction-20261114/turn-20261126-rebound-lowtwist/run.stderr.gz.part002",
+      "inode": 204438719,
+      "bytes": 41943040,
+      "mtime_ns": 1794658318637657987,
+      "sha256": "5f6332697e0c073e339c60b43aa6924913e95832b9761a17c8ff773b87a487b2",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-turn-twist-reduction-20261114/turn-20261126-rebound-lowtwist/run.stderr.gz.part003",
+      "inode": 204438729,
+      "bytes": 41943040,
+      "mtime_ns": 1794658319019890055,
+      "sha256": "ed46d38e13cf681c00a547bf8969cec2345f0be8562f487295c86c6d3c85810f",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-turn-twist-reduction-20261114/turn-20261126-rebound-lowtwist/run.stderr.gz.part004",
+      "inode": 204438734,
+      "bytes": 41943040,
+      "mtime_ns": 1794658319397480074,
+      "sha256": "ce31453cf716312dd93a52366a4f64fbb1c9933ee720fefca0d6432593e0d462",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-turn-twist-reduction-20261114/turn-20261126-rebound-lowtwist/run.stderr.gz.part005",
+      "inode": 204438735,
+      "bytes": 41943040,
+      "mtime_ns": 1794658319811720609,
+      "sha256": "9c345a7594d6d4a5449a9aed5c0526853423358f0e2590d66ad9989f44c64999",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-turn-twist-reduction-20261114/turn-20261126-rebound-lowtwist/run.stderr.gz.part006",
+      "inode": 204438736,
+      "bytes": 2504067,
+      "mtime_ns": 1794658320175466481,
+      "sha256": "fcd93449857cb1f16bd124e07785e36cf70920d791310982019e6624d19c8259",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 508324614
+}
