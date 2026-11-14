@@ -1,0 +1,9 @@
+{
+  "active_samples": 244,
+  "max_correction_rad": 0.299999893,
+  "min_correction_rad": 0.0,
+  "max_step_rad": 0.004000009000000027,
+  "mismatches": [],
+  "pass": true,
+  "note": "Uses prior observed clearance/contact; state/contact epochs not independently synchronized."
+}
