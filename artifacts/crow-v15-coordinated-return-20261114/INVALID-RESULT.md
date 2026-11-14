@@ -1,0 +1,3 @@
+# Invalid coordinated-return capture
+
+The observed and older-observer runners both wrote `trace.log.gz` and `substeps.log.gz` in this directory. The latter file has SHA-256 `8140253ca49c7cc9ea36fe7aff879d09279e8ef8db692bbd6921616d0442d1ae`: its first complete gzip member contains 28,800 contact samples but no toe-velocity records and is followed by 1,897,441 bytes. Standard gzip validation and the three substep-dependent audits fail. Thus even though the readable state trace shows a root-below-0.1 m event at zero-based tick 358 in both lanes, its provenance is ambiguous and this capture cannot qualify or compare the candidate. Preserve the files, hashes, failed audit output and both runner inputs; repeat with exclusive filenames and independently valid streams.
