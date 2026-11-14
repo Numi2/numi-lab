@@ -1,0 +1,17 @@
+{
+  "commit": "699d8643",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-near-wing-transition-20261113/push-20261126-rebound-near/run.stderr.gz",
+      "bytes": 34392382,
+      "sha256": "e0dec27c9acbe98ddd678b856d273dc0c3e27b3b417db98fcd4533b77e29fb0e",
+      "gzip_eof": true
+    },
+    {
+      "path": "artifacts/crow-v15-near-wing-transition-20261113/hold-20261126-rebound-near/run.stderr.gz",
+      "bytes": 34402536,
+      "sha256": "4323a0825437fe0cc871e7b6c60690126b36a9c66289beaa4341def3309447eb",
+      "gzip_eof": true
+    }
+  ]
+}
