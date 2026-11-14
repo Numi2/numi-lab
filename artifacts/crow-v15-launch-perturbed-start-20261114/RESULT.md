@@ -1,0 +1,7 @@
+# Perturbed perch-start flight screen
+
+On the previously used training layout and seed 20261126, eight initial states were perturbed with signed roll, pitch and forward-velocity changes; the initial recorded roll differences from the baseline were 0.063–0.148 rad in magnitude and pitch differences 0.079–0.081 rad. All eight teacher-off first episodes ran 2,400 intervals without a reported physical termination or scheduled reset. Full state, target, foot-contact and toe-speed coverage was present with no observer errors.
+
+The six stronger lanes 1, 2, 3, 5, 6 and 7 met the registered release, no-recontact, no-nonfoot-impulse, toe-speed, bounded-attitude, signed-turn and level/climb/descent gates. Relative signed yaw extrema were about ±0.256–0.258 rad; their height mean absolute errors were 8.1–14.4 mm for level, 8.0–8.3 mm for climb and 7.9–9.0 mm for descent. Both weaker lanes 0 and 4 recontacted at observer interval 396 after three-interval release at 376 and therefore failed. These are same-run, correlated lanes, not independent population estimates.
+
+This is a scripted development screen from perturbed perch starts on a used seed and layout. It does not establish airborne disturbed-start recovery, a general bounded flight-command interface, controller freeze, stable toe grip, supported landing, full navigation or biological realism. The two genuinely unused layouts and seeds were not used. Observer contact/state timing is not independently verified for this experiment.
