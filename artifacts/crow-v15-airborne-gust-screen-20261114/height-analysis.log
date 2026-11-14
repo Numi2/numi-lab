@@ -1,0 +1,312 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "windows": [
+        {
+          "intervals": [
+            650,
+            780
+          ],
+          "target_m": 0.55,
+          "samples": 131,
+          "mean_m": 0.5884720896946565,
+          "mean_absolute_error_m": 0.038472089694656444
+        },
+        {
+          "intervals": [
+            1050,
+            1200
+          ],
+          "target_m": 0.8,
+          "samples": 151,
+          "mean_m": 0.7966968341986755,
+          "mean_absolute_error_m": 0.008453661403973514
+        },
+        {
+          "intervals": [
+            1650,
+            1800
+          ],
+          "target_m": 0.55,
+          "samples": 151,
+          "mean_m": 0.5520316776953642,
+          "mean_absolute_error_m": 0.00789360789403973
+        }
+      ],
+      "climb_mean_m": 0.20822474450401907,
+      "descent_mean_m": -0.24466515650331133,
+      "passed": true
+    },
+    {
+      "lane": 1,
+      "windows": [
+        {
+          "intervals": [
+            650,
+            780
+          ],
+          "target_m": 0.55,
+          "samples": 131,
+          "mean_m": 0.5774811164961832,
+          "mean_absolute_error_m": 0.027763655412213702
+        },
+        {
+          "intervals": [
+            1050,
+            1200
+          ],
+          "target_m": 0.8,
+          "samples": 151,
+          "mean_m": 0.7919011218211921,
+          "mean_absolute_error_m": 0.010297467370860947
+        },
+        {
+          "intervals": [
+            1650,
+            1800
+          ],
+          "target_m": 0.55,
+          "samples": 151,
+          "mean_m": 0.5431870640198676,
+          "mean_absolute_error_m": 0.0093066138344371
+        }
+      ],
+      "climb_mean_m": 0.21442000532500893,
+      "descent_mean_m": -0.2487140578013245,
+      "passed": true
+    },
+    {
+      "lane": 2,
+      "windows": [
+        {
+          "intervals": [
+            650,
+            780
+          ],
+          "target_m": 0.55,
+          "samples": 131,
+          "mean_m": 0.5841315998091603,
+          "mean_absolute_error_m": 0.034131599809160265
+        },
+        {
+          "intervals": [
+            1050,
+            1200
+          ],
+          "target_m": 0.8,
+          "samples": 151,
+          "mean_m": 0.7962636229006622,
+          "mean_absolute_error_m": 0.008512060079470205
+        },
+        {
+          "intervals": [
+            1650,
+            1800
+          ],
+          "target_m": 0.55,
+          "samples": 151,
+          "mean_m": 0.5510972722384105,
+          "mean_absolute_error_m": 0.007880823682119203
+        }
+      ],
+      "climb_mean_m": 0.21213202309150192,
+      "descent_mean_m": -0.24516635066225168,
+      "passed": true
+    },
+    {
+      "lane": 3,
+      "windows": [
+        {
+          "intervals": [
+            650,
+            780
+          ],
+          "target_m": 0.55,
+          "samples": 131,
+          "mean_m": 0.5779449812290076,
+          "mean_absolute_error_m": 0.02830389874045798
+        },
+        {
+          "intervals": [
+            1050,
+            1200
+          ],
+          "target_m": 0.8,
+          "samples": 151,
+          "mean_m": 0.7921714415695364,
+          "mean_absolute_error_m": 0.010341333768211947
+        },
+        {
+          "intervals": [
+            1650,
+            1800
+          ],
+          "target_m": 0.55,
+          "samples": 151,
+          "mean_m": 0.5437795527615894,
+          "mean_absolute_error_m": 0.009100655768211938
+        }
+      ],
+      "climb_mean_m": 0.21422646034052883,
+      "descent_mean_m": -0.24839188880794705,
+      "passed": true
+    },
+    {
+      "lane": 4,
+      "windows": [
+        {
+          "intervals": [
+            650,
+            780
+          ],
+          "target_m": 0.55,
+          "samples": 131,
+          "mean_m": 0.5792199587328244,
+          "mean_absolute_error_m": 0.029301165740457977
+        },
+        {
+          "intervals": [
+            1050,
+            1200
+          ],
+          "target_m": 0.8,
+          "samples": 151,
+          "mean_m": 0.7947516990066226,
+          "mean_absolute_error_m": 0.00919818396026491
+        },
+        {
+          "intervals": [
+            1650,
+            1800
+          ],
+          "target_m": 0.55,
+          "samples": 151,
+          "mean_m": 0.5476885773178808,
+          "mean_absolute_error_m": 0.008276835331125835
+        }
+      ],
+      "climb_mean_m": 0.21553174027379818,
+      "descent_mean_m": -0.24706312168874178,
+      "passed": true
+    },
+    {
+      "lane": 5,
+      "windows": [
+        {
+          "intervals": [
+            650,
+            780
+          ],
+          "target_m": 0.55,
+          "samples": 131,
+          "mean_m": 0.5873784787099237,
+          "mean_absolute_error_m": 0.03737847870992361
+        },
+        {
+          "intervals": [
+            1050,
+            1200
+          ],
+          "target_m": 0.8,
+          "samples": 151,
+          "mean_m": 0.795520863768212,
+          "mean_absolute_error_m": 0.008630122907284776
+        },
+        {
+          "intervals": [
+            1650,
+            1800
+          ],
+          "target_m": 0.55,
+          "samples": 151,
+          "mean_m": 0.5501943017417219,
+          "mean_absolute_error_m": 0.007896404324503318
+        }
+      ],
+      "climb_mean_m": 0.2081423850582883,
+      "descent_mean_m": -0.24532656202649006,
+      "passed": true
+    },
+    {
+      "lane": 6,
+      "windows": [
+        {
+          "intervals": [
+            650,
+            780
+          ],
+          "target_m": 0.55,
+          "samples": 131,
+          "mean_m": 0.584047186038168,
+          "mean_absolute_error_m": 0.03404718603816789
+        },
+        {
+          "intervals": [
+            1050,
+            1200
+          ],
+          "target_m": 0.8,
+          "samples": 151,
+          "mean_m": 0.7967000189006622,
+          "mean_absolute_error_m": 0.008431831880794709
+        },
+        {
+          "intervals": [
+            1650,
+            1800
+          ],
+          "target_m": 0.55,
+          "samples": 151,
+          "mean_m": 0.5514114349205298,
+          "mean_absolute_error_m": 0.00788175134437086
+        }
+      ],
+      "climb_mean_m": 0.21265283286249426,
+      "descent_mean_m": -0.24528858398013242,
+      "passed": true
+    },
+    {
+      "lane": 7,
+      "windows": [
+        {
+          "intervals": [
+            650,
+            780
+          ],
+          "target_m": 0.55,
+          "samples": 131,
+          "mean_m": 0.5862146165419847,
+          "mean_absolute_error_m": 0.03621461654198469
+        },
+        {
+          "intervals": [
+            1050,
+            1200
+          ],
+          "target_m": 0.8,
+          "samples": 151,
+          "mean_m": 0.7949020945364238,
+          "mean_absolute_error_m": 0.008816403834437098
+        },
+        {
+          "intervals": [
+            1650,
+            1800
+          ],
+          "target_m": 0.55,
+          "samples": 151,
+          "mean_m": 0.5499071451192052,
+          "mean_absolute_error_m": 0.00791992415231789
+        }
+      ],
+      "climb_mean_m": 0.2086874779944391,
+      "descent_mean_m": -0.24499494941721855,
+      "passed": true
+    }
+  ],
+  "base_gates_pass": false,
+  "duplicate_state_errors": [],
+  "passed_cycle": false,
+  "scope": "used seed, fixed within-episode command; not general flight or landing qualification"
+}

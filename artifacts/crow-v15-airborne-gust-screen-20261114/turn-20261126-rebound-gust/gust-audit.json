@@ -1,0 +1,165 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.0,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        0.0,
+        0.0003488018670905962,
+        0.0
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 1,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.0,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        0.0,
+        0.0002939596940785632,
+        0.0
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 2,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.0,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        0.0,
+        0.0003138182654025239,
+        0.0
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 3,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.0,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        0.0,
+        0.0003458794930597713,
+        0.0
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 4,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.0,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        0.0,
+        0.00031819394073784394,
+        0.0
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 5,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.0,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        0.0,
+        0.0003083698798555207,
+        0.0
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 6,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.0,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        0.0,
+        0.00030415184561774717,
+        0.0
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    },
+    {
+      "lane": 7,
+      "wrench_missing_or_duplicate": 0,
+      "observed_pulse_steps": [],
+      "invalid_wrench_steps": [],
+      "prefix_mismatch_count": 0,
+      "first_prefix_mismatch": [],
+      "max_velocity_or_roll_rate_response": 0.0,
+      "recovery_samples": 51,
+      "mean_height_attitude_velocity_deviation": [
+        0.0,
+        0.0002587068717060333,
+        0.0
+      ],
+      "physical_gate_failures_excluding_expected_host_identity": [],
+      "pass": false
+    }
+  ],
+  "observer_errors": [],
+  "original_shared_inputs_checks": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "height_lane_gates": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "shared_nonhost_inputs_match": true,
+  "instrumented_host_hash_identified": true,
+  "all_pass": false,
+  "scope": "used-seed finite gust engineering screen; does not establish a general recovery envelope or navigation"
+}

@@ -1,0 +1,5 @@
+# Gust recovery screen rejected: disturbance did not execute
+
+The native observer captured every expected root-wrench sample in steps 695–710 for all eight lanes, with zero lateral force and roll torque in the planned five-step window. Correspondingly, the recorded 700–715 velocity and roll-rate difference from the no-gust reference was exactly zero in every lane. The pre-pulse q/v/action/contact prefix through interval 690 matched the reference, and the non-host input identities and eight altitude screens passed; this is an observer-matched undisturbed replay, not a gust or recovery result.
+
+The trigger used `pass.controlStep`, which the native host initializes inside each world-step submission. The planned threshold therefore did not activate in this run. A separately registered variant uses the task episode counter; this failed run and all of its raw data remain archived. The changed observer host identity is retained explicitly by the original analysis and is not presented as the reference binary.
