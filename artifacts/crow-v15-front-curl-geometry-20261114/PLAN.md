@@ -1,0 +1,3 @@
+# Local geometry after bounded front curl
+
+The contact-triggered front-curl test reduced the nearest front-toe gap to 2.57 mm at zero-based tick 310 but did not achieve grip. At the retained candidate states on ticks 290 and 310, use the unchanged native v15 FK program to estimate the effect of plus/minus 0.02 rad changes in the returning hip, knee, ankle and each toe joint on foot, nearest-front and nearest-rear box gaps. Cross-check each unperturbed result against retained body-pose geometry and disclose all joint-limit violations. These are static local perturbations, not dynamically reachable motion, contact forces, or grip; use them only to design a bounded subsequent physical experiment.
