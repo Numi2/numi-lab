@@ -1,0 +1,7 @@
+# Paired stance foretoe and relative-COM feedback: failed regrip
+
+On the constructed stationary perch probe, both lanes used the increased stance foretoe target. The candidate added bounded, slew-limited relative-COM stance feedback; the matched control reproduced all 450 archived baseline states exactly, and the first 170 paired samples matched before the target changed. Both had full pose and substep coverage and no recorded nonfoot impulse or observer errors. This is a development probe, not walking or landing qualification.
+
+Neither lane produced any interval meeting the bilateral supported regrip gates, let alone the registered terminal 100 consecutive intervals. The longest qualifying release was 14 control and 12 candidate intervals. Root height first dropped below 0.1 m at recorded interval 307 and 315 respectively. Contact, tilt and speed gates failed in multiple intervals; this result does not isolate a single cause. Both stance foretoe joints reached the configured 1.2 rad limit. Neither toe reached the 11.99 rad/s accepted-state threshold before the root-height failure; this does not bound substep speeds or effort.
+
+The balance candidate is not promoted. Raw traces, native binary, inputs, analysis and failures are retained alongside this report. The separate observer-timing audit documented a one-interval q/contact offset in another runtime; synchronization of this constructed probe's state and contact epochs was not independently established, so simultaneous pose/contact interpretation remains provisional.
