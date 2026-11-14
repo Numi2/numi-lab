@@ -1,0 +1,55 @@
+--- a/toe-velocity-observer.mm
++++ b/toe-effort-observer.mm
+@@ -21430,6 +21430,8 @@
+             const NSUInteger crowTraceCapacity = diagnostics.layout.contactDispatch.constraintCapacity;
+             const NSUInteger crowTraceLanes = batch.environmentCount;
+             const NSUInteger crowTraceVStride = diagnostics.layout.dispatch.vStride;
++            const NSUInteger crowTraceEffortStride = diagnostics.layout.dispatch.effortEnvironmentStride;
++            if (crowTraceWindow && (selectedState->useBoundedDrives || selectedState->useCoupledDrives)) throw std::runtime_error("unexpected drive mode for effort observer");
+             for (std::uint32_t controlStep = 0u;
+                  controlStep <
+                      diagnostics.layout.dispatch.controlStepCount;
+@@ -22044,18 +22046,22 @@
+                         id<MTLBuffer> sourceContacts = selectedState->buffers[kContacts];
+                         id<MTLBuffer> sourceStatuses = selectedState->buffers[kContactStatuses];
+                         id<MTLBuffer> sourceVelocities = selectedState->buffers[destinationV];
++                        id<MTLBuffer> sourceEffort = selectedState->buffers[kWorkingEffort];
+                         id<MTLBuffer> contactsCopy = [selectedState->device newBufferWithLength:sourceContacts.length options:MTLResourceStorageModeShared];
+                         id<MTLBuffer> statusCopy = [selectedState->device newBufferWithLength:sourceStatuses.length options:MTLResourceStorageModeShared];
+                         id<MTLBuffer> velocityCopy = [selectedState->device newBufferWithLength:sourceVelocities.length options:MTLResourceStorageModeShared];
+-                        if (contactsCopy == nil || statusCopy == nil || velocityCopy == nil || crowTraceVStride < 38) throw std::bad_alloc();
++                        id<MTLBuffer> effortCopy = [selectedState->device newBufferWithLength:sourceEffort.length options:MTLResourceStorageModeShared];
++                        if (contactsCopy == nil || statusCopy == nil || velocityCopy == nil || effortCopy == nil || crowTraceVStride < 38 || crowTraceEffortStride < 38) throw std::bad_alloc();
+                         id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
+                         [blit copyFromBuffer:sourceContacts sourceOffset:0 toBuffer:contactsCopy destinationOffset:0 size:sourceContacts.length];
+                         [blit copyFromBuffer:sourceStatuses sourceOffset:0 toBuffer:statusCopy destinationOffset:0 size:sourceStatuses.length];
+                         [blit copyFromBuffer:sourceVelocities sourceOffset:0 toBuffer:velocityCopy destinationOffset:0 size:sourceVelocities.length];
++                        [blit copyFromBuffer:sourceEffort sourceOffset:0 toBuffer:effortCopy destinationOffset:0 size:sourceEffort.length];
+                         [blit endEncoding];
+                         [crowTraceBuffers addObject:contactsCopy];
+                         [crowTraceBuffers addObject:statusCopy];
+                         [crowTraceBuffers addObject:velocityCopy];
++                        [crowTraceBuffers addObject:effortCopy];
+                     }
+                     std::swap(sourceQ, destinationQ);
+                     std::swap(sourceV, destinationV);
+@@ -22376,8 +22382,9 @@
+             if (crowTraceWindow) {
+                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                     if (completed.status != MTLCommandBufferStatusCompleted) { std::fprintf(stderr,"CROW_SUBSTEP_ERROR %llu\n",crowTraceStep); return; }
+-                    for (NSUInteger sub=0; sub<crowTraceBuffers.count/3; ++sub) {
+-                        id<MTLBuffer> cb=crowTraceBuffers[3*sub], sb=crowTraceBuffers[3*sub+1], vb=crowTraceBuffers[3*sub+2];
++                    for (NSUInteger sub=0; sub<crowTraceBuffers.count/4; ++sub) {
++                        id<MTLBuffer> cb=crowTraceBuffers[4*sub], sb=crowTraceBuffers[4*sub+1], vb=crowTraceBuffers[4*sub+2], eb=crowTraceBuffers[4*sub+3];
++                        const auto* driveEffort=static_cast<const float*>(eb.contents);
+                         const auto* velocities=static_cast<const float*>(vb.contents);
+                         const auto* contacts=static_cast<const MRContactConstraintGPU*>(cb.contents);
+                         const auto* statuses=static_cast<const MRMetalWorldContactStatusGPU*>(sb.contents);
+@@ -22395,6 +22402,7 @@
+                             std::fprintf(stderr,"CROW_TWO_TOE_SUBSTEP %llu %lu %lu %u %lu %.9g %.9g %.9g %.9g %.9g",crowTraceStep,(unsigned long)sub,(unsigned long)lane,statuses[lane].requiredConstraints,(unsigned long)crowTraceCapacity,up[0],up[1],normal[0],normal[1],other);
+                             for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",toe[k]);for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",signedX[k]);std::fprintf(stderr,"\n");
+                             std::fprintf(stderr,"CROW_TOE_V_SUBSTEP %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane);for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",velocities[lane*crowTraceVStride+22+k]);std::fprintf(stderr,"\n");
++                            std::fprintf(stderr,"CROW_TOE_DRIVE_EFFORT %llu %lu %lu",crowTraceStep,(unsigned long)sub,(unsigned long)lane);for(int k=0;k<16;k++)std::fprintf(stderr," %.9g",driveEffort[lane*crowTraceEffortStride+22+k]);std::fprintf(stderr,"\n");
+                         }
+                     }
+                 }];
