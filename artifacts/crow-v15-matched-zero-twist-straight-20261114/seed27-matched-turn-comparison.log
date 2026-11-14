@@ -1,0 +1,33 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "parity_through_600_mismatches": 0,
+      "first_mismatches": [],
+      "missing_comparison_steps": 0,
+      "signed_yaw_extreme_tick_rad_and_lateral_m": [
+        1197,
+        -0.25790109459788857,
+        -0.3635200339
+      ],
+      "signed_yaw_gate": true,
+      "max_abs_lateral_deviation_m": 0.3673221622
+    },
+    {
+      "lane": 7,
+      "parity_through_600_mismatches": 0,
+      "first_mismatches": [],
+      "missing_comparison_steps": 0,
+      "signed_yaw_extreme_tick_rad_and_lateral_m": [
+        1196,
+        0.2569335440141596,
+        0.3624066
+      ],
+      "signed_yaw_gate": true,
+      "max_abs_lateral_deviation_m": 0.3672474658
+    }
+  ],
+  "reference_sha256": "a21f1941dee7912e15d77c7d2c1c947f19c509580c39dfd6030aa13ed7cbaae9",
+  "passed": true,
+  "scope": "matched same-seed scripted control; not disturbed-start, biological or mission qualification"
+}
