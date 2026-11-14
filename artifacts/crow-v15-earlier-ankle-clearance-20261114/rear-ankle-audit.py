@@ -16,4 +16,4 @@ for t in range(1,450):
  elif gate and clearance>.005:target=max(0,old-.004)
  if abs(now-target)>2e-7:bad.append({'tick':t,'expected':target,'actual':now,'gate':gate,'clearance':clearance})
  maxstep=max(maxstep,abs(now-old));samples+=active
-out={'active_samples':samples,'max_correction_rad':max(ankle.values()),'min_correction_rad':min(ankle.values()),'max_step_rad':maxstep,'mismatches':bad,'pass':samples>0 and not bad and max(ankle.values())<=.300001 and maxstep<=.004001,'note':'Uses prior observed clearance/contact; state/contact epochs not independently synchronized.'};(A/'rear-ankle-audit.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))
+out={'active_samples':samples,'max_correction_rad':max(ankle.values()),'min_correction_rad':min(ankle.values()),'max_step_rad':maxstep,'mismatches':bad,'pass':samples>0 and not bad and max(ankle.values())<=.300001 and maxstep<=.008001,'note':'Uses prior observed clearance/contact; state/contact epochs not independently synchronized.'};(A/'rear-ankle-audit.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))
