@@ -1,5 +1,7 @@
 # Signed hip-balance screen
 
+**Correction, 2026-11-14:** Both arms automatically restarted at tilt termination despite `--no-scheduled-resets`. All grip streaks cited below occurred after one or more restarts and do not demonstrate a continuous landing from the 48-second checkpoint. First termination was replay step 157 for the negative arm and 232 for the positive arm. The extended negative arm reset after replay steps 157, 446 and 735. See `CONTINUITY_AUDIT.md`; the earlier analysis is retained below, not silently rewritten.
+
 The negative and positive arms both executed 600 control intervals from the recorded-state reconstruction with the moved-perch fixture and forced landing phase. Both first diverged from the baseline after the contact gate; negative first differed in q at observer step 27. These interventions are exploratory and use one shared initial state and seed.
 
 The negative arm's full-substep qualified streaks were 491-492, 494, and 519-600 (82 intervals at the end). It reached 1.211 radians peak tilt during capture; this did not meet the planned improvement over the baseline's 112-interval streak at 348-459. The positive arm had no qualifying intervals and reached 1.219 radians peak tilt. Both are retained failures of the planned comparison. For steps 348-600, their measured ground and nonfoot impulses were zero; pre-348 last-substep sampling also observed none but does not rule out a transient contact between sampled substeps.

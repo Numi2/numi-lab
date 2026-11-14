@@ -1,0 +1,5 @@
+# Correction: termination-triggered resets
+
+An independent check of consecutive accepted root states found large instantaneous position jumps. The native replay `done` flags identify tilt termination before each jump. `--no-scheduled-resets` does not disable termination-triggered automatic resets; the restart shader then restores the recorded checkpoint. The earlier hold analyses did not segment the trace at termination and are invalid as evidence of a continuous landing. Their full outputs remain archived.
+
+The nearby-perch baseline first terminates at replay step 149, the negative hip-feedback arm at 157, and the positive arm at 232, all for tilt (reason 2). The 1,000-step negative arm has three termination/reset cycles. No available trial demonstrates an uninterrupted landing or the requested long hold from the original checkpoint. Do not present the later 112-interval or 94-interval support streak as a successful continuation. Future trials must audit done flags and state continuity, and judge only the initial episode; `--continue-after-termination` would mask the failure and is not used to claim success.

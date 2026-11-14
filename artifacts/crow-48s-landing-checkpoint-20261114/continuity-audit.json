@@ -1,0 +1,160 @@
+{
+  "near-perch-250": {
+    "replay_done_events": [
+      {
+        "step": 156,
+        "reason": 3,
+        "timeout": false
+      }
+    ],
+    "root_jumps_over_3cm": [
+      {
+        "before_observer_step": 157,
+        "after_observer_step": 158,
+        "displacement_m": 0.3989212196615265
+      }
+    ],
+    "continuous_from_checkpoint": false,
+    "note": "Observer and replay indices differ; termination reason 2 is MR_TASK_TERMINATION_TILT."
+  },
+  "near-perch-landingmode-250": {
+    "replay_done_events": [
+      {
+        "step": 149,
+        "reason": 2,
+        "timeout": false
+      }
+    ],
+    "root_jumps_over_3cm": [
+      {
+        "before_observer_step": 150,
+        "after_observer_step": 151,
+        "displacement_m": 0.304911410737976
+      }
+    ],
+    "continuous_from_checkpoint": false,
+    "note": "Observer and replay indices differ; termination reason 2 is MR_TASK_TERMINATION_TILT."
+  },
+  "near-perch-landingmode-500": {
+    "replay_done_events": [
+      {
+        "step": 149,
+        "reason": 2,
+        "timeout": false
+      }
+    ],
+    "root_jumps_over_3cm": [
+      {
+        "before_observer_step": 150,
+        "after_observer_step": 151,
+        "displacement_m": 0.304911410737976
+      }
+    ],
+    "continuous_from_checkpoint": false,
+    "note": "Observer and replay indices differ; termination reason 2 is MR_TASK_TERMINATION_TILT."
+  },
+  "pitch-balance-negative-600": {
+    "replay_done_events": [
+      {
+        "step": 157,
+        "reason": 2,
+        "timeout": false
+      },
+      {
+        "step": 446,
+        "reason": 2,
+        "timeout": false
+      }
+    ],
+    "root_jumps_over_3cm": [
+      {
+        "before_observer_step": 158,
+        "after_observer_step": 159,
+        "displacement_m": 0.2877651719874473
+      },
+      {
+        "before_observer_step": 447,
+        "after_observer_step": 448,
+        "displacement_m": 0.3517008862655143
+      }
+    ],
+    "continuous_from_checkpoint": false,
+    "note": "Observer and replay indices differ; termination reason 2 is MR_TASK_TERMINATION_TILT."
+  },
+  "pitch-balance-positive-600": {
+    "replay_done_events": [
+      {
+        "step": 232,
+        "reason": 2,
+        "timeout": false
+      },
+      {
+        "step": 389,
+        "reason": 2,
+        "timeout": false
+      },
+      {
+        "step": 546,
+        "reason": 2,
+        "timeout": false
+      }
+    ],
+    "root_jumps_over_3cm": [
+      {
+        "before_observer_step": 233,
+        "after_observer_step": 234,
+        "displacement_m": 0.32450429442550033
+      },
+      {
+        "before_observer_step": 390,
+        "after_observer_step": 391,
+        "displacement_m": 0.4004918422945126
+      },
+      {
+        "before_observer_step": 547,
+        "after_observer_step": 548,
+        "displacement_m": 0.4004918422945126
+      }
+    ],
+    "continuous_from_checkpoint": false,
+    "note": "Observer and replay indices differ; termination reason 2 is MR_TASK_TERMINATION_TILT."
+  },
+  "pitch-balance-negative-1000": {
+    "replay_done_events": [
+      {
+        "step": 157,
+        "reason": 2,
+        "timeout": false
+      },
+      {
+        "step": 446,
+        "reason": 2,
+        "timeout": false
+      },
+      {
+        "step": 735,
+        "reason": 2,
+        "timeout": false
+      }
+    ],
+    "root_jumps_over_3cm": [
+      {
+        "before_observer_step": 158,
+        "after_observer_step": 159,
+        "displacement_m": 0.2877651719874473
+      },
+      {
+        "before_observer_step": 447,
+        "after_observer_step": 448,
+        "displacement_m": 0.3517008862655143
+      },
+      {
+        "before_observer_step": 736,
+        "after_observer_step": 737,
+        "displacement_m": 0.3517008862655143
+      }
+    ],
+    "continuous_from_checkpoint": false,
+    "note": "Observer and replay indices differ; termination reason 2 is MR_TASK_TERMINATION_TILT."
+  }
+}
