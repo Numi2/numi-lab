@@ -1,0 +1,11 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-perturbed-ground-start-20261114/turn.metal:5089:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=6u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-perturbed-ground-start-20261114/turn.metal:5114:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-perturbed-ground-start-20261114/turn.metal:5514:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+3 warnings generated.
+Built candidate metallib: 19061fc2691e4eae2bf07da2c78922b7c0a1b083469733f7633fe8bba9bb3340
