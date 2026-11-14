@@ -1,0 +1,10 @@
+--- prior-observer.mm
++++ gust-observer.mm
+@@ -12761,6 +12761,7 @@
+             const auto* a=static_cast<const MRABABodyWrenchGPU*>(before.contents);
+             const auto* b=static_cast<const MRABABodyWrenchGPU*>(after.contents);
+             for (std::size_t e=0;e<environmentCount;++e) {
++                if (traceStep>=695 && traceStep<=710) { const auto& w=a[e*bodyStride]; std::fprintf(stderr,"CROW_PRE_AERO_ROOT %llu %u %lu %.9g %.9g %.9g %.9g %.9g %.9g\n",traceStep,traceSubstep,(unsigned long)e,double(w.force.x),double(w.force.y),double(w.force.z),double(w.torque.x),double(w.torque.y),double(w.torque.z)); }
+                 const auto* qin=static_cast<const float*>(aq.contents);const auto* vin=static_cast<const float*>(av.contents);
+                 const auto* cp=static_cast<const mr_float4*>(ctrl.contents); const auto& cv=cp[e]; std::fprintf(stderr,"CROW_DRIVE_SCALES %llu %u %lu %.9g %.9g %.9g %.9g\n",traceStep,traceSubstep,(unsigned long)e,cv.x,cv.y,cv.z,cv.w);
+                 std::fprintf(stderr,"CROW_AERO_INPUT %llu %u %lu",traceStep,traceSubstep,(unsigned long)e);
