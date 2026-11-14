@@ -1,0 +1,11 @@
+--- a/toe-effort-observer.mm
++++ b/toe-friction-observer.mm
+@@ -22395,7 +22395,7 @@
+                                 if (!((c.bodyA<35u&&c.bodyB==35u)||(c.bodyB<35u&&c.bodyA==35u)) || c.impulses.x<=0)continue;
+                                 const float sign=c.bodyB==35u?-1.f:1.f;const unsigned body=c.bodyB==35u?c.bodyA:c.bodyB;
+                                 const int side=(body==11u||(body>=19u&&body<=26u))?0:((body==15u||(body>=27u&&body<=34u))?1:-1);
+-                                if(side<0){other+=c.impulses.x;continue;}const float vz=c.normal.x*c.tangent.y-c.normal.y*c.tangent.x;
++                                if(side<0){other+=c.impulses.x;continue;}std::fprintf(stderr,"CROW_TOE_FRICTION %llu %lu %lu %u %.9g %.9g %.9g %.9g %.9g\n",crowTraceStep,(unsigned long)sub,(unsigned long)lane,body,c.impulses.x,c.impulses.y,c.impulses.z,c.friction.x,c.friction.y);const float vz=c.normal.x*c.tangent.y-c.normal.y*c.tangent.x;
+                                 up[side]+=sign*(c.normal.z*c.impulses.x+c.tangent.z*c.impulses.y+vz*c.impulses.z);normal[side]+=c.impulses.x;
+                                 if(body>=19u&&body<=34u){toe[body-19u]+=c.impulses.x;signedX[body-19u]+=sign*c.normal.x*c.impulses.x;}
+                             }
