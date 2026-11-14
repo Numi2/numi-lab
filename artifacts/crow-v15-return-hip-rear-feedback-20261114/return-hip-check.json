@@ -1,0 +1,21 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "samples": 450,
+      "maximum_correction_rad": 0.0,
+      "minimum_correction_rad": 0.0,
+      "max_slew_rad": 0.0,
+      "bound_pass": true
+    },
+    {
+      "lane": 1,
+      "samples": 450,
+      "maximum_correction_rad": 0.00999999978,
+      "minimum_correction_rad": 0.0,
+      "max_slew_rad": 0.0010000001700000002,
+      "bound_pass": true
+    }
+  ],
+  "note": "Target correction bounds only; gating is implemented from prior contact and must be audited against raw event timing."
+}

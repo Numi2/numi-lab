@@ -1,0 +1,19 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "ticks": 450,
+      "contact_gate_active": 0,
+      "mismatches": [],
+      "pass": true
+    },
+    {
+      "lane": 1,
+      "ticks": 450,
+      "contact_gate_active": 96,
+      "mismatches": [],
+      "pass": true
+    }
+  ],
+  "scope": "verifies control from previously recorded rear-contact observation, not same-time physical contact"
+}
