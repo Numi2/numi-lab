@@ -5818,7 +5818,7 @@ kernel void mr_locomotion_task_apply_actions(
         // Development-only: transition from release-gated launch to the prior role-6 wing law.
         if (fixedFlightController && state.episode.z==10u && action<=5u &&
             float(state.episode.x)*dispatch.timing.x>=8.20f &&
-            float(state.episode.x)*dispatch.timing.x<44.02f && (state.status.w & 8192u)!=0u) {
+            float(state.episode.x)*dispatch.timing.x<48.02f && (state.status.w & 8192u)!=0u) {
             const float t=float(state.episode.x)*dispatch.timing.x;
             const float onset=7.50f;
             const float launchPhase=kTwoPi*6.4f*(t-onset);
@@ -5832,7 +5832,7 @@ kernel void mr_locomotion_task_apply_actions(
             const uint arm=6u;
             const float start=7.50f;
             targetCandidate=defaultQ[binding.indices.z];
-            if (arm>=2u && seconds>=start && seconds<44.02f) {
+            if (arm>=2u && seconds>=start && seconds<48.02f) {
                 const float phase=kTwoPi*6.4f*(seconds-start);
                 const float blend=smoothstep(8.20f,8.60f,seconds);
                 // Signed, fixed wing-sweep identification: no injected body force.
@@ -5843,7 +5843,7 @@ kernel void mr_locomotion_task_apply_actions(
                     // airReturnTracking.y is the preceding accepted root height.
                     const float heightEnvelope=smoothstep(9.0f,9.5f,seconds);
                     const float heightSwitch=smoothstep(24.0f,24.5f,seconds);
-                    const float heightTarget=(arm==6u ? mix(0.55f,0.80f,heightSwitch) : mix(0.80f,0.55f,heightSwitch))-0.25f*smoothstep(32.0f,32.5f,seconds);
+                    const float heightTarget=(arm==6u ? mix(0.55f,0.80f,heightSwitch) : mix(0.80f,0.55f,heightSwitch))-0.25f*smoothstep(36.0f,36.5f,seconds);
                     const float heightDelta=arm>=6u ? clamp(0.08f*(heightTarget-state.airReturnTracking.y)-0.003f-0.0048f*smoothstep(10.0f,10.5f,seconds),-0.020f,0.012f)*heightEnvelope : 0.0f;
                     float amplitude=(arm>=6u ? mix(0.55f,0.70f,smoothstep(7.50f,7.58f,seconds)) : 0.70f)+heightDelta;
                     if (arm>=6u) amplitude+=(arm==6u ? .04f : .08f)*smoothstep(7.90f,8.10f,seconds)*(1.0f-smoothstep(10.00f,10.50f,seconds));
