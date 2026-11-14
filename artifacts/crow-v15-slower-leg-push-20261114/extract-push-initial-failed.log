@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-slower-leg-push-20261114/extract.py", line 3, in <module>
+    source=Path(sys.argv[1]);out=Path(sys.argv[2]);data={'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'state':[],'target':[],'contact':[],'leg':[],'toe':[],'aero':[],'errors':[]}
+                                      ~~~~~~~~^^^
+IndexError: list index out of range

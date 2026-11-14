@@ -1,0 +1,146 @@
+{
+  "parity": [
+    {
+      "lane": 0,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 2,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 3,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 4,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 5,
+      "through": 500,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 6,
+      "through": 368,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 7,
+      "through": 368,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  ],
+  "identities": {
+    "expected_shader": {
+      "push": true,
+      "hold": true
+    },
+    "matched_nonshader_inputs": true
+  },
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 6,
+      "end": 500,
+      "first_unloaded": 375,
+      "first_recontact": 377,
+      "loaded_at_370": true,
+      "continuous": false,
+      "target_samples": 246,
+      "target_expected": 246,
+      "pre_unload_max_trim_deviation_rad": 5.999999996841865e-09,
+      "pre_unload_targets_held": true,
+      "max_observer_flap_displacement_pre_release_rad": 0.0014925900000000158,
+      "modeled_pre_release_vertical_aero_impulse_Ns": -0.00018153493542894948,
+      "missing_substeps": 1600,
+      "nonfoot_abs_impulse_Ns": 0.0,
+      "toe_threshold_substeps": 0,
+      "observer_errors": [],
+      "teacher_off": true,
+      "physical_failure": false
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "end": 500,
+      "first_unloaded": 376,
+      "first_recontact": 381,
+      "loaded_at_370": true,
+      "continuous": false,
+      "target_samples": 252,
+      "target_expected": 252,
+      "pre_unload_max_trim_deviation_rad": 5.999999996841865e-09,
+      "pre_unload_targets_held": true,
+      "max_observer_flap_displacement_pre_release_rad": 0.0011798740000000252,
+      "modeled_pre_release_vertical_aero_impulse_Ns": -0.00017571809133082954,
+      "missing_substeps": 1600,
+      "nonfoot_abs_impulse_Ns": 0.0,
+      "toe_threshold_substeps": 0,
+      "observer_errors": [],
+      "teacher_off": true,
+      "physical_failure": false
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "end": 500,
+      "first_unloaded": 415,
+      "first_recontact": null,
+      "loaded_at_370": true,
+      "continuous": true,
+      "target_samples": 486,
+      "target_expected": 486,
+      "pre_unload_max_trim_deviation_rad": 0.5199569700000001,
+      "pre_unload_targets_held": false,
+      "max_observer_flap_displacement_pre_release_rad": 0.402907461,
+      "modeled_pre_release_vertical_aero_impulse_Ns": 2.805778060713662e-06,
+      "missing_substeps": 1600,
+      "nonfoot_abs_impulse_Ns": 0.0,
+      "toe_threshold_substeps": 0,
+      "observer_errors": [],
+      "teacher_off": true,
+      "physical_failure": false
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "end": 500,
+      "first_unloaded": 415,
+      "first_recontact": 422,
+      "loaded_at_370": true,
+      "continuous": false,
+      "target_samples": 486,
+      "target_expected": 486,
+      "pre_unload_max_trim_deviation_rad": 0.14209037400000002,
+      "pre_unload_targets_held": false,
+      "max_observer_flap_displacement_pre_release_rad": 0.14382082199999996,
+      "modeled_pre_release_vertical_aero_impulse_Ns": 2.8054687902445267e-06,
+      "missing_substeps": 1600,
+      "nonfoot_abs_impulse_Ns": 0.0,
+      "toe_threshold_substeps": 0,
+      "observer_errors": [],
+      "teacher_off": true,
+      "physical_failure": false
+    }
+  ],
+  "scope": "Used-seed contact-gated development test; target and state epochs for these lanes are inferred; modeled aerodynamics are not biological measurements."
+}
