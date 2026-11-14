@@ -10,11 +10,12 @@
             "width": 1280,
             "height": 766,
             "r_frame_rate": "50/1",
-            "nb_frames": "3998"
+            "nb_frames": "4000",
+            "nb_read_frames": "4000"
         }
     ],
     "format": {
-        "duration": "79.960000",
-        "size": "8575436"
+        "duration": "80.000000",
+        "size": "8590243"
     }
 }
