@@ -1,0 +1,20 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "samples": 450,
+      "max_abs_correction_rad": 0.0356220789,
+      "max_slew_rad_per_interval": 0.0020000004,
+      "within_bounds": true
+    },
+    {
+      "lane": 1,
+      "samples": 450,
+      "max_abs_correction_rad": 0.0533956774,
+      "max_slew_rad_per_interval": 0.0020000004,
+      "within_bounds": true
+    }
+  ],
+  "pass": true,
+  "scope": "control targets, not measured physical effort"
+}

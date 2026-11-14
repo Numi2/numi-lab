@@ -1,0 +1,241 @@
+{
+  "active_samples": 244,
+  "max_correction_rad": 0.129999995,
+  "min_correction_rad": 0.0,
+  "max_step_rad": 0.004000001000000003,
+  "mismatches": [
+    {
+      "tick": 282,
+      "expected": 0.129999995,
+      "actual": 0.126000002,
+      "gate": true,
+      "clearance": 0.00333923381
+    },
+    {
+      "tick": 283,
+      "expected": 0.13,
+      "actual": 0.122000001,
+      "gate": true,
+      "clearance": 0.0018004782
+    },
+    {
+      "tick": 284,
+      "expected": 0.126000001,
+      "actual": 0.118000001,
+      "gate": true,
+      "clearance": 2.39179935e-05
+    },
+    {
+      "tick": 285,
+      "expected": 0.118000001,
+      "actual": 0.114,
+      "gate": false,
+      "clearance": -0.000213865889
+    },
+    {
+      "tick": 286,
+      "expected": 0.114,
+      "actual": 0.109999999,
+      "gate": false,
+      "clearance": -0.000312022865
+    },
+    {
+      "tick": 287,
+      "expected": 0.109999999,
+      "actual": 0.105999999,
+      "gate": false,
+      "clearance": -0.000375444535
+    },
+    {
+      "tick": 288,
+      "expected": 0.105999999,
+      "actual": 0.101999998,
+      "gate": false,
+      "clearance": -0.00039272313
+    },
+    {
+      "tick": 289,
+      "expected": 0.101999998,
+      "actual": 0.0979999974,
+      "gate": false,
+      "clearance": -0.000351541443
+    },
+    {
+      "tick": 290,
+      "expected": 0.0979999974,
+      "actual": 0.0939999968,
+      "gate": false,
+      "clearance": -0.000187155092
+    },
+    {
+      "tick": 291,
+      "expected": 0.0939999968,
+      "actual": 0.0899999961,
+      "gate": false,
+      "clearance": -0.000136393355
+    },
+    {
+      "tick": 292,
+      "expected": 0.0899999961,
+      "actual": 0.0859999955,
+      "gate": false,
+      "clearance": -0.000113246962
+    },
+    {
+      "tick": 293,
+      "expected": 0.0859999955,
+      "actual": 0.0819999948,
+      "gate": false,
+      "clearance": -0.000107698143
+    },
+    {
+      "tick": 294,
+      "expected": 0.0819999948,
+      "actual": 0.0779999942,
+      "gate": false,
+      "clearance": -3.70256603e-05
+    },
+    {
+      "tick": 295,
+      "expected": 0.0779999942,
+      "actual": 0.0739999935,
+      "gate": false,
+      "clearance": -0.00010138005
+    },
+    {
+      "tick": 296,
+      "expected": 0.0739999935,
+      "actual": 0.0699999928,
+      "gate": false,
+      "clearance": -0.000254333019
+    },
+    {
+      "tick": 297,
+      "expected": 0.0699999928,
+      "actual": 0.0659999922,
+      "gate": false,
+      "clearance": -0.00025627017
+    },
+    {
+      "tick": 298,
+      "expected": 0.0659999922,
+      "actual": 0.0619999915,
+      "gate": false,
+      "clearance": -0.000237245113
+    },
+    {
+      "tick": 299,
+      "expected": 0.0619999915,
+      "actual": 0.0579999909,
+      "gate": false,
+      "clearance": -0.00023150444
+    },
+    {
+      "tick": 300,
+      "expected": 0.0579999909,
+      "actual": 0.0539999902,
+      "gate": false,
+      "clearance": -0.000239171088
+    },
+    {
+      "tick": 301,
+      "expected": 0.0539999902,
+      "actual": 0.0499999896,
+      "gate": false,
+      "clearance": -0.000254135579
+    },
+    {
+      "tick": 302,
+      "expected": 0.0499999896,
+      "actual": 0.0459999889,
+      "gate": false,
+      "clearance": -0.00028309226
+    },
+    {
+      "tick": 303,
+      "expected": 0.0459999889,
+      "actual": 0.0419999883,
+      "gate": false,
+      "clearance": -0.000284899026
+    },
+    {
+      "tick": 304,
+      "expected": 0.0419999883,
+      "actual": 0.0379999876,
+      "gate": false,
+      "clearance": -0.000348839909
+    },
+    {
+      "tick": 305,
+      "expected": 0.0379999876,
+      "actual": 0.0339999869,
+      "gate": false,
+      "clearance": -0.000347927213
+    },
+    {
+      "tick": 306,
+      "expected": 0.0339999869,
+      "actual": 0.0299999863,
+      "gate": false,
+      "clearance": -0.000439587981
+    },
+    {
+      "tick": 307,
+      "expected": 0.0299999863,
+      "actual": 0.0259999856,
+      "gate": false,
+      "clearance": -0.000450480729
+    },
+    {
+      "tick": 308,
+      "expected": 0.0259999856,
+      "actual": 0.021999985,
+      "gate": false,
+      "clearance": -0.000454939902
+    },
+    {
+      "tick": 309,
+      "expected": 0.021999985,
+      "actual": 0.0179999843,
+      "gate": false,
+      "clearance": -0.000441782176
+    },
+    {
+      "tick": 310,
+      "expected": 0.0179999843,
+      "actual": 0.0139999837,
+      "gate": false,
+      "clearance": -0.000439725816
+    },
+    {
+      "tick": 311,
+      "expected": 0.0139999837,
+      "actual": 0.00999998301,
+      "gate": false,
+      "clearance": -0.000474404544
+    },
+    {
+      "tick": 312,
+      "expected": 0.00999998301,
+      "actual": 0.00599998282,
+      "gate": false,
+      "clearance": -0.000476956367
+    },
+    {
+      "tick": 313,
+      "expected": 0.00599998282,
+      "actual": 0.00199998263,
+      "gate": false,
+      "clearance": -0.000483959913
+    },
+    {
+      "tick": 314,
+      "expected": 0.00199998263,
+      "actual": 0.0,
+      "gate": false,
+      "clearance": -0.000509537756
+    }
+  ],
+  "pass": false,
+  "note": "Uses prior observed clearance/contact; state/contact epochs not independently synchronized."
+}

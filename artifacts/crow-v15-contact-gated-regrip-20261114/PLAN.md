@@ -1,0 +1,5 @@
+# Matched contact-gated front-toe regrip probe
+
+The prior 12-interval return commanded the released front toes closed immediately on return despite no foot contact, followed by loss of opposing stance contact and a fall. Test whether withholding that single premature posture override helps: two lanes use identical initial conditions and return at the same 12-counter threshold. Lane 0 retains the prior override; lane 1 closes front toes only through the existing two-consecutive-foot-contact latch. All other physical model, placement, control limits and rear-toe logic remain unchanged. This is not a claim that the foot-contact latch itself is anatomically ideal.
+
+Require exact state and logged-control parity before the first intervention, reproduce prior lane 0, and report full 32-substep contact coverage, actual grip, posture/speed and accepted toe speeds with failure location. The original 100-interval strict released and bilateral grip gates remain unchanged. Preserve all failures. This constructed stationary test does not establish walking or airborne landing; contact/state epochs remain independently unverified.

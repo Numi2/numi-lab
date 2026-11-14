@@ -1,0 +1,89 @@
+{
+  "scope": "same-seed one-versus-two reset blocks, first recorded state is not independently pre-step",
+  "rows": [
+    {
+      "lane": 0,
+      "first_observer_state_difference": {
+        "q": 0.014659564000000002,
+        "v": 0.479360372
+      },
+      "first_episode_steps": 500,
+      "physical_failure": false
+    },
+    {
+      "lane": 1,
+      "first_observer_state_difference": {
+        "q": 0.006414503750000001,
+        "v": 0.747814595
+      },
+      "first_episode_steps": 500,
+      "physical_failure": false
+    },
+    {
+      "lane": 2,
+      "first_observer_state_difference": {
+        "q": 0.19964535219750001,
+        "v": 7.48645299872
+      },
+      "first_episode_steps": 500,
+      "physical_failure": false
+    },
+    {
+      "lane": 3,
+      "first_observer_state_difference": {
+        "q": 0.0166769419,
+        "v": 0.781523822
+      },
+      "first_episode_steps": 500,
+      "physical_failure": false
+    },
+    {
+      "lane": 4,
+      "first_observer_state_difference": {
+        "q": 0.0239319727,
+        "v": 0.8481467420000001
+      },
+      "first_episode_steps": 500,
+      "physical_failure": false
+    },
+    {
+      "lane": 5,
+      "first_observer_state_difference": {
+        "q": 0.027736350899999998,
+        "v": 0.6993279139999999
+      },
+      "first_episode_steps": 500,
+      "physical_failure": false
+    },
+    {
+      "lane": 6,
+      "first_observer_state_difference": {
+        "q": 0.024267420199999997,
+        "v": 0.8121538130000001
+      },
+      "first_episode_steps": 500,
+      "physical_failure": false,
+      "first_unloaded_interval": 377,
+      "first_later_foot_load": null,
+      "first_later_ground_contact": null,
+      "unique_complete_foot_substeps": true,
+      "finite_state_coverage": 500
+    },
+    {
+      "lane": 7,
+      "first_observer_state_difference": {
+        "q": 0.0276415758,
+        "v": 0.9482388509999999
+      },
+      "first_episode_steps": 500,
+      "physical_failure": false,
+      "first_unloaded_interval": 376,
+      "first_later_foot_load": null,
+      "first_later_ground_contact": null,
+      "unique_complete_foot_substeps": true,
+      "finite_state_coverage": 500
+    }
+  ],
+  "teacher_off": true,
+  "errors": []
+}

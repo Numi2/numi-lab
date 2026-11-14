@@ -1,0 +1,169 @@
+{
+  "active_samples": 244,
+  "max_abs_step_rad": 0.010000006000000006,
+  "mismatches": [
+    {
+      "tick": 282,
+      "expected": 0.22499992,
+      "actual": 0.214999914,
+      "gate": true,
+      "clearance": 0.00333923381
+    },
+    {
+      "tick": 283,
+      "expected": 0.219999914,
+      "actual": 0.204999909,
+      "gate": true,
+      "clearance": 0.0018004782
+    },
+    {
+      "tick": 284,
+      "expected": 0.209999909,
+      "actual": 0.194999903,
+      "gate": true,
+      "clearance": 2.39179935e-05
+    },
+    {
+      "tick": 285,
+      "expected": 0.194999903,
+      "actual": 0.184999898,
+      "gate": false,
+      "clearance": -0.000213865889
+    },
+    {
+      "tick": 286,
+      "expected": 0.184999898,
+      "actual": 0.174999893,
+      "gate": false,
+      "clearance": -0.000312022865
+    },
+    {
+      "tick": 287,
+      "expected": 0.174999893,
+      "actual": 0.164999887,
+      "gate": false,
+      "clearance": -0.000375444535
+    },
+    {
+      "tick": 288,
+      "expected": 0.164999887,
+      "actual": 0.154999882,
+      "gate": false,
+      "clearance": -0.00039272313
+    },
+    {
+      "tick": 289,
+      "expected": 0.154999882,
+      "actual": 0.144999877,
+      "gate": false,
+      "clearance": -0.000351541443
+    },
+    {
+      "tick": 290,
+      "expected": 0.144999877,
+      "actual": 0.134999871,
+      "gate": false,
+      "clearance": -0.000187155092
+    },
+    {
+      "tick": 291,
+      "expected": 0.134999871,
+      "actual": 0.124999873,
+      "gate": false,
+      "clearance": -0.000136393355
+    },
+    {
+      "tick": 292,
+      "expected": 0.124999873,
+      "actual": 0.114999875,
+      "gate": false,
+      "clearance": -0.000113246962
+    },
+    {
+      "tick": 293,
+      "expected": 0.114999875,
+      "actual": 0.104999878,
+      "gate": false,
+      "clearance": -0.000107698143
+    },
+    {
+      "tick": 294,
+      "expected": 0.104999878,
+      "actual": 0.0949998796,
+      "gate": false,
+      "clearance": -3.70256603e-05
+    },
+    {
+      "tick": 295,
+      "expected": 0.0949998796,
+      "actual": 0.0849998817,
+      "gate": false,
+      "clearance": -0.00010138005
+    },
+    {
+      "tick": 296,
+      "expected": 0.0849998817,
+      "actual": 0.0749998838,
+      "gate": false,
+      "clearance": -0.000254333019
+    },
+    {
+      "tick": 297,
+      "expected": 0.0749998838,
+      "actual": 0.0649998859,
+      "gate": false,
+      "clearance": -0.00025627017
+    },
+    {
+      "tick": 298,
+      "expected": 0.0649998859,
+      "actual": 0.0549998879,
+      "gate": false,
+      "clearance": -0.000237245113
+    },
+    {
+      "tick": 299,
+      "expected": 0.0549998879,
+      "actual": 0.04499989,
+      "gate": false,
+      "clearance": -0.00023150444
+    },
+    {
+      "tick": 300,
+      "expected": 0.04499989,
+      "actual": 0.0349998921,
+      "gate": false,
+      "clearance": -0.000239171088
+    },
+    {
+      "tick": 301,
+      "expected": 0.0349998921,
+      "actual": 0.0249998923,
+      "gate": false,
+      "clearance": -0.000254135579
+    },
+    {
+      "tick": 302,
+      "expected": 0.0249998923,
+      "actual": 0.0149998926,
+      "gate": false,
+      "clearance": -0.00028309226
+    },
+    {
+      "tick": 303,
+      "expected": 0.0149998926,
+      "actual": 0.00499989279,
+      "gate": false,
+      "clearance": -0.000284899026
+    },
+    {
+      "tick": 304,
+      "expected": 0.00499989279,
+      "actual": 0.0,
+      "gate": false,
+      "clearance": -0.000348839909
+    }
+  ],
+  "pass": false,
+  "note": "Checks feedback against previous recorded contact/clearance observations; not synchronized physical contact."
+}
