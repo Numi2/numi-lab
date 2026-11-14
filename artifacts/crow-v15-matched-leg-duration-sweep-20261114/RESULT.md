@@ -1,0 +1,7 @@
+# Matched leg-duration sweep: no sustained leg-powered transition
+
+Development seed 20261126, eight correlated lanes, paired push and held-leg controls. Four extension durations (0.08, 0.12, 0.16 and 0.20 s) used a fixed wing onset of 7.50 s. Matched initial states agree through interval 368; the six leg targets first differ at interval 373, and all wing, tail and toe targets agree in the examined 335–500 interval. The control is a diagnostic ablation, not a trained autonomous transition.
+
+All eight push lanes recontacted before interval 500 and failed both the registered sustained-transition and leg-necessity screens. Durations 0.08 and 0.12 s first unloaded at interval 375 and recontacted at 378. Duration 0.16 s unloaded at 376 and recontacted at 379. Duration 0.20 s unloaded at 380 and recontacted at 458–459, but the pre-unload modeled wing displacement was approximately 0.612 rad and modeled vertical aerodynamic impulse approximately 0.029 N s; it therefore does not demonstrate leg-powered liftoff. The held-leg controls unloaded at 381 and recontacted at 480. The shorter durations had very small pre-unload modeled wing displacement and vertical aerodynamic impulse; they demonstrate only brief unloading in this model, not sustained flight.
+
+Contact and state observer epochs have not yet been independently aligned, and the samples are not biological validation or an independent-seed qualification. Full raw matched runs, scripts, input hashes, and analyses are preserved in Git; the unused mission layouts and seeds were not consumed.
