@@ -1,0 +1,6 @@
+{
+  "restart_sha256": "0d7924f157a770181a9793b7acf6a71464f1d06512c22899550ffee52ba0d66c",
+  "host_sha256": "0fd3ec2d0b7c489fd93244451af225b8fbbdb2a606044e14d2621708c578b2a8",
+  "metallib_sha256": "131f97032f9b078cae5a21f5ecd0115a44af96dec11e5d07c380df5e188578ed",
+  "scope": "eight-second capture-geometry diagnostic; first episode only"
+}

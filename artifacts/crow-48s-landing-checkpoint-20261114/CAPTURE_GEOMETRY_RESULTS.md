@@ -1,0 +1,5 @@
+# First capture-geometry screen
+
+The full-window observer reproduced the retained x=17.76 m control's first-episode q and v exactly in printed precision through observer step 150. All 16 contact substeps were present for each of the 148 pre-termination intervals. No interval had simultaneous opposed toe impulses on both feet; the first episode terminated for tilt at replay step 149. The x=17.70 and x=17.82 placements failed much earlier, at replay steps 23 and 14 respectively, due to forbidden contact. Last-substep samples identified crow-body/perch impulses at observer steps 24 and 15 respectively. No candidate met the continuous landing or grip gates; automatic post-termination restarts are excluded.
+
+The first control's rear toes produced no opposed branch impulse while the body swung rearward. At the checkpoint, front-toe distal centers were approximately 0.07–0.09 m ahead of the corresponding rear-toe distal centers. This motivates a narrow follow-up placement screen, but does not establish that position alone can solve capture.

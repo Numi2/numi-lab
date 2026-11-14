@@ -1,0 +1,5 @@
+# Narrow capture placement follow-up
+
+The prior x=17.70 and x=17.82 m box-perch centers produced body/perch collision very early; x=17.76 first terminated for tilt without bilateral opposing toe contact. Test x=17.73 and x=17.745 m with exactly the same reconstructed q/v, forced landing phase, original policy, seed, static box cross-section, and full-window read-only observer. This is exploratory fixture tuning, not an unused-layout test.
+
+Prediction: a location between 17.70 and 17.76 may place the horizontal box between the front and rear toes at touchdown, yielding earlier opposed impulse and reducing the initial pitch swing. Refute an arm on any body/ground contact, first-episode termination, or failure to achieve a 250-interval terminal bilateral opposed-support streak with tilt <=0.35 rad and root speed <=0.12 m/s. Audit only before the first replay done event; automatic resets do not count. Retain both outcomes, and compare against the observer-matched x=17.76 control. Steps after done remain failure evidence, never new independent trials.
