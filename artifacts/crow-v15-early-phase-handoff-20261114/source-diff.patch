@@ -1,0 +1,20 @@
+--- artifacts/crow-v15-phase-aligned-handoff-20261114/push.metal	2026-11-14 19:51:28
++++ artifacts/crow-v15-early-phase-handoff-20261114/push.metal	2026-11-14 19:59:23
+@@ -5817,7 +5817,7 @@
+         }
+         // Development-only: transition from release-gated launch to the prior role-6 wing law.
+         if (fixedFlightController && state.episode.z==10u && action<=5u &&
+-            float(state.episode.x)*dispatch.timing.x>=10.02f &&
++            float(state.episode.x)*dispatch.timing.x>=8.20f &&
+             float(state.episode.x)*dispatch.timing.x<36.02f && (state.status.w & 8192u)!=0u) {
+             const float t=float(state.episode.x)*dispatch.timing.x;
+             const float onset=7.50f;
+@@ -5880,7 +5880,7 @@
+                     targetCandidate+=(action==4u ? 1.0f : -1.0f)*turnSign*0.0f*turnEnvelope*phaseGate;
+                 }
+             }
+-            targetCandidate=mix(launchTarget,targetCandidate,smoothstep(10.02f,10.52f,t));
++            targetCandidate=mix(launchTarget,targetCandidate,smoothstep(8.20f,8.70f,t));
+         }
+         // Diagnostic ablation: match the tail across push and hold arms.
+         if (fixedFlightController && state.episode.z==10u && action==6u && float(state.episode.x)*dispatch.timing.x>=6.30f && float(state.episode.x)*dispatch.timing.x<10.02f) targetCandidate=.27f;
