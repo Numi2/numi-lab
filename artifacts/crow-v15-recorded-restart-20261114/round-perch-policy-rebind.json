@@ -1,0 +1,23 @@
+{
+  "fingerprints": [
+    13008889628092857008,
+    12345253830233116865,
+    13874872354651028202,
+    15965398457606275282
+  ],
+  "reports": [
+    {
+      "policy": "landing",
+      "original_sha256": "60a31f02145edf50fad9da7bccde2ed6fbdc22bdf39ccceb56b3befe9634d2b9",
+      "rebound_sha256": "e601bd75681447fda6c484dc859f11ef05b1c7e3e1de9d0137ae9094d6f7b9ae",
+      "identical_tensors": true
+    },
+    {
+      "policy": "route",
+      "original_sha256": "0193fa43376769d52b3bc89d497262d238f09f7eb5d673352c6746b3c4b93070",
+      "rebound_sha256": "c7618f9952c35789781d4067e31405003947b9ee588413d3ff45ccf91f4561c8",
+      "identical_tensors": true
+    }
+  ],
+  "scope": "Compatibility-only; no new training, no performance claim."
+}
