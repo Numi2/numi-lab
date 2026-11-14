@@ -1,0 +1,43 @@
+{
+  "source_commit": "80845dd1",
+  "bytes": 253098037,
+  "sha256": "e2babb2d704573033d807831081682dc75bc8773d4056ff020f8c90f34117801",
+  "gzip_eof": true,
+  "parts": [
+    {
+      "file": "run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "7813cf6e17d6658229920e2c4b8a671f035861ae734d64e714e77e5875518e05"
+    },
+    {
+      "file": "run.stderr.gz.part001",
+      "bytes": 41943040,
+      "sha256": "10183d2e0c552c2bcc6b56c8afe4279a162d9116c19aa04e8cb4bd4bd26558aa"
+    },
+    {
+      "file": "run.stderr.gz.part002",
+      "bytes": 41943040,
+      "sha256": "4ce0e778d26c10d7222ada50859658605da74873dae03df865ce628c5f4bf137"
+    },
+    {
+      "file": "run.stderr.gz.part003",
+      "bytes": 41943040,
+      "sha256": "998c29cd45c927bbe771793ed71f287b4aa406a00d5e9d6e54ad3bdda0358c55"
+    },
+    {
+      "file": "run.stderr.gz.part004",
+      "bytes": 41943040,
+      "sha256": "282a6737500f7ba79ec1979a1ce0e099721f82b24e17b04172b9d8a2f4adced0"
+    },
+    {
+      "file": "run.stderr.gz.part005",
+      "bytes": 41943040,
+      "sha256": "6bce0cc03a0e0419280a7e4650f2370aab3035c721f993bdb85df6163db974ca"
+    },
+    {
+      "file": "run.stderr.gz.part006",
+      "bytes": 1439797,
+      "sha256": "b1e5b21bd94eda400a46d63ed73518fd41d915831d8736bbbf0ada1ae8b80390"
+    }
+  ]
+}
