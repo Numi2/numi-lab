@@ -1,0 +1,3 @@
+041fd0cafec29367f52e02a34747500fc14b3e1c30fbe3b7bd958d0bb4143471  artifacts/crow-v15-airborne-gust-episode-clock-20261114/turn.metal
+72aaf4d475765c32b7fcf1f5d86dd53be5e3c9c94022534dae9fc6eda156fd03  artifacts/crow-v15-airborne-gust-episode-clock-20261114/World.metal
+6abdc9d96e3db3fc20430c5cba3e37de193c72b934fd260841aa92c1cb4f8f3d  artifacts/crow-v15-airborne-gust-episode-clock-20261114/observer.mm
