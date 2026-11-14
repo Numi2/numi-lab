@@ -1,0 +1,17 @@
+{
+  "source_commit": "6ee6a06e",
+  "arms": {
+    "push": {
+      "path": "artifacts/crow-v15-launch-wing-phase-20261114/push-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 39451249,
+      "sha256": "2be0ee34896f5d61c7e3c7d12197af20b7c5f3dfd1641ce9d33f669a54b9c784",
+      "gzip_eof": true
+    },
+    "hold": {
+      "path": "artifacts/crow-v15-launch-wing-phase-20261114/hold-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 39320765,
+      "sha256": "371d8843ca88fc598e5b2c062d75539a4e2249ca2b7af53bcb558af05bb4e26a",
+      "gzip_eof": true
+    }
+  }
+}
