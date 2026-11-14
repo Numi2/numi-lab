@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-perturbed-ground-start-20261114/verify.py", line 11, in <module>
+    assert pn==x['bytes'] and ph.hexdigest()==x['sha256'];parts.append({'file':x['file'],'bytes':pn,'sha256':ph.hexdigest()})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
