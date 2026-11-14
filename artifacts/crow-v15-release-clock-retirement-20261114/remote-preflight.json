@@ -1,0 +1,22 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-release-clock-stroke-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "inode": 17111725,
+      "bytes": 34460827,
+      "mtime_ns": 1794650823862741680,
+      "sha256": "08f2bf43dfd60d75ac0694577b6e63c694d57a63be837a30ccf601b78dcfa1de",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-release-clock-stroke-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "inode": 17111771,
+      "bytes": 39458467,
+      "mtime_ns": 1794650937936777743,
+      "sha256": "c4250bde5675b601ff4a4133f77ea242cc29441e2e6c6b1af88ded359936513f",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 73919294
+}
