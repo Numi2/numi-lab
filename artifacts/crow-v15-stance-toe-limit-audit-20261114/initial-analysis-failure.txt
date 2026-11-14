@@ -1,0 +1,1 @@
+The first analysis attempt failed before writing results because it parsed a non-record line as a lane integer: ValueError: invalid literal for int() with base 10: 'passed'. The parser was corrected to select step/control/event records before parsing lane identifiers. No simulation was changed.

@@ -1,0 +1,492 @@
+{
+  "0": {
+    "samples": [
+      {
+        "zero_based_interval": 270,
+        "root_position_m": [
+          0.0124993743,
+          -0.0650611296,
+          0.177765936
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.00648701,
+          0.778492212,
+          1.02428889,
+          0.780623257,
+          1.03839862,
+          0.791075587
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.559478641,
+          0.728586733
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.00224975683,
+        "right_rear_signed_normal_Ns": -0.00092987594
+      },
+      {
+        "zero_based_interval": 280,
+        "root_position_m": [
+          0.0124010099,
+          -0.0672478452,
+          0.176724955
+        ],
+        "right_foretoe_joint_positions_rad": [
+          0.960267544,
+          0.859608889,
+          0.982979119,
+          0.861978352,
+          1.00536621,
+          0.865074992
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.562995493,
+          0.73281312
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.00208839914,
+        "right_rear_signed_normal_Ns": -0.000630319118
+      },
+      {
+        "zero_based_interval": 290,
+        "root_position_m": [
+          0.0130105596,
+          -0.0681695268,
+          0.17581895
+        ],
+        "right_foretoe_joint_positions_rad": [
+          0.922105014,
+          0.980589569,
+          0.950646102,
+          0.983713746,
+          0.979860485,
+          0.986312211
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.526476979,
+          0.730739951
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.000844621565,
+        "right_rear_signed_normal_Ns": -0.000411198853
+      },
+      {
+        "zero_based_interval": 295,
+        "root_position_m": [
+          0.0152735794,
+          -0.0670731664,
+          0.175548017
+        ],
+        "right_foretoe_joint_positions_rad": [
+          0.978948891,
+          1.04169154,
+          1.01205838,
+          1.04927945,
+          1.04113448,
+          1.06906199
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.39914611,
+          0.740816712
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.00123199169,
+        "right_rear_signed_normal_Ns": -0.00114228972
+      },
+      {
+        "zero_based_interval": 300,
+        "root_position_m": [
+          0.01828737,
+          -0.065856047,
+          0.175174892
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.06532931,
+          1.11259806,
+          1.09918618,
+          1.13736975,
+          1.13806617,
+          1.16335881
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.261520296,
+          0.746359825
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.00105896534,
+        "right_rear_signed_normal_Ns": -0.00142675254
+      },
+      {
+        "zero_based_interval": 302,
+        "root_position_m": [
+          0.0196292382,
+          -0.0653244406,
+          0.175007135
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.10451233,
+          1.14005649,
+          1.1444459,
+          1.1665343,
+          1.18256485,
+          1.18997073
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.209966585,
+          0.747664392
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 3.77387687e-06,
+        "right_rear_signed_normal_Ns": -0.000284380076
+      },
+      {
+        "zero_based_interval": 304,
+        "root_position_m": [
+          0.0209576041,
+          -0.0648328364,
+          0.174859002
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.15502715,
+          1.17288101,
+          1.1855998,
+          1.19162714,
+          1.20000005,
+          1.19999862
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.151623666,
+          0.750880778
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 2.22574034e-13,
+        "right_rear_signed_normal_Ns": -9.6090509e-05
+      },
+      {
+        "zero_based_interval": 306,
+        "root_position_m": [
+          0.0225336608,
+          -0.0645307451,
+          0.173960969
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.18686044,
+          1.19428003,
+          1.20000005,
+          1.19999874,
+          1.20000005,
+          1.19998276
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.0802575126,
+          0.77610445
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 1.26858941e-26,
+        "right_rear_signed_normal_Ns": -4.16076655e-05
+      },
+      {
+        "zero_based_interval": 310,
+        "root_position_m": [
+          0.0275868773,
+          -0.0675741434,
+          0.169998109
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.20000005,
+          1.19997263,
+          1.20000005,
+          1.19996881,
+          1.20000005,
+          1.19997001
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          -0.142350018,
+          0.857564092
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.0,
+        "right_rear_signed_normal_Ns": 0.0
+      },
+      {
+        "zero_based_interval": 320,
+        "root_position_m": [
+          0.0438972153,
+          -0.0752866343,
+          0.166223407
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.20000005,
+          1.19997478,
+          1.20000005,
+          1.19997513,
+          1.20000005,
+          1.19997525
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          -0.226722822,
+          0.827587068
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.0,
+        "right_rear_signed_normal_Ns": -0.000124143102
+      }
+    ],
+    "first_three_right_foretoe_joints_at_1_199_rad_zero_based": 305
+  },
+  "1": {
+    "samples": [
+      {
+        "zero_based_interval": 270,
+        "root_position_m": [
+          0.0124993743,
+          -0.0650611296,
+          0.177765936
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.00648701,
+          0.778492212,
+          1.02428889,
+          0.780623257,
+          1.03839862,
+          0.791075587
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.559478641,
+          0.728586733
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.00224975683,
+        "right_rear_signed_normal_Ns": -0.00092987594
+      },
+      {
+        "zero_based_interval": 280,
+        "root_position_m": [
+          0.0124010099,
+          -0.0672478452,
+          0.176724955
+        ],
+        "right_foretoe_joint_positions_rad": [
+          0.960267544,
+          0.859608889,
+          0.982979119,
+          0.861978352,
+          1.00536621,
+          0.865074992
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.562995493,
+          0.73281312
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.00208839914,
+        "right_rear_signed_normal_Ns": -0.000630319118
+      },
+      {
+        "zero_based_interval": 290,
+        "root_position_m": [
+          0.0130105596,
+          -0.0681695268,
+          0.17581895
+        ],
+        "right_foretoe_joint_positions_rad": [
+          0.922105014,
+          0.980589569,
+          0.950646102,
+          0.983713746,
+          0.979860485,
+          0.986312211
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.526476979,
+          0.730739951
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.000844621565,
+        "right_rear_signed_normal_Ns": -0.000411198853
+      },
+      {
+        "zero_based_interval": 295,
+        "root_position_m": [
+          0.0152735794,
+          -0.0670731664,
+          0.175548017
+        ],
+        "right_foretoe_joint_positions_rad": [
+          0.978948891,
+          1.04169154,
+          1.01205838,
+          1.04927945,
+          1.04113448,
+          1.06906199
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.39914611,
+          0.740816712
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.00123199169,
+        "right_rear_signed_normal_Ns": -0.00114228972
+      },
+      {
+        "zero_based_interval": 300,
+        "root_position_m": [
+          0.01828737,
+          -0.065856047,
+          0.175174892
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.06532931,
+          1.11259806,
+          1.09918618,
+          1.13736975,
+          1.13806617,
+          1.16335881
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.261520296,
+          0.746359825
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.00105896534,
+        "right_rear_signed_normal_Ns": -0.00142675254
+      },
+      {
+        "zero_based_interval": 302,
+        "root_position_m": [
+          0.0196292382,
+          -0.0653244406,
+          0.175007135
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.10451233,
+          1.14005649,
+          1.1444459,
+          1.1665343,
+          1.18256485,
+          1.18997073
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.209966585,
+          0.747664392
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 3.77387687e-06,
+        "right_rear_signed_normal_Ns": -0.000284380076
+      },
+      {
+        "zero_based_interval": 304,
+        "root_position_m": [
+          0.0209576041,
+          -0.0648328364,
+          0.174859002
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.15502715,
+          1.17288101,
+          1.1855998,
+          1.19162714,
+          1.20000005,
+          1.19999862
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.151623666,
+          0.750880778
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 2.22574034e-13,
+        "right_rear_signed_normal_Ns": -9.6090509e-05
+      },
+      {
+        "zero_based_interval": 306,
+        "root_position_m": [
+          0.0224840324,
+          -0.0644988418,
+          0.174032152
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.18771636,
+          1.19434977,
+          1.20000005,
+          1.19999838,
+          1.20000005,
+          1.19998229
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          0.0824254379,
+          0.780066192
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 5.87687511e-21,
+        "right_rear_signed_normal_Ns": -0.000354847871
+      },
+      {
+        "zero_based_interval": 310,
+        "root_position_m": [
+          0.027785819,
+          -0.0675450414,
+          0.169953689
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.20000005,
+          1.1999706,
+          1.20000005,
+          1.19996822,
+          1.20000005,
+          1.19996941
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          -0.171750441,
+          0.851139307
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.0,
+        "right_rear_signed_normal_Ns": -0.000221221635
+      },
+      {
+        "zero_based_interval": 320,
+        "root_position_m": [
+          0.0426081605,
+          -0.0755066201,
+          0.167483389
+        ],
+        "right_foretoe_joint_positions_rad": [
+          1.20000005,
+          1.1999768,
+          1.20000005,
+          1.19997704,
+          1.20000005,
+          1.19997728
+        ],
+        "right_rear_toe_joint_positions_rad": [
+          -0.28984049,
+          0.817586958
+        ],
+        "right_rear_target_rad": 1.14999998,
+        "right_fore_target_rad": 1.20000005,
+        "right_front_signed_normal_Ns": 0.0,
+        "right_rear_signed_normal_Ns": -8.4277238e-12
+      }
+    ],
+    "first_three_right_foretoe_joints_at_1_199_rad_zero_based": 305
+  }
+}
