@@ -1,0 +1,5 @@
+# First wing-stroke phase: all candidates recontacted
+
+The two-arm used-seed trial used the physical post-release leg retraction and four wing phases with identical push/held non-leg commands within each lane. All eight lane pairs passed the recorded integrity, state-prefix and non-leg command checks. Every push lane reached three unloaded intervals at 376 and had pre-unload flap motion about 0.0022 rad with modeled vertical aerodynamic impulse about -0.000295 N s. Phase 0 recontacted at 387; phases pi/2 and pi at 384; phase 3pi/2 at 381. Both replicates of each phase had the same first recontact interval. All held-leg lanes also recontacted by 476–492, except pi/2 which recontacted at 384. No lane met the sustained-transition or leg-necessity screen.
+
+Phase 0 was best on this narrow initial-unload measure, but no phase established leg-powered sustained flight. These correlated lanes use one development seed, scheduled toes and an observer whose contact/state epochs remain independently unverified; this is not flight, landing, navigation or biological qualification. All raw arms are retained.
