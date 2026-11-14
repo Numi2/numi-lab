@@ -1,0 +1,30 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-speed-command-screen-20261114/turn-20261126-rebound-speed/run.stderr.gz",
+      "inode": 204539935,
+      "bytes": 154469979,
+      "mtime_ns": 1794671375358268987,
+      "sha256": "5d0a8156e671c445c988858c35f55a7e4577f0469f1fd5d2720c341bdd25f98e",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-speed-command-screen-20261114/turn-20261126-rebound-speed/run.stderr.gz.part002",
+      "inode": 204540387,
+      "bytes": 41943040,
+      "mtime_ns": 1794671432051104418,
+      "sha256": "e5bc066e2534c41079d805ac2e0fb17d64534ae123e364b5ab2f1a320797b287",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-speed-command-screen-20261114/turn-20261126-rebound-speed/run.stderr.gz.part003",
+      "inode": 204540400,
+      "bytes": 28640859,
+      "mtime_ns": 1794671432501418452,
+      "sha256": "f90063e5916a53f3349719d200baafdc6515453bafafb63ec57f434e40dacad3",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 225053878
+}
