@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-14",
+  "host": "macmini",
+  "action": "removed only listed verified duplicate compressed traces; complete ordered GitHub parts were streamed in order, hashes verified and gzip decompression reached EOF; original hashes and no open handles checked immediately before unlink",
+  "files": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-handoff-continuity-20261114/push-20261126-rebound-continuity/run.stderr.gz",
+      "bytes": 116227365,
+      "sha256": "ec1182254d68755de9d1ee3dec5656b08452b4638024ece7606f75f6a39140eb",
+      "verified_archive_commit": "ef70674c"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-wing-pattern-extension-20261114/push-20261126-rebound-extended/run.stderr.gz",
+      "bytes": 138592210,
+      "sha256": "7ca59012c9eb6b3858f9733407e56a930e7d5e073985de86f46eac249364fd45",
+      "verified_archive_commit": "570c9c9f"
+    }
+  ],
+  "available_space_after": "17 GiB rounded by df"
+}
