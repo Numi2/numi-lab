@@ -1,0 +1,3 @@
+# Forward balance signal during toe-release failure
+
+In the retained ankle-feedback candidate, native-FK center of mass relative to the supporting foot moved from 9.0 mm at tick 220 to 16.2 mm at tick 260 and 31.7 mm at tick 290. Root tilt increased from 0.210 to 0.280 to 0.392 rad respectively, and the commanded pitch correction reached its configured -0.02 rad limit by tick 270. The controller's posture gate requires absolute relative x below 15 mm; the rear-toe clearance failure followed near that time. These values motivate a matched stance-balance experiment, but correlation is not proof of a causal torque failure. This constructed probe has independently unverified state/contact timing and is not a walking or landing qualification.

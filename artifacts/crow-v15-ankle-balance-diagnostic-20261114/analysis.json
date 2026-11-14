@@ -1,0 +1,159 @@
+{
+  "source": "artifacts/crow-v15-ankle-clearance-20261114/trace.log.gz",
+  "lane": 1,
+  "rows": [
+    {
+      "zero_based_tick": 220,
+      "height_m": 0.181130677,
+      "tilt_rad": 0.21016153392047615,
+      "root_velocity_m_s": [
+        0.0038327896,
+        0.00412121089,
+        0.00742785074
+      ],
+      "com_relative_foot_x_m": 0.00899133924,
+      "com_relative_foot_y_m": 0.0137020797,
+      "com_relative_foot_vx_m_s": 0.00793727022,
+      "com_relative_foot_vy_m_s": -0.0049145869,
+      "pitch_requested_rad": -0.00828073546,
+      "pitch_applied_rad": -0.00828073546,
+      "hip_target_rad": -0.221111625,
+      "knee_offset_rad": 0.0600000061,
+      "ankle_offset_rad": 0.0600000061
+    },
+    {
+      "zero_based_tick": 230,
+      "height_m": 0.180631354,
+      "tilt_rad": 0.21812536617912578,
+      "root_velocity_m_s": [
+        0.00832252949,
+        0.00626803283,
+        0.000777803711
+      ],
+      "com_relative_foot_x_m": 0.0105462493,
+      "com_relative_foot_y_m": 0.0145499567,
+      "com_relative_foot_vx_m_s": 0.00594363548,
+      "com_relative_foot_vy_m_s": 0.00930204988,
+      "pitch_requested_rad": -0.010413737,
+      "pitch_applied_rad": -0.010413737,
+      "hip_target_rad": -0.272311926,
+      "knee_offset_rad": 0.0799999982,
+      "ankle_offset_rad": 0.100000009
+    },
+    {
+      "zero_based_tick": 240,
+      "height_m": 0.179134339,
+      "tilt_rad": 0.2311658658341824,
+      "root_velocity_m_s": [
+        0.0135925729,
+        0.00368952472,
+        2.22968847e-05
+      ],
+      "com_relative_foot_x_m": 0.0123717478,
+      "com_relative_foot_y_m": 0.0156257264,
+      "com_relative_foot_vx_m_s": 0.00689036492,
+      "com_relative_foot_vy_m_s": 0.00542554306,
+      "pitch_requested_rad": -0.0132466583,
+      "pitch_applied_rad": -0.0132466583,
+      "hip_target_rad": -0.278184891,
+      "knee_offset_rad": 0.0799999982,
+      "ankle_offset_rad": 0.10400001
+    },
+    {
+      "zero_based_tick": 250,
+      "height_m": 0.177502185,
+      "tilt_rad": 0.2536898529797225,
+      "root_velocity_m_s": [
+        0.0127583733,
+        0.00604177359,
+        0.00117234164
+      ],
+      "com_relative_foot_x_m": 0.0142677901,
+      "com_relative_foot_y_m": 0.0169726666,
+      "com_relative_foot_vx_m_s": 0.0124290613,
+      "com_relative_foot_vy_m_s": 0.00585230766,
+      "pitch_requested_rad": -0.0166445915,
+      "pitch_applied_rad": -0.0166445915,
+      "hip_target_rad": -0.284657061,
+      "knee_offset_rad": 0.0799999982,
+      "ankle_offset_rad": 0.10800001
+    },
+    {
+      "zero_based_tick": 260,
+      "height_m": 0.176056921,
+      "tilt_rad": 0.2798028912488036,
+      "root_velocity_m_s": [
+        0.0202023685,
+        0.0328376666,
+        -0.00065165665
+      ],
+      "com_relative_foot_x_m": 0.016207749,
+      "com_relative_foot_y_m": 0.0202067755,
+      "com_relative_foot_vx_m_s": 0.00373706431,
+      "com_relative_foot_vy_m_s": 0.0270860642,
+      "pitch_requested_rad": -0.0186853297,
+      "pitch_applied_rad": -0.0186853297,
+      "hip_target_rad": -0.286611855,
+      "knee_offset_rad": 0.0799999982,
+      "ankle_offset_rad": 0.10800001
+    },
+    {
+      "zero_based_tick": 270,
+      "height_m": 0.175188258,
+      "tilt_rad": 0.310964932646268,
+      "root_velocity_m_s": [
+        0.0342611894,
+        0.00196410832,
+        0.00512315147
+      ],
+      "com_relative_foot_x_m": 0.0198960137,
+      "com_relative_foot_y_m": 0.0234075058,
+      "com_relative_foot_vx_m_s": 0.0291524567,
+      "com_relative_foot_vy_m_s": 0.00219603465,
+      "pitch_requested_rad": -0.0199999996,
+      "pitch_applied_rad": -0.0199999996,
+      "hip_target_rad": -0.29076606,
+      "knee_offset_rad": 0.0799999982,
+      "ankle_offset_rad": 0.10800001
+    },
+    {
+      "zero_based_tick": 280,
+      "height_m": 0.17428866,
+      "tilt_rad": 0.34788049065585064,
+      "root_velocity_m_s": [
+        0.0439645462,
+        0.00257939193,
+        0.000237788219
+      ],
+      "com_relative_foot_x_m": 0.0252200607,
+      "com_relative_foot_y_m": 0.0243338365,
+      "com_relative_foot_vx_m_s": 0.0412166342,
+      "com_relative_foot_vy_m_s": 0.00199486339,
+      "pitch_requested_rad": -0.0199999996,
+      "pitch_applied_rad": -0.0199999996,
+      "hip_target_rad": -0.295435905,
+      "knee_offset_rad": 0.0799999982,
+      "ankle_offset_rad": 0.10800001
+    },
+    {
+      "zero_based_tick": 290,
+      "height_m": 0.172776759,
+      "tilt_rad": 0.392316577412236,
+      "root_velocity_m_s": [
+        0.0539135151,
+        0.000892583397,
+        -0.00331312348
+      ],
+      "com_relative_foot_x_m": 0.0316548645,
+      "com_relative_foot_y_m": 0.0250962377,
+      "com_relative_foot_vx_m_s": 0.056815695,
+      "com_relative_foot_vy_m_s": 0.000265940645,
+      "pitch_requested_rad": -0.0199999996,
+      "pitch_applied_rad": -0.0199999996,
+      "hip_target_rad": -0.300992817,
+      "knee_offset_rad": 0.0799999982,
+      "ankle_offset_rad": 0.10800001
+    }
+  ],
+  "scope": "Native model COM/accepted-state association only; contact/state epoch not independently aligned. Does not establish causality."
+}
