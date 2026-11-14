@@ -1,0 +1,3 @@
+# Post-hoc whole-body balance audit
+
+Use retained accepted states from both lanes of the failed stance-recentering test to compute simulated body center of mass and foot positions with the existing native v15 FK executable. Compare FK foot positions against independently recorded toe-probe body poses at every sampled tick before interpreting any COM data. Measure COM projection relative to the modeled perch and foot origins and describe its progression; do not infer contact-point slip, support polygon, dynamics causality or biological calibration from endpoint geometry. Record model/executable hashes and mismatches.
