@@ -1,0 +1,7 @@
+# Slower return during stationary perch regrip
+
+Prior matched regrip attempts lost stance-foot opposing-toe support shortly after the returning leg began descending, followed by increasing pitch and falls. Continuing pitch feedback under vertical load did not restore grip. Test whether a gentler return preserves stance support, without changing the physics, grip gates, position limits or joint gains.
+
+Both lanes use the earlier geometry-guided control with the failed extra-gap feedback disabled. Lane 0 keeps the original return. Lane 1 halves only the per-control-step slew rates for lowering the lifted leg, reducing the residual left knee and ankle clearance targets, and ramping left-foot placement after release finishes. This is one combined return-speed intervention, not four separately attributed causes. The pitch-correction gate is unchanged. The test uses privileged contact and geometry diagnostics in a constructed stationary perch task.
+
+Require exact 450-interval control reproduction of the previous geometry-guided control and an exact candidate prefix before the first changed target. Report stance-foot opposing impulses and vertical support, fall onset, first lost support and return-foot regrip, 100 consecutive bilateral regrip intervals, 100 consecutive release intervals, toe velocity-limit occurrences, posture and all observer errors. The existing early return prevents release qualification. Archive failures and input identities. This test does not establish walking, takeoff, flight, landing, mission success, or biological validity.
