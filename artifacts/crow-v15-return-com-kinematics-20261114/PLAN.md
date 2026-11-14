@@ -1,0 +1,3 @@
+# Returning leg sensitivity in COM-feedback traces
+
+The returning foretoe remained separated while the rear toe contacted the perch; increasing foretoe closure alone did not recover grip. Reuse the independently cross-checked native FK finite-difference executable to measure local foretoe, rear-toe and foot box separation response to +/-0.02 rad left hip, knee and ankle changes in retained COM-feedback control states at zero-based ticks 220 through 290 by tens. Cross-check unperturbed gaps against retained body-pose geometry. This is a hypothetical static perturbation, not a physically reached configuration, contact force, or evidence of a successful controller. Use it only to choose a bounded paired control hypothesis.
