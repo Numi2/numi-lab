@@ -1,0 +1,5 @@
+# Contact-gated hip balance on the combined round-perch fixture
+
+The combined fixture has bilateral opposed force for 92 intervals but then tips. Compare two signs of bounded pitch/rate hip-position correction after step 100 and after both toe contact-ramp counters reach 12. Start from the identical recorded state, same capsule at x=17.765, same increased front-toe closure, policy tensors and observer. Add at most 0.08 rad to each hip target, never body force. The signs are tested independently because coupled joint torque directions and pitch sign require measurement. This privileged development test is not an autonomous original-course landing.
+
+Run 400 intervals per sign and only count the first episode. As predeclared earlier, require no done/reset, all 16 substeps, no nonfoot/ground impulse, and at least 250 consecutive final intervals with bilateral support and opposed grip, tilt <=0.35 rad and speed <=0.12 m/s. Compare against the retained 400-interval no-correction combined arm; assess target clamp and any joint-limit violations before promotion. Preserve each failure.

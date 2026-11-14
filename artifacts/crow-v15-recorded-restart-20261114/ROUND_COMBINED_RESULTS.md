@@ -1,0 +1,3 @@
+# Combined forward-position and front-toe closure result
+
+At x=17.765 m with increased front-toe closure, the first episode had 92 consecutive fully qualified contact/posture intervals (41–132, 1.84 s), versus no such interval in the same-position unmodified-toe control and 25 consecutive intervals with the closure change at x=17.755. Tilt exceeded the predeclared stability bound afterwards and the first termination was step 209; the trial failed the 250-interval terminal hold criterion. All later automatically reset episodes are excluded. This result is from a moved physical capsule and forced landing phase at a reconstructed checkpoint, not a full original-course autonomous landing.
