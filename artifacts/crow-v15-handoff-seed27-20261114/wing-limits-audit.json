@@ -1,0 +1,181 @@
+{
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 0,
+      "min_target": -0.349944919,
+      "max_target": 1.04994464,
+      "min_accepted_q": -0.252451092,
+      "max_accepted_q": 1.09289896,
+      "max_abs_accepted_v": 25.9295311,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "push",
+      "lane": 1,
+      "min_target": -0.399940997,
+      "max_target": 1.09994066,
+      "min_accepted_q": -0.266905963,
+      "max_accepted_q": 1.1456759,
+      "max_abs_accepted_v": 27.7782688,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "min_target": -0.449937075,
+      "max_target": 1.14993668,
+      "min_accepted_q": -0.284337133,
+      "max_accepted_q": 1.2046901,
+      "max_abs_accepted_v": 28.6489658,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "min_target": -0.499933153,
+      "max_target": 1.19993281,
+      "min_accepted_q": -0.304682136,
+      "max_accepted_q": 1.25491989,
+      "max_abs_accepted_v": 29.1959209,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "min_target": -0.349944919,
+      "max_target": 1.04994464,
+      "min_accepted_q": -0.252861351,
+      "max_accepted_q": 1.09245753,
+      "max_abs_accepted_v": 25.9055882,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "min_target": -0.399940997,
+      "max_target": 1.09994066,
+      "min_accepted_q": -0.266905457,
+      "max_accepted_q": 1.14567482,
+      "max_abs_accepted_v": 27.7782917,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "min_target": -0.449937075,
+      "max_target": 1.14993668,
+      "min_accepted_q": -0.284337699,
+      "max_accepted_q": 1.20470154,
+      "max_abs_accepted_v": 28.6489754,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "min_target": -0.499933153,
+      "max_target": 1.19993281,
+      "min_accepted_q": -0.304683238,
+      "max_accepted_q": 1.25489354,
+      "max_abs_accepted_v": 29.1957626,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "hold",
+      "lane": 0,
+      "min_target": 0.349999994,
+      "max_target": 0.349999994,
+      "min_accepted_q": 0.346818566,
+      "max_accepted_q": 0.346869856,
+      "max_abs_accepted_v": 0.0134071605,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "hold",
+      "lane": 1,
+      "min_target": 0.349999994,
+      "max_target": 0.349999994,
+      "min_accepted_q": 0.346818179,
+      "max_accepted_q": 0.346869141,
+      "max_abs_accepted_v": 0.0133276572,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "min_target": 0.349999994,
+      "max_target": 0.349999994,
+      "min_accepted_q": 0.346818,
+      "max_accepted_q": 0.346867979,
+      "max_abs_accepted_v": 0.0134657873,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "min_target": 0.349999994,
+      "max_target": 0.349999994,
+      "min_accepted_q": 0.346818209,
+      "max_accepted_q": 0.34686932,
+      "max_abs_accepted_v": 0.013196351,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "min_target": 0.349999994,
+      "max_target": 0.349999994,
+      "min_accepted_q": 0.346818268,
+      "max_accepted_q": 0.346870035,
+      "max_abs_accepted_v": 0.0132843908,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "min_target": 0.349999994,
+      "max_target": 0.349999994,
+      "min_accepted_q": 0.346818298,
+      "max_accepted_q": 0.346869022,
+      "max_abs_accepted_v": 0.0133951316,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "min_target": 0.349999994,
+      "max_target": 0.349999994,
+      "min_accepted_q": 0.346817851,
+      "max_accepted_q": 0.346868694,
+      "max_abs_accepted_v": 0.0133090233,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "min_target": 0.349999994,
+      "max_target": 0.349999994,
+      "min_accepted_q": 0.346818119,
+      "max_accepted_q": 0.34686929,
+      "max_abs_accepted_v": 0.0133042019,
+      "accepted_state_limit_hit": false,
+      "accepted_velocity_limit_hit": false
+    }
+  ],
+  "scope": "Endpoint state values only; physical substep wing-angle and speed limits are not independently observed here. Target binding clamp and v15 actuator limits remain active."
+}
