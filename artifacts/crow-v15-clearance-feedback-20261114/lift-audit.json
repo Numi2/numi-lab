@@ -1,0 +1,7 @@
+{
+  "active_samples": 221,
+  "max_abs_step_rad": 0.0019999966999999924,
+  "mismatches": [],
+  "pass": true,
+  "note": "Checks feedback against previous recorded contact/clearance observations; not synchronized physical contact."
+}
