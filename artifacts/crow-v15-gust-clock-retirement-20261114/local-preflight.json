@@ -1,0 +1,38 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-gust-clock-observer-20261114/turn-20261126-rebound-clockaudit/run.stderr.gz",
+      "inode": 204557539,
+      "bytes": 158885383,
+      "mtime_ns": 1794673057440864081,
+      "sha256": "7bc103dc17efc34d6c2d8f5de0a84cd0f3410be88e0efb67f26596d3b50be3b3",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-gust-clock-observer-20261114/turn-20261126-rebound-clockaudit/run.stderr.gz.part000",
+      "inode": 204558095,
+      "bytes": 41943040,
+      "mtime_ns": 1794673153356661641,
+      "sha256": "bac856fb60e5044fbd431ac43290c525b9e15266153d4b2b412e1ea8f3b3a356",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-gust-clock-observer-20261114/turn-20261126-rebound-clockaudit/run.stderr.gz.part001",
+      "inode": 204558108,
+      "bytes": 41943040,
+      "mtime_ns": 1794673153998195688,
+      "sha256": "945a767110994f480d825694b4616e8117bd6eacd73671755a66b32e6f476eb5",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-gust-clock-observer-20261114/turn-20261126-rebound-clockaudit/run.stderr.gz.part003",
+      "inode": 204558125,
+      "bytes": 33056263,
+      "mtime_ns": 1794673154949681108,
+      "sha256": "0eada15d8287d010dd03215b784acfcc7fab26a6a3a763a692a57ebc2cd251e1",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 275827726
+}
