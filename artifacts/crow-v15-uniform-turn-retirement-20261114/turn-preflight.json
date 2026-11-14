@@ -1,0 +1,46 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-uniform-drive-turns-20261114/turn-20261126-rebound-uniformturn/run.stderr.gz",
+      "inode": 204481291,
+      "bytes": 153766735,
+      "mtime_ns": 1794664287372333070,
+      "sha256": "34dfc6dcfd1906341c5167a055ab83447a084728efaa3dacb4971627d75c2943",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-uniform-drive-turns-20261114/turn-20261126-rebound-uniformturn/run.stderr.gz.part000",
+      "inode": 204483148,
+      "bytes": 41943040,
+      "mtime_ns": 1794664388869702645,
+      "sha256": "e61385e221d6d5e40e57ff339e0790ec7d37de0e81998b13f97489ac6975408c",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-uniform-drive-turns-20261114/turn-20261126-rebound-uniformturn/run.stderr.gz.part001",
+      "inode": 204483174,
+      "bytes": 41943040,
+      "mtime_ns": 1794664389124828404,
+      "sha256": "d483f2e151deb4cc617247cb3a1b482336d57625cc96fb5712087bd27c3ed47e",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-uniform-drive-turns-20261114/turn-20261126-rebound-uniformturn/run.stderr.gz.part002",
+      "inode": 204483188,
+      "bytes": 41943040,
+      "mtime_ns": 1794664389355252301,
+      "sha256": "84dbe5aad875141c677bd1b3fc1f0aee6acda428735e7ec64eea68739dc67b27",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-uniform-drive-turns-20261114/turn-20261126-rebound-uniformturn/run.stderr.gz.part003",
+      "inode": 204483193,
+      "bytes": 27937615,
+      "mtime_ns": 1794664389565289551,
+      "sha256": "2b107e2716aec2c6b39700d32f726857efb07ae9570d7bed03a5c834a303f656",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 307533470
+}
