@@ -1,0 +1,5 @@
+# Capped return placement: failed development test
+
+The control exactly reproduced all 450 states of the archived baseline. Both lanes matched through 225 pre-intervention states, independently achieved eleven qualifying release intervals and respected the registered 0.20 placement cap and 0.05-per-interval rate. Neither obtained a single interval satisfying all bilateral opposing-grip, support, tilt and speed gates after return. Root height fell below 0.1 m at interval 308 in the original lane and 301 in the partial-support pitch lane. All contact substeps were observed, with no recorded nonfoot impulse or observer errors. The 12 rad/s accepted-state toe-speed threshold was reached, while per-substep speeds and actuator efforts remain unmeasured.
+
+Capping the returning-leg placement at the baseline value did not make the pitch-support modification a reliable re-grip controller. Geometry, individual gate failures, targets, complete traces, exact inputs and binaries are retained. These are constructed-state results, not walking, airborne landing or mission qualification.

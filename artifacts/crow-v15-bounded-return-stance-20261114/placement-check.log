@@ -1,0 +1,23 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "samples": 450,
+      "min": 0.0,
+      "max": 0.200000003,
+      "max_increment": 0.050000004999999986,
+      "nondecreasing": true,
+      "within_registered_cap": true
+    },
+    {
+      "lane": 1,
+      "samples": 450,
+      "min": 0.0,
+      "max": 0.200000003,
+      "max_increment": 0.050000004999999986,
+      "nondecreasing": true,
+      "within_registered_cap": true
+    }
+  ],
+  "pass": true
+}
