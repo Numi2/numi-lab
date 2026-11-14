@@ -1,0 +1,5 @@
+# Earlier ankle clearance: improved but failed support
+
+Doubling the released ankle's clearance-increase rate improved the longest qualifying supported-clearance streak from 37 to 44 intervals and delayed first root height below 0.1 m from step 381 to 391. The candidate still failed the required 100-interval stability gate. Its accepted-state stance toe first reached the 12 rad/s threshold after the root-height failure; the control reached that threshold before its fall. Neither proves safe substep toe velocity or effort.
+
+The control exactly reproduced all 450 prior candidate states; both lanes shared an exact 206-state prefix. Input and prebuild binary hashes match, ankle command reconstruction passed, all 32 contact substeps were present, and no native or observer error or nonfoot support was recorded. Toes remained open; regrip and landing were not tested. Contact/state epochs remain independently unverified. This constructed stationary perch test is not walking or biological qualification.
