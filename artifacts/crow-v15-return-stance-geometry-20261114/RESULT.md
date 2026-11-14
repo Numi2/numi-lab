@@ -1,0 +1,3 @@
+# Latest stance return geometry
+
+Five retained baseline states at intervals 295, 300, 302, 304 and 306 each used 6,825 native legal stance-leg offsets. The unchanged-pose foot and front/rear toe oriented-box gaps agreed with the recorded body poses within 8 nm. At 295 and 300 the original stance pose already met the registered geometry band. At 302 and 304 the smallest sampled offset that met it was hip +0.02, knee -0.02, ankle -0.02 rad. At 306 a different offset was geometrically smallest. These fixed-root samples do not prove contact force, dynamic reachability, or grip. A matched physical trial is registered separately.
