@@ -1,0 +1,5 @@
+# Intermediate early wing amplitude on second development seed
+
+Repeat the previously archived identical 0.55 and 0.60 rad initial wing amplitudes, original push and held-leg shaders, body, drive limits, contact solver, phase and commands on used seed 20261127. This tests whether the prior 0.55-rad coupled push-versus-held difference persists. It is not a wing-held leg-only test.
+
+Require exact candidate q/v/action/contact prefixes through 368, unaffected-lane parity through 500, expected shader and common input hashes, paired wing target parity, complete contact/toe/leg observations, no native or observer error, nonfoot contact or toe-speed threshold, and continuous no-recontact flight after first unload. Compare held-leg outcomes and measure modeled aerodynamics and flap displacement through unload; report missing coverage. Preserve all failures. A single used-seed counterfactual remains coupled and is not general takeoff, frozen flight, landing, unseen-layout navigation or biological validation. Observer epochs are inferred.
