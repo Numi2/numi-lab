@@ -1,0 +1,18 @@
+{
+  "scope": "CPU forward kinematics using separately constructed experimental hip-roll model at nine candidate replay frames; a mismatch can indicate model or epoch differences",
+  "samples": 315,
+  "max_position_error": {
+    "frame": 1800,
+    "body": 29,
+    "name": "crow_right_front_toe_2_proximal",
+    "position_error_m": 4.6351416565491054e-07,
+    "quaternion_error_sign_invariant": 1.927850262672011e-08
+  },
+  "max_quaternion_error": {
+    "frame": 1800,
+    "body": 27,
+    "name": "crow_right_front_toe_1_proximal",
+    "position_error_m": 7.611820621516323e-08,
+    "quaternion_error_sign_invariant": 3.180621555812893e-08
+  }
+}

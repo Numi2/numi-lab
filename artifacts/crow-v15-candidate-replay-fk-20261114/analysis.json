@@ -1,0 +1,2225 @@
+{
+  "scope": "CPU forward kinematics using separately constructed experimental hip-roll model at nine candidate replay frames; a mismatch can indicate model or epoch differences",
+  "samples": 315,
+  "max_position_error": {
+    "frame": 1800,
+    "body": 29,
+    "name": "crow_right_front_toe_2_proximal",
+    "position_error_m": 4.6351416565491054e-07,
+    "quaternion_error_sign_invariant": 1.927850262672011e-08
+  },
+  "max_quaternion_error": {
+    "frame": 1800,
+    "body": 27,
+    "name": "crow_right_front_toe_1_proximal",
+    "position_error_m": 7.611820621516323e-08,
+    "quaternion_error_sign_invariant": 3.180621555812893e-08
+  },
+  "rows": [
+    {
+      "frame": 1,
+      "body": 0,
+      "name": "crow_body",
+      "position_error_m": 0.0,
+      "quaternion_error_sign_invariant": 1.5448644571192225e-08
+    },
+    {
+      "frame": 1,
+      "body": 1,
+      "name": "crow_left_wing_sweep",
+      "position_error_m": 5.838014538457009e-09,
+      "quaternion_error_sign_invariant": 1.5345666496437e-08
+    },
+    {
+      "frame": 1,
+      "body": 2,
+      "name": "crow_right_wing_sweep",
+      "position_error_m": 5.351210261100245e-09,
+      "quaternion_error_sign_invariant": 1.5480281518396724e-08
+    },
+    {
+      "frame": 1,
+      "body": 3,
+      "name": "crow_left_wing_flap_link",
+      "position_error_m": 7.171392012919817e-09,
+      "quaternion_error_sign_invariant": 1.7217441273313844e-08
+    },
+    {
+      "frame": 1,
+      "body": 4,
+      "name": "crow_right_wing_flap_link",
+      "position_error_m": 3.439876268620647e-09,
+      "quaternion_error_sign_invariant": 2.984488441625859e-08
+    },
+    {
+      "frame": 1,
+      "body": 5,
+      "name": "crow_left_wing",
+      "position_error_m": 7.171392012919817e-09,
+      "quaternion_error_sign_invariant": 1.4465014272603297e-08
+    },
+    {
+      "frame": 1,
+      "body": 6,
+      "name": "crow_right_wing",
+      "position_error_m": 3.439876268620647e-09,
+      "quaternion_error_sign_invariant": 2.6873289525045848e-08
+    },
+    {
+      "frame": 1,
+      "body": 7,
+      "name": "crow_tail",
+      "position_error_m": 1.7695784616339745e-09,
+      "quaternion_error_sign_invariant": 2.981976888645096e-09
+    },
+    {
+      "frame": 1,
+      "body": 8,
+      "name": "crow_left_hip_roll_link",
+      "position_error_m": 4.555687842908483e-09,
+      "quaternion_error_sign_invariant": 3.3114810479757486e-09
+    },
+    {
+      "frame": 1,
+      "body": 9,
+      "name": "crow_left_thigh",
+      "position_error_m": 3.077451772141865e-09,
+      "quaternion_error_sign_invariant": 1.1524847724655873e-08
+    },
+    {
+      "frame": 1,
+      "body": 10,
+      "name": "crow_left_shank",
+      "position_error_m": 3.326480171832742e-09,
+      "quaternion_error_sign_invariant": 1.2204960575162335e-08
+    },
+    {
+      "frame": 1,
+      "body": 11,
+      "name": "crow_left_foot",
+      "position_error_m": 1.046285027155128e-09,
+      "quaternion_error_sign_invariant": 2.378280933902807e-09
+    },
+    {
+      "frame": 1,
+      "body": 12,
+      "name": "crow_right_hip_roll_link",
+      "position_error_m": 2.4784843903185996e-09,
+      "quaternion_error_sign_invariant": 2.8413504593282648e-08
+    },
+    {
+      "frame": 1,
+      "body": 13,
+      "name": "crow_right_thigh",
+      "position_error_m": 9.886621503297208e-10,
+      "quaternion_error_sign_invariant": 2.0297002280745233e-08
+    },
+    {
+      "frame": 1,
+      "body": 14,
+      "name": "crow_right_shank",
+      "position_error_m": 9.61908357447401e-10,
+      "quaternion_error_sign_invariant": 1.4666835119333325e-08
+    },
+    {
+      "frame": 1,
+      "body": 15,
+      "name": "crow_right_foot",
+      "position_error_m": 1.0638076058861253e-09,
+      "quaternion_error_sign_invariant": 9.29007009060172e-09
+    },
+    {
+      "frame": 1,
+      "body": 16,
+      "name": "crow_neck_yaw_link",
+      "position_error_m": 7.163528161017559e-09,
+      "quaternion_error_sign_invariant": 1.6078739594117476e-08
+    },
+    {
+      "frame": 1,
+      "body": 17,
+      "name": "crow_head",
+      "position_error_m": 1.1106555234446534e-08,
+      "quaternion_error_sign_invariant": 2.003019235679526e-09
+    },
+    {
+      "frame": 1,
+      "body": 18,
+      "name": "crow_lower_beak",
+      "position_error_m": 1.3217552460540918e-08,
+      "quaternion_error_sign_invariant": 2.0030192750179645e-09
+    },
+    {
+      "frame": 1,
+      "body": 19,
+      "name": "crow_left_front_toe_1_proximal",
+      "position_error_m": 3.85925068020101e-09,
+      "quaternion_error_sign_invariant": 2.202690838525925e-09
+    },
+    {
+      "frame": 1,
+      "body": 20,
+      "name": "crow_left_front_toe_1_distal",
+      "position_error_m": 3.3594970537953045e-09,
+      "quaternion_error_sign_invariant": 1.3560034345498216e-08
+    },
+    {
+      "frame": 1,
+      "body": 21,
+      "name": "crow_left_front_toe_2_proximal",
+      "position_error_m": 1.6549843307816067e-09,
+      "quaternion_error_sign_invariant": 1.1500247486841487e-08
+    },
+    {
+      "frame": 1,
+      "body": 22,
+      "name": "crow_left_front_toe_2_distal",
+      "position_error_m": 3.879322092390632e-09,
+      "quaternion_error_sign_invariant": 2.5058439643153605e-08
+    },
+    {
+      "frame": 1,
+      "body": 23,
+      "name": "crow_left_front_toe_3_proximal",
+      "position_error_m": 8.515457519296464e-10,
+      "quaternion_error_sign_invariant": 8.60518942722346e-09
+    },
+    {
+      "frame": 1,
+      "body": 24,
+      "name": "crow_left_front_toe_3_distal",
+      "position_error_m": 3.3568079748866588e-09,
+      "quaternion_error_sign_invariant": 1.4998624814114497e-08
+    },
+    {
+      "frame": 1,
+      "body": 25,
+      "name": "crow_left_rear_toe_proximal",
+      "position_error_m": 1.553777965687917e-09,
+      "quaternion_error_sign_invariant": 2.2196541566814337e-08
+    },
+    {
+      "frame": 1,
+      "body": 26,
+      "name": "crow_left_rear_toe_distal",
+      "position_error_m": 2.517377651068801e-10,
+      "quaternion_error_sign_invariant": 2.389909348216821e-09
+    },
+    {
+      "frame": 1,
+      "body": 27,
+      "name": "crow_right_front_toe_1_proximal",
+      "position_error_m": 1.3998779581135176e-09,
+      "quaternion_error_sign_invariant": 1.3233994342304486e-08
+    },
+    {
+      "frame": 1,
+      "body": 28,
+      "name": "crow_right_front_toe_1_distal",
+      "position_error_m": 1.0329505949963371e-09,
+      "quaternion_error_sign_invariant": 1.4342688349512027e-08
+    },
+    {
+      "frame": 1,
+      "body": 29,
+      "name": "crow_right_front_toe_2_proximal",
+      "position_error_m": 3.981037732816824e-10,
+      "quaternion_error_sign_invariant": 2.1886601361735708e-08
+    },
+    {
+      "frame": 1,
+      "body": 30,
+      "name": "crow_right_front_toe_2_distal",
+      "position_error_m": 1.1869723885913937e-09,
+      "quaternion_error_sign_invariant": 1.641006452502262e-08
+    },
+    {
+      "frame": 1,
+      "body": 31,
+      "name": "crow_right_front_toe_3_proximal",
+      "position_error_m": 2.00856205101699e-09,
+      "quaternion_error_sign_invariant": 5.797333804859205e-09
+    },
+    {
+      "frame": 1,
+      "body": 32,
+      "name": "crow_right_front_toe_3_distal",
+      "position_error_m": 1.5915997596033695e-09,
+      "quaternion_error_sign_invariant": 1.2238481384007224e-09
+    },
+    {
+      "frame": 1,
+      "body": 33,
+      "name": "crow_right_rear_toe_proximal",
+      "position_error_m": 8.752427476938497e-10,
+      "quaternion_error_sign_invariant": 1.0827137815295551e-08
+    },
+    {
+      "frame": 1,
+      "body": 34,
+      "name": "crow_right_rear_toe_distal",
+      "position_error_m": 1.0177470248016948e-09,
+      "quaternion_error_sign_invariant": 1.6398838415637206e-08
+    },
+    {
+      "frame": 170,
+      "body": 0,
+      "name": "crow_body",
+      "position_error_m": 0.0,
+      "quaternion_error_sign_invariant": 2.525480456025209e-08
+    },
+    {
+      "frame": 170,
+      "body": 1,
+      "name": "crow_left_wing_sweep",
+      "position_error_m": 7.469019483099114e-09,
+      "quaternion_error_sign_invariant": 1.3951164738027645e-08
+    },
+    {
+      "frame": 170,
+      "body": 2,
+      "name": "crow_right_wing_sweep",
+      "position_error_m": 3.792925000191487e-09,
+      "quaternion_error_sign_invariant": 1.1778561025146224e-08
+    },
+    {
+      "frame": 170,
+      "body": 3,
+      "name": "crow_left_wing_flap_link",
+      "position_error_m": 5.407142841774962e-09,
+      "quaternion_error_sign_invariant": 1.241855597829741e-08
+    },
+    {
+      "frame": 170,
+      "body": 4,
+      "name": "crow_right_wing_flap_link",
+      "position_error_m": 4.298580252690099e-09,
+      "quaternion_error_sign_invariant": 2.758436680379021e-08
+    },
+    {
+      "frame": 170,
+      "body": 5,
+      "name": "crow_left_wing",
+      "position_error_m": 5.407142841774962e-09,
+      "quaternion_error_sign_invariant": 1.0277414442319802e-08
+    },
+    {
+      "frame": 170,
+      "body": 6,
+      "name": "crow_right_wing",
+      "position_error_m": 4.298580252690099e-09,
+      "quaternion_error_sign_invariant": 2.222099285599151e-08
+    },
+    {
+      "frame": 170,
+      "body": 7,
+      "name": "crow_tail",
+      "position_error_m": 6.050295313917681e-09,
+      "quaternion_error_sign_invariant": 7.873605221388002e-09
+    },
+    {
+      "frame": 170,
+      "body": 8,
+      "name": "crow_left_hip_roll_link",
+      "position_error_m": 7.003755230838694e-09,
+      "quaternion_error_sign_invariant": 1.0800976148538977e-08
+    },
+    {
+      "frame": 170,
+      "body": 9,
+      "name": "crow_left_thigh",
+      "position_error_m": 2.1109692414829195e-09,
+      "quaternion_error_sign_invariant": 1.9252672447219898e-08
+    },
+    {
+      "frame": 170,
+      "body": 10,
+      "name": "crow_left_shank",
+      "position_error_m": 3.901115094189598e-09,
+      "quaternion_error_sign_invariant": 1.0793339642599946e-08
+    },
+    {
+      "frame": 170,
+      "body": 11,
+      "name": "crow_left_foot",
+      "position_error_m": 2.538127443502371e-09,
+      "quaternion_error_sign_invariant": 1.336905158569062e-08
+    },
+    {
+      "frame": 170,
+      "body": 12,
+      "name": "crow_right_hip_roll_link",
+      "position_error_m": 7.250385510366995e-09,
+      "quaternion_error_sign_invariant": 1.0671915202660455e-08
+    },
+    {
+      "frame": 170,
+      "body": 13,
+      "name": "crow_right_thigh",
+      "position_error_m": 1.7119830614958138e-09,
+      "quaternion_error_sign_invariant": 1.5468752737779612e-08
+    },
+    {
+      "frame": 170,
+      "body": 14,
+      "name": "crow_right_shank",
+      "position_error_m": 1.8896775965905382e-09,
+      "quaternion_error_sign_invariant": 6.773099434812344e-09
+    },
+    {
+      "frame": 170,
+      "body": 15,
+      "name": "crow_right_foot",
+      "position_error_m": 3.540206218667804e-10,
+      "quaternion_error_sign_invariant": 1.3235125488026975e-08
+    },
+    {
+      "frame": 170,
+      "body": 16,
+      "name": "crow_neck_yaw_link",
+      "position_error_m": 9.27754346392623e-09,
+      "quaternion_error_sign_invariant": 2.879935951243239e-08
+    },
+    {
+      "frame": 170,
+      "body": 17,
+      "name": "crow_head",
+      "position_error_m": 2.0016908805150582e-09,
+      "quaternion_error_sign_invariant": 2.402221045077662e-08
+    },
+    {
+      "frame": 170,
+      "body": 18,
+      "name": "crow_lower_beak",
+      "position_error_m": 9.5267366755863e-09,
+      "quaternion_error_sign_invariant": 2.920963639682859e-08
+    },
+    {
+      "frame": 170,
+      "body": 19,
+      "name": "crow_left_front_toe_1_proximal",
+      "position_error_m": 4.146307193489643e-09,
+      "quaternion_error_sign_invariant": 1.6406240103115523e-08
+    },
+    {
+      "frame": 170,
+      "body": 20,
+      "name": "crow_left_front_toe_1_distal",
+      "position_error_m": 4.3393116070173694e-09,
+      "quaternion_error_sign_invariant": 5.225563394843293e-09
+    },
+    {
+      "frame": 170,
+      "body": 21,
+      "name": "crow_left_front_toe_2_proximal",
+      "position_error_m": 1.6764817342649141e-09,
+      "quaternion_error_sign_invariant": 8.927764147198663e-12
+    },
+    {
+      "frame": 170,
+      "body": 22,
+      "name": "crow_left_front_toe_2_distal",
+      "position_error_m": 3.108784849535469e-09,
+      "quaternion_error_sign_invariant": 9.615780620786769e-09
+    },
+    {
+      "frame": 170,
+      "body": 23,
+      "name": "crow_left_front_toe_3_proximal",
+      "position_error_m": 1.179877067536674e-09,
+      "quaternion_error_sign_invariant": 1.8318591606205263e-08
+    },
+    {
+      "frame": 170,
+      "body": 24,
+      "name": "crow_left_front_toe_3_distal",
+      "position_error_m": 1.1205310704990214e-09,
+      "quaternion_error_sign_invariant": 8.086334411081801e-10
+    },
+    {
+      "frame": 170,
+      "body": 25,
+      "name": "crow_left_rear_toe_proximal",
+      "position_error_m": 2.9976545832855014e-09,
+      "quaternion_error_sign_invariant": 1.5752296809304166e-10
+    },
+    {
+      "frame": 170,
+      "body": 26,
+      "name": "crow_left_rear_toe_distal",
+      "position_error_m": 2.3633303955164313e-09,
+      "quaternion_error_sign_invariant": 2.8616508938870505e-08
+    },
+    {
+      "frame": 170,
+      "body": 27,
+      "name": "crow_right_front_toe_1_proximal",
+      "position_error_m": 4.969362253165185e-10,
+      "quaternion_error_sign_invariant": 1.520221687382803e-08
+    },
+    {
+      "frame": 170,
+      "body": 28,
+      "name": "crow_right_front_toe_1_distal",
+      "position_error_m": 1.2721899802149812e-09,
+      "quaternion_error_sign_invariant": 2.9538191757225016e-08
+    },
+    {
+      "frame": 170,
+      "body": 29,
+      "name": "crow_right_front_toe_2_proximal",
+      "position_error_m": 2.3107884061564364e-09,
+      "quaternion_error_sign_invariant": 9.145006775449148e-09
+    },
+    {
+      "frame": 170,
+      "body": 30,
+      "name": "crow_right_front_toe_2_distal",
+      "position_error_m": 7.673398457145525e-10,
+      "quaternion_error_sign_invariant": 4.3629219422029044e-09
+    },
+    {
+      "frame": 170,
+      "body": 31,
+      "name": "crow_right_front_toe_3_proximal",
+      "position_error_m": 5.68108153814217e-10,
+      "quaternion_error_sign_invariant": 2.7161067275161557e-08
+    },
+    {
+      "frame": 170,
+      "body": 32,
+      "name": "crow_right_front_toe_3_distal",
+      "position_error_m": 2.9712932075869876e-09,
+      "quaternion_error_sign_invariant": 9.964432952736205e-09
+    },
+    {
+      "frame": 170,
+      "body": 33,
+      "name": "crow_right_rear_toe_proximal",
+      "position_error_m": 6.523824592110596e-10,
+      "quaternion_error_sign_invariant": 2.561363156400356e-08
+    },
+    {
+      "frame": 170,
+      "body": 34,
+      "name": "crow_right_rear_toe_distal",
+      "position_error_m": 4.03856937926999e-10,
+      "quaternion_error_sign_invariant": 2.4235561222394587e-08
+    },
+    {
+      "frame": 376,
+      "body": 0,
+      "name": "crow_body",
+      "position_error_m": 0.0,
+      "quaternion_error_sign_invariant": 1.3253000644842073e-08
+    },
+    {
+      "frame": 376,
+      "body": 1,
+      "name": "crow_left_wing_sweep",
+      "position_error_m": 8.443727471660071e-09,
+      "quaternion_error_sign_invariant": 2.071435787120343e-08
+    },
+    {
+      "frame": 376,
+      "body": 2,
+      "name": "crow_right_wing_sweep",
+      "position_error_m": 5.354762436628884e-09,
+      "quaternion_error_sign_invariant": 2.090144731905674e-08
+    },
+    {
+      "frame": 376,
+      "body": 3,
+      "name": "crow_left_wing_flap_link",
+      "position_error_m": 6.33433985585746e-09,
+      "quaternion_error_sign_invariant": 6.422149999318983e-09
+    },
+    {
+      "frame": 376,
+      "body": 4,
+      "name": "crow_right_wing_flap_link",
+      "position_error_m": 6.040555572627077e-09,
+      "quaternion_error_sign_invariant": 2.6515068006045477e-08
+    },
+    {
+      "frame": 376,
+      "body": 5,
+      "name": "crow_left_wing",
+      "position_error_m": 6.33433985585746e-09,
+      "quaternion_error_sign_invariant": 2.6617032217096364e-08
+    },
+    {
+      "frame": 376,
+      "body": 6,
+      "name": "crow_right_wing",
+      "position_error_m": 6.040555572627077e-09,
+      "quaternion_error_sign_invariant": 4.836950752816845e-09
+    },
+    {
+      "frame": 376,
+      "body": 7,
+      "name": "crow_tail",
+      "position_error_m": 2.016409803333171e-09,
+      "quaternion_error_sign_invariant": 2.8910406330000078e-08
+    },
+    {
+      "frame": 376,
+      "body": 8,
+      "name": "crow_left_hip_roll_link",
+      "position_error_m": 7.063108266878128e-09,
+      "quaternion_error_sign_invariant": 8.253468622678617e-09
+    },
+    {
+      "frame": 376,
+      "body": 9,
+      "name": "crow_left_thigh",
+      "position_error_m": 6.183931066204068e-09,
+      "quaternion_error_sign_invariant": 2.1252765888999237e-08
+    },
+    {
+      "frame": 376,
+      "body": 10,
+      "name": "crow_left_shank",
+      "position_error_m": 2.2559814022308527e-09,
+      "quaternion_error_sign_invariant": 2.8712785892607662e-08
+    },
+    {
+      "frame": 376,
+      "body": 11,
+      "name": "crow_left_foot",
+      "position_error_m": 3.3081367700115383e-09,
+      "quaternion_error_sign_invariant": 2.967407863190158e-09
+    },
+    {
+      "frame": 376,
+      "body": 12,
+      "name": "crow_right_hip_roll_link",
+      "position_error_m": 8.80608095300595e-09,
+      "quaternion_error_sign_invariant": 1.0927924536964416e-08
+    },
+    {
+      "frame": 376,
+      "body": 13,
+      "name": "crow_right_thigh",
+      "position_error_m": 1.8880952702925096e-09,
+      "quaternion_error_sign_invariant": 3.0022490001771086e-08
+    },
+    {
+      "frame": 376,
+      "body": 14,
+      "name": "crow_right_shank",
+      "position_error_m": 6.2291137558712665e-09,
+      "quaternion_error_sign_invariant": 2.087233117548227e-08
+    },
+    {
+      "frame": 376,
+      "body": 15,
+      "name": "crow_right_foot",
+      "position_error_m": 1.3508368313305291e-09,
+      "quaternion_error_sign_invariant": 2.26004017134567e-09
+    },
+    {
+      "frame": 376,
+      "body": 16,
+      "name": "crow_neck_yaw_link",
+      "position_error_m": 1.5659408706642493e-08,
+      "quaternion_error_sign_invariant": 2.091596633138199e-08
+    },
+    {
+      "frame": 376,
+      "body": 17,
+      "name": "crow_head",
+      "position_error_m": 1.4432911181683957e-08,
+      "quaternion_error_sign_invariant": 2.4064430173510032e-08
+    },
+    {
+      "frame": 376,
+      "body": 18,
+      "name": "crow_lower_beak",
+      "position_error_m": 1.1105515175438772e-08,
+      "quaternion_error_sign_invariant": 2.467329803223359e-08
+    },
+    {
+      "frame": 376,
+      "body": 19,
+      "name": "crow_left_front_toe_1_proximal",
+      "position_error_m": 3.745189237431375e-09,
+      "quaternion_error_sign_invariant": 1.2037267209614371e-08
+    },
+    {
+      "frame": 376,
+      "body": 20,
+      "name": "crow_left_front_toe_1_distal",
+      "position_error_m": 6.1441165728741415e-09,
+      "quaternion_error_sign_invariant": 1.5547094904577666e-08
+    },
+    {
+      "frame": 376,
+      "body": 21,
+      "name": "crow_left_front_toe_2_proximal",
+      "position_error_m": 7.306620629028068e-09,
+      "quaternion_error_sign_invariant": 2.6419568018445214e-09
+    },
+    {
+      "frame": 376,
+      "body": 22,
+      "name": "crow_left_front_toe_2_distal",
+      "position_error_m": 2.8107831632781996e-09,
+      "quaternion_error_sign_invariant": 2.411202961971962e-08
+    },
+    {
+      "frame": 376,
+      "body": 23,
+      "name": "crow_left_front_toe_3_proximal",
+      "position_error_m": 2.497863368079027e-09,
+      "quaternion_error_sign_invariant": 2.5795588293223463e-08
+    },
+    {
+      "frame": 376,
+      "body": 24,
+      "name": "crow_left_front_toe_3_distal",
+      "position_error_m": 7.455408605104622e-09,
+      "quaternion_error_sign_invariant": 1.3903254422299892e-08
+    },
+    {
+      "frame": 376,
+      "body": 25,
+      "name": "crow_left_rear_toe_proximal",
+      "position_error_m": 2.950959506245949e-09,
+      "quaternion_error_sign_invariant": 1.739001085356262e-08
+    },
+    {
+      "frame": 376,
+      "body": 26,
+      "name": "crow_left_rear_toe_distal",
+      "position_error_m": 4.32121564618406e-09,
+      "quaternion_error_sign_invariant": 1.1187880109204213e-08
+    },
+    {
+      "frame": 376,
+      "body": 27,
+      "name": "crow_right_front_toe_1_proximal",
+      "position_error_m": 5.223382665527199e-09,
+      "quaternion_error_sign_invariant": 2.1681886540760076e-08
+    },
+    {
+      "frame": 376,
+      "body": 28,
+      "name": "crow_right_front_toe_1_distal",
+      "position_error_m": 6.1923959518001714e-09,
+      "quaternion_error_sign_invariant": 5.133670801241015e-09
+    },
+    {
+      "frame": 376,
+      "body": 29,
+      "name": "crow_right_front_toe_2_proximal",
+      "position_error_m": 2.1543434257958847e-09,
+      "quaternion_error_sign_invariant": 3.770103505581519e-09
+    },
+    {
+      "frame": 376,
+      "body": 30,
+      "name": "crow_right_front_toe_2_distal",
+      "position_error_m": 7.4092370139777234e-09,
+      "quaternion_error_sign_invariant": 2.7707860343671628e-08
+    },
+    {
+      "frame": 376,
+      "body": 31,
+      "name": "crow_right_front_toe_3_proximal",
+      "position_error_m": 3.480094342933823e-09,
+      "quaternion_error_sign_invariant": 7.733301554254211e-09
+    },
+    {
+      "frame": 376,
+      "body": 32,
+      "name": "crow_right_front_toe_3_distal",
+      "position_error_m": 3.920967259319686e-09,
+      "quaternion_error_sign_invariant": 2.529885572674736e-08
+    },
+    {
+      "frame": 376,
+      "body": 33,
+      "name": "crow_right_rear_toe_proximal",
+      "position_error_m": 9.056463103650708e-10,
+      "quaternion_error_sign_invariant": 2.7520592108308716e-09
+    },
+    {
+      "frame": 376,
+      "body": 34,
+      "name": "crow_right_rear_toe_distal",
+      "position_error_m": 7.401902504952205e-10,
+      "quaternion_error_sign_invariant": 4.8376281188316465e-09
+    },
+    {
+      "frame": 500,
+      "body": 0,
+      "name": "crow_body",
+      "position_error_m": 0.0,
+      "quaternion_error_sign_invariant": 2.3523961971412387e-08
+    },
+    {
+      "frame": 500,
+      "body": 1,
+      "name": "crow_left_wing_sweep",
+      "position_error_m": 1.7915045187640555e-08,
+      "quaternion_error_sign_invariant": 1.5663848138841884e-08
+    },
+    {
+      "frame": 500,
+      "body": 2,
+      "name": "crow_right_wing_sweep",
+      "position_error_m": 1.9168708063403e-08,
+      "quaternion_error_sign_invariant": 4.101591619224774e-09
+    },
+    {
+      "frame": 500,
+      "body": 3,
+      "name": "crow_left_wing_flap_link",
+      "position_error_m": 3.1853620172870696e-08,
+      "quaternion_error_sign_invariant": 1.1053987718573767e-08
+    },
+    {
+      "frame": 500,
+      "body": 4,
+      "name": "crow_right_wing_flap_link",
+      "position_error_m": 5.100393916279239e-08,
+      "quaternion_error_sign_invariant": 1.2379815796037519e-08
+    },
+    {
+      "frame": 500,
+      "body": 5,
+      "name": "crow_left_wing",
+      "position_error_m": 3.1853620172870696e-08,
+      "quaternion_error_sign_invariant": 2.2398708558331856e-08
+    },
+    {
+      "frame": 500,
+      "body": 6,
+      "name": "crow_right_wing",
+      "position_error_m": 5.100393916279239e-08,
+      "quaternion_error_sign_invariant": 1.9143035973566616e-08
+    },
+    {
+      "frame": 500,
+      "body": 7,
+      "name": "crow_tail",
+      "position_error_m": 3.151519030219039e-08,
+      "quaternion_error_sign_invariant": 1.905979478849688e-08
+    },
+    {
+      "frame": 500,
+      "body": 8,
+      "name": "crow_left_hip_roll_link",
+      "position_error_m": 1.628992827151423e-08,
+      "quaternion_error_sign_invariant": 2.4203378887605776e-08
+    },
+    {
+      "frame": 500,
+      "body": 9,
+      "name": "crow_left_thigh",
+      "position_error_m": 3.058813094646385e-08,
+      "quaternion_error_sign_invariant": 2.4114415972123226e-08
+    },
+    {
+      "frame": 500,
+      "body": 10,
+      "name": "crow_left_shank",
+      "position_error_m": 2.6346677604325682e-08,
+      "quaternion_error_sign_invariant": 2.45725920849295e-08
+    },
+    {
+      "frame": 500,
+      "body": 11,
+      "name": "crow_left_foot",
+      "position_error_m": 2.615837416393474e-08,
+      "quaternion_error_sign_invariant": 8.443751288950228e-09
+    },
+    {
+      "frame": 500,
+      "body": 12,
+      "name": "crow_right_hip_roll_link",
+      "position_error_m": 1.4029044932274667e-08,
+      "quaternion_error_sign_invariant": 2.420492453475665e-08
+    },
+    {
+      "frame": 500,
+      "body": 13,
+      "name": "crow_right_thigh",
+      "position_error_m": 3.044019618072268e-08,
+      "quaternion_error_sign_invariant": 1.625468288155101e-08
+    },
+    {
+      "frame": 500,
+      "body": 14,
+      "name": "crow_right_shank",
+      "position_error_m": 1.8508272617162367e-08,
+      "quaternion_error_sign_invariant": 1.1545258472720364e-08
+    },
+    {
+      "frame": 500,
+      "body": 15,
+      "name": "crow_right_foot",
+      "position_error_m": 2.8809487489515736e-08,
+      "quaternion_error_sign_invariant": 1.7723240593145842e-08
+    },
+    {
+      "frame": 500,
+      "body": 16,
+      "name": "crow_neck_yaw_link",
+      "position_error_m": 6.069986862866197e-08,
+      "quaternion_error_sign_invariant": 2.9205882456553355e-08
+    },
+    {
+      "frame": 500,
+      "body": 17,
+      "name": "crow_head",
+      "position_error_m": 4.799173984290241e-08,
+      "quaternion_error_sign_invariant": 1.227728725387044e-08
+    },
+    {
+      "frame": 500,
+      "body": 18,
+      "name": "crow_lower_beak",
+      "position_error_m": 6.984572309318203e-08,
+      "quaternion_error_sign_invariant": 3.0210850832788834e-08
+    },
+    {
+      "frame": 500,
+      "body": 19,
+      "name": "crow_left_front_toe_1_proximal",
+      "position_error_m": 2.2762977893621393e-08,
+      "quaternion_error_sign_invariant": 2.0257445637513842e-08
+    },
+    {
+      "frame": 500,
+      "body": 20,
+      "name": "crow_left_front_toe_1_distal",
+      "position_error_m": 3.56257467235579e-08,
+      "quaternion_error_sign_invariant": 1.4675525802084164e-08
+    },
+    {
+      "frame": 500,
+      "body": 21,
+      "name": "crow_left_front_toe_2_proximal",
+      "position_error_m": 2.0174364810392323e-08,
+      "quaternion_error_sign_invariant": 1.321972308466593e-08
+    },
+    {
+      "frame": 500,
+      "body": 22,
+      "name": "crow_left_front_toe_2_distal",
+      "position_error_m": 3.552364376494079e-08,
+      "quaternion_error_sign_invariant": 1.81463162808021e-08
+    },
+    {
+      "frame": 500,
+      "body": 23,
+      "name": "crow_left_front_toe_3_proximal",
+      "position_error_m": 2.1252848189082807e-08,
+      "quaternion_error_sign_invariant": 1.9265463161790456e-08
+    },
+    {
+      "frame": 500,
+      "body": 24,
+      "name": "crow_left_front_toe_3_distal",
+      "position_error_m": 2.7655954522406956e-08,
+      "quaternion_error_sign_invariant": 9.845565373213484e-09
+    },
+    {
+      "frame": 500,
+      "body": 25,
+      "name": "crow_left_rear_toe_proximal",
+      "position_error_m": 2.269348455069628e-08,
+      "quaternion_error_sign_invariant": 2.1383247300690935e-09
+    },
+    {
+      "frame": 500,
+      "body": 26,
+      "name": "crow_left_rear_toe_distal",
+      "position_error_m": 2.4269849961942436e-08,
+      "quaternion_error_sign_invariant": 2.8584028920497063e-08
+    },
+    {
+      "frame": 500,
+      "body": 27,
+      "name": "crow_right_front_toe_1_proximal",
+      "position_error_m": 1.2149888763809886e-08,
+      "quaternion_error_sign_invariant": 1.4903425127276965e-08
+    },
+    {
+      "frame": 500,
+      "body": 28,
+      "name": "crow_right_front_toe_1_distal",
+      "position_error_m": 1.1906343383058909e-08,
+      "quaternion_error_sign_invariant": 3.0587172903022556e-08
+    },
+    {
+      "frame": 500,
+      "body": 29,
+      "name": "crow_right_front_toe_2_proximal",
+      "position_error_m": 1.1758474968347887e-08,
+      "quaternion_error_sign_invariant": 2.355652209211342e-08
+    },
+    {
+      "frame": 500,
+      "body": 30,
+      "name": "crow_right_front_toe_2_distal",
+      "position_error_m": 4.276590763231142e-09,
+      "quaternion_error_sign_invariant": 1.3517565752174005e-08
+    },
+    {
+      "frame": 500,
+      "body": 31,
+      "name": "crow_right_front_toe_3_proximal",
+      "position_error_m": 1.5924350024308926e-08,
+      "quaternion_error_sign_invariant": 2.355652209211342e-08
+    },
+    {
+      "frame": 500,
+      "body": 32,
+      "name": "crow_right_front_toe_3_distal",
+      "position_error_m": 7.379316597600066e-09,
+      "quaternion_error_sign_invariant": 1.9380806727781175e-08
+    },
+    {
+      "frame": 500,
+      "body": 33,
+      "name": "crow_right_rear_toe_proximal",
+      "position_error_m": 2.2146269661416816e-08,
+      "quaternion_error_sign_invariant": 2.167057527032361e-09
+    },
+    {
+      "frame": 500,
+      "body": 34,
+      "name": "crow_right_rear_toe_distal",
+      "position_error_m": 2.7026048930970703e-09,
+      "quaternion_error_sign_invariant": 1.9313757049607383e-08
+    },
+    {
+      "frame": 898,
+      "body": 0,
+      "name": "crow_body",
+      "position_error_m": 0.0,
+      "quaternion_error_sign_invariant": 6.283108051583685e-09
+    },
+    {
+      "frame": 898,
+      "body": 1,
+      "name": "crow_left_wing_sweep",
+      "position_error_m": 9.52176496658562e-08,
+      "quaternion_error_sign_invariant": 1.8590506087378058e-08
+    },
+    {
+      "frame": 898,
+      "body": 2,
+      "name": "crow_right_wing_sweep",
+      "position_error_m": 1.3474638185884335e-07,
+      "quaternion_error_sign_invariant": 2.652315101929014e-09
+    },
+    {
+      "frame": 898,
+      "body": 3,
+      "name": "crow_left_wing_flap_link",
+      "position_error_m": 3.958394742199887e-08,
+      "quaternion_error_sign_invariant": 1.2646549528589772e-08
+    },
+    {
+      "frame": 898,
+      "body": 4,
+      "name": "crow_right_wing_flap_link",
+      "position_error_m": 1.2697194871711676e-07,
+      "quaternion_error_sign_invariant": 1.896980531955088e-08
+    },
+    {
+      "frame": 898,
+      "body": 5,
+      "name": "crow_left_wing",
+      "position_error_m": 3.958394742199887e-08,
+      "quaternion_error_sign_invariant": 1.6030994371955673e-08
+    },
+    {
+      "frame": 898,
+      "body": 6,
+      "name": "crow_right_wing",
+      "position_error_m": 1.2697194871711676e-07,
+      "quaternion_error_sign_invariant": 5.1029137933105044e-09
+    },
+    {
+      "frame": 898,
+      "body": 7,
+      "name": "crow_tail",
+      "position_error_m": 9.759135531360645e-08,
+      "quaternion_error_sign_invariant": 1.1867301326834204e-08
+    },
+    {
+      "frame": 898,
+      "body": 8,
+      "name": "crow_left_hip_roll_link",
+      "position_error_m": 1.9597377221992956e-07,
+      "quaternion_error_sign_invariant": 2.6281860074353384e-08
+    },
+    {
+      "frame": 898,
+      "body": 9,
+      "name": "crow_left_thigh",
+      "position_error_m": 1.6685329002072333e-07,
+      "quaternion_error_sign_invariant": 2.589111891711226e-08
+    },
+    {
+      "frame": 898,
+      "body": 10,
+      "name": "crow_left_shank",
+      "position_error_m": 1.1918183228240192e-07,
+      "quaternion_error_sign_invariant": 2.883820935493897e-08
+    },
+    {
+      "frame": 898,
+      "body": 11,
+      "name": "crow_left_foot",
+      "position_error_m": 6.365731769070609e-08,
+      "quaternion_error_sign_invariant": 5.5155054291506785e-09
+    },
+    {
+      "frame": 898,
+      "body": 12,
+      "name": "crow_right_hip_roll_link",
+      "position_error_m": 1.472705290694492e-07,
+      "quaternion_error_sign_invariant": 2.635782812645322e-08
+    },
+    {
+      "frame": 898,
+      "body": 13,
+      "name": "crow_right_thigh",
+      "position_error_m": 1.4217397734353304e-07,
+      "quaternion_error_sign_invariant": 1.4047371111437285e-08
+    },
+    {
+      "frame": 898,
+      "body": 14,
+      "name": "crow_right_shank",
+      "position_error_m": 5.831846296435781e-08,
+      "quaternion_error_sign_invariant": 1.353675380893095e-08
+    },
+    {
+      "frame": 898,
+      "body": 15,
+      "name": "crow_right_foot",
+      "position_error_m": 1.543686332439414e-07,
+      "quaternion_error_sign_invariant": 2.620616632221049e-09
+    },
+    {
+      "frame": 898,
+      "body": 16,
+      "name": "crow_neck_yaw_link",
+      "position_error_m": 1.2667855941101872e-07,
+      "quaternion_error_sign_invariant": 2.1145818289817085e-08
+    },
+    {
+      "frame": 898,
+      "body": 17,
+      "name": "crow_head",
+      "position_error_m": 1.5140516256953143e-07,
+      "quaternion_error_sign_invariant": 4.940324176703672e-09
+    },
+    {
+      "frame": 898,
+      "body": 18,
+      "name": "crow_lower_beak",
+      "position_error_m": 2.0403633188230485e-07,
+      "quaternion_error_sign_invariant": 1.4532480874777207e-08
+    },
+    {
+      "frame": 898,
+      "body": 19,
+      "name": "crow_left_front_toe_1_proximal",
+      "position_error_m": 1.3105755277985926e-07,
+      "quaternion_error_sign_invariant": 2.4452030141021873e-08
+    },
+    {
+      "frame": 898,
+      "body": 20,
+      "name": "crow_left_front_toe_1_distal",
+      "position_error_m": 1.8450934751520884e-07,
+      "quaternion_error_sign_invariant": 8.522212943789067e-09
+    },
+    {
+      "frame": 898,
+      "body": 21,
+      "name": "crow_left_front_toe_2_proximal",
+      "position_error_m": 3.878063527953571e-08,
+      "quaternion_error_sign_invariant": 2.4452030141021873e-08
+    },
+    {
+      "frame": 898,
+      "body": 22,
+      "name": "crow_left_front_toe_2_distal",
+      "position_error_m": 2.786290480064971e-08,
+      "quaternion_error_sign_invariant": 1.0131089701921625e-08
+    },
+    {
+      "frame": 898,
+      "body": 23,
+      "name": "crow_left_front_toe_3_proximal",
+      "position_error_m": 1.9386655353719713e-07,
+      "quaternion_error_sign_invariant": 3.0278690440586358e-09
+    },
+    {
+      "frame": 898,
+      "body": 24,
+      "name": "crow_left_front_toe_3_distal",
+      "position_error_m": 1.4428457604416752e-07,
+      "quaternion_error_sign_invariant": 1.3641799082050672e-08
+    },
+    {
+      "frame": 898,
+      "body": 25,
+      "name": "crow_left_rear_toe_proximal",
+      "position_error_m": 9.047765955676782e-08,
+      "quaternion_error_sign_invariant": 2.6735722400244683e-08
+    },
+    {
+      "frame": 898,
+      "body": 26,
+      "name": "crow_left_rear_toe_distal",
+      "position_error_m": 1.793774589682467e-07,
+      "quaternion_error_sign_invariant": 1.6625758001121662e-08
+    },
+    {
+      "frame": 898,
+      "body": 27,
+      "name": "crow_right_front_toe_1_proximal",
+      "position_error_m": 2.0188599075996307e-07,
+      "quaternion_error_sign_invariant": 1.409622741592494e-08
+    },
+    {
+      "frame": 898,
+      "body": 28,
+      "name": "crow_right_front_toe_1_distal",
+      "position_error_m": 4.5028897178379e-08,
+      "quaternion_error_sign_invariant": 1.2905195054205087e-08
+    },
+    {
+      "frame": 898,
+      "body": 29,
+      "name": "crow_right_front_toe_2_proximal",
+      "position_error_m": 1.1418072947721049e-07,
+      "quaternion_error_sign_invariant": 1.913111293721894e-08
+    },
+    {
+      "frame": 898,
+      "body": 30,
+      "name": "crow_right_front_toe_2_distal",
+      "position_error_m": 1.986290237758123e-07,
+      "quaternion_error_sign_invariant": 2.4188431307176008e-08
+    },
+    {
+      "frame": 898,
+      "body": 31,
+      "name": "crow_right_front_toe_3_proximal",
+      "position_error_m": 5.426887972086304e-08,
+      "quaternion_error_sign_invariant": 2.8589768339764518e-08
+    },
+    {
+      "frame": 898,
+      "body": 32,
+      "name": "crow_right_front_toe_3_distal",
+      "position_error_m": 1.1569743930179952e-07,
+      "quaternion_error_sign_invariant": 6.384216322607415e-09
+    },
+    {
+      "frame": 898,
+      "body": 33,
+      "name": "crow_right_rear_toe_proximal",
+      "position_error_m": 5.662247487672042e-08,
+      "quaternion_error_sign_invariant": 1.7731372234227278e-09
+    },
+    {
+      "frame": 898,
+      "body": 34,
+      "name": "crow_right_rear_toe_distal",
+      "position_error_m": 8.401731394842879e-08,
+      "quaternion_error_sign_invariant": 1.0199936598143342e-08
+    },
+    {
+      "frame": 918,
+      "body": 0,
+      "name": "crow_body",
+      "position_error_m": 0.0,
+      "quaternion_error_sign_invariant": 2.4963831235011392e-08
+    },
+    {
+      "frame": 918,
+      "body": 1,
+      "name": "crow_left_wing_sweep",
+      "position_error_m": 2.101512697993408e-07,
+      "quaternion_error_sign_invariant": 1.752465630231049e-08
+    },
+    {
+      "frame": 918,
+      "body": 2,
+      "name": "crow_right_wing_sweep",
+      "position_error_m": 2.151435942153794e-07,
+      "quaternion_error_sign_invariant": 1.7922409377653072e-08
+    },
+    {
+      "frame": 918,
+      "body": 3,
+      "name": "crow_left_wing_flap_link",
+      "position_error_m": 1.966224160615311e-08,
+      "quaternion_error_sign_invariant": 1.1287085368678708e-08
+    },
+    {
+      "frame": 918,
+      "body": 4,
+      "name": "crow_right_wing_flap_link",
+      "position_error_m": 7.522696974330674e-08,
+      "quaternion_error_sign_invariant": 4.3779997864826896e-09
+    },
+    {
+      "frame": 918,
+      "body": 5,
+      "name": "crow_left_wing",
+      "position_error_m": 1.966224160615311e-08,
+      "quaternion_error_sign_invariant": 1.9781080948854926e-08
+    },
+    {
+      "frame": 918,
+      "body": 6,
+      "name": "crow_right_wing",
+      "position_error_m": 7.522696974330674e-08,
+      "quaternion_error_sign_invariant": 1.2121312743582901e-08
+    },
+    {
+      "frame": 918,
+      "body": 7,
+      "name": "crow_tail",
+      "position_error_m": 2.1819926307637647e-07,
+      "quaternion_error_sign_invariant": 1.9058054975139956e-08
+    },
+    {
+      "frame": 918,
+      "body": 8,
+      "name": "crow_left_hip_roll_link",
+      "position_error_m": 2.2006014299698392e-07,
+      "quaternion_error_sign_invariant": 1.865811763346484e-08
+    },
+    {
+      "frame": 918,
+      "body": 9,
+      "name": "crow_left_thigh",
+      "position_error_m": 2.6473006081216858e-08,
+      "quaternion_error_sign_invariant": 2.8021521116170235e-08
+    },
+    {
+      "frame": 918,
+      "body": 10,
+      "name": "crow_left_shank",
+      "position_error_m": 1.4626047798712208e-07,
+      "quaternion_error_sign_invariant": 1.0386434620502592e-08
+    },
+    {
+      "frame": 918,
+      "body": 11,
+      "name": "crow_left_foot",
+      "position_error_m": 1.8853307292754342e-08,
+      "quaternion_error_sign_invariant": 5.506196075275622e-09
+    },
+    {
+      "frame": 918,
+      "body": 12,
+      "name": "crow_right_hip_roll_link",
+      "position_error_m": 5.8547267932764034e-08,
+      "quaternion_error_sign_invariant": 1.8751319756991498e-08
+    },
+    {
+      "frame": 918,
+      "body": 13,
+      "name": "crow_right_thigh",
+      "position_error_m": 1.3112314548730888e-07,
+      "quaternion_error_sign_invariant": 6.835396397439084e-09
+    },
+    {
+      "frame": 918,
+      "body": 14,
+      "name": "crow_right_shank",
+      "position_error_m": 2.0791470539860323e-07,
+      "quaternion_error_sign_invariant": 1.5097566584750612e-08
+    },
+    {
+      "frame": 918,
+      "body": 15,
+      "name": "crow_right_foot",
+      "position_error_m": 1.921167355623248e-07,
+      "quaternion_error_sign_invariant": 2.713883504957848e-08
+    },
+    {
+      "frame": 918,
+      "body": 16,
+      "name": "crow_neck_yaw_link",
+      "position_error_m": 9.366843905614135e-08,
+      "quaternion_error_sign_invariant": 1.8017109211877943e-08
+    },
+    {
+      "frame": 918,
+      "body": 17,
+      "name": "crow_head",
+      "position_error_m": 1.9371046627992179e-07,
+      "quaternion_error_sign_invariant": 1.730621418981846e-08
+    },
+    {
+      "frame": 918,
+      "body": 18,
+      "name": "crow_lower_beak",
+      "position_error_m": 6.257489065232132e-08,
+      "quaternion_error_sign_invariant": 1.9712389502243792e-08
+    },
+    {
+      "frame": 918,
+      "body": 19,
+      "name": "crow_left_front_toe_1_proximal",
+      "position_error_m": 1.5016620593064722e-07,
+      "quaternion_error_sign_invariant": 7.918275644070574e-09
+    },
+    {
+      "frame": 918,
+      "body": 20,
+      "name": "crow_left_front_toe_1_distal",
+      "position_error_m": 2.1885495828452066e-07,
+      "quaternion_error_sign_invariant": 2.8264719418894233e-08
+    },
+    {
+      "frame": 918,
+      "body": 21,
+      "name": "crow_left_front_toe_2_proximal",
+      "position_error_m": 2.3757877010122142e-07,
+      "quaternion_error_sign_invariant": 1.3917990798154957e-08
+    },
+    {
+      "frame": 918,
+      "body": 22,
+      "name": "crow_left_front_toe_2_distal",
+      "position_error_m": 1.711750148845976e-07,
+      "quaternion_error_sign_invariant": 1.9856427961408296e-08
+    },
+    {
+      "frame": 918,
+      "body": 23,
+      "name": "crow_left_front_toe_3_proximal",
+      "position_error_m": 1.552397179029612e-07,
+      "quaternion_error_sign_invariant": 1.3917990798154957e-08
+    },
+    {
+      "frame": 918,
+      "body": 24,
+      "name": "crow_left_front_toe_3_distal",
+      "position_error_m": 8.531422359926612e-08,
+      "quaternion_error_sign_invariant": 8.184800288615347e-09
+    },
+    {
+      "frame": 918,
+      "body": 25,
+      "name": "crow_left_rear_toe_proximal",
+      "position_error_m": 1.8153450538314746e-07,
+      "quaternion_error_sign_invariant": 1.5705113648021587e-08
+    },
+    {
+      "frame": 918,
+      "body": 26,
+      "name": "crow_left_rear_toe_distal",
+      "position_error_m": 2.703382619500865e-08,
+      "quaternion_error_sign_invariant": 1.1528436433930754e-08
+    },
+    {
+      "frame": 918,
+      "body": 27,
+      "name": "crow_right_front_toe_1_proximal",
+      "position_error_m": 1.0246054519900811e-07,
+      "quaternion_error_sign_invariant": 2.870399228468913e-08
+    },
+    {
+      "frame": 918,
+      "body": 28,
+      "name": "crow_right_front_toe_1_distal",
+      "position_error_m": 1.4012362537279448e-08,
+      "quaternion_error_sign_invariant": 1.1272294576698719e-08
+    },
+    {
+      "frame": 918,
+      "body": 29,
+      "name": "crow_right_front_toe_2_proximal",
+      "position_error_m": 1.774883570465519e-08,
+      "quaternion_error_sign_invariant": 2.2121124507778977e-08
+    },
+    {
+      "frame": 918,
+      "body": 30,
+      "name": "crow_right_front_toe_2_distal",
+      "position_error_m": 9.169729553361059e-08,
+      "quaternion_error_sign_invariant": 1.2153913455269753e-08
+    },
+    {
+      "frame": 918,
+      "body": 31,
+      "name": "crow_right_front_toe_3_proximal",
+      "position_error_m": 7.795381042390528e-08,
+      "quaternion_error_sign_invariant": 2.2121124507778977e-08
+    },
+    {
+      "frame": 918,
+      "body": 32,
+      "name": "crow_right_front_toe_3_distal",
+      "position_error_m": 1.7996066913245229e-07,
+      "quaternion_error_sign_invariant": 1.1272294626665373e-08
+    },
+    {
+      "frame": 918,
+      "body": 33,
+      "name": "crow_right_rear_toe_proximal",
+      "position_error_m": 2.328254670862928e-08,
+      "quaternion_error_sign_invariant": 2.820703931200889e-08
+    },
+    {
+      "frame": 918,
+      "body": 34,
+      "name": "crow_right_rear_toe_distal",
+      "position_error_m": 2.3607055028240476e-07,
+      "quaternion_error_sign_invariant": 2.1382700449700956e-08
+    },
+    {
+      "frame": 1200,
+      "body": 0,
+      "name": "crow_body",
+      "position_error_m": 0.0,
+      "quaternion_error_sign_invariant": 2.7869209556267117e-08
+    },
+    {
+      "frame": 1200,
+      "body": 1,
+      "name": "crow_left_wing_sweep",
+      "position_error_m": 1.4871977437428856e-07,
+      "quaternion_error_sign_invariant": 2.3602462117300296e-08
+    },
+    {
+      "frame": 1200,
+      "body": 2,
+      "name": "crow_right_wing_sweep",
+      "position_error_m": 2.2408976685174236e-07,
+      "quaternion_error_sign_invariant": 2.9781821229754396e-08
+    },
+    {
+      "frame": 1200,
+      "body": 3,
+      "name": "crow_left_wing_flap_link",
+      "position_error_m": 2.3239227494098846e-07,
+      "quaternion_error_sign_invariant": 5.864694974745694e-09
+    },
+    {
+      "frame": 1200,
+      "body": 4,
+      "name": "crow_right_wing_flap_link",
+      "position_error_m": 1.0202063241640988e-07,
+      "quaternion_error_sign_invariant": 1.0690177139827926e-08
+    },
+    {
+      "frame": 1200,
+      "body": 5,
+      "name": "crow_left_wing",
+      "position_error_m": 2.3239227494098846e-07,
+      "quaternion_error_sign_invariant": 1.1967860465917997e-08
+    },
+    {
+      "frame": 1200,
+      "body": 6,
+      "name": "crow_right_wing",
+      "position_error_m": 1.0202063241640988e-07,
+      "quaternion_error_sign_invariant": 2.660943802280113e-08
+    },
+    {
+      "frame": 1200,
+      "body": 7,
+      "name": "crow_tail",
+      "position_error_m": 1.2062354909052343e-07,
+      "quaternion_error_sign_invariant": 1.7031217880772816e-08
+    },
+    {
+      "frame": 1200,
+      "body": 8,
+      "name": "crow_left_hip_roll_link",
+      "position_error_m": 5.197423952848216e-08,
+      "quaternion_error_sign_invariant": 1.8213079123730425e-08
+    },
+    {
+      "frame": 1200,
+      "body": 9,
+      "name": "crow_left_thigh",
+      "position_error_m": 8.226242071123252e-08,
+      "quaternion_error_sign_invariant": 7.2107828234881346e-09
+    },
+    {
+      "frame": 1200,
+      "body": 10,
+      "name": "crow_left_shank",
+      "position_error_m": 3.209270397573615e-08,
+      "quaternion_error_sign_invariant": 1.1321373051237323e-08
+    },
+    {
+      "frame": 1200,
+      "body": 11,
+      "name": "crow_left_foot",
+      "position_error_m": 6.247371470454e-08,
+      "quaternion_error_sign_invariant": 2.2228514524453195e-08
+    },
+    {
+      "frame": 1200,
+      "body": 12,
+      "name": "crow_right_hip_roll_link",
+      "position_error_m": 1.7679847290376063e-07,
+      "quaternion_error_sign_invariant": 1.8203790710796308e-08
+    },
+    {
+      "frame": 1200,
+      "body": 13,
+      "name": "crow_right_thigh",
+      "position_error_m": 2.1872626947294865e-07,
+      "quaternion_error_sign_invariant": 5.248515516467384e-09
+    },
+    {
+      "frame": 1200,
+      "body": 14,
+      "name": "crow_right_shank",
+      "position_error_m": 1.9577005278568822e-07,
+      "quaternion_error_sign_invariant": 6.082946764675281e-09
+    },
+    {
+      "frame": 1200,
+      "body": 15,
+      "name": "crow_right_foot",
+      "position_error_m": 1.3107237416488968e-07,
+      "quaternion_error_sign_invariant": 5.969703565473612e-09
+    },
+    {
+      "frame": 1200,
+      "body": 16,
+      "name": "crow_neck_yaw_link",
+      "position_error_m": 1.5124792968833e-07,
+      "quaternion_error_sign_invariant": 7.952384468218544e-09
+    },
+    {
+      "frame": 1200,
+      "body": 17,
+      "name": "crow_head",
+      "position_error_m": 2.9560596339776586e-08,
+      "quaternion_error_sign_invariant": 2.733182191988123e-08
+    },
+    {
+      "frame": 1200,
+      "body": 18,
+      "name": "crow_lower_beak",
+      "position_error_m": 2.3171440641948793e-07,
+      "quaternion_error_sign_invariant": 1.1286877429551384e-08
+    },
+    {
+      "frame": 1200,
+      "body": 19,
+      "name": "crow_left_front_toe_1_proximal",
+      "position_error_m": 5.2360016135469876e-08,
+      "quaternion_error_sign_invariant": 9.650509809319736e-09
+    },
+    {
+      "frame": 1200,
+      "body": 20,
+      "name": "crow_left_front_toe_1_distal",
+      "position_error_m": 1.86940923071575e-07,
+      "quaternion_error_sign_invariant": 7.548113490249955e-09
+    },
+    {
+      "frame": 1200,
+      "body": 21,
+      "name": "crow_left_front_toe_2_proximal",
+      "position_error_m": 3.6739920933661274e-08,
+      "quaternion_error_sign_invariant": 1.7419252091688666e-08
+    },
+    {
+      "frame": 1200,
+      "body": 22,
+      "name": "crow_left_front_toe_2_distal",
+      "position_error_m": 1.7273426445766672e-07,
+      "quaternion_error_sign_invariant": 1.4134977608597257e-08
+    },
+    {
+      "frame": 1200,
+      "body": 23,
+      "name": "crow_left_front_toe_3_proximal",
+      "position_error_m": 2.1603847492345736e-08,
+      "quaternion_error_sign_invariant": 2.3830134740796184e-08
+    },
+    {
+      "frame": 1200,
+      "body": 24,
+      "name": "crow_left_front_toe_3_distal",
+      "position_error_m": 1.5895612789698687e-07,
+      "quaternion_error_sign_invariant": 2.2274168791054643e-08
+    },
+    {
+      "frame": 1200,
+      "body": 25,
+      "name": "crow_left_rear_toe_proximal",
+      "position_error_m": 1.9557886432274858e-07,
+      "quaternion_error_sign_invariant": 1.54798905321129e-08
+    },
+    {
+      "frame": 1200,
+      "body": 26,
+      "name": "crow_left_rear_toe_distal",
+      "position_error_m": 3.753220296876222e-08,
+      "quaternion_error_sign_invariant": 2.9551681664449546e-08
+    },
+    {
+      "frame": 1200,
+      "body": 27,
+      "name": "crow_right_front_toe_1_proximal",
+      "position_error_m": 2.387479946101931e-07,
+      "quaternion_error_sign_invariant": 1.9539919283952498e-08
+    },
+    {
+      "frame": 1200,
+      "body": 28,
+      "name": "crow_right_front_toe_1_distal",
+      "position_error_m": 9.939662678597215e-08,
+      "quaternion_error_sign_invariant": 1.5554412800248175e-08
+    },
+    {
+      "frame": 1200,
+      "body": 29,
+      "name": "crow_right_front_toe_2_proximal",
+      "position_error_m": 2.2450867833358604e-07,
+      "quaternion_error_sign_invariant": 1.9539919283952498e-08
+    },
+    {
+      "frame": 1200,
+      "body": 30,
+      "name": "crow_right_front_toe_2_distal",
+      "position_error_m": 1.1140295362150715e-07,
+      "quaternion_error_sign_invariant": 1.5554412800248175e-08
+    },
+    {
+      "frame": 1200,
+      "body": 31,
+      "name": "crow_right_front_toe_3_proximal",
+      "position_error_m": 2.096883573262947e-07,
+      "quaternion_error_sign_invariant": 2.5771560704075196e-08
+    },
+    {
+      "frame": 1200,
+      "body": 32,
+      "name": "crow_right_front_toe_3_distal",
+      "position_error_m": 1.2518679706111726e-07,
+      "quaternion_error_sign_invariant": 8.546615917568155e-09
+    },
+    {
+      "frame": 1200,
+      "body": 33,
+      "name": "crow_right_rear_toe_proximal",
+      "position_error_m": 1.0121984346522889e-07,
+      "quaternion_error_sign_invariant": 1.1980449927855246e-08
+    },
+    {
+      "frame": 1200,
+      "body": 34,
+      "name": "crow_right_rear_toe_distal",
+      "position_error_m": 1.4986617304285163e-07,
+      "quaternion_error_sign_invariant": 2.8918362292321282e-08
+    },
+    {
+      "frame": 1550,
+      "body": 0,
+      "name": "crow_body",
+      "position_error_m": 0.0,
+      "quaternion_error_sign_invariant": 1.2399687757125859e-08
+    },
+    {
+      "frame": 1550,
+      "body": 1,
+      "name": "crow_left_wing_sweep",
+      "position_error_m": 2.7260553565911033e-07,
+      "quaternion_error_sign_invariant": 1.2714526117097838e-08
+    },
+    {
+      "frame": 1550,
+      "body": 2,
+      "name": "crow_right_wing_sweep",
+      "position_error_m": 3.139350741762767e-07,
+      "quaternion_error_sign_invariant": 9.121948001052851e-09
+    },
+    {
+      "frame": 1550,
+      "body": 3,
+      "name": "crow_left_wing_flap_link",
+      "position_error_m": 2.336103105558381e-07,
+      "quaternion_error_sign_invariant": 2.093930442065042e-09
+    },
+    {
+      "frame": 1550,
+      "body": 4,
+      "name": "crow_right_wing_flap_link",
+      "position_error_m": 2.9539046361527016e-07,
+      "quaternion_error_sign_invariant": 6.4910217883555315e-09
+    },
+    {
+      "frame": 1550,
+      "body": 5,
+      "name": "crow_left_wing",
+      "position_error_m": 2.336103105558381e-07,
+      "quaternion_error_sign_invariant": 1.864793669173965e-08
+    },
+    {
+      "frame": 1550,
+      "body": 6,
+      "name": "crow_right_wing",
+      "position_error_m": 2.9539046361527016e-07,
+      "quaternion_error_sign_invariant": 7.194795710023978e-09
+    },
+    {
+      "frame": 1550,
+      "body": 7,
+      "name": "crow_tail",
+      "position_error_m": 1.90533677329371e-07,
+      "quaternion_error_sign_invariant": 6.189649712029925e-09
+    },
+    {
+      "frame": 1550,
+      "body": 8,
+      "name": "crow_left_hip_roll_link",
+      "position_error_m": 3.1466746187072096e-07,
+      "quaternion_error_sign_invariant": 2.6673127971725555e-08
+    },
+    {
+      "frame": 1550,
+      "body": 9,
+      "name": "crow_left_thigh",
+      "position_error_m": 1.8663836547812035e-08,
+      "quaternion_error_sign_invariant": 2.5374567970752447e-08
+    },
+    {
+      "frame": 1550,
+      "body": 10,
+      "name": "crow_left_shank",
+      "position_error_m": 3.4397121810586737e-07,
+      "quaternion_error_sign_invariant": 1.2296039177138614e-08
+    },
+    {
+      "frame": 1550,
+      "body": 11,
+      "name": "crow_left_foot",
+      "position_error_m": 1.2665756854759694e-07,
+      "quaternion_error_sign_invariant": 6.806860310270192e-09
+    },
+    {
+      "frame": 1550,
+      "body": 12,
+      "name": "crow_right_hip_roll_link",
+      "position_error_m": 3.780918547135008e-07,
+      "quaternion_error_sign_invariant": 2.6677776717293265e-08
+    },
+    {
+      "frame": 1550,
+      "body": 13,
+      "name": "crow_right_thigh",
+      "position_error_m": 2.792888402781915e-07,
+      "quaternion_error_sign_invariant": 2.54997000090408e-08
+    },
+    {
+      "frame": 1550,
+      "body": 14,
+      "name": "crow_right_shank",
+      "position_error_m": 8.087424306820895e-08,
+      "quaternion_error_sign_invariant": 1.4812612996144722e-08
+    },
+    {
+      "frame": 1550,
+      "body": 15,
+      "name": "crow_right_foot",
+      "position_error_m": 3.9265898596357795e-07,
+      "quaternion_error_sign_invariant": 5.4668010821653264e-09
+    },
+    {
+      "frame": 1550,
+      "body": 16,
+      "name": "crow_neck_yaw_link",
+      "position_error_m": 1.4276132444467544e-07,
+      "quaternion_error_sign_invariant": 2.809352455345535e-08
+    },
+    {
+      "frame": 1550,
+      "body": 17,
+      "name": "crow_head",
+      "position_error_m": 3.233214773118276e-07,
+      "quaternion_error_sign_invariant": 6.565830191267821e-09
+    },
+    {
+      "frame": 1550,
+      "body": 18,
+      "name": "crow_lower_beak",
+      "position_error_m": 3.6092114481715317e-07,
+      "quaternion_error_sign_invariant": 1.8645122317581033e-08
+    },
+    {
+      "frame": 1550,
+      "body": 19,
+      "name": "crow_left_front_toe_1_proximal",
+      "position_error_m": 8.896163956882026e-08,
+      "quaternion_error_sign_invariant": 1.674640151011755e-08
+    },
+    {
+      "frame": 1550,
+      "body": 20,
+      "name": "crow_left_front_toe_1_distal",
+      "position_error_m": 2.632723273309235e-07,
+      "quaternion_error_sign_invariant": 1.5653414343937908e-08
+    },
+    {
+      "frame": 1550,
+      "body": 21,
+      "name": "crow_left_front_toe_2_proximal",
+      "position_error_m": 4.0414364305219274e-07,
+      "quaternion_error_sign_invariant": 2.3734110357025424e-08
+    },
+    {
+      "frame": 1550,
+      "body": 22,
+      "name": "crow_left_front_toe_2_distal",
+      "position_error_m": 2.2785179151047198e-07,
+      "quaternion_error_sign_invariant": 2.247205533438885e-08
+    },
+    {
+      "frame": 1550,
+      "body": 23,
+      "name": "crow_left_front_toe_3_proximal",
+      "position_error_m": 6.683226562612271e-08,
+      "quaternion_error_sign_invariant": 2.39271979273694e-08
+    },
+    {
+      "frame": 1550,
+      "body": 24,
+      "name": "crow_left_front_toe_3_distal",
+      "position_error_m": 2.392114953041816e-07,
+      "quaternion_error_sign_invariant": 1.5653414394412277e-08
+    },
+    {
+      "frame": 1550,
+      "body": 25,
+      "name": "crow_left_rear_toe_proximal",
+      "position_error_m": 2.7608737744978195e-07,
+      "quaternion_error_sign_invariant": 2.637290422624222e-08
+    },
+    {
+      "frame": 1550,
+      "body": 26,
+      "name": "crow_left_rear_toe_distal",
+      "position_error_m": 4.071502705011622e-08,
+      "quaternion_error_sign_invariant": 1.3419821482150132e-08
+    },
+    {
+      "frame": 1550,
+      "body": 27,
+      "name": "crow_right_front_toe_1_proximal",
+      "position_error_m": 1.8168047477035444e-07,
+      "quaternion_error_sign_invariant": 2.961186120448579e-08
+    },
+    {
+      "frame": 1550,
+      "body": 28,
+      "name": "crow_right_front_toe_1_distal",
+      "position_error_m": 1.8828813737361556e-08,
+      "quaternion_error_sign_invariant": 3.131790425573778e-08
+    },
+    {
+      "frame": 1550,
+      "body": 29,
+      "name": "crow_right_front_toe_2_proximal",
+      "position_error_m": 2.836926335671634e-07,
+      "quaternion_error_sign_invariant": 2.961186120448579e-08
+    },
+    {
+      "frame": 1550,
+      "body": 30,
+      "name": "crow_right_front_toe_2_distal",
+      "position_error_m": 4.6052484435653204e-07,
+      "quaternion_error_sign_invariant": 3.131790425573778e-08
+    },
+    {
+      "frame": 1550,
+      "body": 31,
+      "name": "crow_right_front_toe_3_proximal",
+      "position_error_m": 2.0630912000803576e-07,
+      "quaternion_error_sign_invariant": 2.961186120448579e-08
+    },
+    {
+      "frame": 1550,
+      "body": 32,
+      "name": "crow_right_front_toe_3_distal",
+      "position_error_m": 3.6045848983818705e-08,
+      "quaternion_error_sign_invariant": 2.597326538373329e-08
+    },
+    {
+      "frame": 1550,
+      "body": 33,
+      "name": "crow_right_rear_toe_proximal",
+      "position_error_m": 4.1265558326002647e-07,
+      "quaternion_error_sign_invariant": 2.7748731159451014e-08
+    },
+    {
+      "frame": 1550,
+      "body": 34,
+      "name": "crow_right_rear_toe_distal",
+      "position_error_m": 3.009645238139046e-07,
+      "quaternion_error_sign_invariant": 2.3098380046507705e-08
+    },
+    {
+      "frame": 1800,
+      "body": 0,
+      "name": "crow_body",
+      "position_error_m": 0.0,
+      "quaternion_error_sign_invariant": 2.541565158457002e-08
+    },
+    {
+      "frame": 1800,
+      "body": 1,
+      "name": "crow_left_wing_sweep",
+      "position_error_m": 9.357165610831989e-08,
+      "quaternion_error_sign_invariant": 2.310682802866805e-08
+    },
+    {
+      "frame": 1800,
+      "body": 2,
+      "name": "crow_right_wing_sweep",
+      "position_error_m": 2.496358950123304e-07,
+      "quaternion_error_sign_invariant": 2.9213641280475585e-08
+    },
+    {
+      "frame": 1800,
+      "body": 3,
+      "name": "crow_left_wing_flap_link",
+      "position_error_m": 2.2978610345444963e-07,
+      "quaternion_error_sign_invariant": 1.94746898794441e-08
+    },
+    {
+      "frame": 1800,
+      "body": 4,
+      "name": "crow_right_wing_flap_link",
+      "position_error_m": 2.0995831632519984e-07,
+      "quaternion_error_sign_invariant": 2.478406326413607e-08
+    },
+    {
+      "frame": 1800,
+      "body": 5,
+      "name": "crow_left_wing",
+      "position_error_m": 2.2978610345444963e-07,
+      "quaternion_error_sign_invariant": 1.0984228659619548e-08
+    },
+    {
+      "frame": 1800,
+      "body": 6,
+      "name": "crow_right_wing",
+      "position_error_m": 2.0995831632519984e-07,
+      "quaternion_error_sign_invariant": 1.5894491990043754e-08
+    },
+    {
+      "frame": 1800,
+      "body": 7,
+      "name": "crow_tail",
+      "position_error_m": 4.023097428076132e-07,
+      "quaternion_error_sign_invariant": 1.3039783277911227e-08
+    },
+    {
+      "frame": 1800,
+      "body": 8,
+      "name": "crow_left_hip_roll_link",
+      "position_error_m": 3.539796389193157e-07,
+      "quaternion_error_sign_invariant": 2.514594799125885e-08
+    },
+    {
+      "frame": 1800,
+      "body": 9,
+      "name": "crow_left_thigh",
+      "position_error_m": 2.7126688695612507e-07,
+      "quaternion_error_sign_invariant": 1.2279287255721713e-08
+    },
+    {
+      "frame": 1800,
+      "body": 10,
+      "name": "crow_left_shank",
+      "position_error_m": 1.8637418006940854e-07,
+      "quaternion_error_sign_invariant": 2.035598660587214e-08
+    },
+    {
+      "frame": 1800,
+      "body": 11,
+      "name": "crow_left_foot",
+      "position_error_m": 3.477634803270788e-07,
+      "quaternion_error_sign_invariant": 1.5473857018050538e-08
+    },
+    {
+      "frame": 1800,
+      "body": 12,
+      "name": "crow_right_hip_roll_link",
+      "position_error_m": 1.3192602538514895e-07,
+      "quaternion_error_sign_invariant": 2.5157700187086827e-08
+    },
+    {
+      "frame": 1800,
+      "body": 13,
+      "name": "crow_right_thigh",
+      "position_error_m": 2.1417250285730146e-07,
+      "quaternion_error_sign_invariant": 1.2131521252433904e-08
+    },
+    {
+      "frame": 1800,
+      "body": 14,
+      "name": "crow_right_shank",
+      "position_error_m": 2.9475730348005416e-07,
+      "quaternion_error_sign_invariant": 1.5502161420833127e-08
+    },
+    {
+      "frame": 1800,
+      "body": 15,
+      "name": "crow_right_foot",
+      "position_error_m": 1.3134146208777452e-07,
+      "quaternion_error_sign_invariant": 2.0134901331528023e-08
+    },
+    {
+      "frame": 1800,
+      "body": 16,
+      "name": "crow_neck_yaw_link",
+      "position_error_m": 1.1072908425967905e-07,
+      "quaternion_error_sign_invariant": 2.4350274906855266e-08
+    },
+    {
+      "frame": 1800,
+      "body": 17,
+      "name": "crow_head",
+      "position_error_m": 6.890132037884084e-08,
+      "quaternion_error_sign_invariant": 1.0308472515541414e-08
+    },
+    {
+      "frame": 1800,
+      "body": 18,
+      "name": "crow_lower_beak",
+      "position_error_m": 1.9889508656898501e-07,
+      "quaternion_error_sign_invariant": 2.734170680902242e-08
+    },
+    {
+      "frame": 1800,
+      "body": 19,
+      "name": "crow_left_front_toe_1_proximal",
+      "position_error_m": 4.037972709648492e-07,
+      "quaternion_error_sign_invariant": 1.8147284689399922e-08
+    },
+    {
+      "frame": 1800,
+      "body": 20,
+      "name": "crow_left_front_toe_1_distal",
+      "position_error_m": 2.613487749546235e-07,
+      "quaternion_error_sign_invariant": 1.8153466259692414e-08
+    },
+    {
+      "frame": 1800,
+      "body": 21,
+      "name": "crow_left_front_toe_2_proximal",
+      "position_error_m": 2.9365374275057368e-08,
+      "quaternion_error_sign_invariant": 2.1208307689678332e-08
+    },
+    {
+      "frame": 1800,
+      "body": 22,
+      "name": "crow_left_front_toe_2_distal",
+      "position_error_m": 2.7733454938501416e-07,
+      "quaternion_error_sign_invariant": 1.5680890844843057e-08
+    },
+    {
+      "frame": 1800,
+      "body": 23,
+      "name": "crow_left_front_toe_3_proximal",
+      "position_error_m": 4.2923782186752975e-07,
+      "quaternion_error_sign_invariant": 1.8147284689399922e-08
+    },
+    {
+      "frame": 1800,
+      "body": 24,
+      "name": "crow_left_front_toe_3_distal",
+      "position_error_m": 1.4221524994081832e-07,
+      "quaternion_error_sign_invariant": 1.8153466259692414e-08
+    },
+    {
+      "frame": 1800,
+      "body": 25,
+      "name": "crow_left_rear_toe_proximal",
+      "position_error_m": 4.180160718553255e-07,
+      "quaternion_error_sign_invariant": 5.614212632818635e-09
+    },
+    {
+      "frame": 1800,
+      "body": 26,
+      "name": "crow_left_rear_toe_distal",
+      "position_error_m": 2.2158499638018896e-07,
+      "quaternion_error_sign_invariant": 2.1582957063773865e-09
+    },
+    {
+      "frame": 1800,
+      "body": 27,
+      "name": "crow_right_front_toe_1_proximal",
+      "position_error_m": 7.611820621516323e-08,
+      "quaternion_error_sign_invariant": 3.180621555812893e-08
+    },
+    {
+      "frame": 1800,
+      "body": 28,
+      "name": "crow_right_front_toe_1_distal",
+      "position_error_m": 2.137318644614844e-07,
+      "quaternion_error_sign_invariant": 2.977434148256713e-08
+    },
+    {
+      "frame": 1800,
+      "body": 29,
+      "name": "crow_right_front_toe_2_proximal",
+      "position_error_m": 4.6351416565491054e-07,
+      "quaternion_error_sign_invariant": 1.927850262672011e-08
+    },
+    {
+      "frame": 1800,
+      "body": 30,
+      "name": "crow_right_front_toe_2_distal",
+      "position_error_m": 2.0572850564968113e-07,
+      "quaternion_error_sign_invariant": 7.450527795868257e-09
+    },
+    {
+      "frame": 1800,
+      "body": 31,
+      "name": "crow_right_front_toe_3_proximal",
+      "position_error_m": 5.237864974093125e-08,
+      "quaternion_error_sign_invariant": 1.9861258992117314e-08
+    },
+    {
+      "frame": 1800,
+      "body": 32,
+      "name": "crow_right_front_toe_3_distal",
+      "position_error_m": 3.340111884292787e-07,
+      "quaternion_error_sign_invariant": 1.1146017839641853e-08
+    },
+    {
+      "frame": 1800,
+      "body": 33,
+      "name": "crow_right_rear_toe_proximal",
+      "position_error_m": 6.410709349815752e-08,
+      "quaternion_error_sign_invariant": 7.011906527714408e-09
+    },
+    {
+      "frame": 1800,
+      "body": 34,
+      "name": "crow_right_rear_toe_distal",
+      "position_error_m": 2.5739641919517174e-07,
+      "quaternion_error_sign_invariant": 7.188079909707102e-09
+    }
+  ]
+}

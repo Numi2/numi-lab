@@ -1,0 +1,119 @@
+{
+  "directory": "artifacts/crow-v15-flight-release-latch-20261114/turn-20261127-rebound-latch27",
+  "run_result": {
+    "exit_code": 0
+  },
+  "meta": {
+    "boundary": "waypoint completion; does not establish supported landing",
+    "closed_by_environment": [
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "closed_episode_count": 2,
+    "completion_seen_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "completion_seen_count": 0,
+    "environment_count": 8,
+    "first_completion_step_by_environment": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "horizon_censored_count": 6,
+    "maximum_waypoints_by_environment": [
+      0,
+      0,
+      2,
+      2,
+      2,
+      1,
+      2,
+      1
+    ],
+    "physical_failure_by_environment": [
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "physical_failure_count": 2,
+    "safe_completion_by_environment": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "safe_completion_count": 0,
+    "schema": "numi.crow-first-episode-evidence.v1",
+    "steps_by_environment": [
+      760,
+      762,
+      1800,
+      1800,
+      1800,
+      1800,
+      1800,
+      1800
+    ],
+    "termination_reason_by_environment": [
+      3,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "unit": "first episode of each environment since context creation"
+  },
+  "state_counts": {
+    "0": 1801,
+    "1": 1801,
+    "2": 1801,
+    "3": 1801,
+    "4": 1801,
+    "5": 1801,
+    "6": 1801,
+    "7": 1801
+  },
+  "first_nonfinite": [],
+  "first_ground": {
+    "0": 348,
+    "1": 348,
+    "2": 348,
+    "3": 348,
+    "4": 348,
+    "5": 348,
+    "6": 348,
+    "7": 348
+  },
+  "observer_errors": []
+}

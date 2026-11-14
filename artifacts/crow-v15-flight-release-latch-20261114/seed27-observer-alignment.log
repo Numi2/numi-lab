@@ -1,0 +1,38 @@
+{
+  "scope": "same-run right-turn candidate replay versus support observer; contact timing not established",
+  "lane": 7,
+  "rows": [
+    {
+      "offset": 0,
+      "field": "q",
+      "compared": 1800,
+      "max_abs_difference": 0.6076943577155152,
+      "count_exceeding_1e-6": 1752,
+      "missing": []
+    },
+    {
+      "offset": 0,
+      "field": "v",
+      "compared": 1800,
+      "max_abs_difference": 45.243324238671875,
+      "count_exceeding_1e-6": 1766,
+      "missing": []
+    },
+    {
+      "offset": 1,
+      "field": "q",
+      "compared": 1800,
+      "max_abs_difference": 4.978027412505526e-08,
+      "count_exceeding_1e-6": 0,
+      "missing": []
+    },
+    {
+      "offset": 1,
+      "field": "v",
+      "compared": 1800,
+      "max_abs_difference": 4.995117208750344e-08,
+      "count_exceeding_1e-6": 0,
+      "missing": []
+    }
+  ]
+}
