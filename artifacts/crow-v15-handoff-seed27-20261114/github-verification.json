@@ -1,0 +1,17 @@
+{
+  "source_commit": "535185a2",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-handoff-seed27-20261114/push-20261127-rebound-gated-seed27/run.stderr.gz",
+      "bytes": 38537073,
+      "sha256": "c482a6c79d2a50c559289100eba19eec30409ad582c997c7f3f762ef1c76c064",
+      "gzip_eof": true
+    },
+    {
+      "path": "artifacts/crow-v15-handoff-seed27-20261114/hold-20261127-rebound-gated-seed27/run.stderr.gz",
+      "bytes": 72458956,
+      "sha256": "d98733486f9b4ab87b6929f78ce9ecb315e130e4936a51dc85a5c7247074b8c0",
+      "gzip_eof": true
+    }
+  ]
+}

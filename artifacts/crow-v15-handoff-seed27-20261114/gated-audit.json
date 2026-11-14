@@ -2,6 +2,8 @@
   "rows": [
     {
       "lane": 0,
+      "prefix_state_mismatch": [],
+      "held_target_mismatch": [],
       "integrity_pass": true,
       "first_target_difference_by_dof": {
         "13": 373,
@@ -32,6 +34,8 @@
     },
     {
       "lane": 1,
+      "prefix_state_mismatch": [],
+      "held_target_mismatch": [],
       "integrity_pass": true,
       "first_target_difference_by_dof": {
         "13": 373,
@@ -62,6 +66,8 @@
     },
     {
       "lane": 2,
+      "prefix_state_mismatch": [],
+      "held_target_mismatch": [],
       "integrity_pass": true,
       "first_target_difference_by_dof": {
         "13": 373,
@@ -92,6 +98,8 @@
     },
     {
       "lane": 3,
+      "prefix_state_mismatch": [],
+      "held_target_mismatch": [],
       "integrity_pass": true,
       "first_target_difference_by_dof": {
         "13": 373,
@@ -122,6 +130,8 @@
     },
     {
       "lane": 4,
+      "prefix_state_mismatch": [],
+      "held_target_mismatch": [],
       "integrity_pass": true,
       "first_target_difference_by_dof": {
         "13": 373,
@@ -152,6 +162,8 @@
     },
     {
       "lane": 5,
+      "prefix_state_mismatch": [],
+      "held_target_mismatch": [],
       "integrity_pass": true,
       "first_target_difference_by_dof": {
         "13": 373,
@@ -182,6 +194,8 @@
     },
     {
       "lane": 6,
+      "prefix_state_mismatch": [],
+      "held_target_mismatch": [],
       "integrity_pass": true,
       "first_target_difference_by_dof": {
         "13": 373,
@@ -212,6 +226,8 @@
     },
     {
       "lane": 7,
+      "prefix_state_mismatch": [],
+      "held_target_mismatch": [],
       "integrity_pass": true,
       "first_target_difference_by_dof": {
         "13": 373,
