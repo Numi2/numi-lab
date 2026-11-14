@@ -1,0 +1,10 @@
+{
+  "matching_launch_inputs": {
+    "host_sha256": true,
+    "landing_policy_sha256": true,
+    "route_policy_sha256": true,
+    "frozen_flight_sha256": true
+  },
+  "expected_shader": true,
+  "scope": "live input identity check only; no outcome inferred"
+}

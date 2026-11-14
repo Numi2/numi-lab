@@ -1,0 +1,3 @@
+from pathlib import Path
+import json
+p=Path(__file__).resolve().parent;a=json.loads((p/'straight-live-inputs.json').read_text());b=json.loads((p.parent/'crow-v15-upward-trigger-stroke-20261114/push-20261126-rebound-phase/inputs.json').read_text());h=json.loads((p/'straight-hashes.json').read_text());keys=('host_sha256','landing_policy_sha256','route_policy_sha256','frozen_flight_sha256');out={'matching_launch_inputs':{k:a[k]==b[k] for k in keys},'expected_shader':a['metallib_sha256']==h['metallib'],'scope':'live input identity check only; no outcome inferred'};(p/'straight-live-input-check.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))
