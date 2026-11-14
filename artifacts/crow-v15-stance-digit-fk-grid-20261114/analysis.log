@@ -1,0 +1,138 @@
+{
+  "rows": [
+    {
+      "tick": 290,
+      "samples": 868,
+      "zero_pose_max_gap_error_m": 9.346487410410997e-09,
+      "recorded_gaps_m": {
+        "foot": -7.265995788801466e-05,
+        "front": -5.586662402010112e-06,
+        "rear": -0.00037445792460845395
+      },
+      "zero_offset_gaps_m": {
+        "foot": -7.265061140060425e-05,
+        "front": -5.587004125118256e-06,
+        "rear": -0.0003744550049304962
+      },
+      "eligible_count": 69,
+      "minimum_joint_change_candidate": {
+        "proximal_delta_rad": 0.0,
+        "distal_delta_rad": 0.0,
+        "foot_gap_m": -7.265061140060425e-05,
+        "front_gap_m": -5.587004125118256e-06,
+        "rear_gap_m": -0.0003744550049304962
+      }
+    },
+    {
+      "tick": 295,
+      "samples": 651,
+      "zero_pose_max_gap_error_m": 5.6352147878580006e-09,
+      "recorded_gaps_m": {
+        "foot": -6.808159012888088e-05,
+        "front": 8.00908380003268e-06,
+        "rear": -0.0004060892654188103
+      },
+      "zero_offset_gaps_m": {
+        "foot": -6.807595491409302e-05,
+        "front": 8.007511496543884e-06,
+        "rear": -0.0004060901701450348
+      },
+      "eligible_count": 55,
+      "minimum_joint_change_candidate": {
+        "proximal_delta_rad": 0.0,
+        "distal_delta_rad": 0.01,
+        "foot_gap_m": -6.807595491409302e-05,
+        "front_gap_m": -0.00011652801185846329,
+        "rear_gap_m": -0.0004060901701450348
+      }
+    },
+    {
+      "tick": 297,
+      "samples": 558,
+      "zero_pose_max_gap_error_m": 6.770951244128298e-09,
+      "recorded_gaps_m": {
+        "foot": -6.65716172628672e-05,
+        "front": 5.805418365666115e-06,
+        "rear": -0.0004982173384089142
+      },
+      "zero_offset_gaps_m": {
+        "foot": -6.657838821411133e-05,
+        "front": 5.804933607578278e-06,
+        "rear": -0.0004982165992259979
+      },
+      "eligible_count": 41,
+      "minimum_joint_change_candidate": {
+        "proximal_delta_rad": 0.0,
+        "distal_delta_rad": 0.01,
+        "foot_gap_m": -6.657838821411133e-05,
+        "front_gap_m": -0.0001149522140622139,
+        "rear_gap_m": -0.0004982165992259979
+      }
+    },
+    {
+      "tick": 300,
+      "samples": 496,
+      "zero_pose_max_gap_error_m": 3.1841333077153866e-09,
+      "recorded_gaps_m": {
+        "foot": -6.430684344164994e-05,
+        "front": 8.455811167405389e-05,
+        "rear": -0.000436767825328796
+      },
+      "zero_offset_gaps_m": {
+        "foot": -6.430596113204956e-05,
+        "front": 8.45612958073616e-05,
+        "rear": -0.00043676793575286865
+      },
+      "eligible_count": 31,
+      "minimum_joint_change_candidate": {
+        "proximal_delta_rad": 0.0,
+        "distal_delta_rad": 0.01,
+        "foot_gap_m": -6.430596113204956e-05,
+        "front_gap_m": -2.314802259206772e-05,
+        "rear_gap_m": -0.00043676793575286865
+      }
+    },
+    {
+      "tick": 305,
+      "samples": 496,
+      "zero_pose_max_gap_error_m": 2.9351595876025982e-09,
+      "recorded_gaps_m": {
+        "foot": -6.533661664184787e-05,
+        "front": 0.0009041096267435843,
+        "rear": -0.00031276340745725606
+      },
+      "zero_offset_gaps_m": {
+        "foot": -6.533414125442505e-05,
+        "front": 0.0009041107259690762,
+        "rear": -0.00031276047229766846
+      },
+      "eligible_count": 7,
+      "minimum_joint_change_candidate": {
+        "proximal_delta_rad": 0.0,
+        "distal_delta_rad": 0.11,
+        "foot_gap_m": -6.533414125442505e-05,
+        "front_gap_m": -7.185619324445724e-05,
+        "rear_gap_m": -0.00031276047229766846
+      }
+    },
+    {
+      "tick": 310,
+      "samples": 496,
+      "zero_pose_max_gap_error_m": 2.621515698963961e-09,
+      "recorded_gaps_m": {
+        "foot": 0.002178798641795543,
+        "front": 0.003324983979977228,
+        "rear": -0.0003331202875533623
+      },
+      "zero_offset_gaps_m": {
+        "foot": 0.0021787970326840878,
+        "front": 0.003324985969811678,
+        "rear": -0.0003331229090690613
+      },
+      "eligible_count": 0,
+      "minimum_joint_change_candidate": null
+    }
+  ],
+  "mapping_check_pass": true,
+  "scope": "fixed-state oriented-box gap calculation only; no dynamics, forces, contact normal or biological qualification"
+}
