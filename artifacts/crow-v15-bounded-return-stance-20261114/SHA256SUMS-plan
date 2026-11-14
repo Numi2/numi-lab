@@ -1,0 +1,10 @@
+b3b8b8a62d283e0addfa365ca15e2c54a9f76b91689cfc0bde6cc61745c79c5c  artifacts/crow-v15-bounded-return-stance-20261114/PLAN.md
+8dd4f164566b3f1f0618a26fe2f6997d835574a9fcf2252a923c74f5f8c1ea5d  artifacts/crow-v15-bounded-return-stance-20261114/probe.cpp
+d2333ba4b1197245b0b90723573d567c54cc3f8177a1213b6869d9c7c2fb5f44  artifacts/crow-v15-bounded-return-stance-20261114/run.py
+fc64dfc6d86d5976b2ac4fa9ed48bc907604ae07f086bdee9657dc49f85b0468  artifacts/crow-v15-bounded-return-stance-20261114/analyze.py
+3ab9a38e96b0b9e0a8f16122b0ff591081aa924b3127bfbdc911da40560cc50c  artifacts/crow-v15-bounded-return-stance-20261114/compare.py
+91fd02c7b58b6cce00e8aa1cbd9dc2da4603c8081cf6c2b05365e98cd9f76bb6  artifacts/crow-v15-bounded-return-stance-20261114/clearance-intervals.py
+50903fe0b250a19933b7f6dc83cb1291e157befcb1364c52a10a8303459bcfa7  artifacts/crow-v15-bounded-return-stance-20261114/regrip-intervals.py
+80a9f6cef841d6a1c02e6de213bb8fc736eb7d203151765630a46d63ae03dc8d  artifacts/crow-v15-bounded-return-stance-20261114/joint-check.py
+601c0b12e8576daa09c90de6de2bb129f0c3db1a4aa7b9b09d14ac78af0e0118  artifacts/crow-v15-bounded-return-stance-20261114/toe-speed.py
+1a8f3eb513c2d71cb11cfb25ce4f0da1cc6627cce4a46713f5a7b5aa266fbc0d  artifacts/crow-v15-bounded-return-stance-20261114/geometry-audit.py
