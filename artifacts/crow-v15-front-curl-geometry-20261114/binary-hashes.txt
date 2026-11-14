@@ -1,0 +1,2 @@
+bfff7a6ca64a478c10daa8994a8d303ab9704df268f15bbce559f217f662b312  build/crow-v15-regrip-local-geometry-20261114/kinematics
+2401d8c6aa048f7a4a75b51d2fbc1498b97b66fd3e3e6aeb19b3014fa5af7aea  build/crow-v15-hiproll-toe-observer-20261113/libmetalrobo.dylib

@@ -1,0 +1,5 @@
+# Geometry at the post-curl pose
+
+At candidate tick 310, the nearest-front, rear and foot gaps were +2.57, -0.50 and +4.99 mm. A local positive hip perturbation had estimated derivatives of -153, +106 and -138 mm/rad for front, rear and foot gaps respectively. This suggests that approximately 0.02 rad could close the front gap locally, while also bringing the foot closer and moving the rear toe away from the perch. The pose is a retained physical state, but these finite differences alone do not establish a dynamically reachable configuration or opposing contact forces.
+
+All zero-perturbation FK gaps matched recorded-pose reconstruction within 8.3 nm and the native executable and library hashes match the previously archived diagnostic. At candidate tick 310, the +0.02-rad perturbation of each of the three front proximal toe joints exceeded the configured 1.2-rad limit; those three derivatives span infeasible states and must not be treated as available joint motion. All other reported perturbations remained within the checked limits. Closest-digit derivatives can switch colliders and are not simultaneous coordinated closure measurements.
