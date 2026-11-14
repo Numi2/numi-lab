@@ -1,0 +1,130 @@
+{
+  "mapping": {
+    "recorded_names": 9,
+    "max_position_error_m": 3.286995419883302e-10,
+    "missing_names": []
+  },
+  "summary": {
+    "front": {
+      "grid_configurations": 256,
+      "near_surface_configurations": 1,
+      "examples": [
+        {
+          "id": 254,
+          "kind": "front",
+          "angles": [
+            1.2,
+            1.0
+          ],
+          "min_gap_m": 0.00018627894228423134,
+          "max_gap_m": 0.00977028411754994,
+          "max_penetration_m": 0.0,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        }
+      ]
+    },
+    "rear": {
+      "grid_configurations": 256,
+      "near_surface_configurations": 9,
+      "examples": [
+        {
+          "id": 304,
+          "kind": "rear",
+          "angles": [
+            -0.1,
+            1.2
+          ],
+          "min_gap_m": -0.00036589263745614997,
+          "max_gap_m": 0.005445262483760656,
+          "max_penetration_m": 0.00036589263745614997,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 318,
+          "kind": "rear",
+          "angles": [
+            0.0,
+            1.0
+          ],
+          "min_gap_m": 0.00021369433010553357,
+          "max_gap_m": 0.00534332580393488,
+          "max_penetration_m": 0.0,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 332,
+          "kind": "rear",
+          "angles": [
+            0.1,
+            0.8
+          ],
+          "min_gap_m": 0.00024668434763354397,
+          "max_gap_m": 0.00469704246460919,
+          "max_penetration_m": 0.0,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 346,
+          "kind": "rear",
+          "angles": [
+            0.2,
+            0.6
+          ],
+          "min_gap_m": -0.00019847516917066016,
+          "max_gap_m": 0.00302573394691507,
+          "max_penetration_m": 0.00019847516917066016,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 358,
+          "kind": "rear",
+          "angles": [
+            0.3,
+            0.2
+          ],
+          "min_gap_m": 9.547534098852672e-05,
+          "max_gap_m": 0.0014670593436786408,
+          "max_penetration_m": 0.0,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 359,
+          "kind": "rear",
+          "angles": [
+            0.3,
+            0.3
+          ],
+          "min_gap_m": -0.0004235210813210849,
+          "max_gap_m": 0.0014670593436786408,
+          "max_penetration_m": 0.0004235210813210849,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 369,
+          "kind": "rear",
+          "angles": [
+            0.4,
+            -0.3
+          ],
+          "min_gap_m": -0.0005038859869662057,
+          "max_gap_m": 3.659241630611654e-05,
+          "max_penetration_m": 0.0005038859869662057,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 370,
+          "kind": "rear",
+          "angles": [
+            0.4,
+            -0.2
+          ],
+          "min_gap_m": -0.0006682428527868198,
+          "max_gap_m": 3.659241630611654e-05,
+          "max_penetration_m": 0.0006682428527868198,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        }
+      ]
+    }
+  },
+  "scope": "fixed-posture oriented-box kinematic screen; no dynamics, self-collision or path feasibility"
+}

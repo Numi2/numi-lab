@@ -1,0 +1,6276 @@
+{
+  "mapping": {
+    "recorded_names": 9,
+    "max_position_error_m": 3.286995419883302e-10,
+    "missing_names": []
+  },
+  "summary": {
+    "front": {
+      "grid_configurations": 256,
+      "near_surface_configurations": 1,
+      "examples": [
+        {
+          "id": 254,
+          "kind": "front",
+          "angles": [
+            1.2,
+            1.0
+          ],
+          "min_gap_m": 0.00018627894228423134,
+          "max_gap_m": 0.00977028411754994,
+          "max_penetration_m": 0.0,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        }
+      ]
+    },
+    "rear": {
+      "grid_configurations": 256,
+      "near_surface_configurations": 9,
+      "examples": [
+        {
+          "id": 304,
+          "kind": "rear",
+          "angles": [
+            -0.1,
+            1.2
+          ],
+          "min_gap_m": -0.00036589263745614997,
+          "max_gap_m": 0.005445262483760656,
+          "max_penetration_m": 0.00036589263745614997,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 318,
+          "kind": "rear",
+          "angles": [
+            0.0,
+            1.0
+          ],
+          "min_gap_m": 0.00021369433010553357,
+          "max_gap_m": 0.00534332580393488,
+          "max_penetration_m": 0.0,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 332,
+          "kind": "rear",
+          "angles": [
+            0.1,
+            0.8
+          ],
+          "min_gap_m": 0.00024668434763354397,
+          "max_gap_m": 0.00469704246460919,
+          "max_penetration_m": 0.0,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 346,
+          "kind": "rear",
+          "angles": [
+            0.2,
+            0.6
+          ],
+          "min_gap_m": -0.00019847516917066016,
+          "max_gap_m": 0.00302573394691507,
+          "max_penetration_m": 0.00019847516917066016,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 358,
+          "kind": "rear",
+          "angles": [
+            0.3,
+            0.2
+          ],
+          "min_gap_m": 9.547534098852672e-05,
+          "max_gap_m": 0.0014670593436786408,
+          "max_penetration_m": 0.0,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 359,
+          "kind": "rear",
+          "angles": [
+            0.3,
+            0.3
+          ],
+          "min_gap_m": -0.0004235210813210849,
+          "max_gap_m": 0.0014670593436786408,
+          "max_penetration_m": 0.0004235210813210849,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 369,
+          "kind": "rear",
+          "angles": [
+            0.4,
+            -0.3
+          ],
+          "min_gap_m": -0.0005038859869662057,
+          "max_gap_m": 3.659241630611654e-05,
+          "max_penetration_m": 0.0005038859869662057,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        },
+        {
+          "id": 370,
+          "kind": "rear",
+          "angles": [
+            0.4,
+            -0.2
+          ],
+          "min_gap_m": -0.0006682428527868198,
+          "max_gap_m": 3.659241630611654e-05,
+          "max_penetration_m": 0.0006682428527868198,
+          "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "id": 1,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        -0.3
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.037081706961218874,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 2,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        -0.2
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.03708649604059932,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 3,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        -0.1
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.036723756653788596,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 4,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        0.0
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.03599050018361318,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 5,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        0.1
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.03488764614421707,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 6,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        0.2
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.03342060727101767,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 7,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        0.3
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.03201580331360184,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 8,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        0.4
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.031104553728862436,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 9,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        0.5
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.030206185517955376,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 10,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        0.6
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.029329674879082973,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 11,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        0.7
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.028483779616812956,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 12,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        0.8
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.027676951636990126,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 13,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        0.9
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.026917252498086984,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 14,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        1.0
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.02632776335580926,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 15,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        1.1
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.027270650468539506,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 16,
+      "kind": "front",
+      "angles": [
+        -0.3,
+        1.2
+      ],
+      "min_gap_m": 0.014526360476170577,
+      "max_gap_m": 0.027865402274258988,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 17,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        -0.3
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.036649236044368184,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 18,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        -0.2
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.036458848553218175,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 19,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        -0.1
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.03590163659521866,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 20,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        0.0
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.034976765652583015,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 21,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        0.1
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.03368777924115834,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 22,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        0.2
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.03238674163672125,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 23,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        0.3
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.03147549205198186,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 24,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        0.4
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.030577123841074784,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 25,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        0.5
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.02970061320220238,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 26,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        0.6
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.028854717939932356,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 27,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        0.7
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.028047889960109533,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 28,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        0.8
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.02728819082120639,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 29,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        0.9
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.026583211185895746,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 30,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        1.0
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.026397554199557804,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 31,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        1.1
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.027146886086773445,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 32,
+      "kind": "front",
+      "angles": [
+        -0.2,
+        1.2
+      ],
+      "min_gap_m": 0.013932860105233792,
+      "max_gap_m": 0.02754607761403781,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 33,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        -0.3
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.036020277006352124,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 34,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        -0.2
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.035635933725635886,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 35,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        -0.1
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.03488764614421708,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 36,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        0.0
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.033777134166163174,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 37,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        0.1
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.0325809698462076,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 38,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        0.2
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.03166972026146819,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 39,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        0.3
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.030771352050561133,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 40,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        0.4
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.02989484141168873,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 41,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        0.5
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.029048946149418713,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 42,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        0.6
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.028242118169595883,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 43,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        0.7
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.02748241903069274,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 44,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        0.8
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.026777439395382095,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 45,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        0.9
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.026134223187144666,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 46,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        1.0
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.026271674717825266,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 47,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        1.1
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.026825601963766765,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 48,
+      "kind": "front",
+      "angles": [
+        -0.1,
+        1.2
+      ],
+      "min_gap_m": 0.013193071234091153,
+      "max_gap_m": 0.027028618747742095,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 49,
+      "kind": "front",
+      "angles": [
+        0.0,
+        -0.3
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.03519604639010806,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 50,
+      "kind": "front",
+      "angles": [
+        0.0,
+        -0.2
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.03462117807178788,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 51,
+      "kind": "front",
+      "angles": [
+        0.0,
+        -0.1
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.03368777924115834,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 52,
+      "kind": "front",
+      "angles": [
+        0.0,
+        0.0
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.03259654727799501,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 53,
+      "kind": "front",
+      "angles": [
+        0.0,
+        0.1
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.03168529769325561,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 54,
+      "kind": "front",
+      "angles": [
+        0.0,
+        0.2
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.030786929482348548,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 55,
+      "kind": "front",
+      "angles": [
+        0.0,
+        0.3
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.029910418843476144,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 56,
+      "kind": "front",
+      "angles": [
+        0.0,
+        0.4
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.02906452358120612,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 57,
+      "kind": "front",
+      "angles": [
+        0.0,
+        0.5
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.028257695601383297,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 58,
+      "kind": "front",
+      "angles": [
+        0.0,
+        0.6
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.027497996462480155,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 59,
+      "kind": "front",
+      "angles": [
+        0.0,
+        0.7
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.02679301682716951,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 60,
+      "kind": "front",
+      "angles": [
+        0.0,
+        0.8
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.02614980061893208,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 61,
+      "kind": "front",
+      "angles": [
+        0.0,
+        0.9
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.025574774641501548,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 62,
+      "kind": "front",
+      "angles": [
+        0.0,
+        1.0
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.02594800380919457,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 63,
+      "kind": "front",
+      "angles": [
+        0.0,
+        1.1
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.026306034372454046,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 64,
+      "kind": "front",
+      "angles": [
+        0.0,
+        1.2
+      ],
+      "min_gap_m": 0.012314959887069647,
+      "max_gap_m": 0.02631392698160402,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 65,
+      "kind": "front",
+      "angles": [
+        0.1,
+        -0.3
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.034180023896192506,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 66,
+      "kind": "front",
+      "angles": [
+        0.1,
+        -0.2
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.03342060727101768,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 67,
+      "kind": "front",
+      "angles": [
+        0.1,
+        -0.1
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.0324333182875343,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 68,
+      "kind": "front",
+      "angles": [
+        0.1,
+        0.0
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.03152206870279489,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 69,
+      "kind": "front",
+      "angles": [
+        0.1,
+        0.1
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.030623700491887833,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 70,
+      "kind": "front",
+      "angles": [
+        0.1,
+        0.2
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.02974718985301543,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 71,
+      "kind": "front",
+      "angles": [
+        0.1,
+        0.3
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.028901294590745412,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 72,
+      "kind": "front",
+      "angles": [
+        0.1,
+        0.4
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.028094466610922582,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 73,
+      "kind": "front",
+      "angles": [
+        0.1,
+        0.5
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.02733476747201944,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 74,
+      "kind": "front",
+      "angles": [
+        0.1,
+        0.6
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.026629787836708795,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 75,
+      "kind": "front",
+      "angles": [
+        0.1,
+        0.7
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.025986571628471365,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 76,
+      "kind": "front",
+      "angles": [
+        0.1,
+        0.8
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.025411545651040833,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 77,
+      "kind": "front",
+      "angles": [
+        0.1,
+        0.9
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.024922051820986404,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 78,
+      "kind": "front",
+      "angles": [
+        0.1,
+        1.0
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.025425867618675643,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 79,
+      "kind": "front",
+      "angles": [
+        0.1,
+        1.1
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.025589166077175485,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 80,
+      "kind": "front",
+      "angles": [
+        0.1,
+        1.2
+      ],
+      "min_gap_m": 0.011403710302330256,
+      "max_gap_m": 0.02540497264452779,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 81,
+      "kind": "front",
+      "angles": [
+        0.2,
+        -0.3
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.032978287749751534,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 82,
+      "kind": "front",
+      "angles": [
+        0.2,
+        -0.2
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.0320929138049418,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 83,
+      "kind": "front",
+      "angles": [
+        0.2,
+        -0.1
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.03118166422020241,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 84,
+      "kind": "front",
+      "angles": [
+        0.2,
+        0.0
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.030283296009295337,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 85,
+      "kind": "front",
+      "angles": [
+        0.2,
+        0.1
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.029406785370422933,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 86,
+      "kind": "front",
+      "angles": [
+        0.2,
+        0.2
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.028560890108152916,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 87,
+      "kind": "front",
+      "angles": [
+        0.2,
+        0.3
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.027754062128330086,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 88,
+      "kind": "front",
+      "angles": [
+        0.2,
+        0.4
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.026994362989426944,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 89,
+      "kind": "front",
+      "angles": [
+        0.2,
+        0.5
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.0262893833541163,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 90,
+      "kind": "front",
+      "angles": [
+        0.2,
+        0.6
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.02564616714587887,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 91,
+      "kind": "front",
+      "angles": [
+        0.2,
+        0.7
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.025071141168448337,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 92,
+      "kind": "front",
+      "angles": [
+        0.2,
+        0.8
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.02457005089131291,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 93,
+      "kind": "front",
+      "angles": [
+        0.2,
+        0.9
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.024396912821666186,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 94,
+      "kind": "front",
+      "angles": [
+        0.2,
+        1.0
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.02470634813323354,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 95,
+      "kind": "front",
+      "angles": [
+        0.2,
+        1.1
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.02467805374644231,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 96,
+      "kind": "front",
+      "angles": [
+        0.2,
+        1.2
+      ],
+      "min_gap_m": 0.010505342091423182,
+      "max_gap_m": 0.024307112390982176,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 97,
+      "kind": "front",
+      "angles": [
+        0.3,
+        -0.3
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.031578735039284815,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 98,
+      "kind": "front",
+      "angles": [
+        0.3,
+        -0.2
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.03066748545454541,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 99,
+      "kind": "front",
+      "angles": [
+        0.3,
+        -0.1
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.02976911724363835,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 100,
+      "kind": "front",
+      "angles": [
+        0.3,
+        0.0
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.028892606604765947,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 101,
+      "kind": "front",
+      "angles": [
+        0.3,
+        0.1
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.02804671134249593,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 102,
+      "kind": "front",
+      "angles": [
+        0.3,
+        0.2
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.0272398833626731,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 103,
+      "kind": "front",
+      "angles": [
+        0.3,
+        0.3
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.026480184223769958,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 104,
+      "kind": "front",
+      "angles": [
+        0.3,
+        0.4
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.025775204588459312,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 105,
+      "kind": "front",
+      "angles": [
+        0.3,
+        0.5
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.025131988380221883,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 106,
+      "kind": "front",
+      "angles": [
+        0.3,
+        0.6
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.02455696240279135,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 107,
+      "kind": "front",
+      "angles": [
+        0.3,
+        0.7
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.024055872125655922,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 108,
+      "kind": "front",
+      "angles": [
+        0.3,
+        0.8
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.02363372427722628,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 109,
+      "kind": "front",
+      "angles": [
+        0.3,
+        0.9
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.023674293974853204,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 110,
+      "kind": "front",
+      "angles": [
+        0.3,
+        1.0
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.023792607190068822,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 111,
+      "kind": "front",
+      "angles": [
+        0.3,
+        1.1
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.023578141935744555,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 112,
+      "kind": "front",
+      "angles": [
+        0.3,
+        1.2
+      ],
+      "min_gap_m": 0.009628831452550786,
+      "max_gap_m": 0.023028359545802242,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 113,
+      "kind": "front",
+      "angles": [
+        0.4,
+        -0.3
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.0299846699100855,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 114,
+      "kind": "front",
+      "angles": [
+        0.4,
+        -0.2
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.029086301699178425,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 115,
+      "kind": "front",
+      "angles": [
+        0.4,
+        -0.1
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.028209791060306022,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 116,
+      "kind": "front",
+      "angles": [
+        0.4,
+        0.0
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.027363895798035998,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 117,
+      "kind": "front",
+      "angles": [
+        0.4,
+        0.1
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.026557067818213174,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 118,
+      "kind": "front",
+      "angles": [
+        0.4,
+        0.2
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.025797368679310033,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 119,
+      "kind": "front",
+      "angles": [
+        0.4,
+        0.3
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.025092389043999387,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 120,
+      "kind": "front",
+      "angles": [
+        0.4,
+        0.4
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.02444917283576195,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 121,
+      "kind": "front",
+      "angles": [
+        0.4,
+        0.5
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.023874146858331426,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 122,
+      "kind": "front",
+      "angles": [
+        0.4,
+        0.6
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.02337305658119599,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 123,
+      "kind": "front",
+      "angles": [
+        0.4,
+        0.7
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.022950908732766354,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 124,
+      "kind": "front",
+      "angles": [
+        0.4,
+        0.8
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.022611921274800488,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 125,
+      "kind": "front",
+      "angles": [
+        0.4,
+        0.9
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.02275748006470893,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 126,
+      "kind": "front",
+      "angles": [
+        0.4,
+        1.0
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.02269019641529084,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 127,
+      "kind": "front",
+      "angles": [
+        0.4,
+        1.1
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.022297529681585326,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 128,
+      "kind": "front",
+      "angles": [
+        0.4,
+        1.2
+      ],
+      "min_gap_m": 0.008782936190280775,
+      "max_gap_m": 0.020880486823373824,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 129,
+      "kind": "front",
+      "angles": [
+        0.5,
+        -0.3
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.028241671843127016,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 130,
+      "kind": "front",
+      "angles": [
+        0.5,
+        -0.2
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.027365161204254612,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 131,
+      "kind": "front",
+      "angles": [
+        0.5,
+        -0.1
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.026519265941984588,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 132,
+      "kind": "front",
+      "angles": [
+        0.5,
+        0.0
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.025712437962161765,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 133,
+      "kind": "front",
+      "angles": [
+        0.5,
+        0.1
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.024952738823258623,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 134,
+      "kind": "front",
+      "angles": [
+        0.5,
+        0.2
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.024247759187947977,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 135,
+      "kind": "front",
+      "angles": [
+        0.5,
+        0.3
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.02360454297971054,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 136,
+      "kind": "front",
+      "angles": [
+        0.5,
+        0.4
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.023029517002280016,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 137,
+      "kind": "front",
+      "angles": [
+        0.5,
+        0.5
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.022528426725144587,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 138,
+      "kind": "front",
+      "angles": [
+        0.5,
+        0.6
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.022106278876714944,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 139,
+      "kind": "front",
+      "angles": [
+        0.5,
+        0.7
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.021767291418749078,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 140,
+      "kind": "front",
+      "angles": [
+        0.5,
+        0.8
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.02158301501843167,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 141,
+      "kind": "front",
+      "angles": [
+        0.5,
+        0.9
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.021652147887745644,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 142,
+      "kind": "front",
+      "angles": [
+        0.5,
+        1.0
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.021407319249211024,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 143,
+      "kind": "front",
+      "angles": [
+        0.5,
+        1.1
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.020035856967322407,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 144,
+      "kind": "front",
+      "angles": [
+        0.5,
+        1.2
+      ],
+      "min_gap_m": 0.007976108210457938,
+      "max_gap_m": 0.01836850443302579,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 145,
+      "kind": "front",
+      "angles": [
+        0.6,
+        -0.3
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.026367156298935837,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 146,
+      "kind": "front",
+      "angles": [
+        0.6,
+        -0.2
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.025521261036665813,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 147,
+      "kind": "front",
+      "angles": [
+        0.6,
+        -0.1
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.024714433056842983,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 148,
+      "kind": "front",
+      "angles": [
+        0.6,
+        0.0
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.023954733917939855,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 149,
+      "kind": "front",
+      "angles": [
+        0.6,
+        0.1
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.023249754282629202,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 150,
+      "kind": "front",
+      "angles": [
+        0.6,
+        0.2
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.022606538074391766,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 151,
+      "kind": "front",
+      "angles": [
+        0.6,
+        0.3
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.02203151209696124,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 152,
+      "kind": "front",
+      "angles": [
+        0.6,
+        0.4
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.021530421819825805,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 153,
+      "kind": "front",
+      "angles": [
+        0.6,
+        0.5
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.02110827397139617,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 154,
+      "kind": "front",
+      "angles": [
+        0.6,
+        0.6
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.020769286513430303,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 155,
+      "kind": "front",
+      "angles": [
+        0.6,
+        0.7
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.020516846496553866,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 156,
+      "kind": "front",
+      "angles": [
+        0.6,
+        0.8
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.02047436819086295,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 157,
+      "kind": "front",
+      "angles": [
+        0.6,
+        0.9
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.020366622937055098,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 158,
+      "kind": "front",
+      "angles": [
+        0.6,
+        1.0
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.01903785206200364,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 159,
+      "kind": "front",
+      "angles": [
+        0.6,
+        1.1
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.017370499527707008,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 160,
+      "kind": "front",
+      "angles": [
+        0.6,
+        1.2
+      ],
+      "min_gap_m": 0.007216409071554804,
+      "max_gap_m": 0.015823653990571555,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 161,
+      "kind": "front",
+      "angles": [
+        0.7,
+        -0.3
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.024379852817197074,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 162,
+      "kind": "front",
+      "angles": [
+        0.7,
+        -0.2
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.023573024837374244,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 163,
+      "kind": "front",
+      "angles": [
+        0.7,
+        -0.1
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.02281332569847111,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 164,
+      "kind": "front",
+      "angles": [
+        0.7,
+        0.0
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.022108346063160457,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 165,
+      "kind": "front",
+      "angles": [
+        0.7,
+        0.1
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.02146512985492302,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 166,
+      "kind": "front",
+      "angles": [
+        0.7,
+        0.2
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.020890103877492502,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 167,
+      "kind": "front",
+      "angles": [
+        0.7,
+        0.3
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.020389013600357067,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 168,
+      "kind": "front",
+      "angles": [
+        0.7,
+        0.4
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.019966865751927423,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 169,
+      "kind": "front",
+      "angles": [
+        0.7,
+        0.5
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.019627878293961558,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 170,
+      "kind": "front",
+      "angles": [
+        0.7,
+        0.6
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.01937543827708512,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 171,
+      "kind": "front",
+      "angles": [
+        0.7,
+        0.7
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.019212067998501156,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 172,
+      "kind": "front",
+      "angles": [
+        0.7,
+        0.8
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.01918583903866015,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 173,
+      "kind": "front",
+      "angles": [
+        0.7,
+        0.9
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.017896443842534894,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 174,
+      "kind": "front",
+      "angles": [
+        0.7,
+        1.0
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.01622909130823827,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 175,
+      "kind": "front",
+      "angles": [
+        0.7,
+        1.1
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.014682245771102803,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 176,
+      "kind": "front",
+      "angles": [
+        0.7,
+        1.2
+      ],
+      "min_gap_m": 0.006511429436244158,
+      "max_gap_m": 0.013271362800416416,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 177,
+      "kind": "front",
+      "angles": [
+        0.8,
+        -0.3
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.022299617877385075,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 178,
+      "kind": "front",
+      "angles": [
+        0.8,
+        -0.2
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.021539918738481947,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 179,
+      "kind": "front",
+      "angles": [
+        0.8,
+        -0.1
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.020834939103171295,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 180,
+      "kind": "front",
+      "angles": [
+        0.8,
+        0.0
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.02019172289493386,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 181,
+      "kind": "front",
+      "angles": [
+        0.8,
+        0.1
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.019616696917503333,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 182,
+      "kind": "front",
+      "angles": [
+        0.8,
+        0.2
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.019115606640367898,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 183,
+      "kind": "front",
+      "angles": [
+        0.8,
+        0.3
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.01869345879193826,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 184,
+      "kind": "front",
+      "angles": [
+        0.8,
+        0.4
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.018354471333972396,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 185,
+      "kind": "front",
+      "angles": [
+        0.8,
+        0.5
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.018102031317095958,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 186,
+      "kind": "front",
+      "angles": [
+        0.8,
+        0.6
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.017938661038512,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 187,
+      "kind": "front",
+      "angles": [
+        0.8,
+        0.7
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.017876765556423736,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 188,
+      "kind": "front",
+      "angles": [
+        0.8,
+        0.8
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.01662303688254573,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 189,
+      "kind": "front",
+      "angles": [
+        0.8,
+        0.9
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.0149556843482491,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 190,
+      "kind": "front",
+      "angles": [
+        0.8,
+        1.0
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.01340883881111364,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 191,
+      "kind": "front",
+      "angles": [
+        0.8,
+        1.1
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.01199795584042724,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 192,
+      "kind": "front",
+      "angles": [
+        0.8,
+        1.2
+      ],
+      "min_gap_m": 0.006319341027286367,
+      "max_gap_m": 0.011625967537945328,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 193,
+      "kind": "front",
+      "angles": [
+        0.9,
+        -0.3
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.020147236499384186,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 194,
+      "kind": "front",
+      "angles": [
+        0.9,
+        -0.2
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.019442256864073533,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 195,
+      "kind": "front",
+      "angles": [
+        0.9,
+        -0.1
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.018799040655836097,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 196,
+      "kind": "front",
+      "angles": [
+        0.9,
+        0.0
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.01822401467840557,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 197,
+      "kind": "front",
+      "angles": [
+        0.9,
+        0.1
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.017722924401270136,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 198,
+      "kind": "front",
+      "angles": [
+        0.9,
+        0.2
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.0173007765528405,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 199,
+      "kind": "front",
+      "angles": [
+        0.9,
+        0.3
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.016961789094874634,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 200,
+      "kind": "front",
+      "angles": [
+        0.9,
+        0.4
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.016709349077998197,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 201,
+      "kind": "front",
+      "angles": [
+        0.9,
+        0.5
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.016545978799414232,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 202,
+      "kind": "front",
+      "angles": [
+        0.9,
+        0.6
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.01647331060094332,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 203,
+      "kind": "front",
+      "angles": [
+        0.9,
+        0.7
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.01523035464344797,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 204,
+      "kind": "front",
+      "angles": [
+        0.9,
+        0.8
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.013563002109151338,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 205,
+      "kind": "front",
+      "angles": [
+        0.9,
+        0.9
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.01201615657201588,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 206,
+      "kind": "front",
+      "angles": [
+        0.9,
+        1.0
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.011464303477166288,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 207,
+      "kind": "front",
+      "angles": [
+        0.9,
+        1.1
+      ],
+      "min_gap_m": 0.006414278136368273,
+      "max_gap_m": 0.011464303477166288,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 208,
+      "kind": "front",
+      "angles": [
+        0.9,
+        1.2
+      ],
+      "min_gap_m": 0.005860247140326395,
+      "max_gap_m": 0.011464303477166288,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 209,
+      "kind": "front",
+      "angles": [
+        1.0,
+        -0.3
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.01794421456644072,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 210,
+      "kind": "front",
+      "angles": [
+        1.0,
+        -0.2
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.017300998358203284,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 211,
+      "kind": "front",
+      "angles": [
+        1.0,
+        -0.1
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.016725972380772766,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 212,
+      "kind": "front",
+      "angles": [
+        1.0,
+        0.0
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.01622488210363733,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 213,
+      "kind": "front",
+      "angles": [
+        1.0,
+        0.1
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.015802734255207687,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 214,
+      "kind": "front",
+      "angles": [
+        1.0,
+        0.2
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.015463746797241822,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 215,
+      "kind": "front",
+      "angles": [
+        1.0,
+        0.3
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.015211306780365391,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 216,
+      "kind": "front",
+      "angles": [
+        1.0,
+        0.4
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.01504793650178142,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 217,
+      "kind": "front",
+      "angles": [
+        1.0,
+        0.5
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.014975268303310509,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 218,
+      "kind": "front",
+      "angles": [
+        1.0,
+        0.6
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.013732312345815158,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 219,
+      "kind": "front",
+      "angles": [
+        1.0,
+        0.7
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.012064959811518533,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 220,
+      "kind": "front",
+      "angles": [
+        1.0,
+        0.8
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.011100251442260678,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 221,
+      "kind": "front",
+      "angles": [
+        1.0,
+        0.9
+      ],
+      "min_gap_m": 0.006357241438745109,
+      "max_gap_m": 0.011100251442260678,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 222,
+      "kind": "front",
+      "angles": [
+        1.0,
+        1.0
+      ],
+      "min_gap_m": 0.00546037079802715,
+      "max_gap_m": 0.011100251442260678,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 223,
+      "kind": "front",
+      "angles": [
+        1.0,
+        1.1
+      ],
+      "min_gap_m": 0.004362204842693569,
+      "max_gap_m": 0.011100251442260678,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 224,
+      "kind": "front",
+      "angles": [
+        1.0,
+        1.2
+      ],
+      "min_gap_m": 0.0034376687712168452,
+      "max_gap_m": 0.011100251442260678,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 225,
+      "kind": "front",
+      "angles": [
+        1.1,
+        -0.3
+      ],
+      "min_gap_m": 0.006147021434192108,
+      "max_gap_m": 0.015712563945486382,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 226,
+      "kind": "front",
+      "angles": [
+        1.1,
+        -0.2
+      ],
+      "min_gap_m": 0.006147021434192108,
+      "max_gap_m": 0.015137537968055857,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 227,
+      "kind": "front",
+      "angles": [
+        1.1,
+        -0.1
+      ],
+      "min_gap_m": 0.006147021434192108,
+      "max_gap_m": 0.014636447690920429,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 228,
+      "kind": "front",
+      "angles": [
+        1.1,
+        0.0
+      ],
+      "min_gap_m": 0.006147021434192108,
+      "max_gap_m": 0.014214299842490785,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 229,
+      "kind": "front",
+      "angles": [
+        1.1,
+        0.1
+      ],
+      "min_gap_m": 0.006147021434192108,
+      "max_gap_m": 0.01387531238452492,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 230,
+      "kind": "front",
+      "angles": [
+        1.1,
+        0.2
+      ],
+      "min_gap_m": 0.006147021434192108,
+      "max_gap_m": 0.013622872367648482,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 231,
+      "kind": "front",
+      "angles": [
+        1.1,
+        0.3
+      ],
+      "min_gap_m": 0.006147021434192108,
+      "max_gap_m": 0.013459502089064518,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 232,
+      "kind": "front",
+      "angles": [
+        1.1,
+        0.4
+      ],
+      "min_gap_m": 0.006147021434192108,
+      "max_gap_m": 0.013386833890593607,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 233,
+      "kind": "front",
+      "angles": [
+        1.1,
+        0.5
+      ],
+      "min_gap_m": 0.006147021434192108,
+      "max_gap_m": 0.012143877933098256,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 234,
+      "kind": "front",
+      "angles": [
+        1.1,
+        0.6
+      ],
+      "min_gap_m": 0.006147021434192108,
+      "max_gap_m": 0.010534658090004027,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 235,
+      "kind": "front",
+      "angles": [
+        1.1,
+        0.7
+      ],
+      "min_gap_m": 0.006147021434192108,
+      "max_gap_m": 0.010534658090004027,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 236,
+      "kind": "front",
+      "angles": [
+        1.1,
+        0.8
+      ],
+      "min_gap_m": 0.005132759713280383,
+      "max_gap_m": 0.010534658090004027,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 237,
+      "kind": "front",
+      "angles": [
+        1.1,
+        0.9
+      ],
+      "min_gap_m": 0.0038719363853102484,
+      "max_gap_m": 0.010534658090004027,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 238,
+      "kind": "front",
+      "angles": [
+        1.1,
+        1.0
+      ],
+      "min_gap_m": 0.002773770429976667,
+      "max_gap_m": 0.010534658090004027,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 239,
+      "kind": "front",
+      "angles": [
+        1.1,
+        1.1
+      ],
+      "min_gap_m": 0.0018492343584999328,
+      "max_gap_m": 0.010534658090004027,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 240,
+      "kind": "front",
+      "angles": [
+        1.1,
+        1.2
+      ],
+      "min_gap_m": 0.0011075658296952548,
+      "max_gap_m": 0.010534658090004027,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 241,
+      "kind": "front",
+      "angles": [
+        1.2,
+        -0.3
+      ],
+      "min_gap_m": 0.005783770812755114,
+      "max_gap_m": 0.013474582551840149,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 242,
+      "kind": "front",
+      "angles": [
+        1.2,
+        -0.2
+      ],
+      "min_gap_m": 0.005783770812755114,
+      "max_gap_m": 0.012973492274704714,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 243,
+      "kind": "front",
+      "angles": [
+        1.2,
+        -0.1
+      ],
+      "min_gap_m": 0.005783770812755114,
+      "max_gap_m": 0.012551344426275077,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 244,
+      "kind": "front",
+      "angles": [
+        1.2,
+        0.0
+      ],
+      "min_gap_m": 0.005783770812755114,
+      "max_gap_m": 0.012212356968309211,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 245,
+      "kind": "front",
+      "angles": [
+        1.2,
+        0.1
+      ],
+      "min_gap_m": 0.005783770812755114,
+      "max_gap_m": 0.01195991695143278,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 246,
+      "kind": "front",
+      "angles": [
+        1.2,
+        0.2
+      ],
+      "min_gap_m": 0.005783770812755114,
+      "max_gap_m": 0.01179654667284881,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 247,
+      "kind": "front",
+      "angles": [
+        1.2,
+        0.3
+      ],
+      "min_gap_m": 0.005783770812755114,
+      "max_gap_m": 0.011723878474377891,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 248,
+      "kind": "front",
+      "angles": [
+        1.2,
+        0.4
+      ],
+      "min_gap_m": 0.005783770812755114,
+      "max_gap_m": 0.010480922516882547,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 249,
+      "kind": "front",
+      "angles": [
+        1.2,
+        0.5
+      ],
+      "min_gap_m": 0.005783770812755114,
+      "max_gap_m": 0.00977028411754994,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 250,
+      "kind": "front",
+      "angles": [
+        1.2,
+        0.6
+      ],
+      "min_gap_m": 0.004880687267751073,
+      "max_gap_m": 0.00977028411754994,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 251,
+      "kind": "front",
+      "angles": [
+        1.2,
+        0.7
+      ],
+      "min_gap_m": 0.0034698042970646853,
+      "max_gap_m": 0.00977028411754994,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 252,
+      "kind": "front",
+      "angles": [
+        1.2,
+        0.8
+      ],
+      "min_gap_m": 0.0022089809690945435,
+      "max_gap_m": 0.00977028411754994,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 253,
+      "kind": "front",
+      "angles": [
+        1.2,
+        0.9
+      ],
+      "min_gap_m": 0.0011108150137609657,
+      "max_gap_m": 0.00977028411754994,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 254,
+      "kind": "front",
+      "angles": [
+        1.2,
+        1.0
+      ],
+      "min_gap_m": 0.00018627894228423134,
+      "max_gap_m": 0.00977028411754994,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+    },
+    {
+      "id": 255,
+      "kind": "front",
+      "angles": [
+        1.2,
+        1.1
+      ],
+      "min_gap_m": -0.0005553895865204536,
+      "max_gap_m": 0.00977028411754994,
+      "max_penetration_m": 0.0005553895865204536,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 256,
+      "kind": "front",
+      "angles": [
+        1.2,
+        1.2
+      ],
+      "min_gap_m": -0.0011067800658762852,
+      "max_gap_m": 0.00977028411754994,
+      "max_penetration_m": 0.0011067800658762852,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 257,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        -0.3
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.013479692406886325,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 258,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        -0.2
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.012962987307754685,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 259,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        -0.1
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.012522061422140941,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 260,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        0.0
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.012161320335743402,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 261,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        0.1
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.011884368454252218,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 262,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        0.2
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.011693972989319117,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 263,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        0.3
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.01159203630949334,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 264,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        0.4
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.011531589132858018,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 265,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        0.5
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.011277513562706357,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 266,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        0.6
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.010821719643204712,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 267,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        0.7
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.010165899653930305,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 268,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        0.8
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.009313771353297536,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 269,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        0.9
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.008271336182025447,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 270,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        1.0
+      ],
+      "min_gap_m": 0.005912609830184941,
+      "max_gap_m": 0.0070470990261409655,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 271,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        1.1
+      ],
+      "min_gap_m": 0.005652217396437079,
+      "max_gap_m": 0.005912609830184941,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 272,
+      "kind": "rear",
+      "angles": [
+        -0.3,
+        1.2
+      ],
+      "min_gap_m": 0.004100549864649097,
+      "max_gap_m": 0.005912609830184941,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 273,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        -0.3
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.01129378222667183,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 274,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        -0.2
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.0108528563410581,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 275,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        -0.1
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.01049211525466056,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 276,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        0.0
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.010215163373169377,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 277,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        0.1
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.010024767908236275,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 278,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        0.2
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.009922831228410499,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 279,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        0.3
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.009881647430670944,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 280,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        0.4
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.009691888761355634,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 281,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        0.5
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.009316242762089748,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 282,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        0.6
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.008755906429358778,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 283,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        0.7
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.008013928159523447,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 284,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        0.8
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.007095446533732654,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 285,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        0.9
+      ],
+      "min_gap_m": 0.005635657948693758,
+      "max_gap_m": 0.006007895607628211,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 286,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        1.0
+      ],
+      "min_gap_m": 0.0047611471901248745,
+      "max_gap_m": 0.005635657948693758,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 287,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        1.1
+      ],
+      "min_gap_m": 0.0033675622313298625,
+      "max_gap_m": 0.005635657948693758,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 288,
+      "kind": "rear",
+      "angles": [
+        -0.2,
+        1.2
+      ],
+      "min_gap_m": 0.0018419291126370724,
+      "max_gap_m": 0.005635657948693758,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 289,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        -0.3
+      ],
+      "min_gap_m": 0.005445262483760656,
+      "max_gap_m": 0.009137894355557112,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 290,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        -0.2
+      ],
+      "min_gap_m": 0.005445262483760656,
+      "max_gap_m": 0.008777153269159572,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 291,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        -0.1
+      ],
+      "min_gap_m": 0.005445262483760656,
+      "max_gap_m": 0.00850020138766839,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 292,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        0.0
+      ],
+      "min_gap_m": 0.005445262483760656,
+      "max_gap_m": 0.008309805922735287,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 293,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        0.1
+      ],
+      "min_gap_m": 0.005445262483760656,
+      "max_gap_m": 0.008207869242909512,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 294,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        0.2
+      ],
+      "min_gap_m": 0.005445262483760656,
+      "max_gap_m": 0.008179821320029805,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 295,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        0.3
+      ],
+      "min_gap_m": 0.005445262483760656,
+      "max_gap_m": 0.008037718663732825,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 296,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        0.4
+      ],
+      "min_gap_m": 0.005445262483760656,
+      "max_gap_m": 0.007726139181275286,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 297,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        0.5
+      ],
+      "min_gap_m": 0.005445262483760656,
+      "max_gap_m": 0.0072459475505625565,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 298,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        0.6
+      ],
+      "min_gap_m": 0.005445262483760656,
+      "max_gap_m": 0.006599687556395943,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 299,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        0.7
+      ],
+      "min_gap_m": 0.005445262483760656,
+      "max_gap_m": 0.00579179905115023,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 300,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        0.8
+      ],
+      "min_gap_m": 0.004828805560508867,
+      "max_gap_m": 0.005445262483760656,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 301,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        0.9
+      ],
+      "min_gap_m": 0.0037194457632972813,
+      "max_gap_m": 0.005445262483760656,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 302,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        1.0
+      ],
+      "min_gap_m": 0.0024747234600498713,
+      "max_gap_m": 0.005445262483760656,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 303,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        1.1
+      ],
+      "min_gap_m": 0.0011078556861263064,
+      "max_gap_m": 0.005445262483760656,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 304,
+      "kind": "rear",
+      "angles": [
+        -0.1,
+        1.2
+      ],
+      "min_gap_m": -0.00036589263745614997,
+      "max_gap_m": 0.005445262483760656,
+      "max_penetration_m": 0.00036589263745614997,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+    },
+    {
+      "id": 305,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        -0.3
+      ],
+      "min_gap_m": 0.00534332580393488,
+      "max_gap_m": 0.007033569712508535,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 306,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        -0.2
+      ],
+      "min_gap_m": 0.00534332580393488,
+      "max_gap_m": 0.006756617831017352,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 307,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        -0.1
+      ],
+      "min_gap_m": 0.00534332580393488,
+      "max_gap_m": 0.00656622236608425,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 308,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        0.0
+      ],
+      "min_gap_m": 0.00534332580393488,
+      "max_gap_m": 0.006464285686258474,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 309,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        0.1
+      ],
+      "min_gap_m": 0.00534332580393488,
+      "max_gap_m": 0.006443114884883243,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 310,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        0.2
+      ],
+      "min_gap_m": 0.00534332580393488,
+      "max_gap_m": 0.006331531190657401,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 311,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        0.3
+      ],
+      "min_gap_m": 0.00534332580393488,
+      "max_gap_m": 0.006067296690122563,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 312,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        0.4
+      ],
+      "min_gap_m": 0.00534332580393488,
+      "max_gap_m": 0.005651110027532505,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 313,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        0.5
+      ],
+      "min_gap_m": 0.005085180168535659,
+      "max_gap_m": 0.00534332580393488,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 314,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        0.6
+      ],
+      "min_gap_m": 0.004373419348995558,
+      "max_gap_m": 0.00534332580393488,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 315,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        0.7
+      ],
+      "min_gap_m": 0.003521609962778463,
+      "max_gap_m": 0.00534332580393488,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 316,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        0.8
+      ],
+      "min_gap_m": 0.002537521452270465,
+      "max_gap_m": 0.00534332580393488,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 317,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        0.9
+      ],
+      "min_gap_m": 0.001430954500678469,
+      "max_gap_m": 0.00534332580393488,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 318,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        1.0
+      ],
+      "min_gap_m": 0.00021369433010553357,
+      "max_gap_m": 0.00534332580393488,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+    },
+    {
+      "id": 319,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        1.1
+      ],
+      "min_gap_m": -0.0011006372810113269,
+      "max_gap_m": 0.00534332580393488,
+      "max_penetration_m": 0.0011006372810113269,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 320,
+      "kind": "rear",
+      "angles": [
+        0.0,
+        1.2
+      ],
+      "min_gap_m": -0.002497147976415176,
+      "max_gap_m": 0.00534332580393488,
+      "max_penetration_m": 0.002497147976415176,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 321,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        -0.3
+      ],
+      "min_gap_m": 0.00469704246460919,
+      "max_gap_m": 0.005001834013762203,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 322,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        -0.2
+      ],
+      "min_gap_m": 0.00469704246460919,
+      "max_gap_m": 0.0048114385488291014,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 323,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        -0.1
+      ],
+      "min_gap_m": 0.00469704246460919,
+      "max_gap_m": 0.0047095018690033255,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 324,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        0.0
+      ],
+      "min_gap_m": 0.004688880721852369,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 325,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        0.1
+      ],
+      "min_gap_m": 0.004590374003369792,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 326,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        0.2
+      ],
+      "min_gap_m": 0.004356289894462677,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 327,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        0.3
+      ],
+      "min_gap_m": 0.003987328949615551,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 328,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        0.4
+      ],
+      "min_gap_m": 0.0034855384531325,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 329,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        0.5
+      ],
+      "min_gap_m": 0.0028544794083985928,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 330,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        0.6
+      ],
+      "min_gap_m": 0.0020993698807480546,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 331,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        0.7
+      ],
+      "min_gap_m": 0.00122718365406798,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 332,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        0.8
+      ],
+      "min_gap_m": 0.00024668434763354397,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+    },
+    {
+      "id": 333,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        0.9
+      ],
+      "min_gap_m": -0.000831620790726316,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.000831620790726316,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 334,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        1.0
+      ],
+      "min_gap_m": -0.0019956162341837197,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.0019956162341837197,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 335,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        1.1
+      ],
+      "min_gap_m": -0.0032321190096056412,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.0032321190096056412,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 336,
+      "kind": "rear",
+      "angles": [
+        0.1,
+        1.2
+      ],
+      "min_gap_m": -0.004650319450247131,
+      "max_gap_m": 0.00469704246460919,
+      "max_penetration_m": 0.004650319450247131,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 337,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        -0.3
+      ],
+      "min_gap_m": 0.00302573394691507,
+      "max_gap_m": 0.003062987690817441,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 338,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        -0.2
+      ],
+      "min_gap_m": 0.002961051010991679,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 339,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        -0.1
+      ],
+      "min_gap_m": 0.002934646558821495,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 340,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        0.0
+      ],
+      "min_gap_m": 0.0028316441689352836,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 341,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        0.1
+      ],
+      "min_gap_m": 0.002610214608614242,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 342,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        0.2
+      ],
+      "min_gap_m": 0.002271228267369356,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 343,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        0.3
+      ],
+      "min_gap_m": 0.0018167455014355266,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 344,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        0.4
+      ],
+      "min_gap_m": 0.0012501559751509905,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 345,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        0.5
+      ],
+      "min_gap_m": 0.0005762958671872501,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 346,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        0.6
+      ],
+      "min_gap_m": -0.00019847516917066016,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.00019847516917066016,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+    },
+    {
+      "id": 347,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        0.7
+      ],
+      "min_gap_m": -0.0010662541631833444,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0010662541631833444,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 348,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        0.8
+      ],
+      "min_gap_m": -0.0020176452332171593,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0020176452332171593,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 349,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        0.9
+      ],
+      "min_gap_m": -0.0030418871631139738,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0030418871631139738,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 350,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        1.0
+      ],
+      "min_gap_m": -0.004127373723834038,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.004127373723834038,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 351,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        1.1
+      ],
+      "min_gap_m": -0.0053850617897394926,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.0053850617897394926,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 352,
+      "kind": "rear",
+      "angles": [
+        0.2,
+        1.2
+      ],
+      "min_gap_m": -0.006675998730496218,
+      "max_gap_m": 0.00302573394691507,
+      "max_penetration_m": 0.006675998730496218,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 353,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        -0.3
+      ],
+      "min_gap_m": 0.0012364030552357644,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 354,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        -0.2
+      ],
+      "min_gap_m": 0.001197940123674919,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 355,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        -0.1
+      ],
+      "min_gap_m": 0.0010729143345008033,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 356,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        0.0
+      ],
+      "min_gap_m": 0.0008465170396577126,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 357,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        0.1
+      ],
+      "min_gap_m": 0.0005199546915434158,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 358,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        0.2
+      ],
+      "min_gap_m": 9.547534098852672e-05,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.0,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+    },
+    {
+      "id": 359,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        0.3
+      ],
+      "min_gap_m": -0.0004235210813210849,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.0004235210813210849,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+    },
+    {
+      "id": 360,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        0.4
+      ],
+      "min_gap_m": -0.001032394025821795,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.001032394025821795,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 361,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        0.5
+      ],
+      "min_gap_m": -0.0017252103057437476,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.0017252103057437476,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 362,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        0.6
+      ],
+      "min_gap_m": -0.002494742584171858,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.002494742584171858,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 363,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        0.7
+      ],
+      "min_gap_m": -0.003332528633185179,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.003332528633185179,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 364,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        0.8
+      ],
+      "min_gap_m": -0.004228996074531408,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.004228996074531408,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 365,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        0.9
+      ],
+      "min_gap_m": -0.005173967029927694,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.005173967029927694,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 366,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        1.0
+      ],
+      "min_gap_m": -0.006280037936375327,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.006280037936375327,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 367,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        1.1
+      ],
+      "min_gap_m": -0.007410067653123405,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.007410067653123405,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 368,
+      "kind": "rear",
+      "angles": [
+        0.3,
+        1.2
+      ],
+      "min_gap_m": -0.00841121186599203,
+      "max_gap_m": 0.0014670593436786408,
+      "max_penetration_m": 0.00841121186599203,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 369,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        -0.3
+      ],
+      "min_gap_m": -0.0005038859869662057,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.0005038859869662057,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+    },
+    {
+      "id": 370,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        -0.2
+      ],
+      "min_gap_m": -0.0006682428527868198,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.0006682428527868198,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+    },
+    {
+      "id": 371,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        -0.1
+      ],
+      "min_gap_m": -0.0009171805292988305,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.0009171805292988305,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": true
+    },
+    {
+      "id": 372,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        0.0
+      ],
+      "min_gap_m": -0.0012489936311866554,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.0012489936311866554,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 373,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        0.1
+      ],
+      "min_gap_m": -0.0016610736657416275,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.0016610736657416275,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 374,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        0.2
+      ],
+      "min_gap_m": -0.0021498289331133985,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.0021498289331133985,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 375,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        0.3
+      ],
+      "min_gap_m": -0.002710626300630292,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.002710626300630292,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 376,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        0.4
+      ],
+      "min_gap_m": -0.0033377671228382103,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.0033377671228382103,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 377,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        0.5
+      ],
+      "min_gap_m": -0.004024507931224983,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.004024507931224983,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 378,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        0.6
+      ],
+      "min_gap_m": -0.004763133110340538,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.004763133110340538,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 379,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        0.7
+      ],
+      "min_gap_m": -0.005545081768599122,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.005545081768599122,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 380,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        0.8
+      ],
+      "min_gap_m": -0.006361441713529835,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.006361441713529835,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 381,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        0.9
+      ],
+      "min_gap_m": -0.007326305584337195,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.007326305584337195,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 382,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        1.0
+      ],
+      "min_gap_m": -0.008304223523046314,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.008304223523046314,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 383,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        1.1
+      ],
+      "min_gap_m": -0.009283915825817956,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.009283915825817956,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 384,
+      "kind": "rear",
+      "angles": [
+        0.4,
+        1.2
+      ],
+      "min_gap_m": -0.009349507876451772,
+      "max_gap_m": 3.659241630611654e-05,
+      "max_penetration_m": 0.009349507876451772,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 385,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        -0.3
+      ],
+      "min_gap_m": -0.002374430325862223,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.002374430325862223,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 386,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        -0.2
+      ],
+      "min_gap_m": -0.0026632558151472724,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.0026632558151472724,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 387,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        -0.1
+      ],
+      "min_gap_m": -0.0030179419539167404,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.0030179419539167404,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 388,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        0.0
+      ],
+      "min_gap_m": -0.0034353506617175664,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.0034353506617175664,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 389,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        0.1
+      ],
+      "min_gap_m": -0.003911518882812395,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.003911518882812395,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 390,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        0.2
+      ],
+      "min_gap_m": -0.0044416326150982025,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.0044416326150982025,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 391,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        0.3
+      ],
+      "min_gap_m": -0.005020033485778064,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.005020033485778064,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 392,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        0.4
+      ],
+      "min_gap_m": -0.005640265294668184,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.005640265294668184,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 393,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        0.5
+      ],
+      "min_gap_m": -0.006295164537642485,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.006295164537642485,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 394,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        0.6
+      ],
+      "min_gap_m": -0.006976994352102139,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.006976994352102139,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 395,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        0.7
+      ],
+      "min_gap_m": -0.007677932920128888,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.007677932920128888,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 396,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        0.8
+      ],
+      "min_gap_m": -0.008513410773136831,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.008513410773136831,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 397,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        0.9
+      ],
+      "min_gap_m": -0.00934953223038133,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.00934953223038133,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 398,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        1.0
+      ],
+      "min_gap_m": -0.010176746677733283,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.010176746677733283,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 399,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        1.1
+      ],
+      "min_gap_m": -0.010975263699153796,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.010975263699153796,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 400,
+      "kind": "rear",
+      "angles": [
+        0.5,
+        1.2
+      ],
+      "min_gap_m": -0.010807795556513962,
+      "max_gap_m": -0.0012513740825136968,
+      "max_penetration_m": 0.010807795556513962,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 401,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        -0.3
+      ],
+      "min_gap_m": -0.004374262610807145,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.004374262610807145,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 402,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        -0.2
+      ],
+      "min_gap_m": -0.0047692155297426875,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.0047692155297426875,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 403,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        -0.1
+      ],
+      "min_gap_m": -0.005209627657693512,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.005209627657693512,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 404,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        0.0
+      ],
+      "min_gap_m": -0.005690988706777943,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.005690988706777943,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 405,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        0.1
+      ],
+      "min_gap_m": -0.006208117326326014,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.006208117326326014,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 406,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        0.2
+      ],
+      "min_gap_m": -0.006755200745148134,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.006755200745148134,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 407,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        0.3
+      ],
+      "min_gap_m": -0.007325870561024281,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.007325870561024281,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 408,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        0.4
+      ],
+      "min_gap_m": -0.007913315363491678,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.007913315363491678,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 409,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        0.5
+      ],
+      "min_gap_m": -0.008510426627833453,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.008510426627833453,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 410,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        0.6
+      ],
+      "min_gap_m": -0.009110286704762646,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.009110286704762646,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 411,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        0.7
+      ],
+      "min_gap_m": -0.009829492340132497,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.009829492340132497,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 412,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        0.8
+      ],
+      "min_gap_m": -0.010535549396057869,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.010535549396057869,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 413,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        0.9
+      ],
+      "min_gap_m": -0.011220506379008732,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.011220506379008732,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 414,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        1.0
+      ],
+      "min_gap_m": -0.011877037363851364,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.011877037363851364,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 415,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        1.1
+      ],
+      "min_gap_m": -0.012412146690183624,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.012412146690183624,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 416,
+      "kind": "rear",
+      "angles": [
+        0.6,
+        1.2
+      ],
+      "min_gap_m": -0.012743738895020076,
+      "max_gap_m": -0.002383971217269708,
+      "max_penetration_m": 0.012743738895020076,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 417,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        -0.3
+      ],
+      "min_gap_m": -0.006485316211988883,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.006485316211988883,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 418,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        -0.2
+      ],
+      "min_gap_m": -0.0069661766644236525,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.0069661766644236525,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 419,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        -0.1
+      ],
+      "min_gap_m": -0.007470458530743483,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.007470458530743483,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 420,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        0.0
+      ],
+      "min_gap_m": -0.007992430303001272,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.007992430303001272,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 421,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        0.1
+      ],
+      "min_gap_m": -0.008525931683262829,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.008525931683262829,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 422,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        0.2
+      ],
+      "min_gap_m": -0.009064481719658873,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.009064481719658873,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 423,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        0.3
+      ],
+      "min_gap_m": -0.009601417559725767,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.009601417559725767,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 424,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        0.4
+      ],
+      "min_gap_m": -0.010130057047379251,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.010130057047379251,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 425,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        0.5
+      ],
+      "min_gap_m": -0.010644191461888233,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.010644191461888233,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 426,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        0.6
+      ],
+      "min_gap_m": -0.01126140043334551,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.01126140043334551,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 427,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        0.7
+      ],
+      "min_gap_m": -0.011850424728601625,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.011850424728601625,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 428,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        0.8
+      ],
+      "min_gap_m": -0.012404766027730225,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.012404766027730225,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 429,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        0.9
+      ],
+      "min_gap_m": -0.012918727098430468,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.012918727098430468,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 430,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        1.0
+      ],
+      "min_gap_m": -0.013936803147313104,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.013936803147313104,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 431,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        1.1
+      ],
+      "min_gap_m": -0.014352341404359745,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.014352341404359745,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 432,
+      "kind": "rear",
+      "angles": [
+        0.7,
+        1.2
+      ],
+      "min_gap_m": -0.01480623806414278,
+      "max_gap_m": -0.003349882451778287,
+      "max_penetration_m": 0.01480623806414278,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 433,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        -0.3
+      ],
+      "min_gap_m": -0.008687446824870673,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.008687446824870673,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 434,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        -0.2
+      ],
+      "min_gap_m": -0.009232148480442494,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.009232148480442494,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 435,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        -0.1
+      ],
+      "min_gap_m": -0.009776743279676543,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.009776743279676543,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 436,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        0.0
+      ],
+      "min_gap_m": -0.01031453374191433,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.01031453374191433,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 437,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        0.1
+      ],
+      "min_gap_m": -0.010838727142583326,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.010838727142583326,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 438,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        0.2
+      ],
+      "min_gap_m": -0.01134260416721241,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.01134260416721241,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 439,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        0.3
+      ],
+      "min_gap_m": -0.011819702798966103,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.011819702798966103,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 440,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        0.4
+      ],
+      "min_gap_m": -0.012264320922213981,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.012264320922213981,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 441,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        0.5
+      ],
+      "min_gap_m": -0.012794827900434399,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.012794827900434399,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 442,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        0.6
+      ],
+      "min_gap_m": -0.013281020428329852,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.013281020428329852,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 443,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        0.7
+      ],
+      "min_gap_m": -0.013717692892951956,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.013717692892951956,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 444,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        0.8
+      ],
+      "min_gap_m": -0.014100638143321348,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.014100638143321348,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 445,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        0.9
+      ],
+      "min_gap_m": -0.015366531064567174,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.015366531064567174,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 446,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        1.0
+      ],
+      "min_gap_m": -0.015881038053957637,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.015881038053957637,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 447,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        1.1
+      ],
+      "min_gap_m": -0.0164194747817692,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.0164194747817692,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 448,
+      "kind": "rear",
+      "angles": [
+        0.8,
+        1.2
+      ],
+      "min_gap_m": -0.01697554096165973,
+      "max_gap_m": -0.004139456720272015,
+      "max_penetration_m": 0.01697554096165973,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 449,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        -0.3
+      ],
+      "min_gap_m": -0.010958456332234814,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.010958456332234814,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 450,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        -0.2
+      ],
+      "min_gap_m": -0.011543227990904327,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.011543227990904327,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 451,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        -0.1
+      ],
+      "min_gap_m": -0.01210313580056583,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.01210313580056583,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 452,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        0.0
+      ],
+      "min_gap_m": -0.012630879156019334,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.012630879156019334,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 453,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        0.1
+      ],
+      "min_gap_m": -0.013119477824929317,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.013119477824929317,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 454,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        0.2
+      ],
+      "min_gap_m": -0.013562481500766749,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.013562481500766749,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 455,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        0.3
+      ],
+      "min_gap_m": -0.013954487287715901,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.013954487287715901,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 456,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        0.4
+      ],
+      "min_gap_m": -0.014414453241031688,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.014414453241031688,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 457,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        0.5
+      ],
+      "min_gap_m": -0.014813042455902908,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.014813042455902908,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 458,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        0.6
+      ],
+      "min_gap_m": -0.015146168643432538,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.015146168643432538,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 459,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        0.7
+      ],
+      "min_gap_m": -0.015410961234051293,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.015410961234051293,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 460,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        0.8
+      ],
+      "min_gap_m": -0.016687045073201887,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.016687045073201887,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 461,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        0.9
+      ],
+      "min_gap_m": -0.01731455461221093,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.01731455461221093,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 462,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        1.0
+      ],
+      "min_gap_m": -0.017952575439591875,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.017952575439591875,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 463,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        1.1
+      ],
+      "min_gap_m": -0.01833338553748201,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.01833338553748201,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 464,
+      "kind": "rear",
+      "angles": [
+        0.9,
+        1.2
+      ],
+      "min_gap_m": -0.018446028137516418,
+      "max_gap_m": -0.004744804857658651,
+      "max_penetration_m": 0.018446028137516418,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 465,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        -0.3
+      ],
+      "min_gap_m": -0.013274234305372244,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.013274234305372244,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 466,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        -0.2
+      ],
+      "min_gap_m": -0.013873866738680518,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.013873866738680518,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 467,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        -0.1
+      ],
+      "min_gap_m": -0.014423031169455341,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.014423031169455341,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 468,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        0.0
+      ],
+      "min_gap_m": -0.01491428459864496,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.01491428459864496,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 469,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        0.1
+      ],
+      "min_gap_m": -0.015340979884078856,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.015340979884078856,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 470,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        0.2
+      ],
+      "min_gap_m": -0.0156978029747646,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.0156978029747646,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 471,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        0.3
+      ],
+      "min_gap_m": -0.01610409369411114,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.01610409369411114,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 472,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        0.4
+      ],
+      "min_gap_m": -0.016431183353640442,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.016431183353640442,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 473,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        0.5
+      ],
+      "min_gap_m": -0.01667592042166446,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.01667592042166446,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 474,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        0.6
+      ],
+      "min_gap_m": -0.016836604055432948,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.016836604055432948,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 475,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        0.7
+      ],
+      "min_gap_m": -0.01788515103374682,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.01788515103374682,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 476,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        0.8
+      ],
+      "min_gap_m": -0.018633438899818756,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.018633438899818756,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 477,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        0.9
+      ],
+      "min_gap_m": -0.019134752492360685,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.019134752492360685,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 478,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        1.0
+      ],
+      "min_gap_m": -0.019443271900621034,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.019443271900621034,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 479,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        1.1
+      ],
+      "min_gap_m": -0.01955591450065544,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.01955591450065544,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 480,
+      "kind": "rear",
+      "angles": [
+        1.0,
+        1.2
+      ],
+      "min_gap_m": -0.01947155480483906,
+      "max_gap_m": -0.005159878425450931,
+      "max_penetration_m": 0.01947155480483906,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 481,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        -0.3
+      ],
+      "min_gap_m": -0.015508819401708677,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.015508819401708677,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 482,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        -0.2
+      ],
+      "min_gap_m": -0.016140612719734507,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.016140612719734507,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 483,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        -0.1
+      ],
+      "min_gap_m": -0.016703165314231445,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.016703165314231445,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 484,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        0.0
+      ],
+      "min_gap_m": -0.01713742778094978,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.01713742778094978,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 485,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        0.1
+      ],
+      "min_gap_m": -0.017476849349278678,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.017476849349278678,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 486,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        0.2
+      ],
+      "min_gap_m": -0.01784686693078643,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.01784686693078643,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 487,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        0.3
+      ],
+      "min_gap_m": -0.01811927519257854,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.01811927519257854,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 488,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        0.4
+      ],
+      "min_gap_m": -0.01829166345354837,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.01829166345354837,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 489,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        0.5
+      ],
+      "min_gap_m": -0.01836332205564995,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.01836332205564995,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 490,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        0.6
+      ],
+      "min_gap_m": -0.01891296646044429,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.01891296646044429,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 491,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        0.7
+      ],
+      "min_gap_m": -0.01960206527756333,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.01960206527756333,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 492,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        0.8
+      ],
+      "min_gap_m": -0.020103378870105243,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.020103378870105243,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 493,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        0.9
+      ],
+      "min_gap_m": -0.0204118982783656,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.0204118982783656,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 494,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        1.0
+      ],
+      "min_gap_m": -0.020524540878400006,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.020524540878400006,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 495,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        1.1
+      ],
+      "min_gap_m": -0.020440181182583624,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.020440181182583624,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 496,
+      "kind": "rear",
+      "angles": [
+        1.1,
+        1.2
+      ],
+      "min_gap_m": -0.020159662085111434,
+      "max_gap_m": -0.005380530145764548,
+      "max_penetration_m": 0.020159662085111434,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 497,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        -0.3
+      ],
+      "min_gap_m": -0.017743178857732484,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.017743178857732484,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 498,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        -0.2
+      ],
+      "min_gap_m": -0.018305731452229426,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.018305731452229426,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 499,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        -0.1
+      ],
+      "min_gap_m": -0.018793422483628433,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.018793422483628433,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 500,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        0.0
+      ],
+      "min_gap_m": -0.019201379104352982,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.019201379104352982,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 501,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        0.1
+      ],
+      "min_gap_m": -0.019525525146701323,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.019525525146701323,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 502,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        0.2
+      ],
+      "min_gap_m": -0.019762621850566757,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.019762621850566757,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 503,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        0.3
+      ],
+      "min_gap_m": -0.019910300224058004,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.019910300224058004,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 504,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        0.4
+      ],
+      "min_gap_m": -0.019483062855112858,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.019483062855112858,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 505,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        0.5
+      ],
+      "min_gap_m": -0.019730654658213262,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.019730654658213262,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 506,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        0.6
+      ],
+      "min_gap_m": -0.020419753475332293,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.020419753475332293,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 507,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        0.7
+      ],
+      "min_gap_m": -0.020921067067874215,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.020921067067874215,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 508,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        0.8
+      ],
+      "min_gap_m": -0.02122958647613457,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.02122958647613457,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 509,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        0.9
+      ],
+      "min_gap_m": -0.021342229076168978,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.021342229076168978,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 510,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        1.0
+      ],
+      "min_gap_m": -0.021257869380352595,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.021257869380352595,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 511,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        1.1
+      ],
+      "min_gap_m": -0.0209773502828804,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.0209773502828804,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    },
+    {
+      "id": 512,
+      "kind": "rear",
+      "angles": [
+        1.2,
+        1.2
+      ],
+      "min_gap_m": -0.020503474637847068,
+      "max_gap_m": -0.005404555339547888,
+      "max_penetration_m": 0.020503474637847068,
+      "near_surface_0_5mm_with_under_1mm_perch_penetration": false
+    }
+  ],
+  "scope": "fixed-posture oriented-box kinematic screen; no dynamics, self-collision or path feasibility"
+}

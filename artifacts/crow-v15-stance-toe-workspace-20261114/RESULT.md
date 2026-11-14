@@ -1,0 +1,7 @@
+# Toe workspace near grip loss
+
+Native FK reproduced all nine recorded right-foot and toe-body positions at the retained interval-304 state to within 3.3e-10 m. On a 0.1-rad grid across the actual -0.3 to 1.2 rad joint range, with body and foot fixed, one of 256 shared three-foretoe proximal/distal settings placed at least one foretoe segment within 0.5 mm of the box perch while keeping every tested foretoe segment's box penetration below 1 mm; its angles were 1.2/1.0 rad and minimum gap 0.186 mm. Nine of 256 rear-toe settings met the same geometric screen. These tolerances do not mean contact or opposing grip, and the sweep does not show that the configurations are dynamically reachable. One prior dynamic experiment with stance distal coupling 0.85, near the 1.2/1.0 ratio, still fell and had a shorter grip streak than the 1.0 coupling control.
+
+This is a limited fixed-foot, common-angle grid and does not account for other joint combinations, self-collision, forces, torque limits, whole-body balance, continuous surfaces or a biological foot. It does not prove the v15 body cannot grip. It indicates that the current foot placement and toe configuration leave little margin on this sampled grid, so subsequent changes need contact and dynamic verification rather than simply raising the joint limits.
+
+The first analysis attempt failed JSON serialization of a NumPy boolean; its traceback is retained. The corrected analyzer casts the flag to a native boolean. No physical run was changed.
