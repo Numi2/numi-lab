@@ -1,0 +1,70 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-stronger-disturbance-20261114/control-20261127-rebound-observer-control/run.stderr.gz",
+      "inode": 204305076,
+      "bytes": 256138465,
+      "mtime_ns": 1794635130712596668,
+      "sha256": "abab115d78b1eae3603d39b93174863d59b0a4eb4f6b2ccdf5e3d5c180787574",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-stronger-disturbance-20261114/control-20261127-rebound-observer-control/run.stderr.gz.part000",
+      "inode": 204305530,
+      "bytes": 41943040,
+      "mtime_ns": 1794635141642356790,
+      "sha256": "723c52fb90c9dafe8d1ec5949bcc4dede0473fcc177dd6907593567951070c81",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-stronger-disturbance-20261114/control-20261127-rebound-observer-control/run.stderr.gz.part001",
+      "inode": 204305539,
+      "bytes": 41943040,
+      "mtime_ns": 1794635141826545292,
+      "sha256": "fc2dd873e2962e6fa3e4214deecc302b2f4c00975d92e1769828f76d9d629643",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-stronger-disturbance-20261114/control-20261127-rebound-observer-control/run.stderr.gz.part002",
+      "inode": 204305553,
+      "bytes": 41943040,
+      "mtime_ns": 1794635141984990006,
+      "sha256": "b3bb5d73f3fac58dc3880beded69999918ec1dcb6de621876ee35c0f81280448",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-stronger-disturbance-20261114/control-20261127-rebound-observer-control/run.stderr.gz.part003",
+      "inode": 204305558,
+      "bytes": 41943040,
+      "mtime_ns": 1794635142143207176,
+      "sha256": "5a95d0dcb1ac7f6eff960948def2e751aad4f075391771b026674b4e2cea9d78",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-stronger-disturbance-20261114/control-20261127-rebound-observer-control/run.stderr.gz.part004",
+      "inode": 204305568,
+      "bytes": 41943040,
+      "mtime_ns": 1794635142302567853,
+      "sha256": "e9f0c59c665a9958f13ab8a9f630cb08187dc2b209289fa14bef0140f1e8e70d",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-stronger-disturbance-20261114/control-20261127-rebound-observer-control/run.stderr.gz.part005",
+      "inode": 204305573,
+      "bytes": 41943040,
+      "mtime_ns": 1794635142487527485,
+      "sha256": "14ad2d357e823e660f57cbf0627e1f943eb3a8a9c1fcfcf179778d0080e83c53",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-stronger-disturbance-20261114/control-20261127-rebound-observer-control/run.stderr.gz.part006",
+      "inode": 204305580,
+      "bytes": 4480225,
+      "mtime_ns": 1794635142635699592,
+      "sha256": "8dd3478e3d41b206bb701936cf3817e52594f1acc2ed79313c51d86859d43416",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 512276930
+}

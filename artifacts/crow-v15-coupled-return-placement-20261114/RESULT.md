@@ -1,0 +1,5 @@
+# Coupled return-leg target: failed development test
+
+The original baseline reproduced all 450 archived q/v states exactly, and both lanes matched through 220 pre-intervention states. Both independently achieved eleven supported clearance intervals; neither achieved any interval meeting all bilateral opposing-grip, support, tilt and speed criteria after return. Root height fell below 0.1 m at interval 308 in the control and 304 in the modified lane. Contact observers covered all 32 substeps without recorded errors or nonfoot impulse.
+
+The modified lane reached only 0.15 of the gated return-placement progress, while the control reached 0.20. Accepted hip and ankle positions and measured hip targets remained within configured position limits; substep toe speed and actuator effort were not measured. The local fixed-pose geometry hypothesis did not translate into reliable dynamic contact or supported re-grip. All commands, states, geometry, failures and binaries are retained. This does not qualify walking, airborne landing or a mission.

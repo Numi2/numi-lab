@@ -1,0 +1,18 @@
+{
+  "first_joint_target_difference_zero_based": 220,
+  "prefix_pairs": 220,
+  "prefix_exact": true,
+  "archived_baseline_pairs": 450,
+  "archived_baseline_exact": true,
+  "target_ranges": {
+    "14": [
+      -0.248556644,
+      -0.0974999964
+    ],
+    "16": [
+      -0.310000002,
+      -0.159999996
+    ]
+  },
+  "note": "Common COM-balance, contact and placement terms are state-dependent; the intervention increments are bounded in source."
+}
