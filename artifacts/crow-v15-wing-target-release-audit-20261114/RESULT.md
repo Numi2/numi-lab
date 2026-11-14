@@ -1,0 +1,3 @@
+# Wing commands through held-leg recontact
+
+A supplemental check of the retained 500-step windows found exact equality of the four recorded wing targets in both push/held-leg pairs from intervals 335 through 407, including lane 6's first held-leg recontact at interval 407. The input and recorded state comparison before leg actuation also matched. The later small wing-target differences reported in the parent result still mean the full 500-step commands are not exactly matched. The test remains coupled leg-and-wing motion on one used development seed, not leg-only or general takeoff qualification.

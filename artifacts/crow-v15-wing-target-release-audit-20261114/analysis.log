@@ -1,0 +1,23 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "first": 335,
+      "last": 407,
+      "count": 292,
+      "missing": [],
+      "max_abs_difference_rad": 0.0,
+      "exact": true
+    },
+    {
+      "lane": 7,
+      "first": 335,
+      "last": 407,
+      "count": 292,
+      "missing": [],
+      "max_abs_difference_rad": 0.0,
+      "exact": true
+    }
+  ],
+  "note": "Supplemental post-run check; held-leg lane 6 first recontact is at interval 407. Later differences remain in the full-window report."
+}
