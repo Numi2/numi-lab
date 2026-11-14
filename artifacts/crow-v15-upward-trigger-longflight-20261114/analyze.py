@@ -24,7 +24,7 @@ def read(p,extended):
     elif typ=='CROW_TOE_V_SUBSTEP':o['toe'][k].append((sub,list(map(float,z[4:]))))
     else:o['ground'].add(k)
  return o
-new=read(P/'run.stderr.gz',True);mode=sys.argv[3];assert mode in ('straight','turn');ref={'state':{(x['lane'],x['step']):x for x in json.load(gzip.open(refpath,'rt'))}};stdout=json.loads((P/'run.stdout').read_text());meta=stdout['first_episode_navigation'];inputs=json.loads((P/'inputs.json').read_text());rinputs=json.loads((BASE/'straight-20261126-longflight/inputs.json').read_text())
+new=read(P/'run.stderr.gz',True);mode=sys.argv[3];assert mode in ('straight','turn');ref={'state':{(x['lane'],x['step']):x for x in json.load(gzip.open(refpath,'rt'))}};stdout=json.loads((P/'run.stdout').read_text());meta=stdout['first_episode_navigation'];inputs=json.loads((P/'inputs.json').read_text());rinputs=json.loads((BASE/'straight-20261126-rebound-longflight/inputs.json').read_text())
 def yaw(q):
  x,y,z,w=q[3:7];return math.atan2(2*(w*z+x*y),1-2*(y*y+z*z))
 def wrap(x):return (x+math.pi)%(2*math.pi)-math.pi
