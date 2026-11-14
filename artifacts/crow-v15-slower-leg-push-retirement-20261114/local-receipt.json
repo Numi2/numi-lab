@@ -1,0 +1,22 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-slower-leg-push-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204387010,
+      "bytes": 34494734,
+      "mtime_ns": 1794649028034408637,
+      "sha256": "1bcda0cbadae494a5afbe9999b5e8b8b8effd2c6eb21a1a93d7d4dba991e8918",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-slower-leg-push-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204387313,
+      "bytes": 39448907,
+      "mtime_ns": 1794649084110273341,
+      "sha256": "b77e768242a38ebdf60f437799f75d9180fc4359984e947353d32966141073ee",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 73943641
+}
