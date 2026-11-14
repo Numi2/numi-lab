@@ -1,0 +1,54 @@
+from pathlib import Path
+p=Path('/tmp/crow-capsule-render-20261115/Sources/BirdFlowVisualization/CrowShowcaseCapture.swift')
+s=p.read_text(); needle='''      let currentCorners = cornerSigns.map {'''
+assert s.count(needle)==1
+code='''      // Research replay opt-in: collider is an actual Y-axis capsule with
+      // radius 25 mm and axial half-length 695 mm, not the course box.
+      if bodyIndex == 4 && ProcessInfo.processInfo.environment["CROW_RENDER_ROUND_PERCH"] == "1" {
+        let radius: Float = 0.025, halfLength: Float = 0.695
+        let sides = 24, capSteps = 6
+        let ringCount = 2 * capSteps + 2
+        func localPoint(_ ring: Int, _ side: Int) -> SIMD3<Float> {
+          let angle = Float(side % sides) * 2 * .pi / Float(sides)
+          var y: Float, radial: Float
+          if ring <= capSteps {
+            let a = -.pi / 2 + Float(ring) * (.pi / 2) / Float(capSteps)
+            y = -halfLength + radius * sin(a); radial = radius * cos(a)
+          } else {
+            let a = Float(ring - capSteps - 1) * (.pi / 2) / Float(capSteps)
+            y = halfLength + radius * sin(a); radial = radius * cos(a)
+          }
+          return SIMD3(radial * cos(angle), y, radial * sin(angle))
+        }
+        func emit(_ ring: Int, _ side: Int) {
+          let local = localPoint(ring, side)
+          let centerY = min(halfLength, max(-halfLength, local.y))
+          let localNormal = simd_normalize(local - SIMD3<Float>(0, centerY, 0))
+          let point = currentCrowCenter + current.pointInCrowFrame(bodyIndex: bodyIndex, localPoint: local)
+          let normal = simd_normalize(current.pointInCrowFrame(bodyIndex: bodyIndex, localPoint: localNormal)
+                                      - current.pointInCrowFrame(bodyIndex: bodyIndex, localPoint: .zero))
+          output.append(CrowSurfaceTemporalVertexGPU(
+            position: SIMD4<Float>(point, 1), previousPosition: SIMD4<Float>(point, 1),
+            normal: SIMD4<Float>(normal, 0), albedoAndMaterial: SIMD4<Float>(0.22, 0.17, 0.12, 0.95),
+            parameters: SIMD4<Float>(local, 0),
+            identity: SIMD4<UInt32>(UInt32.max, 0x0700_0040 + UInt32(ring * sides + side % sides), 0x4e41_5601, 0)))
+        }
+        if solid {
+          for ring in 0..<(ringCount-1) {
+            for side in 0..<sides {
+              emit(ring, side); emit(ring+1, side); emit(ring+1, side+1)
+              emit(ring, side); emit(ring+1, side+1); emit(ring, side+1)
+            }
+          }
+        } else {
+          for ring in 0..<ringCount {
+            for side in 0..<sides { emit(ring, side); emit(ring, side+1) }
+          }
+          for ring in 0..<(ringCount-1) {
+            for side in stride(from: 0, to: sides, by: 3) { emit(ring, side); emit(ring+1, side) }
+          }
+        }
+        continue
+      }
+'''
+s=s.replace(needle,code+needle);p.write_text(s)

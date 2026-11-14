@@ -1,0 +1,5 @@
+# Round perch front toe closure test
+
+In the round controls the front toes progressively lose opposed contact while the body pitches; right-front opposition is especially intermittent. Test whether extra bounded front-toe closure improves capture on the x=17.755 m zero-yaw fixture. Change only the front-toe contact-ramped proximal target rate from 0.03 to 0.04 rad per loaded interval and its cap from 1.05 to 1.30 rad; retain the existing distal 0.75 ratio, other toe and joint commands, checkpoint, collision material, and policy tensors. This is an experimental motor target, not an injected force or a claim of anatomically calibrated joint limits. Measure achieved joints and any joint-limit violations before accepting it.
+
+Run 400 intervals without suppressing termination. First episode only. Require no reset or termination, no nonfoot/ground contact and the final 250 consecutive intervals with 16 observed substeps, bilateral support and opposing contact, tilt <=0.35 rad and speed <=0.12 m/s. Compare with the unmodified x=17.755 control, and retain all failures. No result alone demonstrates original-course landing or collision robustness.

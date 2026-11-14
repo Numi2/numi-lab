@@ -1,0 +1,5412 @@
+{
+  "first_done": [
+    186,
+    2
+  ],
+  "all_done": [
+    [
+      186,
+      2
+    ],
+    [
+      317,
+      2
+    ]
+  ],
+  "root_jumps": [
+    {
+      "before": 187,
+      "after": 188,
+      "distance_m": 0.35475922962165773
+    },
+    {
+      "before": 318,
+      "after": 319,
+      "distance_m": 0.3536671596014767
+    }
+  ],
+  "audited_first_episode_intervals": 185,
+  "streaks": [
+    [
+      58,
+      65,
+      8
+    ]
+  ],
+  "failed_gates": {
+    "both_up": 25,
+    "left_opposed": 128,
+    "right_opposed": 160,
+    "speed": 43,
+    "tilt": 78
+  },
+  "intervals": [
+    {
+      "step": 1,
+      "tilt": 0.16131512727207006,
+      "speed": 0.536842366177612,
+      "up": [
+        0.0,
+        0.0
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": false
+      }
+    },
+    {
+      "step": 2,
+      "tilt": 0.16102355913578026,
+      "speed": 0.5296756053230771,
+      "up": [
+        0.0,
+        0.0
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": false
+      }
+    },
+    {
+      "step": 3,
+      "tilt": 0.16409494426940066,
+      "speed": 0.49277361498878736,
+      "up": [
+        0.0,
+        0.0
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": false
+      }
+    },
+    {
+      "step": 4,
+      "tilt": 0.1657938725796187,
+      "speed": 0.6075613004477973,
+      "up": [
+        0.0,
+        0.0
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": false
+      }
+    },
+    {
+      "step": 5,
+      "tilt": 0.16669835077607292,
+      "speed": 0.7533252057682026,
+      "up": [
+        0.0,
+        0.0
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": false
+      }
+    },
+    {
+      "step": 6,
+      "tilt": 0.16717991264302676,
+      "speed": 0.9119841118370298,
+      "up": [
+        0.0,
+        0.0
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": false
+      }
+    },
+    {
+      "step": 7,
+      "tilt": 0.16729249259846363,
+      "speed": 1.076280983286944,
+      "up": [
+        0.0,
+        0.0
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": false
+      }
+    },
+    {
+      "step": 8,
+      "tilt": 0.1668573561895119,
+      "speed": 1.243161990542671,
+      "up": [
+        0.0,
+        0.0
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": false
+      }
+    },
+    {
+      "step": 9,
+      "tilt": 0.1660564976651453,
+      "speed": 1.4090401122447482,
+      "up": [
+        0.0,
+        0.0
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": false
+      }
+    },
+    {
+      "step": 10,
+      "tilt": 0.17398009699546907,
+      "speed": 0.17257324305872673,
+      "up": [
+        0.0,
+        0.0
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": false
+      }
+    },
+    {
+      "step": 11,
+      "tilt": 0.18198235720188982,
+      "speed": 0.22454744136661042,
+      "up": [
+        0.2465977766762478,
+        0.3653853740170849
+      ],
+      "front_x": [
+        0.06920616913302666,
+        0.10471019373676188
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": false
+      }
+    },
+    {
+      "step": 12,
+      "tilt": 0.177020461417316,
+      "speed": 0.06148183605087855,
+      "up": [
+        0.17646556886568138,
+        0.1027951403681103
+      ],
+      "front_x": [
+        0.027973952681214304,
+        0.002448568256499467
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 13,
+      "tilt": 0.17568452606939122,
+      "speed": 0.026997184941690067,
+      "up": [
+        0.00023180926696381662,
+        0.01658344928502115
+      ],
+      "front_x": [
+        5.030354528973469e-06,
+        3.57472457251654e-05
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 14,
+      "tilt": 0.1758449341862098,
+      "speed": 0.03410921343153846,
+      "up": [
+        0.0,
+        0.04528224080505332
+      ],
+      "front_x": [
+        0.0,
+        5.185857168698422e-12
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 15,
+      "tilt": 0.17562278839067907,
+      "speed": 0.039570554141793994,
+      "up": [
+        0.0,
+        0.0954034207048142
+      ],
+      "front_x": [
+        0.0,
+        0.004576984896243398
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 16,
+      "tilt": 0.1751066958341367,
+      "speed": 0.04027030274777397,
+      "up": [
+        0.0,
+        0.08607246936478649
+      ],
+      "front_x": [
+        0.0,
+        0.017114965941262494
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 17,
+      "tilt": 0.17434720333301837,
+      "speed": 0.03511984083844346,
+      "up": [
+        0.0,
+        0.08887101135667137
+      ],
+      "front_x": [
+        0.0,
+        0.017027187936060142
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 18,
+      "tilt": 0.1733634345303708,
+      "speed": 0.0338967072604811,
+      "up": [
+        0.0,
+        0.09026354279359491
+      ],
+      "front_x": [
+        0.0,
+        0.018611984307466994
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 19,
+      "tilt": 0.17235763516077765,
+      "speed": 0.033695574308528244,
+      "up": [
+        0.0,
+        0.09024059359296115
+      ],
+      "front_x": [
+        0.0,
+        0.019331009960832722
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 20,
+      "tilt": 0.17145302365930903,
+      "speed": 0.03326936386151736,
+      "up": [
+        0.0,
+        0.08906516497238717
+      ],
+      "front_x": [
+        0.0,
+        0.020595098700430702
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 21,
+      "tilt": 0.17066303445354453,
+      "speed": 0.03327466530774909,
+      "up": [
+        0.0,
+        0.08878382456201335
+      ],
+      "front_x": [
+        0.0,
+        0.022293048916326965
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 22,
+      "tilt": 0.16992816851287898,
+      "speed": 0.03177156391696463,
+      "up": [
+        0.0,
+        0.0884332178569364
+      ],
+      "front_x": [
+        0.0,
+        0.024042177345711103
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 23,
+      "tilt": 0.1692988961817703,
+      "speed": 0.030173229994994038,
+      "up": [
+        0.0,
+        0.08886425013993705
+      ],
+      "front_x": [
+        0.0,
+        0.02602829021996315
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 24,
+      "tilt": 0.16875937797925422,
+      "speed": 0.03135449981539259,
+      "up": [
+        0.0,
+        0.08848973125733077
+      ],
+      "front_x": [
+        0.0,
+        0.027672022637959193
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 25,
+      "tilt": 0.16805154398805494,
+      "speed": 0.034270143546875936,
+      "up": [
+        0.0,
+        0.0882706760171249
+      ],
+      "front_x": [
+        0.0,
+        0.02929162690493556
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 26,
+      "tilt": 0.16693845487866085,
+      "speed": 0.04038154831025193,
+      "up": [
+        0.0,
+        0.08438980675607653
+      ],
+      "front_x": [
+        0.0,
+        0.03204483693371174
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 27,
+      "tilt": 0.16575475250378785,
+      "speed": 0.02864337088431733,
+      "up": [
+        0.0,
+        0.08301211046362289
+      ],
+      "front_x": [
+        0.0,
+        0.03756801118076775
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": false,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 28,
+      "tilt": 0.16459003277803305,
+      "speed": 0.03096162832797421,
+      "up": [
+        0.023883132738578474,
+        0.07560390256393561
+      ],
+      "front_x": [
+        0.0,
+        0.035659791052518326
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 29,
+      "tilt": 0.163106857751291,
+      "speed": 0.0373176083289337,
+      "up": [
+        0.022285781332029894,
+        0.05752529061336229
+      ],
+      "front_x": [
+        0.0,
+        0.03405867941139881
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 30,
+      "tilt": 0.16141700496931594,
+      "speed": 0.03411648654471461,
+      "up": [
+        0.03136198909636808,
+        0.05530917216664648
+      ],
+      "front_x": [
+        0.0,
+        0.03477978944784239
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 31,
+      "tilt": 0.1591712115498899,
+      "speed": 0.03803211081161843,
+      "up": [
+        0.045380617864205,
+        0.047853857789847486
+      ],
+      "front_x": [
+        0.0,
+        0.03145772607261712
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 32,
+      "tilt": 0.1565567994104315,
+      "speed": 0.05109968894123709,
+      "up": [
+        0.049010639719824445,
+        0.044019689162774975
+      ],
+      "front_x": [
+        0.0011081313486723764,
+        0.03041837310249448
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 33,
+      "tilt": 0.15453093372850726,
+      "speed": 0.09509919689266012,
+      "up": [
+        0.04294725242494271,
+        0.0418268540396849
+      ],
+      "front_x": [
+        0.0012872542612923962,
+        0.030547880989483005
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 34,
+      "tilt": 0.15318236428065765,
+      "speed": 0.07514926259901411,
+      "up": [
+        0.024259727686494894,
+        0.04209833053386078
+      ],
+      "front_x": [
+        0.0005437289666031505,
+        0.03300930625094711
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 35,
+      "tilt": 0.15117284031093212,
+      "speed": 0.07775430745736508,
+      "up": [
+        0.07798052033722977,
+        0.030845371482260953
+      ],
+      "front_x": [
+        1.0484973812012393e-06,
+        0.02611535902498504
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 36,
+      "tilt": 0.14973810355579667,
+      "speed": 0.10536780608745806,
+      "up": [
+        0.0740764313589928,
+        0.023303103938891817
+      ],
+      "front_x": [
+        1.7657480046069237e-09,
+        0.02137097646928522
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 37,
+      "tilt": 0.14946216609471527,
+      "speed": 0.11080084177812288,
+      "up": [
+        0.0358680507097639,
+        0.024202101453446936
+      ],
+      "front_x": [
+        2.719271459112684e-12,
+        0.024000635550607385
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 38,
+      "tilt": 0.14899806431784732,
+      "speed": 0.09875599344502446,
+      "up": [
+        0.06990491438140513,
+        0.016923335665202606
+      ],
+      "front_x": [
+        3.745477459333992e-15,
+        0.019887037372157444
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 39,
+      "tilt": 0.14869507856892691,
+      "speed": 0.10085999795339477,
+      "up": [
+        0.09408231099589248,
+        0.011561871865218697
+      ],
+      "front_x": [
+        3.605324815535257e-18,
+        0.015940983055148548
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 40,
+      "tilt": 0.14937058023786748,
+      "speed": 0.09606726190668233,
+      "up": [
+        0.07522126792054437,
+        0.011569686897682552
+      ],
+      "front_x": [
+        1.0686703650131629e-21,
+        0.015000917351786228
+      ],
+      "rear_x": [
+        0.0,
+        0.0
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 41,
+      "tilt": 0.15170953608926585,
+      "speed": 0.07440678295847492,
+      "up": [
+        0.047681144691904105,
+        0.03353246152794698
+      ],
+      "front_x": [
+        4.7932344314152105e-27,
+        0.025064185239838003
+      ],
+      "rear_x": [
+        0.0,
+        -0.01742640304560421
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 42,
+      "tilt": 0.15347002994961903,
+      "speed": 0.06127594123212526,
+      "up": [
+        0.06711428579235945,
+        0.02508323078453305
+      ],
+      "front_x": [
+        0.0,
+        0.022751579098769074
+      ],
+      "rear_x": [
+        0.0,
+        -0.008881866032457964
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 43,
+      "tilt": 0.15464079009741716,
+      "speed": 0.05588467289826653,
+      "up": [
+        0.058747806543672315,
+        0.029706926708387173
+      ],
+      "front_x": [
+        0.0,
+        0.026289550635846853
+      ],
+      "rear_x": [
+        0.0,
+        -0.011719698161517841
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 44,
+      "tilt": 0.15532658721255155,
+      "speed": 0.05648752404652573,
+      "up": [
+        0.05360844733705213,
+        0.034965969906199344
+      ],
+      "front_x": [
+        0.0,
+        0.029816344294872593
+      ],
+      "rear_x": [
+        0.0,
+        -0.015562935075714853
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 45,
+      "tilt": 0.15606117576867715,
+      "speed": 0.05705348990186894,
+      "up": [
+        0.05211469096315141,
+        0.035865168417390104
+      ],
+      "front_x": [
+        0.0,
+        0.031050493225993115
+      ],
+      "rear_x": [
+        0.0,
+        -0.016933773927345703
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 46,
+      "tilt": 0.15713979450187243,
+      "speed": 0.055546528546092946,
+      "up": [
+        0.05721947602973426,
+        0.029762643749174082
+      ],
+      "front_x": [
+        0.0,
+        0.02735619858886861
+      ],
+      "rear_x": [
+        0.0,
+        -0.01429122431122767
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 47,
+      "tilt": 0.15856125718127084,
+      "speed": 0.046901864224301,
+      "up": [
+        0.06056930297805705,
+        0.02661072860899077
+      ],
+      "front_x": [
+        0.0,
+        0.02408035188977948
+      ],
+      "rear_x": [
+        0.0,
+        -0.013974553622918403
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 48,
+      "tilt": 0.16020759508142576,
+      "speed": 0.04073240712626992,
+      "up": [
+        0.06952784125131181,
+        0.02364933534219115
+      ],
+      "front_x": [
+        0.0,
+        0.021515381973421767
+      ],
+      "rear_x": [
+        0.0,
+        -0.013091177877708561
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 49,
+      "tilt": 0.1619925282021749,
+      "speed": 0.0375352934257004,
+      "up": [
+        0.06762191503775845,
+        0.021264407703994584
+      ],
+      "front_x": [
+        0.0,
+        0.01941930812521334
+      ],
+      "rear_x": [
+        0.0,
+        -0.012301516582732555
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 50,
+      "tilt": 0.16384408406643086,
+      "speed": 0.036820397879959166,
+      "up": [
+        0.06788665649571225,
+        0.01915669468434046
+      ],
+      "front_x": [
+        0.0,
+        0.01766914268091084
+      ],
+      "rear_x": [
+        0.0,
+        -0.011446210073317522
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 51,
+      "tilt": 0.16572186124670665,
+      "speed": 0.0336694944589721,
+      "up": [
+        0.06551196250220358,
+        0.02152693050490747
+      ],
+      "front_x": [
+        0.0,
+        0.018515381814603004
+      ],
+      "rear_x": [
+        0.0,
+        -0.01406719612656124
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 52,
+      "tilt": 0.16767257914853298,
+      "speed": 0.03146742539216951,
+      "up": [
+        0.06834939431211981,
+        0.02098684752333681
+      ],
+      "front_x": [
+        0.0,
+        0.017577439240309908
+      ],
+      "rear_x": [
+        0.0,
+        -0.014374944478490413
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 53,
+      "tilt": 0.16961287103050363,
+      "speed": 0.03155696191968856,
+      "up": [
+        0.07096528587016879,
+        0.017590618134049406
+      ],
+      "front_x": [
+        0.0,
+        0.015234679555452987
+      ],
+      "rear_x": [
+        0.0,
+        -0.012102050409050422
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 54,
+      "tilt": 0.17178176828470126,
+      "speed": 0.024111143560955582,
+      "up": [
+        0.06959702430696094,
+        0.01759407211209861
+      ],
+      "front_x": [
+        0.0,
+        0.014857623443688357
+      ],
+      "rear_x": [
+        0.0,
+        -0.012589682397384474
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 55,
+      "tilt": 0.17404087337535995,
+      "speed": 0.020485518471594678,
+      "up": [
+        0.07102997655260425,
+        0.021284597335824818
+      ],
+      "front_x": [
+        0.0,
+        0.015375034371059245
+      ],
+      "rear_x": [
+        -0.006573728148627557,
+        -0.012220710358514119
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 56,
+      "tilt": 0.1760954092517935,
+      "speed": 0.019017793512287853,
+      "up": [
+        0.06390910985127135,
+        0.025238705216616766
+      ],
+      "front_x": [
+        0.0,
+        0.016000966467365655
+      ],
+      "rear_x": [
+        -0.006508983758637543,
+        -0.012277422569381809
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 57,
+      "tilt": 0.17776297701900592,
+      "speed": 0.02346726706457829,
+      "up": [
+        0.057562772488223446,
+        0.030773476798614433
+      ],
+      "front_x": [
+        0.0,
+        0.01576046041597466
+      ],
+      "rear_x": [
+        -0.00807856274778234,
+        -0.012470098623605414
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 58,
+      "tilt": 0.17896156716504444,
+      "speed": 0.029512696609232565,
+      "up": [
+        0.0469378387227561,
+        0.039969591695741796
+      ],
+      "front_x": [
+        0.006183609773540306,
+        0.015121744833370988
+      ],
+      "rear_x": [
+        -0.010338132731619282,
+        -0.012765183419460367
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 59,
+      "tilt": 0.18023113685240777,
+      "speed": 0.038104872855217985,
+      "up": [
+        0.028343142973080843,
+        0.058288151836624176
+      ],
+      "front_x": [
+        0.010965017092998231,
+        0.013159444313840576
+      ],
+      "rear_x": [
+        -0.01246120752712251,
+        -0.013046840123657737
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 60,
+      "tilt": 0.1816000154861662,
+      "speed": 0.04622529154040331,
+      "up": [
+        0.032935331912708594,
+        0.05273366587623072
+      ],
+      "front_x": [
+        0.01299434260182475,
+        0.010782379591621885
+      ],
+      "rear_x": [
+        -0.013685493965825414,
+        -0.01322024507971224
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 61,
+      "tilt": 0.1829911752971266,
+      "speed": 0.06233880527853626,
+      "up": [
+        0.0337118220423701,
+        0.05391018899811768
+      ],
+      "front_x": [
+        0.014621772987288024,
+        0.007650841697676702
+      ],
+      "rear_x": [
+        -0.013911724876938963,
+        -0.012362085541970123
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 62,
+      "tilt": 0.18489212072835298,
+      "speed": 0.05588889513366666,
+      "up": [
+        0.029746330669090413,
+        0.04922934478218017
+      ],
+      "front_x": [
+        0.015781379440358134,
+        0.005230620551446581
+      ],
+      "rear_x": [
+        -0.013389928385263641,
+        -0.012590558477844717
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 63,
+      "tilt": 0.18756225466047166,
+      "speed": 0.058382802725065096,
+      "up": [
+        0.04791494753279604,
+        0.048837637254320033
+      ],
+      "front_x": [
+        0.013404216238593919,
+        0.0020230144587227573
+      ],
+      "rear_x": [
+        -0.011728143377802876,
+        -0.011490207357298833
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 64,
+      "tilt": 0.19054761498180864,
+      "speed": 0.051237057431581086,
+      "up": [
+        0.04771882305592991,
+        0.03401085844618373
+      ],
+      "front_x": [
+        0.012373733120922324,
+        0.001413672061012131
+      ],
+      "rear_x": [
+        -0.01215355855339082,
+        -0.012091063567454303
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 65,
+      "tilt": 0.19370425072179318,
+      "speed": 0.04918948494122252,
+      "up": [
+        0.049825901965050184,
+        0.044443960225621235
+      ],
+      "front_x": [
+        0.010631501206333495,
+        0.0004008739824824093
+      ],
+      "rear_x": [
+        -0.01237237896782821,
+        -0.012177659456815473
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": true,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 66,
+      "tilt": 0.19692285334201506,
+      "speed": 0.04745763764876297,
+      "up": [
+        0.041822361187446824,
+        0.04544357818500603
+      ],
+      "front_x": [
+        0.008739178656768543,
+        2.2683432388147584e-05
+      ],
+      "rear_x": [
+        -0.01202604906268623,
+        -0.011997889516190517
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 67,
+      "tilt": 0.20018947464806017,
+      "speed": 0.04622564017197547,
+      "up": [
+        0.0409926074755707,
+        0.047719715735695764
+      ],
+      "front_x": [
+        0.007849310230218438,
+        1.698128066323972e-09
+      ],
+      "rear_x": [
+        -0.012015351498292014,
+        -0.012341922540859395
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 68,
+      "tilt": 0.2034978185299003,
+      "speed": 0.04578289045765428,
+      "up": [
+        0.040683355028882935,
+        0.048045654823061695
+      ],
+      "front_x": [
+        0.006683874471095969,
+        2.3331663486913106e-16
+      ],
+      "rear_x": [
+        -0.01192563728550638,
+        -0.012430710631355873
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 69,
+      "tilt": 0.20687702477978603,
+      "speed": 0.04534205658334969,
+      "up": [
+        0.04172669765253887,
+        0.04649954660570223
+      ],
+      "front_x": [
+        0.005679416255396787,
+        2.703755371517742e-24
+      ],
+      "rear_x": [
+        -0.011844058976790875,
+        -0.012325385562395062
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 70,
+      "tilt": 0.21035104680192845,
+      "speed": 0.04488457242250629,
+      "up": [
+        0.04503664544307733,
+        0.04306498763921055
+      ],
+      "front_x": [
+        0.004838843109145517,
+        1.325173439335691e-32
+      ],
+      "rear_x": [
+        -0.012057154552102566,
+        -0.012144313196674425
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 71,
+      "tilt": 0.21393672981923623,
+      "speed": 0.0441135849330022,
+      "up": [
+        0.04631128788908221,
+        0.04201992580623641
+      ],
+      "front_x": [
+        0.003839820515742505,
+        1.8120516432900886e-36
+      ],
+      "rear_x": [
+        -0.011931038651254918,
+        -0.012199625564503479
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 72,
+      "tilt": 0.21756533819298945,
+      "speed": 0.044087645545536625,
+      "up": [
+        0.04621972574721192,
+        0.04290973122449028
+      ],
+      "front_x": [
+        0.002981773961431118,
+        1.3160162908861338e-36
+      ],
+      "rear_x": [
+        -0.011674094489473473,
+        -0.012586742177723834
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 73,
+      "tilt": 0.22121047608681407,
+      "speed": 0.04453512603001899,
+      "up": [
+        0.04169198767174235,
+        0.04678129438312199
+      ],
+      "front_x": [
+        0.002389663486725984,
+        1.018322806345013e-36
+      ],
+      "rear_x": [
+        -0.011439482331435335,
+        -0.0132342939885269
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 74,
+      "tilt": 0.22506414264007893,
+      "speed": 0.03707991861074952,
+      "up": [
+        0.04224247659528936,
+        0.04496776047541089
+      ],
+      "front_x": [
+        0.001777841171865488,
+        9.739681164804764e-37
+      ],
+      "rear_x": [
+        -0.011526799827437699,
+        -0.01310181239701828
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 75,
+      "tilt": 0.22882858584678537,
+      "speed": 0.034060248858114976,
+      "up": [
+        0.03907967324400553,
+        0.0531352281513324
+      ],
+      "front_x": [
+        0.0027255955472130482,
+        3.4459757330097183e-37
+      ],
+      "rear_x": [
+        -0.012508161345368583,
+        -0.014604983477660073
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 76,
+      "tilt": 0.23239876489610978,
+      "speed": 0.033103037247779556,
+      "up": [
+        0.0374676062926668,
+        0.051506373175222116
+      ],
+      "front_x": [
+        0.0023884346803791237,
+        3.4413940414627e-37
+      ],
+      "rear_x": [
+        -0.011988538845216178,
+        -0.014184251805003871
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 77,
+      "tilt": 0.23582430508587915,
+      "speed": 0.03228943298917897,
+      "up": [
+        0.0386787728737678,
+        0.04949089265304231
+      ],
+      "front_x": [
+        0.0023856278016529805,
+        3.4375580853001593e-37
+      ],
+      "rear_x": [
+        -0.012409738847805465,
+        -0.014232950162118162
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 78,
+      "tilt": 0.23912281221279644,
+      "speed": 0.0319791451855817,
+      "up": [
+        0.03838775293803597,
+        0.04952803050964884
+      ],
+      "front_x": [
+        0.0025120786170718078,
+        3.433830319885599e-37
+      ],
+      "rear_x": [
+        -0.012571190928474803,
+        -0.014247366483783854
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 79,
+      "tilt": 0.24237001579693057,
+      "speed": 0.030662671611041286,
+      "up": [
+        0.04099573170429639,
+        0.047620876470812104
+      ],
+      "front_x": [
+        0.0024860129167893607,
+        3.4304756229588693e-37
+      ],
+      "rear_x": [
+        -0.012955305427686008,
+        -0.014091716369916723
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 80,
+      "tilt": 0.24552298404034076,
+      "speed": 0.03006108301069572,
+      "up": [
+        0.039893366597796014,
+        0.048316530942965445
+      ],
+      "front_x": [
+        0.002576287691967446,
+        3.427045914354239e-37
+      ],
+      "rear_x": [
+        -0.01306885130557658,
+        -0.014280434160611985
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 81,
+      "tilt": 0.24861324375800323,
+      "speed": 0.02910981553107633,
+      "up": [
+        0.03979933117105784,
+        0.04859108487087552
+      ],
+      "front_x": [
+        0.002616533972827162,
+        3.4237511482570176e-37
+      ],
+      "rear_x": [
+        -0.01310463441249023,
+        -0.014406180231483351
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 82,
+      "tilt": 0.25160118511351354,
+      "speed": 0.029008173939715016,
+      "up": [
+        0.03896214578251137,
+        0.049508260488021726
+      ],
+      "front_x": [
+        0.0026809364586596377,
+        3.420579569734498e-37
+      ],
+      "rear_x": [
+        -0.013184445909717043,
+        -0.014698258935500301
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 83,
+      "tilt": 0.2545815289932107,
+      "speed": 0.029042956781774494,
+      "up": [
+        0.037866645111503096,
+        0.05051518406966415
+      ],
+      "front_x": [
+        0.0028322930312248695,
+        3.4175581925641027e-37
+      ],
+      "rear_x": [
+        -0.013250545306669451,
+        -0.014860719960260907
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 84,
+      "tilt": 0.2575629794993486,
+      "speed": 0.029507243570944575,
+      "up": [
+        0.03945051854428918,
+        0.04863777388471325
+      ],
+      "front_x": [
+        0.003052175575603389,
+        3.414415394125819e-37
+      ],
+      "rear_x": [
+        -0.013567105090533348,
+        -0.014685821399669261
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 85,
+      "tilt": 0.26058435936683116,
+      "speed": 0.030091245844644416,
+      "up": [
+        0.040290383919222336,
+        0.04772480171204338
+      ],
+      "front_x": [
+        0.002740203216042481,
+        3.4114062954611892e-37
+      ],
+      "rear_x": [
+        -0.013322970028537972,
+        -0.014548003023891086
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 86,
+      "tilt": 0.2636469484436362,
+      "speed": 0.031357156168328085,
+      "up": [
+        0.04122138680351714,
+        0.04671423332360047
+      ],
+      "front_x": [
+        0.0024839582530438178,
+        3.4081522284893535e-37
+      ],
+      "rear_x": [
+        -0.013151095561557613,
+        -0.014477098773194095
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 87,
+      "tilt": 0.266802774234589,
+      "speed": 0.03166456099709192,
+      "up": [
+        0.04142408997884619,
+        0.04771616115191859
+      ],
+      "front_x": [
+        0.002678664223106479,
+        3.404199210464312e-37
+      ],
+      "rear_x": [
+        -0.013239783155318392,
+        -0.014712395323610005
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 88,
+      "tilt": 0.27000496311657196,
+      "speed": 0.03270085877704141,
+      "up": [
+        0.03961196091571443,
+        0.04789438803873916
+      ],
+      "front_x": [
+        0.0026004943988621435,
+        3.40014440215204e-37
+      ],
+      "rear_x": [
+        -0.013067797119264302,
+        -0.014882921161798264
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 89,
+      "tilt": 0.27326446877916166,
+      "speed": 0.03368980948928904,
+      "up": [
+        0.038801561536865994,
+        0.04845612563550641
+      ],
+      "front_x": [
+        0.002438294777348175,
+        3.3958467649604055e-37
+      ],
+      "rear_x": [
+        -0.012867178980587472,
+        -0.015091640502504668
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 90,
+      "tilt": 0.2766275116474948,
+      "speed": 0.03464592145319837,
+      "up": [
+        0.037639285754026267,
+        0.05115012680710944
+      ],
+      "front_x": [
+        0.0023257651157563724,
+        3.3911544402503252e-37
+      ],
+      "rear_x": [
+        -0.012863001759517996,
+        -0.015295728218415806
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 91,
+      "tilt": 0.280068267236701,
+      "speed": 0.035535497021177725,
+      "up": [
+        0.03935052708305543,
+        0.04955277933764064
+      ],
+      "front_x": [
+        0.00244797325932044,
+        3.386415359910592e-37
+      ],
+      "rear_x": [
+        -0.013326516707540393,
+        -0.015074145947566571
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 92,
+      "tilt": 0.28360877786102046,
+      "speed": 0.03637286316688533,
+      "up": [
+        0.03806014036784717,
+        0.05001810675256018
+      ],
+      "front_x": [
+        0.002313694522571212,
+        3.381557699763123e-37
+      ],
+      "rear_x": [
+        -0.013189325162086495,
+        -0.01513599694909564
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 93,
+      "tilt": 0.28725124768697696,
+      "speed": 0.03797751687894251,
+      "up": [
+        0.039916290506897115,
+        0.047313471887153354
+      ],
+      "front_x": [
+        0.0022139514118837294,
+        3.376480567140637e-37
+      ],
+      "rear_x": [
+        -0.013369388386113698,
+        -0.015228036152788879
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 94,
+      "tilt": 0.2909907922853849,
+      "speed": 0.039625749136159176,
+      "up": [
+        0.04028947188332459,
+        0.047016521448161715
+      ],
+      "front_x": [
+        0.001960072572855253,
+        3.3712325661495542e-37
+      ],
+      "rear_x": [
+        -0.013106307191117831,
+        -0.015116298887915583
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 95,
+      "tilt": 0.2948197449844364,
+      "speed": 0.040638161774437596,
+      "up": [
+        0.03874867223264955,
+        0.048991687805057096
+      ],
+      "front_x": [
+        0.0020054650172398906,
+        3.365858977526721e-37
+      ],
+      "rear_x": [
+        -0.01305937704655279,
+        -0.01566398744823474
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 96,
+      "tilt": 0.2987255101860009,
+      "speed": 0.041808883018523674,
+      "up": [
+        0.04021727554793268,
+        0.04805142501751521
+      ],
+      "front_x": [
+        0.0017250358083824827,
+        3.3604661282666823e-37
+      ],
+      "rear_x": [
+        -0.013165283764177046,
+        -0.015719095080427417
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 97,
+      "tilt": 0.3027257275522227,
+      "speed": 0.042655429417466105,
+      "up": [
+        0.04025047757924443,
+        0.04808181263181808
+      ],
+      "front_x": [
+        0.0017124990367025452,
+        3.354839389986805e-37
+      ],
+      "rear_x": [
+        -0.013117580058336319,
+        -0.015724070887361698
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 98,
+      "tilt": 0.3068719285869612,
+      "speed": 0.04255630262072423,
+      "up": [
+        0.03849149051887568,
+        0.04977012800722815
+      ],
+      "front_x": [
+        0.0016545868785000672,
+        3.348930749972874e-37
+      ],
+      "rear_x": [
+        -0.013073731136159835,
+        -0.016294307899781264
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 99,
+      "tilt": 0.31112347957784126,
+      "speed": 0.04325720852575715,
+      "up": [
+        0.03847823373375381,
+        0.0500466164587498
+      ],
+      "front_x": [
+        0.0014515727775886557,
+        3.342838467055814e-37
+      ],
+      "rear_x": [
+        -0.013060337119410893,
+        -0.01647959419334911
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 100,
+      "tilt": 0.3154614632435669,
+      "speed": 0.04375868456464161,
+      "up": [
+        0.03785919971334538,
+        0.050574810195584484
+      ],
+      "front_x": [
+        0.0015166155062351124,
+        3.3365795518048833e-37
+      ],
+      "rear_x": [
+        -0.012968192936496334,
+        -0.01654294416772467
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 101,
+      "tilt": 0.31988928076464884,
+      "speed": 0.04453411188421163,
+      "up": [
+        0.03710330298245543,
+        0.05079709249497957
+      ],
+      "front_x": [
+        0.001337819316690289,
+        3.3298721017916306e-37
+      ],
+      "rear_x": [
+        -0.012733969013877059,
+        -0.016579613304317477
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 102,
+      "tilt": 0.32442363366698185,
+      "speed": 0.04528120350805229,
+      "up": [
+        0.03593684464357617,
+        0.05202829695413363
+      ],
+      "front_x": [
+        0.0012886011981942962,
+        3.3230142710411416e-37
+      ],
+      "rear_x": [
+        -0.012808824745312714,
+        -0.016791785852927368
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 103,
+      "tilt": 0.32905536536497904,
+      "speed": 0.045956436622766605,
+      "up": [
+        0.03629893631569759,
+        0.051806672509309315
+      ],
+      "front_x": [
+        0.0012547483620358982,
+        3.3161255098997366e-37
+      ],
+      "rear_x": [
+        -0.012968865053867828,
+        -0.01646856358802592
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 104,
+      "tilt": 0.33378146625229715,
+      "speed": 0.04679465133716375,
+      "up": [
+        0.03555574004168756,
+        0.05259595525983845
+      ],
+      "front_x": [
+        0.0011375043044090725,
+        3.3087496677234167e-37
+      ],
+      "rear_x": [
+        -0.01297391825457121,
+        -0.016460101191883486
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 105,
+      "tilt": 0.338588822305684,
+      "speed": 0.04770957759517824,
+      "up": [
+        0.034997227888735764,
+        0.05311807263837561
+      ],
+      "front_x": [
+        0.0010923213055027562,
+        3.301294813465495e-37
+      ],
+      "rear_x": [
+        -0.012894160575627697,
+        -0.01637440085118814
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 106,
+      "tilt": 0.34350069017624524,
+      "speed": 0.04904652386336595,
+      "up": [
+        0.03455289483742861,
+        0.05340981953468982
+      ],
+      "front_x": [
+        0.0010575339887650065,
+        3.29363021310899e-37
+      ],
+      "rear_x": [
+        -0.012939563513835881,
+        -0.01615769703012234
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 107,
+      "tilt": 0.34851390103149954,
+      "speed": 0.05005907067992756,
+      "up": [
+        0.03564084554884062,
+        0.05290774237156526
+      ],
+      "front_x": [
+        0.0009168580596921138,
+        3.2857140914493212e-37
+      ],
+      "rear_x": [
+        -0.012935215331126255,
+        -0.01615606247464778
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": true,
+        "speed": true
+      }
+    },
+    {
+      "step": 108,
+      "tilt": 0.3536423797518821,
+      "speed": 0.051348652488777145,
+      "up": [
+        0.0338448465372807,
+        0.054407296458191624
+      ],
+      "front_x": [
+        0.0008844391642926594,
+        3.2774786249435686e-37
+      ],
+      "rear_x": [
+        -0.013013880911710424,
+        -0.01612659161379453
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 109,
+      "tilt": 0.3588601420578616,
+      "speed": 0.05262882620483347,
+      "up": [
+        0.034583473324651545,
+        0.05362763840108515
+      ],
+      "front_x": [
+        0.0007416157160562583,
+        3.2690821141237396e-37
+      ],
+      "rear_x": [
+        -0.013065379286273831,
+        -0.01603799474949605
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 110,
+      "tilt": 0.3641522023978112,
+      "speed": 0.05419661562998454,
+      "up": [
+        0.035058577924442245,
+        0.05260729251123164
+      ],
+      "front_x": [
+        0.000651897095386782,
+        3.260396665044224e-37
+      ],
+      "rear_x": [
+        -0.012967877860561068,
+        -0.015589034512289268
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 111,
+      "tilt": 0.36955974225114985,
+      "speed": 0.054826227873837126,
+      "up": [
+        0.03603833250142061,
+        0.05051098829930424
+      ],
+      "front_x": [
+        0.00043814591301136933,
+        3.251701862709302e-37
+      ],
+      "rear_x": [
+        -0.013045425879720116,
+        -0.014611590409497138
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 112,
+      "tilt": 0.3750543418095693,
+      "speed": 0.055968378350084745,
+      "up": [
+        0.03679121103273338,
+        0.051580382786460245
+      ],
+      "front_x": [
+        0.00033900820842847377,
+        3.242658922019112e-37
+      ],
+      "rear_x": [
+        -0.013197014913978162,
+        -0.013842610348357182
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 113,
+      "tilt": 0.38069255097647836,
+      "speed": 0.05785340046164095,
+      "up": [
+        0.03784729856117642,
+        0.05188101952853125
+      ],
+      "front_x": [
+        0.00028963756428690744,
+        3.233218135243739e-37
+      ],
+      "rear_x": [
+        -0.013148101296968737,
+        -0.014712464235417593
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 114,
+      "tilt": 0.38646581874540775,
+      "speed": 0.060531424837591434,
+      "up": [
+        0.03249015699867237,
+        0.05360316990489886
+      ],
+      "front_x": [
+        0.0003020840132122009,
+        3.22342627352097e-37
+      ],
+      "rear_x": [
+        -0.012335774967274272,
+        -0.016876894545085133
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": true,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 115,
+      "tilt": 0.3924426924748059,
+      "speed": 0.05932632851863346,
+      "up": [
+        0.030588173222255065,
+        0.05731842959417923
+      ],
+      "front_x": [
+        0.00014893764220375724,
+        3.2132951998775063e-37
+      ],
+      "rear_x": [
+        -0.012647407375486266,
+        -0.01585444134860513
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 116,
+      "tilt": 0.3984894815128758,
+      "speed": 0.06138662524185378,
+      "up": [
+        0.03778097095226797,
+        0.052016911569314345
+      ],
+      "front_x": [
+        0.00017626767716589343,
+        3.202670891942635e-37
+      ],
+      "rear_x": [
+        -0.013331902646766904,
+        -0.013853714081376431
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 117,
+      "tilt": 0.40462396598833283,
+      "speed": 0.06395564872020645,
+      "up": [
+        0.03402561776642492,
+        0.0519766746844216
+      ],
+      "front_x": [
+        0.00012585825267704388,
+        3.1921223953960608e-37
+      ],
+      "rear_x": [
+        -0.01258629900061012,
+        -0.016452389444380447
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 118,
+      "tilt": 0.4109253996497378,
+      "speed": 0.06359229373410064,
+      "up": [
+        0.029286098552994768,
+        0.057590567294776046
+      ],
+      "front_x": [
+        2.2044128569001543e-05,
+        3.1808583362720972e-37
+      ],
+      "rear_x": [
+        -0.012344579112233854,
+        -0.014804926382695052
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 119,
+      "tilt": 0.4173125768076424,
+      "speed": 0.0652891932211304,
+      "up": [
+        0.035238041554463875,
+        0.05464937645873284
+      ],
+      "front_x": [
+        2.8159650144767093e-05,
+        3.1692219546708996e-37
+      ],
+      "rear_x": [
+        -0.01311008796632721,
+        -0.014373927320734944
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 120,
+      "tilt": 0.42379306325099453,
+      "speed": 0.06750886633090547,
+      "up": [
+        0.02905320160918855,
+        0.056981970806564114
+      ],
+      "front_x": [
+        3.043931599395422e-11,
+        3.1573129294590774e-37
+      ],
+      "rear_x": [
+        -0.012166850227203756,
+        -0.015200342725643207
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 121,
+      "tilt": 0.4304812534485651,
+      "speed": 0.06761948123257543,
+      "up": [
+        0.0314783516960835,
+        0.057068153466937124
+      ],
+      "front_x": [
+        7.161317197980594e-19,
+        3.144990412539913e-37
+      ],
+      "rear_x": [
+        -0.01291430191390719,
+        -0.01350095275475113
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 122,
+      "tilt": 0.43728126244517235,
+      "speed": 0.07049476949413457,
+      "up": [
+        0.035240041121204484,
+        0.05405782325523719
+      ],
+      "front_x": [
+        1.6818813959853392e-26,
+        3.13189305100929e-37
+      ],
+      "rear_x": [
+        -0.012979135449237322,
+        -0.014563612561013569
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 123,
+      "tilt": 0.44426317953521277,
+      "speed": 0.0709235828835305,
+      "up": [
+        0.025995932841791712,
+        0.059681278892739234
+      ],
+      "front_x": [
+        3.949614654003135e-34,
+        3.118509193865526e-37
+      ],
+      "rear_x": [
+        -0.012100542749809293,
+        -0.015276129026524195
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 124,
+      "tilt": 0.4513726484340118,
+      "speed": 0.0719151223488815,
+      "up": [
+        0.030048225515946596,
+        0.0593920421986893
+      ],
+      "front_x": [
+        1.681083073074357e-36,
+        3.1051496592595944e-37
+      ],
+      "rear_x": [
+        -0.012784701100702641,
+        -0.012650592147543993
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 125,
+      "tilt": 0.45857389633641826,
+      "speed": 0.07338813726292827,
+      "up": [
+        0.027106454827634085,
+        0.059934535309417745
+      ],
+      "front_x": [
+        1.673288876856088e-36,
+        3.090765137111081e-37
+      ],
+      "rear_x": [
+        -0.012253269914707158,
+        -0.015268494202147407
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 126,
+      "tilt": 0.46589684130019415,
+      "speed": 0.07471390479213581,
+      "up": [
+        0.030754006265345652,
+        0.05727964300820112
+      ],
+      "front_x": [
+        1.665231116668545e-36,
+        3.076650734451086e-37
+      ],
+      "rear_x": [
+        -0.012784739684758848,
+        -0.011181921445189714
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 127,
+      "tilt": 0.4734246149120541,
+      "speed": 0.07833626967444482,
+      "up": [
+        0.031182561204878567,
+        0.05723602975254085
+      ],
+      "front_x": [
+        1.656933172687215e-36,
+        3.061234327113155e-37
+      ],
+      "rear_x": [
+        -0.012832138941421378,
+        -0.013279066135986568
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 128,
+      "tilt": 0.4811732216185656,
+      "speed": 0.07787680656861888,
+      "up": [
+        0.02388537547310517,
+        0.061130324855093225
+      ],
+      "front_x": [
+        1.6479413087915832e-36,
+        3.0453768772924496e-37
+      ],
+      "rear_x": [
+        -0.011969060688432868,
+        -0.01409553832218859
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 129,
+      "tilt": 0.4890110694834398,
+      "speed": 0.07971750416262806,
+      "up": [
+        0.02773227062139271,
+        0.0625060536609423
+      ],
+      "front_x": [
+        1.6385346424598885e-36,
+        3.029226116844647e-37
+      ],
+      "rear_x": [
+        -0.012622021665099816,
+        -0.011289936061713347
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 130,
+      "tilt": 0.49687301804022077,
+      "speed": 0.08128164440756473,
+      "up": [
+        0.025111629876314812,
+        0.06059944472135496
+      ],
+      "front_x": [
+        1.629441974471751e-36,
+        3.0129088347030776e-37
+      ],
+      "rear_x": [
+        -0.01186681445381041,
+        -0.012262204449305416
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 131,
+      "tilt": 0.5049467745240813,
+      "speed": 0.08326623626428113,
+      "up": [
+        0.024717677946065535,
+        0.0633441980927728
+      ],
+      "front_x": [
+        1.6197832414091516e-36,
+        2.9958906407711767e-37
+      ],
+      "rear_x": [
+        -0.012387929280584424,
+        -0.010115065770151574
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 132,
+      "tilt": 0.513275263098436,
+      "speed": 0.08388367345482946,
+      "up": [
+        0.02484906341224965,
+        0.06347515150875407
+      ],
+      "front_x": [
+        1.6092605142423695e-36,
+        2.9777191540383833e-37
+      ],
+      "rear_x": [
+        -0.012316783534386113,
+        -0.012653806332596744
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 133,
+      "tilt": 0.5216406671275124,
+      "speed": 0.08597413062472375,
+      "up": [
+        0.028446689191477206,
+        0.05795912278166486
+      ],
+      "front_x": [
+        1.5986365396388997e-36,
+        2.959545348955565e-37
+      ],
+      "rear_x": [
+        -0.012768629146674176,
+        -0.008893682142297347
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 134,
+      "tilt": 0.5301477240029081,
+      "speed": 0.08688553837504863,
+      "up": [
+        0.023569141765222706,
+        0.06416708920219957
+      ],
+      "front_x": [
+        1.5880072308294727e-36,
+        2.9407010680648192e-37
+      ],
+      "rear_x": [
+        -0.011754011644029482,
+        -0.01001704766801907
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 135,
+      "tilt": 0.5387596229849381,
+      "speed": 0.08950157282167089,
+      "up": [
+        0.02053049862426189,
+        0.06664011868771134
+      ],
+      "front_x": [
+        1.576712795310418e-36,
+        2.9214468840948044e-37
+      ],
+      "rear_x": [
+        -0.011852101936064967,
+        -0.010025273124158521
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 136,
+      "tilt": 0.5476032132113068,
+      "speed": 0.09110560366696176,
+      "up": [
+        0.025477597120518638,
+        0.06298237431994727
+      ],
+      "front_x": [
+        1.5647278380549185e-36,
+        0.0
+      ],
+      "rear_x": [
+        -0.01259715731260884,
+        -0.008086269912906287
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 137,
+      "tilt": 0.5567007222683766,
+      "speed": 0.09248468206425026,
+      "up": [
+        0.02281415692066187,
+        0.0652429168479711
+      ],
+      "front_x": [
+        1.5525251170362132e-36,
+        0.0
+      ],
+      "rear_x": [
+        -0.01199314073598944,
+        -0.009577170893831602
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 138,
+      "tilt": 0.5659158452133064,
+      "speed": 0.09281595059368004,
+      "up": [
+        0.018849170577288344,
+        0.06732806480213442
+      ],
+      "front_x": [
+        1.5396570330399973e-36,
+        0.0
+      ],
+      "rear_x": [
+        -0.011488795032285394,
+        -0.008071737967816567
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 139,
+      "tilt": 0.5751690653083132,
+      "speed": 0.09471468657978042,
+      "up": [
+        0.022701932276393097,
+        0.06551482807330668
+      ],
+      "front_x": [
+        1.5264499699326265e-36,
+        0.0
+      ],
+      "rear_x": [
+        -0.012146122077623861,
+        -0.007068804446604682
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 140,
+      "tilt": 0.5845781685613598,
+      "speed": 0.09696806808954146,
+      "up": [
+        0.02329109539721017,
+        0.06444331302582447
+      ],
+      "front_x": [
+        1.513199430769831e-36,
+        0.0
+      ],
+      "rear_x": [
+        -0.012166949611862517,
+        -0.007046112449067697
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 141,
+      "tilt": 0.5941685911946207,
+      "speed": 0.09857329162070393,
+      "up": [
+        0.017691613851744763,
+        0.06924922525691268
+      ],
+      "front_x": [
+        1.4992036445883953e-36,
+        0.0
+      ],
+      "rear_x": [
+        -0.011116638679893279,
+        -0.006508991088715883
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 142,
+      "tilt": 0.603944197873154,
+      "speed": 0.10017756134729706,
+      "up": [
+        0.021162049566591987,
+        0.06628000486286931
+      ],
+      "front_x": [
+        1.2625242766167922e-36,
+        0.0
+      ],
+      "rear_x": [
+        -0.01192082706781934,
+        -0.0047932653130570765
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 143,
+      "tilt": 0.6138623994217141,
+      "speed": 0.1019360211107804,
+      "up": [
+        0.021642033574676874,
+        0.06561420229237523
+      ],
+      "front_x": [
+        7.636404237809118e-37,
+        0.0
+      ],
+      "rear_x": [
+        -0.011734428363742461,
+        -0.005999190879255929
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 144,
+      "tilt": 0.6240174784117473,
+      "speed": 0.102960878526401,
+      "up": [
+        0.016666859900783343,
+        0.07126602794864913
+      ],
+      "front_x": [
+        4.363160885437962e-37,
+        0.0
+      ],
+      "rear_x": [
+        -0.01124276056885184,
+        -0.00410330683330901
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 145,
+      "tilt": 0.6344119314260909,
+      "speed": 0.1035239965903277,
+      "up": [
+        0.021921914624424617,
+        0.06506385453961508
+      ],
+      "front_x": [
+        1.2109440546107516e-37,
+        0.0
+      ],
+      "rear_x": [
+        -0.011097656855614365,
+        -0.004289688433700859
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 146,
+      "tilt": 0.6449713104985826,
+      "speed": 0.10568342001853072,
+      "up": [
+        0.030426042475598433,
+        0.058410397110479524
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.01080571369798332,
+        -0.004236758810029146
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 147,
+      "tilt": 0.6557155197530475,
+      "speed": 0.10771420020321532,
+      "up": [
+        0.027134723809235393,
+        0.059717260184221445
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.008809640799038624,
+        -0.004025596726058463
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 148,
+      "tilt": 0.6666365633114296,
+      "speed": 0.10883347829524628,
+      "up": [
+        0.031026821228636328,
+        0.05617841938401894
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.009653051394220352,
+        -0.004867590194086894
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 149,
+      "tilt": 0.6777163124786165,
+      "speed": 0.11066615073542217,
+      "up": [
+        0.031027940998808172,
+        0.055923515718564666
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.007761727809152404,
+        -0.0034112933131794057
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 150,
+      "tilt": 0.6889904343436293,
+      "speed": 0.11211420986469511,
+      "up": [
+        0.03463582243228094,
+        0.052739979567666004
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.008845418150444517,
+        -0.00447287706407875
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 151,
+      "tilt": 0.700428375414996,
+      "speed": 0.11424262667084736,
+      "up": [
+        0.03330501512156759,
+        0.053775232676013446
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.005361930956984721,
+        -0.003135071855669266
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 152,
+      "tilt": 0.7121158852916353,
+      "speed": 0.11579834520226397,
+      "up": [
+        0.03553614826541243,
+        0.05197110141814511
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.00831199081939835,
+        -0.004153792665564357
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 153,
+      "tilt": 0.7239797521684754,
+      "speed": 0.11800831645913602,
+      "up": [
+        0.03624634170726533,
+        0.050355528540677055
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.005241253923786589,
+        -0.002846004993174014
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": true
+      }
+    },
+    {
+      "step": 154,
+      "tilt": 0.7360113255726324,
+      "speed": 0.12022629482014364,
+      "up": [
+        0.03834515406567261,
+        0.04897885777715516
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.005774179581062097,
+        -0.0033704445845781274
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 155,
+      "tilt": 0.7482581080821918,
+      "speed": 0.12142982193664478,
+      "up": [
+        0.03729481901440403,
+        0.049140603254646094
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.003952125930135783,
+        -0.002348365833715988
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 156,
+      "tilt": 0.7606768341819526,
+      "speed": 0.12333177910173326,
+      "up": [
+        0.04289810097471983,
+        0.04466806934637349
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.005233551276632213,
+        -0.002578254878271448
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 157,
+      "tilt": 0.7732451747281078,
+      "speed": 0.12457848069703696,
+      "up": [
+        0.036947861378043255,
+        0.04912879452969532
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.002023701713825755,
+        -0.002745325308602685
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 158,
+      "tilt": 0.7859326034417213,
+      "speed": 0.12580604510943247,
+      "up": [
+        0.044056231894361045,
+        0.044360440029331843
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.0032350561356332417,
+        -0.0005238200025994834
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 159,
+      "tilt": 0.7987538389183076,
+      "speed": 0.12759199264693183,
+      "up": [
+        0.03951129142447883,
+        0.04659446380491903
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.0022146365998956955,
+        -0.0024364284838707885
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 160,
+      "tilt": 0.8117375141425345,
+      "speed": 0.129598143683737,
+      "up": [
+        0.04371083397325747,
+        0.04402798352477814
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.001071921241911432,
+        7.837463302689313e-05
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 161,
+      "tilt": 0.8248918144188968,
+      "speed": 0.13112052561475523,
+      "up": [
+        0.04429206518875995,
+        0.04285040051910724
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.0014088357959991314,
+        -0.0010275404157687493
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 162,
+      "tilt": 0.83828405847707,
+      "speed": 0.13272379846436183,
+      "up": [
+        0.04199052720427312,
+        0.045277307238852885
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0011233996855445434,
+        -8.551902760348674e-05
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 163,
+      "tilt": 0.8518348048390717,
+      "speed": 0.13471482732498474,
+      "up": [
+        0.045088410187015926,
+        0.04083875048268956
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        -0.00015585458907601898,
+        0.0010487052048764208
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 164,
+      "tilt": 0.8655682820291011,
+      "speed": 0.13604960310293607,
+      "up": [
+        0.043408217176352924,
+        0.04392368142653329
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0011864743432149995,
+        6.49044416007119e-05
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 165,
+      "tilt": 0.8795301698069209,
+      "speed": 0.13797638130576917,
+      "up": [
+        0.0421656645968222,
+        0.04388398502138516
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0015207523118772243,
+        0.0006203749190929662
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 166,
+      "tilt": 0.8936718524958916,
+      "speed": 0.13953118656586816,
+      "up": [
+        0.041836641684343666,
+        0.04496354132748428
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0031021151792197574,
+        0.003560972544015002
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 167,
+      "tilt": 0.9079215053126811,
+      "speed": 0.14232397097934807,
+      "up": [
+        0.04439615530441399,
+        0.042750402490395835
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.000913730363759094,
+        0.0024690270184532163
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 168,
+      "tilt": 0.922443910231902,
+      "speed": 0.14302342762730494,
+      "up": [
+        0.04146186779269972,
+        0.044822116512851555
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.00401615620386189,
+        0.004211402786882618
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 169,
+      "tilt": 0.9371125049710053,
+      "speed": 0.14584394572341172,
+      "up": [
+        0.043275151263551644,
+        0.04440127520518799
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.004184260529030275,
+        0.003649622333500919
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 170,
+      "tilt": 0.951990760353631,
+      "speed": 0.14803443685384166,
+      "up": [
+        0.04286891293610417,
+        0.0424334559684077
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0036838691933997977,
+        0.004480130981211936
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 171,
+      "tilt": 0.9670295429890958,
+      "speed": 0.1502192270669234,
+      "up": [
+        0.045060488216503304,
+        0.04157373529670634
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.006297290658836276,
+        0.005586493010763227
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 172,
+      "tilt": 0.9823157988127068,
+      "speed": 0.15153051054597869,
+      "up": [
+        0.04229924117782778,
+        0.04363017018666407
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0063127448682555485,
+        0.006225478031582059
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 173,
+      "tilt": 0.9978583342033441,
+      "speed": 0.15251901953591834,
+      "up": [
+        0.04334197743425161,
+        0.043722389691159644
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.006593066664506693,
+        0.006731083787525202
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 174,
+      "tilt": 1.013502294947376,
+      "speed": 0.1553560759593117,
+      "up": [
+        0.043223204339307666,
+        0.043546788707312725
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.007089197788359334,
+        0.007150870708223622
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 175,
+      "tilt": 1.0293283728568838,
+      "speed": 0.1572473298933284,
+      "up": [
+        0.04111197407135682,
+        0.04526123571919176
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0073982931826347305,
+        0.007694199386186471
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 176,
+      "tilt": 1.045370660143403,
+      "speed": 0.1587752400764784,
+      "up": [
+        0.04231561743964482,
+        0.04387109976019507
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.008331547652015523,
+        0.009213449666465959
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 177,
+      "tilt": 1.0616007841249595,
+      "speed": 0.16047481765386465,
+      "up": [
+        0.04342753639838881,
+        0.043437916076620335
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.009874033465078343,
+        0.00972891765638444
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 178,
+      "tilt": 1.0779998052431297,
+      "speed": 0.16201301986690875,
+      "up": [
+        0.04358661565338358,
+        0.042537454557205756
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.010246403797958301,
+        0.009733523437770755
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 179,
+      "tilt": 1.0945732374544808,
+      "speed": 0.1634753883605203,
+      "up": [
+        0.04347793515411747,
+        0.042906629253095845
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.010506424020798096,
+        0.010586272051386764
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 180,
+      "tilt": 1.111355782768876,
+      "speed": 0.16465347746432646,
+      "up": [
+        0.0441959025355853,
+        0.042110082334341166
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.011692565869375102,
+        0.01157210085836462
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 181,
+      "tilt": 1.128291323564053,
+      "speed": 0.1667803313617522,
+      "up": [
+        0.0434959704159676,
+        0.043626749094777637
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.01205553586274123,
+        0.011296126725266566
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 182,
+      "tilt": 1.145420661061024,
+      "speed": 0.16940065469831575,
+      "up": [
+        0.0424647979865299,
+        0.043290431350831195
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.013029209789229376,
+        0.013705723837026602
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 183,
+      "tilt": 1.1626464934431577,
+      "speed": 0.1719780846719183,
+      "up": [
+        0.042377892297423475,
+        0.04367825762342878
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.012375439595699719,
+        0.013176407788807042
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 184,
+      "tilt": 1.1800299184912277,
+      "speed": 0.17499205266819953,
+      "up": [
+        0.04168710424477122,
+        0.04418992977771153
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.013749403206688958,
+        0.014800407854697975
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    },
+    {
+      "step": 185,
+      "tilt": 1.1977873505723586,
+      "speed": 0.17532633455829089,
+      "up": [
+        0.04260057361244302,
+        0.043374494987023345
+      ],
+      "front_x": [
+        0.0,
+        0.0
+      ],
+      "rear_x": [
+        0.0146451026394682,
+        0.015169032224279434
+      ],
+      "nonfoot_scene": 0.0,
+      "ground_normal": 0.0,
+      "checks": {
+        "all_16_substeps": true,
+        "both_up": true,
+        "left_opposed": false,
+        "right_opposed": false,
+        "no_nonfoot": true,
+        "no_ground": true,
+        "tilt": false,
+        "speed": false
+      }
+    }
+  ],
+  "continuous_all_steps": false,
+  "note": "Only intervals strictly before the first replay done are analyzed; sample state index is interval+1."
+}

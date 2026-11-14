@@ -1,0 +1,3 @@
+# Round perch alignment test result
+
+The +0.2 rad alignment development test did not pass. On the relocated round capsule x=17.755 m, the first episode terminated for tilt at step 186. The longest bilateral qualified grip lasted eight intervals (58–65), compared with 22 intervals and termination at step 174 for the zero-yaw control. The right opposing-contact gate failed in 160 of 185 first-episode intervals. Later automatic restarts are excluded. Thus the rectangular-fixture alignment result did not transfer to the round perch. This was a reconstructed start with forced landing phase, not a complete autonomous mission.
