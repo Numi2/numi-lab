@@ -1,0 +1,70 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-flight-release-latch-20261114/straight-20261127-rebound-latch27/run.stderr.gz",
+      "inode": 204418751,
+      "bytes": 256197579,
+      "mtime_ns": 1794654481000000000,
+      "sha256": "40bd61b42ded1293fd825b58547d06d158f06452b97a5cf01a18c1a83fa0f782",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-flight-release-latch-20261114/straight-20261127-rebound-latch27/run.stderr.gz.part000",
+      "inode": 204419092,
+      "bytes": 41943040,
+      "mtime_ns": 1794654645523268676,
+      "sha256": "2b7d3166bdff5f5603c00d7993dbed3b2cc4657754f60c1593b784c65903d2d7",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-flight-release-latch-20261114/straight-20261127-rebound-latch27/run.stderr.gz.part001",
+      "inode": 204419093,
+      "bytes": 41943040,
+      "mtime_ns": 1794654645701510634,
+      "sha256": "398b2104215535a17facd1450cccad081eaf25559389424a9dd6afc5014f7dda",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-flight-release-latch-20261114/straight-20261127-rebound-latch27/run.stderr.gz.part002",
+      "inode": 204419112,
+      "bytes": 41943040,
+      "mtime_ns": 1794654645850324797,
+      "sha256": "bb33e9f43f71cb1fe2258e2f8ea1c1046a4e6a0e0485ab5ae54fb668f5caa12a",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-flight-release-latch-20261114/straight-20261127-rebound-latch27/run.stderr.gz.part003",
+      "inode": 204419117,
+      "bytes": 41943040,
+      "mtime_ns": 1794654646010453550,
+      "sha256": "708b5051ee637330cd8476249127171444e4328ce6dcf9093ccd8cd8e0c7306b",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-flight-release-latch-20261114/straight-20261127-rebound-latch27/run.stderr.gz.part004",
+      "inode": 204419122,
+      "bytes": 41943040,
+      "mtime_ns": 1794654646164213092,
+      "sha256": "8c97d23f1c5e07cd6180ba0f936f2c3e66aa4cf7192a1ead65371fc184cc819c",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-flight-release-latch-20261114/straight-20261127-rebound-latch27/run.stderr.gz.part005",
+      "inode": 204419123,
+      "bytes": 41943040,
+      "mtime_ns": 1794654646328909828,
+      "sha256": "585d125fb7f4ddc0b9a7fbc7da594abd9c55d169b870f5e8bc16ec7fd34675c3",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-flight-release-latch-20261114/straight-20261127-rebound-latch27/run.stderr.gz.part006",
+      "inode": 204419132,
+      "bytes": 4539339,
+      "mtime_ns": 1794654646474102382,
+      "sha256": "ab5fed514d557d96f12e742e01738ebf39f8f5830a301367d33077e1366036f3",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 512395158
+}
