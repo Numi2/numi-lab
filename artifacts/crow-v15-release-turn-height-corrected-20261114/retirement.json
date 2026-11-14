@@ -1,0 +1,16 @@
+{
+  "archive_commit": "0f4e5333",
+  "remote_verification_commit": "b2ebb8c2",
+  "removed": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-release-turn-height-corrected-20261114/push-20261126-rebound-corrected/run.stderr.gz",
+  "bytes": 161354557,
+  "sha256": "f79328123cc7f14f5c409563825a946951ec6e173fb4aa4ce843d0aaa421397f",
+  "checks": [
+    "regular file",
+    "not symlink",
+    "single link",
+    "exact size and sha256",
+    "lsof no open handles",
+    "independent GitHub streamed part and aggregate verification with gzip EOF"
+  ],
+  "retired": true
+}

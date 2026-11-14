@@ -1,0 +1,43 @@
+{
+  "host": "macmini",
+  "base": "/Users/n/Developer/numi-crow-rl-20261107",
+  "retired": [
+    {
+      "file": "artifacts/crow-v15-early-stance-coupling-20261114/trace.log.gz",
+      "commit": "77b35647",
+      "sha256": "ac999c7d4eb7d9f32346d0fdf3ad15b6305bc1ccf8b22dff75ed9c4159d6d884",
+      "bytes": 1360470,
+      "gzip_eof": true
+    },
+    {
+      "file": "artifacts/crow-v15-early-stance-coupling-20261114/substeps.log.gz",
+      "commit": "77b35647",
+      "sha256": "ab1c289922fa45d51a8180c00299b40822e9e4b7414180d99fde919a40ef961e",
+      "bytes": 11347237,
+      "gzip_eof": true
+    },
+    {
+      "file": "artifacts/crow-v15-rear-toe-effort-counterfactual-20261114/trace.log.gz",
+      "commit": "16ec56c8",
+      "sha256": "16a8a82407851543e932cf1d4683a0995c912b6594385d6b7a6497ec159dd058",
+      "bytes": 891929,
+      "gzip_eof": true
+    },
+    {
+      "file": "artifacts/crow-v15-rear-toe-effort-counterfactual-20261114/substeps.log.gz",
+      "commit": "16ec56c8",
+      "sha256": "b7951dbd18293a7e1c836ba5742b99ff239979f612337ae457cac9fba0f11daf",
+      "bytes": 7299675,
+      "gzip_eof": true
+    }
+  ],
+  "total_bytes": 20899311,
+  "checks": [
+    "regular file",
+    "not symlink",
+    "single link",
+    "exact size and sha256",
+    "lsof no open handles",
+    "independent GitHub stream and gzip verification"
+  ]
+}
