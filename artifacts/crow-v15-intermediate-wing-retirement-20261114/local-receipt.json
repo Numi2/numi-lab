@@ -1,0 +1,22 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-intermediate-wing-amplitude-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204339410,
+      "bytes": 34365707,
+      "mtime_ns": 1794640327171670242,
+      "sha256": "a31042bed2c16ddb809f69e8099de76c4cf1adfbc12cb51bbd4224fe4f2df4f1",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-intermediate-wing-amplitude-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204339789,
+      "bytes": 34403411,
+      "mtime_ns": 1794640444935637330,
+      "sha256": "a2246048c0609814522161b8bf499c6307123e8bb652e38fb8d8130438f289a5",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 68769118
+}
