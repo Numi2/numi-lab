@@ -1,0 +1,7 @@
+# Released hip clearance: small gain, failed physical gates
+
+Increasing the released-hip clearance cap from 0.26 to 0.28 rad lengthened the longest strict supported-clearance streak from 44 to 47 intervals, below the required 100. Both first fell below 0.1 m root height at one-based step 391. The candidate's stance toe reached the 12 rad/s accepted-state threshold at zero-based tick 389, before the fall; the control reached it afterward. Thus the added clearance did not establish stable or safe support. Posture first failed at intervals 315 and 316 in control and candidate respectively.
+
+The control exactly reproduced all 450 earlier-ankle candidate states and both lanes shared an exact 278-state prefix before target divergence. Hip targets and accepted positions were within configured bounds; lift, pitch, knee and ankle target reconstructions passed. All 32 substeps were present, with no native/observer error or recorded nonfoot support. The prebuilt and executed binaries matched. Toe speed and actuator effort at substeps were not established. The geometry audit's generic `postreturn` label does not apply to this isolation probe: release is held open and return was never commanded. State/contact epochs remain independently unverified.
+
+This constructed stationary perch test does not establish regrip, walking, landing, or biological validity. Initial local analysis invocation errors and corrected analyses are retained.
