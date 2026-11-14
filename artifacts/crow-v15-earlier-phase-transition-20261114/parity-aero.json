@@ -1,0 +1,107 @@
+{
+  "parity": [
+    {
+      "lane": 0,
+      "expected_steps": 500,
+      "missing": [],
+      "differences": [],
+      "exact": true
+    },
+    {
+      "lane": 1,
+      "expected_steps": 500,
+      "missing": [],
+      "differences": [],
+      "exact": true
+    },
+    {
+      "lane": 2,
+      "expected_steps": 500,
+      "missing": [],
+      "differences": [],
+      "exact": true
+    },
+    {
+      "lane": 3,
+      "expected_steps": 500,
+      "missing": [],
+      "differences": [],
+      "exact": true
+    },
+    {
+      "lane": 4,
+      "expected_steps": 500,
+      "missing": [],
+      "differences": [],
+      "exact": true
+    },
+    {
+      "lane": 5,
+      "expected_steps": 500,
+      "missing": [],
+      "differences": [],
+      "exact": true
+    },
+    {
+      "lane": 6,
+      "expected_steps": 368,
+      "missing": [],
+      "differences": [],
+      "exact": true
+    },
+    {
+      "lane": 7,
+      "expected_steps": 368,
+      "missing": [],
+      "differences": [],
+      "exact": true
+    }
+  ],
+  "release": [
+    {
+      "arm": "push",
+      "lane": 6,
+      "first_unloaded_interval": 375,
+      "aero_samples": 64,
+      "aero_expected": 64,
+      "positive_vertical_aero_impulse_Ns": 4.3271079513121505e-06,
+      "negative_vertical_aero_impulse_Ns": -0.000200261849002995,
+      "net_vertical_aero_impulse_Ns": -0.00019593474105168287,
+      "max_observer_flap_motion_through_release_rad": 0.001901984999999995
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "first_unloaded_interval": 375,
+      "aero_samples": 64,
+      "aero_expected": 64,
+      "positive_vertical_aero_impulse_Ns": 4.328127709527712e-06,
+      "negative_vertical_aero_impulse_Ns": -0.0002015491535592739,
+      "net_vertical_aero_impulse_Ns": -0.00019722102584974617,
+      "max_observer_flap_motion_through_release_rad": 0.0018986169999999913
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "first_unloaded_interval": 378,
+      "aero_samples": 112,
+      "aero_expected": 112,
+      "positive_vertical_aero_impulse_Ns": 0.051722897068966094,
+      "negative_vertical_aero_impulse_Ns": -0.0010127300143851375,
+      "net_vertical_aero_impulse_Ns": 0.05071016705458096,
+      "max_observer_flap_motion_through_release_rad": 0.3858784181
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "first_unloaded_interval": 380,
+      "aero_samples": 144,
+      "aero_expected": 144,
+      "positive_vertical_aero_impulse_Ns": 0.09305376385211861,
+      "negative_vertical_aero_impulse_Ns": -0.002241212781944675,
+      "net_vertical_aero_impulse_Ns": 0.09081255107017394,
+      "max_observer_flap_motion_through_release_rad": 0.6783296809999999
+    }
+  ],
+  "note": "Observer q/v state labels lag same-run replay one frame in separately checked lanes; release flap comparison is inferred for these candidate lanes. Aero is modeled, not measured."
+}

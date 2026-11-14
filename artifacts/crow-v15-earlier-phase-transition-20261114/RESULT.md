@@ -1,0 +1,7 @@
+# Earlier wing phase: both push candidates failed continuity
+
+With the same two wing phases started 40 ms earlier than the prior experiment, both leg-push lanes first unloaded at interval 375 and recontacted at 382 and 378. Held-leg lane 6 unloaded at 378 then recontacted at 383; held-leg lane 7 unloaded at 380 and stayed unloaded through interval 500. Neither push phase passes the predeclared continuous-transition gate. No toe-speed threshold, nonfoot impulse, observer errors, missing substeps or recorded physical termination occurred in these windows.
+
+Both push lanes had approximately 0.0019 rad maximum inferred flap displacement through first unloading. The held-leg lane that remained unloaded had moved about 0.678 rad and accumulated +0.0908 N s net modeled vertical aerodynamic impulse before first unloading. The inferred q/contact timing is directly checked for other lanes but not these candidate lanes. This supports a short modeled leg hop followed by failure to coordinate continuous flight; it is not evidence of qualified leg-powered takeoff.
+
+Both candidates matched their held-leg controls in q/v, policy action and recorded contact through interval 368, unaffected lanes matched through 500, paired wing targets matched and nonshader hashes matched. Raw failures, controls, binaries and analysis are retained. Seed 20261126 was used during development; flight, landing and unused-layout mission qualification remain outstanding.
