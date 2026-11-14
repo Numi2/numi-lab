@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-geometry-guided-regrip-20261114/probe.cpp": "17c0bbe56ff85c9e6492391664ec53fa79919a3d24d8c904e22d2ce41d302647",
+  "build/crow-v15-geometry-guided-regrip-20261114/probe": "ad6d5da905db901ac9a2fdfcd688f004858b36e58829884ae0e998f7be8ff58c",
+  "build/crow-v15-perch-toe-substep-velocity-20261114/libmetalrobo.dylib": "e951669314cc97fcf193094b4a4bd76e9d3deb46b726b28cadf074d118c970a3",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}

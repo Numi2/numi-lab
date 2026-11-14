@@ -1,0 +1,62 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-corrected-reset-flight-20261114/straight-20261126-rebound-resetcorrected/run.stderr.gz",
+      "inode": 204454596,
+      "bytes": 248648887,
+      "mtime_ns": 1794661766000000000,
+      "sha256": "555ec75483b2b133db0f7fe3a083adb58b30faf6c7bf243b610bbbd8e7786346",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-corrected-reset-flight-20261114/straight-20261126-rebound-resetcorrected/run.stderr.gz.part000",
+      "inode": 204461955,
+      "bytes": 41943040,
+      "mtime_ns": 1794661857761492955,
+      "sha256": "cfaf6399e512fddf732fc67fd449a3b8d18e7b0cb8649ef4977915c8e11a50fa",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-corrected-reset-flight-20261114/straight-20261126-rebound-resetcorrected/run.stderr.gz.part001",
+      "inode": 204461993,
+      "bytes": 41943040,
+      "mtime_ns": 1794661858253626305,
+      "sha256": "294be029379eeacdcb9d98cb1af85dd9e23c5bae929677811f1d497fbbd09007",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-corrected-reset-flight-20261114/straight-20261126-rebound-resetcorrected/run.stderr.gz.part002",
+      "inode": 204462003,
+      "bytes": 41943040,
+      "mtime_ns": 1794661858661682710,
+      "sha256": "1f79cac748916fef8895e1d77e54a9a559c03e70eedb627570f78e0d61f8ae8f",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-corrected-reset-flight-20261114/straight-20261126-rebound-resetcorrected/run.stderr.gz.part003",
+      "inode": 204462010,
+      "bytes": 41943040,
+      "mtime_ns": 1794661859037363722,
+      "sha256": "5a1682e0b6394ad5715046c0b207a5fa091ee798b9c198e9ae1c3ad488765f3a",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-corrected-reset-flight-20261114/straight-20261126-rebound-resetcorrected/run.stderr.gz.part004",
+      "inode": 204462018,
+      "bytes": 41943040,
+      "mtime_ns": 1794661859399676466,
+      "sha256": "5fcf9165b5c0b9d1750d2061d6e5cce2554e12bc933783b2cfa7c3200fd6735e",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-corrected-reset-flight-20261114/straight-20261126-rebound-resetcorrected/run.stderr.gz.part005",
+      "inode": 204462025,
+      "bytes": 38933687,
+      "mtime_ns": 1794661859786879328,
+      "sha256": "06841f27429be1c0e8d582256841c84bed8a4e977bd7f71c80dd398e05679456",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 497297774
+}

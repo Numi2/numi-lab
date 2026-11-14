@@ -1,0 +1,15 @@
+{
+  "rows": [
+    {
+      "measure": "state",
+      "first_difference_zero_based": 300,
+      "compared_intervals": 450
+    },
+    {
+      "measure": "logged_targets",
+      "first_difference_zero_based": 300,
+      "compared_intervals": 450
+    }
+  ],
+  "scope": "between-lane exact logged comparison; state/command epochs not independently synchronized"
+}
