@@ -1,0 +1,7 @@
+# Uniform wing handoff: first used-seed screen passed
+
+Replacing the lane-dependent launch amplitude sweep with a shared 0.75 rad target passed the registered 2,400-interval fixed-profile screen in all eight lanes on used training seed 20261126. Each released for three intervals and remained airborne without later foot recontact, nonfoot impulse or toe-speed cap; no physical termination, scheduled reset, teacher or observer error was recorded. Signed turn extrema relative to each lane's straight reference were about ±0.257 rad. Level, climb and descent mean absolute height errors ranged 8.1–10.5 mm, 7.9–8.3 mm and 7.9–9.0 mm respectively.
+
+The previously weak 0.70 rad lanes 0 and 4 no longer recontacted. The six changed lanes matched their original q/v/action, targets and contact substeps until the first changed wing target at observer interval 378. Unchanged 0.75 rad lanes 1 and 5 matched throughout all 2,400 intervals. The recorded states through first release and the observed foot-impulse sums over intervals 335–376 matched for every lane. These observations bound the change but do not by themselves establish isolated leg causality or synchronize every observer epoch.
+
+This is one training-layout, used-seed, fixed-profile candidate screen, not a general command interface, disturbed-airborne-start recovery, frozen qualified flight controller, toe-grip result, supported landing or autonomous mission. Retest the same binary on a second development seed and under initial perturbations before considering promotion; reserve unused layouts and seeds.

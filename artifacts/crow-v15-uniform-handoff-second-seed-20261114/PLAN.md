@@ -1,0 +1,5 @@
+# Uniform wing handoff on second development seed
+
+Repeat the exact preregistered shared .75 rad wing-handoff binary and 48-second fixed profile on already-used development seed 20261127 and the training layout. Keep the v15 body, leg controller, observer, solver and policies unchanged. Use the retained same-seed straight flight run as the signed-turn reference; it is not a matched uniform-amplitude control and is not used to claim intervention parity.
+
+Require all eight teacher-off, no-reset first episodes to reach 2,400 intervals with complete finite state, target, contact and toe observations, three-interval unloading, no subsequent foot recontact, no nonfoot impulse or toe-speed cap, bounded height, attitude and lateral movement, signed turn against the lane-relative straight reference, and 50 mm mean height error in the specified level, climb and descent windows. Report every lane and any failure. Passing two development seeds remains distinct from a general command controller, disturbed-airborne-start recovery, freezing, grip, landing or unused-layout mission.

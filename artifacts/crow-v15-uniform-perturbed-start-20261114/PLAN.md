@@ -1,0 +1,5 @@
+# Perturbed perch starts with uniform wing handoff
+
+Test the .75 rad shared handoff candidate from the eight prescribed signed ±0.12 rad roll, ±0.08 rad pitch and ±0.05 m/s forward-speed reset perturbations on used training seed 20261126. Change only initial reset state relative to the matched shared-handoff baseline; keep joint and horizontal randomization, v15 body, leg controller, flight profile, solver and observer. No mid-episode interventions or teacher.
+
+Require actual recorded initial roll and pitch differences above .02 rad, complete 2,400-step physical and target observations, no failure or scheduled reset, release and no recontact, nonfoot impulse or toe-speed cap, bounded attitude and lateral displacement, signed turns versus the matched straight reference, and the registered 50 mm level/climb/descent gates for every lane. Report every failure and retain all evidence. A pass is a perturbed perch-start test on an already-used seed and layout, not a disturbed-airborne start, general command interface, controller freeze, grip, landing or navigation qualification.
