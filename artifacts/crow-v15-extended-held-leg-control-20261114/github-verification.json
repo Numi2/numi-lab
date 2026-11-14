@@ -1,0 +1,23 @@
+{
+  "source_commit": "c72bee5f",
+  "files": [
+    {
+      "path": "artifacts/crow-v15-release-gated-wing-20261114/push-20261126-rebound-gated/run.stderr.gz",
+      "bytes": 38515641,
+      "sha256": "6c81f3dc0e4fc0a061913d1cbc11bab2e8f445d67d24be4b45ae61c8fa1e34c5",
+      "gzip_eof": true
+    },
+    {
+      "path": "artifacts/crow-v15-release-gated-wing-20261114/hold-20261126-rebound-gated/run.stderr.gz",
+      "bytes": 48252416,
+      "sha256": "d4a893ee4ee44060a6945f4e4eda7414275424823327160d3a9db18e344e7516",
+      "gzip_eof": true
+    },
+    {
+      "path": "artifacts/crow-v15-extended-held-leg-control-20261114/hold-20261126-rebound-gated/run.stderr.gz",
+      "bytes": 72382584,
+      "sha256": "64186e175bdc3f50a7ba0e54c6469030696213a1cbb95348278b8bb285b0a249",
+      "gzip_eof": true
+    }
+  ]
+}
