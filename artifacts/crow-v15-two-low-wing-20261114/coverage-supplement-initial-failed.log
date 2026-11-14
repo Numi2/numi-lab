@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-two-low-wing-20261114/coverage-supplement.py", line 5, in <module>
+    base=json.loads((A/'contact-onset-audit.json').read_text());rows=[]
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: 'artifacts/crow-v15-two-low-wing-20261114/contact-onset-audit.json'

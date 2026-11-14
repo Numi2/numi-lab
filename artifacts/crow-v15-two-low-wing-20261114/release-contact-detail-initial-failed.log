@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-two-low-wing-20261114/release-contact-detail.py", line 5, in <module>
+    with gzip.open(p/(arm+'-window.json.gz'),'rt') as f:d=json.load(f)
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/gzip.py", line 58, in open
+    binary_file = GzipFile(filename, gz_mode, compresslevel)
+  File "/Users/home/.pyenv/versions/3.10.12/lib/python3.10/gzip.py", line 174, in __init__
+    fileobj = self.myfileobj = builtins.open(filename, mode or 'rb')
+FileNotFoundError: [Errno 2] No such file or directory: 'artifacts/crow-v15-two-low-wing-20261114/hold-window.json.gz'
