@@ -1,0 +1,22 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-contact-triggered-wing-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204362409,
+      "bytes": 39045256,
+      "mtime_ns": 1794644801530973362,
+      "sha256": "765c5e22b016b91f4f94d069ee1cd3002422e71d89e0b0da1c9f8b915a2050df",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-contact-triggered-wing-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "inode": 204363508,
+      "bytes": 39494972,
+      "mtime_ns": 1794645041417929270,
+      "sha256": "305b730502d52d57105333b1f82c246687b7397e7910048134e598727bf4a123",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 78540228
+}
