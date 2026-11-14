@@ -1,0 +1,7 @@
+# Boosted flight height switch: tracking screen failed
+
+On used development seed 20261126, the two candidate lanes stayed continuously unloaded over the 1800-step teacher-off screen with full measured contact/effort coverage, no candidate observer errors, nonfoot/ground contacts, toe-speed threshold, or reported physical failure. Their first 500 recorded states, actions, and contacts matched the reference for all eight lanes. Candidate height ranges were 0.408–0.898 m and 0.564–1.400 m. The unchanged lanes 0 and 1 suffered physical failures at steps 760 and 764, as in the reference; they are retained.
+
+The preregistered height-tracking screen failed in both lanes. Lane 6 switched from 0.55 to 0.80 m; mean heights in the designated early and late windows were 0.664 and 0.811 m, with mean absolute errors 0.114 and 0.015 m. Lane 7 switched from 0.80 to 0.55 m; its corresponding means were 1.116 and 0.701 m, with errors 0.316 and 0.151 m. Both moved in the requested direction by at least the stipulated 0.12 m, but failed the 0.05 m error requirement. The reconstructed late control targets matched observed targets within 0.000073 rad.
+
+This is a development screen on a used seed, not flight qualification, landing, or an unused-layout mission. Observer state/contact epochs for these candidate lanes are inferred from the separate timing audit. The original compressed trace is archived as ordered parts with hashes and gzip restoration metadata; all failures remain recorded.

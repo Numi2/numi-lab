@@ -1,0 +1,112 @@
+{
+  "seed": 20261126,
+  "prefix_comparison": "checked",
+  "prefix": [
+    {
+      "lane": 0,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 1,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 2,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 3,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 4,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 5,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 6,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 7,
+      "mismatch_count": 0,
+      "first": []
+    }
+  ],
+  "rows": [
+    {
+      "lane": 6,
+      "checks": {
+        "shader_hash": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "continuous_unloaded": true,
+        "no_nonfoot_or_ground": true,
+        "coverage": true,
+        "toe_speed": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "no_observer_errors": true,
+        "matched_500_prefix": true
+      },
+      "pass": true,
+      "release": 377,
+      "first_recontact": null,
+      "nonfoot_abs_Ns": 0.0,
+      "forward_displacement_m": 11.413641102,
+      "forward_speed_range_m_s": [
+        0.301201761,
+        0.651121318
+      ],
+      "height_range_m": [
+        0.407702088,
+        0.898026824
+      ]
+    },
+    {
+      "lane": 7,
+      "checks": {
+        "shader_hash": true,
+        "teacher_off": true,
+        "first_episode": true,
+        "states_complete": true,
+        "continuous_unloaded": true,
+        "no_nonfoot_or_ground": true,
+        "coverage": true,
+        "toe_speed": true,
+        "wing_effort": true,
+        "forward": true,
+        "height": true,
+        "no_observer_errors": true,
+        "matched_500_prefix": true
+      },
+      "pass": true,
+      "release": 377,
+      "first_recontact": null,
+      "nonfoot_abs_Ns": 0.0,
+      "forward_displacement_m": 11.239092907,
+      "forward_speed_range_m_s": [
+        0.291274309,
+        0.662057161
+      ],
+      "height_range_m": [
+        0.564476848,
+        1.4002142
+      ]
+    }
+  ],
+  "errors": [],
+  "scope": "used seed straight-flight development screen; candidate observer state/contact epochs not independently checked"
+}

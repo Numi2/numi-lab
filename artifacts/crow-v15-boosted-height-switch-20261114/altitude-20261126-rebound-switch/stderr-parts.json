@@ -1,0 +1,42 @@
+{
+  "original": "run.stderr.gz",
+  "bytes": 253071273,
+  "sha256": "2ea5fa645a9eb4d6d15f719842051a57f235fd0f8ff2e6c4be4a51fb318769b6",
+  "parts": [
+    {
+      "file": "run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "b0b6ac965aee411f4e454cd6ad5de0b44abf321fb0fcfe2ed6f4b2c7e712cbad"
+    },
+    {
+      "file": "run.stderr.gz.part001",
+      "bytes": 41943040,
+      "sha256": "e93ffdb992ea95b85954a177a04b601e3fe14c3efd56acf022ce6b0ea92fc15d"
+    },
+    {
+      "file": "run.stderr.gz.part002",
+      "bytes": 41943040,
+      "sha256": "929f5433b9b1f132950f2cb640c985a1cba5ea2fc56c9ffce3446436e6603776"
+    },
+    {
+      "file": "run.stderr.gz.part003",
+      "bytes": 41943040,
+      "sha256": "a661c4b132640645cf17f6942e75bdbeaae9cd1cbff247a47cb808c9358e7679"
+    },
+    {
+      "file": "run.stderr.gz.part004",
+      "bytes": 41943040,
+      "sha256": "aed59cfef4df94f1cc6d2ebb50d12caa4efdefeb343aed224698aebb7f7a8bb8"
+    },
+    {
+      "file": "run.stderr.gz.part005",
+      "bytes": 41943040,
+      "sha256": "9d654b2fb7a4d9c34b4fdd310d4d1f5c1478abbeec0236d8271db946527eec51"
+    },
+    {
+      "file": "run.stderr.gz.part006",
+      "bytes": 1413033,
+      "sha256": "3f6edb285859f0757d55c5fc1dbf994fce1737e54bd263cc6a42a62542c2f001"
+    }
+  ]
+}
