@@ -1,0 +1,22 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-matched-wing-leg-ablation-20261114/push-20261126-rebound-paired500/run.stderr.gz",
+      "inode": 17113933,
+      "bytes": 38915854,
+      "mtime_ns": 1794665255121564501,
+      "sha256": "b423acbccafb67cf7e2914de345e51b9b2014c74855ac69cf13de226b72922a5",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-matched-wing-leg-ablation-20261114/hold-20261126-rebound-paired500/run.stderr.gz",
+      "inode": 17113951,
+      "bytes": 39147787,
+      "mtime_ns": 1794665348137526848,
+      "sha256": "158b5eb392f1d2af0009cd94c48b1cabd9d8e72a80e74be0e51b4c1b8e4bb256",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 78063641
+}

@@ -2,7 +2,7 @@ from pathlib import Path
 import gzip,json,math
 A=Path('artifacts/crow-v15-matched-nonleg-ablation-20261114');data={};meta={};inputs={}
 for arm in ('push','hold'):
- d=json.load(gzip.open(A/(arm+'-window.json.gz'),'rt')); data[arm]={k:{(tuple(v[:3]) if k in ('contact','aero','leg','toe') else tuple(v[:2])):v[(3 if k in ('contact','aero','leg','toe') else 2):] for v in d[k]} for k in ('target','contact','aero','leg','toe')};data[arm]['state']={(v['lane'],v['step']):v for v in d['state']};data[arm]['errors']=d['errors'];p=A/(arm+'-20261126-rebound-paired500');meta[arm]=json.loads((p/'run.stdout').read_text())['first_episode_navigation'];inputs[arm]=json.loads((p/'inputs.json').read_text())
+ d=json.load(gzip.open(A/(arm+'-window.json.gz'),'rt')); data[arm]={k:{(tuple(v[:3]) if k in ('contact','aero','leg','toe') else tuple(v[:2])):v[(3 if k in ('contact','aero','leg','toe') else 2):] for v in d[k]} for k in ('target','contact','aero','leg','toe')};data[arm]['state']={(v['lane'],v['step']):v for v in d['state']};data[arm]['errors']=d['errors'];p=A/(arm+'-20261126-rebound-nonleg');meta[arm]=json.loads((p/'run.stdout').read_text())['first_episode_navigation'];inputs[arm]=json.loads((p/'inputs.json').read_text())
 parity=[];rows=[]
 for e in range(8):
  bad=[];missing=[];wing=[]

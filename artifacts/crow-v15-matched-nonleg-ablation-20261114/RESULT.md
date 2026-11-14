@@ -1,0 +1,5 @@
+# Matched wing, tail and toe leg ablation
+
+The push and held-leg arms have exact state/action/contact matches in all eight lanes through interval 368. The separately checked command records cover all eight lanes and intervals 335–500; only the six leg position targets differ. Wing, tail and sixteen toe targets match exactly. All 16x contact, aerodynamic, leg and toe-velocity substep records are present and finite, with no observer errors.
+
+Both arms first achieve three consecutive unloaded intervals at interval 377. In every lane, the pushed-leg arm first recontacts at interval 453 and the held-leg arm at interval 406. Over intervals 371–376, the push adds 0.101–0.105 N s of recorded upward foot impulse compared with hold. The aerodynamic forces are modeled; observer state/contact epochs are not independently synchronized. This controlled, used-seed simulation demonstrates a leg-command contribution to the transition, but the held-leg arm also unloads and both arms recontact, so it does not prove leg necessity or reliable sustained leg-powered takeoff. It is not a flight controller, landing or mission qualification.

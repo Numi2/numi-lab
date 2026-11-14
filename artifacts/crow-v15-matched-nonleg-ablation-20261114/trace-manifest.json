@@ -1,0 +1,12 @@
+{
+  "push": {
+    "bytes": 37854022,
+    "sha256": "5982184e1eb5749a004674d8ec419629fbdd19a503695f64bd19629e459c6250",
+    "gzip_valid": true
+  },
+  "hold": {
+    "bytes": 37882272,
+    "sha256": "4093bfa621609d429a7ea18e8e37c2fab45d494bf6da8265c9c8b1e528bc018d",
+    "gzip_valid": true
+  }
+}

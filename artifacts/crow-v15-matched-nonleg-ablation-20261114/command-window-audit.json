@@ -1,0 +1,122 @@
+[
+  {
+    "lane": 0,
+    "first_wing_difference": null,
+    "first_tail_difference": null,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03960676031385964,
+        "upward_foot_impulse_Ns": 0.6550047516347586
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.03976485025243126,
+        "upward_foot_impulse_Ns": 0.5537314585036
+      }
+    }
+  },
+  {
+    "lane": 1,
+    "first_wing_difference": null,
+    "first_tail_difference": null,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.039392244038608235,
+        "upward_foot_impulse_Ns": 0.6563315173712531
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.03972238521999437,
+        "upward_foot_impulse_Ns": 0.5538634866013
+      }
+    }
+  },
+  {
+    "lane": 2,
+    "first_wing_difference": null,
+    "first_tail_difference": null,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03941753905215163,
+        "upward_foot_impulse_Ns": 0.6587243687681235
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.03975834077231312,
+        "upward_foot_impulse_Ns": 0.5537586052549
+      }
+    }
+  },
+  {
+    "lane": 3,
+    "first_wing_difference": null,
+    "first_tail_difference": null,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.039650346085364975,
+        "upward_foot_impulse_Ns": 0.6550745866583054
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.03976321059793204,
+        "upward_foot_impulse_Ns": 0.5537323643124
+      }
+    }
+  },
+  {
+    "lane": 4,
+    "first_wing_difference": null,
+    "first_tail_difference": null,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03944866901731749,
+        "upward_foot_impulse_Ns": 0.658010130973463
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.03974566559789253,
+        "upward_foot_impulse_Ns": 0.5538029321816
+      }
+    }
+  },
+  {
+    "lane": 5,
+    "first_wing_difference": null,
+    "first_tail_difference": null,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03959319437109705,
+        "upward_foot_impulse_Ns": 0.6556621106299511
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.03975799602544347,
+        "upward_foot_impulse_Ns": 0.5537650495711
+      }
+    }
+  },
+  {
+    "lane": 6,
+    "first_wing_difference": null,
+    "first_tail_difference": null,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.03959279663339995,
+        "upward_foot_impulse_Ns": 0.6554469405741291
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.039739531711820486,
+        "upward_foot_impulse_Ns": 0.5538207005371
+      }
+    }
+  },
+  {
+    "lane": 7,
+    "first_wing_difference": null,
+    "first_tail_difference": null,
+    "intervals_371_to_376": {
+      "push": {
+        "vertical_aero_impulse_Ns": 0.0396135158899237,
+        "upward_foot_impulse_Ns": 0.6552292784808444
+      },
+      "hold": {
+        "vertical_aero_impulse_Ns": 0.039760026231975665,
+        "upward_foot_impulse_Ns": 0.5537471451923
+      }
+    }
+  }
+]
