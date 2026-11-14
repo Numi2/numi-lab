@@ -1,0 +1,38 @@
+{
+  "source": "artifacts/crow-v15-boosted-phase-turn-20261114/straight-reference-20261126.json.gz",
+  "rows": [
+    {
+      "lane": 6,
+      "state_count": 1351,
+      "max_tilt_rad_and_step": [
+        0.20453382585373092,
+        452
+      ],
+      "max_root_angular_speed_rad_s_and_step": [
+        0.2761425807510316,
+        482
+      ],
+      "max_abs_world_y_speed_m_s_and_step": [
+        0.0242136959,
+        480
+      ]
+    },
+    {
+      "lane": 7,
+      "state_count": 1351,
+      "max_tilt_rad_and_step": [
+        0.20686058936979573,
+        452
+      ],
+      "max_root_angular_speed_rad_s_and_step": [
+        0.2922082632295817,
+        482
+      ],
+      "max_abs_world_y_speed_m_s_and_step": [
+        0.0293697175,
+        480
+      ]
+    }
+  ],
+  "scope": "Supplemental used-seed observed statistics, not a preregistered attitude or flight qualification gate; candidate observer timing remains inferred."
+}

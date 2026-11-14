@@ -1,0 +1,3 @@
+# Supplemental straight-flight posture statistics
+
+In the retained first used-seed boosted-flight trajectory, the +0.04-rad lane's maximum recorded root tilt was 0.205 rad, maximum root angular speed 0.276 rad/s, and maximum absolute world-y speed 0.0243 m/s over intervals 450–1800. The +0.08-rad lane's corresponding maxima were 0.207 rad, 0.292 rad/s and 0.0294 m/s. These are descriptive accepted-state statistics, added after the run without prespecified attitude thresholds; they are not maneuver, disturbance, biological or overall flight qualification. Candidate observer epoch timing remains inferred.
