@@ -1,0 +1,3 @@
+# Matched aligned-branch repeat
+
+Repeat the best aligned x=17.770 m development trial with identical executable, GPU shader, policy packs, seed, initial q/v, forced landing phase and fixture. Compare recorded q at every matched first-episode interval and compare all-substep contact and termination signatures. A different trajectory would indicate run-to-run reproducibility must be investigated before interpreting small geometry perturbations. An exact repeat would establish only reproducibility for this start, not robustness, realism or sustained landing. Preserve both raw trials and all failures.
