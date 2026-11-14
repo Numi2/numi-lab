@@ -1,0 +1,6 @@
+{
+  "artifacts/crow-v15-staged-regrip-40-20261114/probe.cpp": "f1e291a33fe6f2911084a8cddb66507c55c46f89b101a064b49280794577cad6",
+  "build/crow-v15-staged-regrip-40-20261114/probe": "4a48e49275a276ef5bf04b28d4959182f1bf197831bca3337b9ea55fbc84ae86",
+  "build/crow-v15-perch-toe-substep-velocity-20261114/libmetalrobo.dylib": "e951669314cc97fcf193094b4a4bd76e9d3deb46b726b28cadf074d118c970a3",
+  "build/crow-v15-wide-contact-isolation-20261111/MetalRobo.metallib": "835d0ff74b8338bba6987d88f3355a1344522eaa88fa8e82295b12ba58cedeb5"
+}

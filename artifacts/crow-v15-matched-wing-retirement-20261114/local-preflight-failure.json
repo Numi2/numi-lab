@@ -1,0 +1,6 @@
+{
+  "result": "not retired",
+  "failure": "TimeoutError [Errno 60] Operation timed out while reading hold trace",
+  "diagnosis": "local hold trace has compressed,dataless flags and zero allocated blocks; preserve placeholder and do not retry stalled download",
+  "provenance": "error reconstructed from tool output; file flags inspected afterward"
+}

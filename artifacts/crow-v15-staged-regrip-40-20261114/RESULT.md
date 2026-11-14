@@ -1,0 +1,3 @@
+# Staged regrip after 40 clearance intervals: failed
+
+The 450-interval control reproduces its prior recorded trace exactly; both lanes match until zero-based interval 282 when return begins. Candidate lane 1 qualifies for bilateral opposing supported grip at only one interval (308), rather than the required final 100. Its stance foot first loses the opposing support gate at interval 304, before the momentary bilateral qualification. Root height first falls below 0.1 m at one-based interval 377 (control: 368). Nine toe velocity substeps reach 12 rad/s immediately before the fall; all 32-substep records are present and finite, with no observer errors or nonfoot support impulses. This is a stationary constructed development test, not a landing or walking success.
