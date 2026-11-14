@@ -1,0 +1,10 @@
+{
+  "mismatches": [],
+  "intervention_ticks": [
+    291,
+    292
+  ],
+  "max_correction_rad": 0.137999982,
+  "pass": true,
+  "scope": "reconstructs feedback from logged previous accepted-state geometry; not a physical range sensor"
+}

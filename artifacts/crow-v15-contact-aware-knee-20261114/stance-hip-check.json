@@ -1,0 +1,37 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "state_samples": 450,
+      "target_samples": 450,
+      "position_range_rad": [
+        -0.292140752,
+        -0.114652038
+      ],
+      "peak_accepted_speed_rad_s": 2.63995767,
+      "target_range_rad": [
+        -0.293109357,
+        -0.114131406
+      ],
+      "position_in_bounds": true,
+      "target_in_bounds": true
+    },
+    {
+      "lane": 1,
+      "state_samples": 450,
+      "target_samples": 450,
+      "position_range_rad": [
+        -0.291319788,
+        -0.114652038
+      ],
+      "peak_accepted_speed_rad_s": 2.69603133,
+      "target_range_rad": [
+        -0.292061985,
+        -0.114131406
+      ],
+      "position_in_bounds": true,
+      "target_in_bounds": true
+    }
+  ],
+  "scope": "accepted states and commanded targets; not substep speed or drive effort"
+}
