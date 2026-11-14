@@ -1,0 +1,6 @@
+{
+  "active_samples": 352,
+  "mismatches": [],
+  "pass": true,
+  "scope": "Reconstructs target from logged prior balance and contact gate and post-step persistent release flag; flag is latched before target selection in source. Contact/state epoch not independently synchronized."
+}

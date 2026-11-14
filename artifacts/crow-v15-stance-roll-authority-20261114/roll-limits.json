@@ -1,0 +1,35 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "target_range_rad": [
+        0.0,
+        0.25
+      ],
+      "target_near_cap_intervals": 138,
+      "joint_position_range_rad": [
+        -0.00338097289,
+        0.2561481
+      ],
+      "position_within_physical_035_limit": true,
+      "max_accepted_joint_speed_rad_s": 0.348361284,
+      "first_fall_zero_based": 412
+    },
+    {
+      "lane": 1,
+      "target_range_rad": [
+        0.0,
+        0.319999993
+      ],
+      "target_near_cap_intervals": 105,
+      "joint_position_range_rad": [
+        -0.00338097289,
+        0.326438785
+      ],
+      "position_within_physical_035_limit": true,
+      "max_accepted_joint_speed_rad_s": 0.516622961,
+      "first_fall_zero_based": 431
+    }
+  ],
+  "scope": "accepted control states only; not substep speed, actuator effort or biological limits"
+}
