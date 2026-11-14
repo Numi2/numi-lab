@@ -1,0 +1,884 @@
+{
+  "parity": [
+    {
+      "lane": 0,
+      "state_prefix_through": 368,
+      "state_missing": [],
+      "state_mismatch": [],
+      "wing_command_interval": [
+        335,
+        500
+      ],
+      "wing_mismatch_or_missing": [
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414
+      ]
+    },
+    {
+      "lane": 1,
+      "state_prefix_through": 368,
+      "state_missing": [],
+      "state_mismatch": [],
+      "wing_command_interval": [
+        335,
+        500
+      ],
+      "wing_mismatch_or_missing": [
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414
+      ]
+    },
+    {
+      "lane": 2,
+      "state_prefix_through": 368,
+      "state_missing": [],
+      "state_mismatch": [],
+      "wing_command_interval": [
+        335,
+        500
+      ],
+      "wing_mismatch_or_missing": [
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414
+      ]
+    },
+    {
+      "lane": 3,
+      "state_prefix_through": 368,
+      "state_missing": [],
+      "state_mismatch": [],
+      "wing_command_interval": [
+        335,
+        500
+      ],
+      "wing_mismatch_or_missing": [
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414
+      ]
+    },
+    {
+      "lane": 4,
+      "state_prefix_through": 368,
+      "state_missing": [],
+      "state_mismatch": [],
+      "wing_command_interval": [
+        335,
+        500
+      ],
+      "wing_mismatch_or_missing": [
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414
+      ]
+    },
+    {
+      "lane": 5,
+      "state_prefix_through": 368,
+      "state_missing": [],
+      "state_mismatch": [],
+      "wing_command_interval": [
+        335,
+        500
+      ],
+      "wing_mismatch_or_missing": [
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414
+      ]
+    },
+    {
+      "lane": 6,
+      "state_prefix_through": 368,
+      "state_missing": [],
+      "state_mismatch": [],
+      "wing_command_interval": [
+        335,
+        500
+      ],
+      "wing_mismatch_or_missing": [
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414
+      ]
+    },
+    {
+      "lane": 7,
+      "state_prefix_through": 368,
+      "state_missing": [],
+      "state_mismatch": [],
+      "wing_command_interval": [
+        335,
+        500
+      ],
+      "wing_mismatch_or_missing": [
+        378,
+        379,
+        380,
+        381,
+        382,
+        383,
+        384,
+        385,
+        386,
+        387,
+        388,
+        389,
+        390,
+        391,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        399,
+        400,
+        401,
+        402,
+        403,
+        404,
+        405,
+        406,
+        407,
+        408,
+        409,
+        410,
+        411,
+        412,
+        413,
+        414
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 0,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 376,
+      "first_later_contact_or_missing": 396,
+      "integral_window": [
+        335,
+        375
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.0002945769947384441,
+      "foot_upward_impulse_Ns": 3.877540675632319,
+      "state_at_first_unload": {
+        "position_m": [
+          0.16039519,
+          -0.0135281989,
+          0.182025582
+        ],
+        "linear_velocity_m_s": [
+          -0.111804835,
+          0.000313456781,
+          0.353101641
+        ]
+      },
+      "max_toe_speed_rad_s": 8.60756779,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "hold",
+      "lane": 0,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 414,
+      "first_later_contact_or_missing": 467,
+      "integral_window": [
+        335,
+        413
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.0009539044109609693,
+      "foot_upward_impulse_Ns": 7.197769641318752,
+      "state_at_first_unload": {
+        "position_m": [
+          0.153343797,
+          -0.0135824298,
+          0.186347008
+        ],
+        "linear_velocity_m_s": [
+          -0.133061901,
+          -0.000732863555,
+          0.271017551
+        ]
+      },
+      "max_toe_speed_rad_s": 9.12014008,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "push",
+      "lane": 1,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 376,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        375
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.0002924578302299149,
+      "foot_upward_impulse_Ns": 3.878100375407531,
+      "state_at_first_unload": {
+        "position_m": [
+          0.139536947,
+          -0.0206643548,
+          0.182057425
+        ],
+        "linear_velocity_m_s": [
+          -0.110535204,
+          0.000586203823,
+          0.354318321
+        ]
+      },
+      "max_toe_speed_rad_s": 3.99700737,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "hold",
+      "lane": 1,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 414,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        413
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.000952398187495643,
+      "foot_upward_impulse_Ns": 7.197577051287915,
+      "state_at_first_unload": {
+        "position_m": [
+          0.13243641,
+          -0.0206564423,
+          0.186332986
+        ],
+        "linear_velocity_m_s": [
+          -0.132751554,
+          0.000132701578,
+          0.270614147
+        ]
+      },
+      "max_toe_speed_rad_s": 9.1190691,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "push",
+      "lane": 2,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 376,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        375
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.0002937666345111364,
+      "foot_upward_impulse_Ns": 3.8773294888318373,
+      "state_at_first_unload": {
+        "position_m": [
+          0.153045267,
+          -0.0215118732,
+          0.182008162
+        ],
+        "linear_velocity_m_s": [
+          -0.111652471,
+          8.16386819e-05,
+          0.352712333
+        ]
+      },
+      "max_toe_speed_rad_s": 4.05324602,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "hold",
+      "lane": 2,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 414,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        413
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.0009530755495389656,
+      "foot_upward_impulse_Ns": 7.197627581736428,
+      "state_at_first_unload": {
+        "position_m": [
+          0.145989701,
+          -0.0215804335,
+          0.186338812
+        ],
+        "linear_velocity_m_s": [
+          -0.132916152,
+          -0.00102494669,
+          0.270768315
+        ]
+      },
+      "max_toe_speed_rad_s": 9.12071037,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "push",
+      "lane": 3,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 376,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        375
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.0002939585412438404,
+      "foot_upward_impulse_Ns": 3.8777640702846314,
+      "state_at_first_unload": {
+        "position_m": [
+          0.208833218,
+          0.0387294479,
+          0.182036653
+        ],
+        "linear_velocity_m_s": [
+          -0.111438327,
+          0.00111464376,
+          0.353553027
+        ]
+      },
+      "max_toe_speed_rad_s": 4.04063511,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "hold",
+      "lane": 3,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 414,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        413
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.0009549122105149741,
+      "foot_upward_impulse_Ns": 7.197923374525842,
+      "state_at_first_unload": {
+        "position_m": [
+          0.201751947,
+          0.0387340449,
+          0.186357021
+        ],
+        "linear_velocity_m_s": [
+          -0.133249968,
+          0.000303318026,
+          0.271314383
+        ]
+      },
+      "max_toe_speed_rad_s": 9.12002468,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "push",
+      "lane": 4,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 376,
+      "first_later_contact_or_missing": 389,
+      "integral_window": [
+        335,
+        375
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.0002948955780896896,
+      "foot_upward_impulse_Ns": 3.8773983285747513,
+      "state_at_first_unload": {
+        "position_m": [
+          0.153385773,
+          -0.0260857902,
+          0.182017997
+        ],
+        "linear_velocity_m_s": [
+          -0.112004124,
+          0.000950093614,
+          0.352793127
+        ]
+      },
+      "max_toe_speed_rad_s": 10.8715725,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "hold",
+      "lane": 4,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 414,
+      "first_later_contact_or_missing": 467,
+      "integral_window": [
+        335,
+        413
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.000953848633357641,
+      "foot_upward_impulse_Ns": 7.197767887403573,
+      "state_at_first_unload": {
+        "position_m": [
+          0.146339193,
+          -0.0260965638,
+          0.186346814
+        ],
+        "linear_velocity_m_s": [
+          -0.133052364,
+          5.6553592e-05,
+          0.271009326
+        ]
+      },
+      "max_toe_speed_rad_s": 9.12019348,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "push",
+      "lane": 5,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 376,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        375
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.00029438008740948363,
+      "foot_upward_impulse_Ns": 3.8775998687538387,
+      "state_at_first_unload": {
+        "position_m": [
+          0.160751849,
+          -0.00369533757,
+          0.182029054
+        ],
+        "linear_velocity_m_s": [
+          -0.111662768,
+          0.00127417105,
+          0.353240222
+        ]
+      },
+      "max_toe_speed_rad_s": 4.05217934,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "hold",
+      "lane": 5,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 414,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        413
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.0009540048480750384,
+      "foot_upward_impulse_Ns": 7.197778436869054,
+      "state_at_first_unload": {
+        "position_m": [
+          0.153687283,
+          -0.00368597638,
+          0.186348155
+        ],
+        "linear_velocity_m_s": [
+          -0.133083344,
+          0.000423423509,
+          0.271046162
+        ]
+      },
+      "max_toe_speed_rad_s": 9.12043285,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "push",
+      "lane": 6,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 376,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        375
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.00029436428339593815,
+      "foot_upward_impulse_Ns": 3.8775113533011925,
+      "state_at_first_unload": {
+        "position_m": [
+          0.188121125,
+          -0.0134051545,
+          0.182020843
+        ],
+        "linear_velocity_m_s": [
+          -0.111794569,
+          0.000379653677,
+          0.353034198
+        ]
+      },
+      "max_toe_speed_rad_s": 4.04943037,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 414,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        413
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.0009536219827773933,
+      "foot_upward_impulse_Ns": 7.197733819153577,
+      "state_at_first_unload": {
+        "position_m": [
+          0.181065589,
+          -0.0134251304,
+          0.186344191
+        ],
+        "linear_velocity_m_s": [
+          -0.133014336,
+          -0.000288793264,
+          0.270930588
+        ]
+      },
+      "max_toe_speed_rad_s": 9.12041473,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 376,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        375
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.00029439670137247745,
+      "foot_upward_impulse_Ns": 3.8776557347040024,
+      "state_at_first_unload": {
+        "position_m": [
+          0.121379726,
+          -0.0158728883,
+          0.182032585
+        ],
+        "linear_velocity_m_s": [
+          -0.111655377,
+          0.00129343616,
+          0.353365541
+        ]
+      },
+      "max_toe_speed_rad_s": 4.05643129,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "episode_end": 500,
+      "physical_failure": false,
+      "first_three_interval_unload": 414,
+      "first_later_contact_or_missing": null,
+      "integral_window": [
+        335,
+        413
+      ],
+      "integral_complete": true,
+      "modeled_vertical_aero_impulse_Ns": -0.0009538867409034838,
+      "foot_upward_impulse_Ns": 7.197761127267089,
+      "state_at_first_unload": {
+        "position_m": [
+          0.114323683,
+          -0.015868362,
+          0.186347097
+        ],
+        "linear_velocity_m_s": [
+          -0.133055881,
+          0.000399176322,
+          0.271018028
+        ]
+      },
+      "max_toe_speed_rad_s": 9.12011623,
+      "missing_or_nonfinite_substep_count": 0,
+      "first_missing_or_nonfinite": []
+    }
+  ],
+  "shared_nonshader_inputs": true,
+  "observer_errors": {
+    "push": [],
+    "hold": []
+  },
+  "scope": "matched time-scheduled wing targets, used-seed physical model; force is modeled and observer epochs are not independently aligned"
+}
