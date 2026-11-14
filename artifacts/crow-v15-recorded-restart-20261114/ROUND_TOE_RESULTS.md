@@ -1,0 +1,3 @@
+# Round perch front toe closure result
+
+On the reconstructed, forced-landing development fixture at x=17.755 m, the higher front-toe target changed the longest first-episode qualified streak from 22 to 25 intervals. The right-foot opposed-force criterion failed in 75 of 156 audited intervals, compared with 151 of 173 for the control. However, the first tilt termination occurred earlier, step 157 versus 174; continuous terminal stability failed. Two distinct short qualifying streaks (39–63 and 65–78) are not a sustained grip. Later automatic restarts are excluded. Joint-limit and generalization studies remain required before considering the motor change acceptable.
