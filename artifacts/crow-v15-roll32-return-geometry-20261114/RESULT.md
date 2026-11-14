@@ -1,0 +1,5 @@
+# Fixed-state geometry for the improved return
+
+At tick 310, after rear contact in both lanes, nearest-front box gaps were 7.73 and 7.96 mm and nearest-rear gaps were -0.52 and -0.41 mm. A local positive returning-hip change had estimated front-gap derivatives of -160 and -166 mm/rad, but foot-gap derivatives of -138 and -144 mm/rad and rear-gap derivatives of +106 and +93 mm/rad. Thus forward hip motion may bring the foretoes closer, while also bringing the foot toward the perch and lifting the already touching rear toe; this is a tradeoff to test dynamically, not a grip result. The tick-290 samples show similar front and foot motion while the rear is still clear.
+
+The unchanged native FK executable and library hashes match the prior archived diagnostic, all perturbations stayed within the configured joint-position limits, and unperturbed gaps agree with recorded body-pose reconstruction within 8.3 nm. Minimum digit-gap derivatives can change which collider is nearest and do not predict coordinated toe closure, forces, stability or biological realism.
