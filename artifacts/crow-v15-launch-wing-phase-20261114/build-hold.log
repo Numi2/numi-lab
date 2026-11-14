@@ -1,0 +1,11 @@
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-launch-wing-phase-20261114/hold.metal:5255:30: warning: unused variable 'arm' [-Wunused-variable]
+                { const uint arm=6u;
+                             ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-launch-wing-phase-20261114/hold.metal:5280:29: warning: unused variable 'extended' [-Wunused-variable]
+                const float extended=joint==0u ? -0.15f : joint==1u ? kneeExtension : 0.83f;
+                            ^
+/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-launch-wing-phase-20261114/hold.metal:5681:28: warning: unused variable 'ticks' [-Wunused-variable]
+                const uint ticks=(state.status.w>>23u)&31u;
+                           ^
+3 warnings generated.
+Built candidate metallib: 53bab55122311805e1595eae9af9b6e55dbf36b9cbd8b0d1ec97df75e9848c90
