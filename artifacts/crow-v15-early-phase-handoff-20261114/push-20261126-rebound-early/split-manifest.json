@@ -1,0 +1,18 @@
+{
+  "source": "run.stderr.gz",
+  "bytes": 71020830,
+  "sha256": "e5f7836a10ace76aaa9993ddaedeb0f2c18f57204aab166bb72240e47285f218",
+  "parts": [
+    {
+      "name": "run.stderr.gz.part000",
+      "bytes": 41943040,
+      "sha256": "87f07cf1108e7f3831a653e45d68d7a5499a5a2137a1623e5f1f8591031f8dd0"
+    },
+    {
+      "name": "run.stderr.gz.part001",
+      "bytes": 29077790,
+      "sha256": "5577b0319ea23ec683c8a1f9e89e575793f4de87d4ac9f928ae129cf421f3ec9"
+    }
+  ],
+  "gzip_stream_test": "passed"
+}
