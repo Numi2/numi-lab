@@ -1,0 +1,14 @@
+{
+  "archive_commit": "84fec0f6",
+  "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-launch-perturbed-start-20261114/push-20261126-rebound-perturbed/run.stderr.gz",
+  "bytes": 189787249,
+  "sha256": "4132390b6047f6f3704ee038c49ccf16bae83ad6cdf2c6b99a40753d465db069",
+  "retired": true,
+  "checks": [
+    "regular file",
+    "single link",
+    "exact size and sha256",
+    "lsof no open handles",
+    "independent GitHub streamed part and aggregate verification with gzip EOF"
+  ]
+}
