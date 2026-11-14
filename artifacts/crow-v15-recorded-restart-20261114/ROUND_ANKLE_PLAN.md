@@ -1,0 +1,5 @@
+# Signed ankle authority test on aligned round branch
+
+In the aligned no-correction first episode the hip, knee and ankle angles remain nearly fixed while the root pitch slowly increases about the perch. Test whether bounded ankle position correction supplies useful balance authority without changing branch, initial state, hip targets, other actions, toe targets or policy. Compare +/- signs of 0.20*(pitch-0.10)+0.025*pitch_rate, clipped to +/-0.08 rad, for ankle actions 9 and 12 after interval 100 and both contact counters >=12. No body forces are added. This is a reconstructed forced-landing development test, not a biological or autonomous-mission qualification.
+
+Run 400 intervals per sign. Validate matching before activation, analyze only the first episode, and compare tilt and all-substep per-foot support and opposition against the aligned no-correction control. Require no done/reset, no ground/nonfoot impulse, and the final 250 consecutive intervals satisfying the unchanged tilt, speed and force gates. Preserve failures and evaluate real joint targets and limits before promotion.
