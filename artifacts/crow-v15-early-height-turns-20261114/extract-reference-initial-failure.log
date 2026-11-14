@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-early-height-turns-20261114/extract-reference.py", line 19, in <module>
+    assert z.eof and not z.unused_data and n==manifest['bytes'] and h.hexdigest()==manifest['sha256'] and count==14400
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

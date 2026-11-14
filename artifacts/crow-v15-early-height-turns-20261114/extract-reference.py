@@ -16,6 +16,6 @@ with (p/'reference-states.json.gz').open('wb') as raw:
        if count:out.write(b',')
        out.write(payload);count+=1
    assert pn==part['bytes'] and ph.hexdigest()==part['sha256']
-  assert z.eof and not z.unused_data and n==manifest['bytes'] and h.hexdigest()==manifest['sha256'] and count==14400
+  assert z.eof and not z.unused_data and n==manifest['bytes'] and h.hexdigest()==manifest['sha256'] and count==8*1801
   out.write(b']')
 (p/'reference-verification.json').write_text(json.dumps({'source_commit':'01a2cb8b','source_sha256':h.hexdigest(),'source_bytes':n,'gzip_eof':True,'unique_state_records':count,'reference_sha256':hashlib.sha256((p/'reference-states.json.gz').read_bytes()).hexdigest()},indent=2)+'\n');print('verified and extracted',count,'states')
