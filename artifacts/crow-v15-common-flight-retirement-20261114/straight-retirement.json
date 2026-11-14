@@ -1,0 +1,62 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-common-flight-role-20261114/straight-20261126-rebound-commonrole/run.stderr.gz",
+      "inode": 204468488,
+      "bytes": 249537537,
+      "mtime_ns": 1794662944000000000,
+      "sha256": "8073f5b8f685565a99a9216ed0c0b3cc92d29c4375678d6237b4a453007f223c",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-common-flight-role-20261114/straight-20261126-rebound-commonrole/run.stderr.gz.part000",
+      "inode": 204468922,
+      "bytes": 41943040,
+      "mtime_ns": 1794663069483244255,
+      "sha256": "e9fd4c0471a6d7ff517dc0cef4e7f8ff278a5df30c2a102c83da6cc3cf119e34",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-common-flight-role-20261114/straight-20261126-rebound-commonrole/run.stderr.gz.part001",
+      "inode": 204468954,
+      "bytes": 41943040,
+      "mtime_ns": 1794663070070585397,
+      "sha256": "fcc9c5a4f63575d7fec95e0a810d1b5cdb2c62a8d0d15656118331562b999587",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-common-flight-role-20261114/straight-20261126-rebound-commonrole/run.stderr.gz.part002",
+      "inode": 204468960,
+      "bytes": 41943040,
+      "mtime_ns": 1794663070628649417,
+      "sha256": "4f03d03ed2b4851b8b228974bd26a5cb42a7cfda403db51937500a232d9a5190",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-common-flight-role-20261114/straight-20261126-rebound-commonrole/run.stderr.gz.part003",
+      "inode": 204468969,
+      "bytes": 41943040,
+      "mtime_ns": 1794663071175768021,
+      "sha256": "91eab37621beae5479494ec4a3172d36073cd1708c49a3b27b4dc04d540288d6",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-common-flight-role-20261114/straight-20261126-rebound-commonrole/run.stderr.gz.part004",
+      "inode": 204468978,
+      "bytes": 41943040,
+      "mtime_ns": 1794663071675398171,
+      "sha256": "4185acc63047959a019b2d4565551877b40d30c900a684885ef4e27b39f8f9e5",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-common-flight-role-20261114/straight-20261126-rebound-commonrole/run.stderr.gz.part005",
+      "inode": 204468985,
+      "bytes": 39822337,
+      "mtime_ns": 1794663072228716387,
+      "sha256": "5ee4daa87029c7eb0d4a005befde74015f88e68f456921787a41c6f0a2bd593f",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 499075074
+}

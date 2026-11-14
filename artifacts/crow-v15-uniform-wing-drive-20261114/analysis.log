@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-uniform-wing-drive-20261114/analyze.py", line 27, in <module>
+    new=read(P/'run.stderr.gz',True);mode=sys.argv[3];assert mode in ('straight','turn');ref={'state':{(x['lane'],x['step']):x for x in json.load(gzip.open(refpath,'rt'))}};parityref={'state':{(x['lane'],x['step']):x for x in json.load(gzip.open(Path(sys.argv[4]),'rt'))}};stdout=json.loads((P/'run.stdout').read_text());meta=stdout['first_episode_navigation'];inputs=json.loads((P/'inputs.json').read_text());rinputs=json.loads((BASE/'straight-20261126-rebound-resetcorrected/inputs.json').read_text())
+                                                                                                                                        ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/json/__init__.py", line 298, in load
+    return loads(fp.read(),
+                 ~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/gzip.py", line 351, in read
+    return self._buffer.read(size)
+           ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/compression/_common/_streams.py", line 118, in readall
+    while data := self.read(sys.maxsize):
+                  ~~~~~~~~~^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/gzip.py", line 572, in read
+    if not self._read_gzip_header():
+           ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/gzip.py", line 541, in _read_gzip_header
+    last_mtime = _read_gzip_header(self._fp)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/gzip.py", line 496, in _read_gzip_header
+    magic = fp.read(2)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/gzip.py", line 105, in read
+    self.file.read(size-self._length+read)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: [Errno 60] Operation timed out
