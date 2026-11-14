@@ -1,0 +1,5 @@
+# First wing phase with bounded tuck: no continuous transition
+
+The matched native development-seed screen recorded complete physical substeps and matching pre-push states/non-leg target streams for every lane. All phases first reached the three-interval unloaded condition at 376, but every push lane recontacted before interval 500 and failed the registered continuous-transition and leg-necessity screens. Phase zero recontacted at 396 and 389 in its two correlated lanes; pi/2 at 385 in both, pi at 391 in both, and 3pi/2 at 381 in both. The nonzero phases also hit the toe-speed threshold in several lanes. All phases showed approximately +0.171 N s paired excess upward foot impulse over intervals 371–376 and about 0.0022 rad pre-unload flap movement.
+
+The seven-interval difference between phase-zero lanes is unresolved, despite their shared intended phase and tuck. It prevents interpreting the best single lane as robust. Observer contact/state epochs are not independently synchronized. This is neither reliable leg-powered takeoff nor flight, landing or mission qualification; all failed rollouts are retained.
