@@ -1,0 +1,70 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-matched-zero-twist-straight-20261114/straight-20261127-rebound-matchedzero27/run.stderr.gz",
+      "inode": 204451615,
+      "bytes": 256226791,
+      "mtime_ns": 1794661166000000000,
+      "sha256": "4cf8a04dcd6a6b947da9d23bd341bf9b6f134d76bd8e2d32869c40000098b596",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-matched-zero-twist-straight-20261114/straight-20261127-rebound-matchedzero27/run.stderr.gz.part000",
+      "inode": 204451918,
+      "bytes": 41943040,
+      "mtime_ns": 1794661292127730015,
+      "sha256": "268d4b97644083deaf30dd5af6e4847c9f7675fbdf62275d0bdb3bd0d35c45c2",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-matched-zero-twist-straight-20261114/straight-20261127-rebound-matchedzero27/run.stderr.gz.part001",
+      "inode": 204451957,
+      "bytes": 41943040,
+      "mtime_ns": 1794661292683184742,
+      "sha256": "43144c8c02a5e718d4ccddf00234f56bc832065653795d5e0fc8c6eceff22d83",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-matched-zero-twist-straight-20261114/straight-20261127-rebound-matchedzero27/run.stderr.gz.part002",
+      "inode": 204451964,
+      "bytes": 41943040,
+      "mtime_ns": 1794661293184186578,
+      "sha256": "b390f7aa2a81ca9fc7eae49a7d2db7197065790f02ae992dbb91bdf216889912",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-matched-zero-twist-straight-20261114/straight-20261127-rebound-matchedzero27/run.stderr.gz.part003",
+      "inode": 204451974,
+      "bytes": 41943040,
+      "mtime_ns": 1794661293658877009,
+      "sha256": "df0c8ef10a7955ace5807de8d9c0dd8eb93dd146fed0de8f5e042ce9bd8433fb",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-matched-zero-twist-straight-20261114/straight-20261127-rebound-matchedzero27/run.stderr.gz.part004",
+      "inode": 204451981,
+      "bytes": 41943040,
+      "mtime_ns": 1794661294140004927,
+      "sha256": "8096e2177cbe635595a82a257026d5f234f0ed26248d07ca5ff778d190496b95",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-matched-zero-twist-straight-20261114/straight-20261127-rebound-matchedzero27/run.stderr.gz.part005",
+      "inode": 204451991,
+      "bytes": 41943040,
+      "mtime_ns": 1794661294655877233,
+      "sha256": "e2568a035125523f51e57b6cdb031b0342dc3d64fd701705180ee503b052e431",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-matched-zero-twist-straight-20261114/straight-20261127-rebound-matchedzero27/run.stderr.gz.part006",
+      "inode": 204452008,
+      "bytes": 4568551,
+      "mtime_ns": 1794661295067135915,
+      "sha256": "8bddb479fcee12f65a9eb46eb0661d09f6a8cb472953cbfd4e0513cd4cca2157",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 512453582
+}
