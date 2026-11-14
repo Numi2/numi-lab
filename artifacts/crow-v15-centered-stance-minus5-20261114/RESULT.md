@@ -1,0 +1,5 @@
+# Slightly inward stance centering: improved but below release gate
+
+Changing the lateral target from zero to -5 mm increased the strict supported-clearance streak from 58 to 63 intervals and delayed the first root height below 0.1 m from one-based interval 408 to 413. It remains below the 100-interval gate. Neither candidate foot reached 12 rad/s in accepted-state toe speed before the fall; the stance foot reached it afterward. Accepted-state measurements do not bound substep speed or effort.
+
+The control reproduced all 450 q/v states of the zero-target candidate exactly. The generic comparator omits the changed roll target and reports a later divergence and failed prefix; it is retained. A dedicated audit finds both the first logged roll-target and q/v differences at zero-based tick 156, with exact q/v through tick 155; their epochs are unverified. Bounded roll feedback reconstructed without mismatch; all 32 contact substeps were present, with no native/observer errors or nonfoot support. The prebuilt and runtime binary hashes matched. This constructed stationary open-toe perch probe does not qualify walking, regrip, landing or biological motion.

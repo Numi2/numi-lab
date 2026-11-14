@@ -1,0 +1,14 @@
+{
+  "0": {
+    "return_step": null,
+    "qualifying_steps": [],
+    "streaks": [],
+    "failed_gate_counts": {}
+  },
+  "1": {
+    "return_step": null,
+    "qualifying_steps": [],
+    "streaks": [],
+    "failed_gate_counts": {}
+  }
+}

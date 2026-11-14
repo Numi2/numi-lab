@@ -1,0 +1,6 @@
+{
+  "first_roll_target_difference_zero_based": 156,
+  "first_state_difference_zero_based": 156,
+  "state_exact_before_first_roll_target": true,
+  "caveat": "target and state logging epochs not independently verified"
+}

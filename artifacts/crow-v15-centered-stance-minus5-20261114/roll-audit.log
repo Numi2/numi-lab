@@ -1,0 +1,6 @@
+{
+  "active_samples": 658,
+  "mismatches": [],
+  "pass": true,
+  "scope": "reconstructs bounded roll target from logged previous-state balance feedback, not physical effort"
+}
