@@ -1,0 +1,67 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "missing_invalid_substep_count": 0,
+      "first_root_fall_zero_based": 369,
+      "pre_fall_max_toe_speed_rad_s": 12.0,
+      "pre_fall_threshold_substep_count": 13,
+      "first_threshold_substeps": [
+        [
+          365,
+          31
+        ],
+        [
+          366,
+          0
+        ],
+        [
+          366,
+          1
+        ],
+        [
+          366,
+          2
+        ],
+        [
+          366,
+          3
+        ]
+      ],
+      "final_substep_accepted_max_abs_difference_rad_s": 0.0
+    },
+    {
+      "lane": 1,
+      "missing_invalid_substep_count": 0,
+      "first_root_fall_zero_based": 376,
+      "pre_fall_max_toe_speed_rad_s": 12.0,
+      "pre_fall_threshold_substep_count": 41,
+      "first_threshold_substeps": [
+        [
+          372,
+          25
+        ],
+        [
+          372,
+          26
+        ],
+        [
+          372,
+          27
+        ],
+        [
+          372,
+          28
+        ],
+        [
+          372,
+          29
+        ]
+      ],
+      "final_substep_accepted_max_abs_difference_rad_s": 0.0
+    }
+  ],
+  "duplicate_sample_count": 0,
+  "observer_errors": [],
+  "scope": "destination toe velocities at physics substeps; contact/state epoch alignment not established"
+}

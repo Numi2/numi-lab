@@ -1,0 +1,7 @@
+{
+  "first_toe_target_difference_zero_based": 121,
+  "first_other_logged_difference_zero_based": 121,
+  "first_lane0_prior_difference_zero_based": null,
+  "state_and_commands_match_before_gate": true,
+  "scope": "Exact logged comparisons, not independent synchronization of solver epochs."
+}
