@@ -1,0 +1,56 @@
+{
+  "files": [
+    {
+      "path": "artifacts/crow-v15-stance-pitch-authority-20261114/PLAN.md",
+      "local_sha256": "5c811b34063d76657c2ee79097c012faac9012f48fa5ba0952c3848ca4eaf886",
+      "remote_sha256": "5c811b34063d76657c2ee79097c012faac9012f48fa5ba0952c3848ca4eaf886"
+    },
+    {
+      "path": "artifacts/crow-v15-stance-pitch-authority-20261114/SHA256SUMS-plan",
+      "local_sha256": "8b1e202c44f5e69f8ecf395d54a21db490063c93daf49ad887bca38e22e3314d",
+      "remote_sha256": "8b1e202c44f5e69f8ecf395d54a21db490063c93daf49ad887bca38e22e3314d"
+    },
+    {
+      "path": "artifacts/crow-v15-stance-pitch-authority-20261114/compare.py",
+      "local_sha256": "c0f1acd3457f7f0b83df3e218c46d2e0eb3077ec5173cc3708cb86229238dec8",
+      "remote_sha256": "c0f1acd3457f7f0b83df3e218c46d2e0eb3077ec5173cc3708cb86229238dec8"
+    },
+    {
+      "path": "artifacts/crow-v15-stance-pitch-authority-20261114/correction-check.py",
+      "local_sha256": "b985f68a16ecf616582ac083cc0efa59cf80da78fae3b7f7bf785b033e3afad1",
+      "remote_sha256": "b985f68a16ecf616582ac083cc0efa59cf80da78fae3b7f7bf785b033e3afad1"
+    },
+    {
+      "path": "artifacts/crow-v15-stance-pitch-authority-20261114/lift-audit.py",
+      "local_sha256": "9efb2268a4a740f1fce56238357f43c556889f0817be3aad49f2a13dd70e9c6a",
+      "remote_sha256": "9efb2268a4a740f1fce56238357f43c556889f0817be3aad49f2a13dd70e9c6a"
+    },
+    {
+      "path": "artifacts/crow-v15-stance-pitch-authority-20261114/pitch-audit.py",
+      "local_sha256": "f5ec2fcfef6d76de95d924b0a838c6b00087c4735a6b5b21f02037a72461bfe9",
+      "remote_sha256": "f5ec2fcfef6d76de95d924b0a838c6b00087c4735a6b5b21f02037a72461bfe9"
+    },
+    {
+      "path": "artifacts/crow-v15-stance-pitch-authority-20261114/probe.cpp",
+      "local_sha256": "d5afb5f8e268ce125791962cc2cfed3d8de2fb9e13e47ff6f96b7b54f70b829f",
+      "remote_sha256": "d5afb5f8e268ce125791962cc2cfed3d8de2fb9e13e47ff6f96b7b54f70b829f"
+    },
+    {
+      "path": "artifacts/crow-v15-stance-pitch-authority-20261114/rear-ankle-audit.py",
+      "local_sha256": "31849cc7ade9a966ee85cd8e79dcc7da6c5d6f51687778c4f021417d262b207f",
+      "remote_sha256": "31849cc7ade9a966ee85cd8e79dcc7da6c5d6f51687778c4f021417d262b207f"
+    },
+    {
+      "path": "artifacts/crow-v15-stance-pitch-authority-20261114/rear-knee-audit.py",
+      "local_sha256": "8850d26237da38d0910a0f68fb01638526170076efe013b290b7dc95a9b028fd",
+      "remote_sha256": "8850d26237da38d0910a0f68fb01638526170076efe013b290b7dc95a9b028fd"
+    },
+    {
+      "path": "artifacts/crow-v15-stance-pitch-authority-20261114/prebuild.log",
+      "local_sha256": "d46c9b2ac67b9e4e1c1c2e172eae2dfa3f5437f2a59e69b9512b12f6419eb2f3",
+      "remote_sha256": "d46c9b2ac67b9e4e1c1c2e172eae2dfa3f5437f2a59e69b9512b12f6419eb2f3"
+    }
+  ],
+  "all_match": true,
+  "original_binary_sha256": "5adcc1edcf2d939fddda639b92d25f2cce4ea1e3f615fdc32278d0a79218d840"
+}
