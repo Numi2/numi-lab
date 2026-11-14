@@ -1,6 +1,6 @@
 from pathlib import Path
 import difflib,hashlib,json,shlex,subprocess,gzip
-R=Path.cwd();A=R/'artifacts/crow-v15-toe-friction-observer-20261114';B=R/'build/crow-v15-toe-effort-observer-20261114';O=R/'build/crow-v15-toe-effort-observer-20261114';P=R/'build/crow-v15-wide-contact-isolation-20261111';B.mkdir(parents=True,exist_ok=True)
+R=Path.cwd();A=R/'artifacts/crow-v15-toe-friction-observer-20261114';B=R/'build/crow-v15-toe-friction-observer-20261114';O=R/'build/crow-v15-toe-effort-observer-20261114';P=R/'build/crow-v15-wide-contact-isolation-20261111';B.mkdir(parents=True,exist_ok=True)
 base=(O/'MetalWorld.mm').read_text();s=base
 def once(a,b):
  global s
