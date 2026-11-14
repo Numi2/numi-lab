@@ -1,0 +1,16 @@
+{
+  "archive_commit": "f9ebe021",
+  "remote_verification_commit": "bd1d0f86",
+  "removed": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-early-long-flight-20261114/push-20261126-rebound-long/run.stderr.gz",
+  "bytes": 159499108,
+  "sha256": "768d19fa65f75a54f6898ae8d5e6b663838bbece1f09aa19dacd58c9905758e7",
+  "checks": [
+    "regular file",
+    "not symlink",
+    "single link",
+    "exact size and sha256",
+    "lsof no open handles",
+    "independent GitHub streamed part and aggregate verification with gzip EOF"
+  ],
+  "retired": true
+}
