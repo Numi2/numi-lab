@@ -1,0 +1,26 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "state_command_event_mismatch_count": 0,
+      "contact_substep_mismatch_count": 0,
+      "missing_invalid_velocity_substeps": 0,
+      "final_substep_accepted_velocity_max_abs_difference_rad_s": 0.0,
+      "first_root_fall_zero_based": 359,
+      "pre_fall_substep_toe_peak_rad_s": 10.1271286,
+      "pre_fall_substeps_with_toe_speed_threshold": 0
+    },
+    {
+      "lane": 1,
+      "state_command_event_mismatch_count": 0,
+      "contact_substep_mismatch_count": 0,
+      "missing_invalid_velocity_substeps": 0,
+      "final_substep_accepted_velocity_max_abs_difference_rad_s": 0.0,
+      "first_root_fall_zero_based": 361,
+      "pre_fall_substep_toe_peak_rad_s": 12.0,
+      "pre_fall_substeps_with_toe_speed_threshold": 35
+    }
+  ],
+  "observer_errors": [],
+  "scope": "passive same-start comparison; final-substep velocity check does not independently synchronize contact epoch or establish biological realism"
+}

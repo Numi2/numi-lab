@@ -1,0 +1,5 @@
+# Passive toe substep observer: matched control replay
+
+The separate observer reproduced both retained original-placement and zero-placement trajectories exactly for all 450 state, control and event records and all 28,800 recorded contact substeps. It produced all 28,800 finite, unique 16-joint toe-velocity samples, and each final-substep toe velocity matched its corresponding accepted-state sample exactly. The runtime source, binary, library and Metal shader hashes are recorded; the probe and library match their preregistered prebuilds. This establishes equivalence and velocity alignment for these two retained trajectories only; it does not independently synchronize contact epochs.
+
+Before the first root fall, the original-placement lane had a 10.127 rad/s peak and no substep at or above 11.99 rad/s. The zero-placement lane reached 12 rad/s in 35 pre-fall substeps. Both outcomes remain failed regrip tests and neither establishes walking, landing or biological validity. The complete q/v, contact, substep velocity and failure traces are retained.
