@@ -1,0 +1,7 @@
+378d1d7a58666b06152154c9e837019f5ceb1d9981a8d32eef7a98a50a53e8d7  artifacts/crow-v15-double-disturbance-20261114/PLAN.md
+2777344f686253c702afb10948246cc4069001538ebc625e1bb7e6a1452b6f74  artifacts/crow-v15-double-disturbance-20261114/gust.metal
+91cc8c80f7bc6ad964bb22cb9cfa6eab920075e004598e938f0ed3804883863d  artifacts/crow-v15-double-disturbance-20261114/build-gust.py
+0d53b90fc533511be085ac62743b2b096df3ec8406dc43b6880fb900abdc64d1  artifacts/crow-v15-double-disturbance-20261114/run.py
+b1bb5fb9fbc8ac19eb1cc31301c5a21f637c6f0e8a2c6b9b995ca3a92c8be395  artifacts/crow-v15-double-disturbance-20261114/analyze-gust.py
+6ef8944ccd9e0f702b6acf619162300e247edb6b43650f2144abfee0f22a3768  artifacts/crow-v15-double-disturbance-20261114/observer-alignment.py
+f4cf7fbdc7360ba98c4f6c148cbc85122864dfb0ee78a25df272a147056aa690  artifacts/crow-v15-double-disturbance-20261114/timing-recheck.py
