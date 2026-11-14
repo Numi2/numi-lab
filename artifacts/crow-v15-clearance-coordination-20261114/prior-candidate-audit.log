@@ -1,0 +1,6 @@
+{
+  "compared_intervals": 450,
+  "first_difference_zero_based": 239,
+  "different_intervals": 211,
+  "scope": "lane 1 logged comparison; contact epochs not independently synchronized"
+}

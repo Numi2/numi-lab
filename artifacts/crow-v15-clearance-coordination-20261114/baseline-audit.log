@@ -1,0 +1,7 @@
+{
+  "control_intervals": 450,
+  "control_mismatch_count": 0,
+  "control_first_mismatch": [],
+  "candidate_first_logged_difference_zero_based": 239,
+  "scope": "logged observations; contact epochs not independently synchronized"
+}

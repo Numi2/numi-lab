@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-clearance-coordination-20261114/bilateral-toe-audit.py", line 3, in <module>
+    A=Path(sys.argv[1]);states={(e,side):[] for e in (0,1) for side in ('left','right')};falls={}
+           ~~~~~~~~^^^
+IndexError: list index out of range

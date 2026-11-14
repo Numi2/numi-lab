@@ -1,0 +1,46 @@
+{
+  "retired": true,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-altitude-bias-correction-20261114/altitude-20261126-rebound-corrected/run.stderr.gz",
+      "inode": 204491034,
+      "bytes": 152689230,
+      "mtime_ns": 1794665897052804201,
+      "sha256": "c9a46b881c4c15d79c49d6be3a75d41393791b7eca63c4168d1f6acf2ce7ca79",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-altitude-bias-correction-20261114/altitude-20261126-rebound-corrected/run.stderr.gz.part000",
+      "inode": 204492303,
+      "bytes": 41943040,
+      "mtime_ns": 1794666012481049673,
+      "sha256": "09ca9bb0040a32b9ca744f0c03734cb6e64da391b694fecd4ebe5bda84cd6126",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-altitude-bias-correction-20261114/altitude-20261126-rebound-corrected/run.stderr.gz.part001",
+      "inode": 204492304,
+      "bytes": 41943040,
+      "mtime_ns": 1794666012677236738,
+      "sha256": "997cbd4955678d17d3a58b84627825d0e150ede6b495b0feb0821cfb6b638a65",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-altitude-bias-correction-20261114/altitude-20261126-rebound-corrected/run.stderr.gz.part002",
+      "inode": 204492305,
+      "bytes": 41943040,
+      "mtime_ns": 1794666012879377574,
+      "sha256": "b9520d11def71af191dcc7ccb9b592d82c9cc976d03d21d51eb5ea4fcb3c370c",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-altitude-bias-correction-20261114/altitude-20261126-rebound-corrected/run.stderr.gz.part003",
+      "inode": 204492331,
+      "bytes": 26860110,
+      "mtime_ns": 1794666013100212071,
+      "sha256": "3e26c4bbb8ac587053092937717b611040235a015251e9f4f8b3032acfd8a04f",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 305378460
+}
