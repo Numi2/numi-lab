@@ -1,0 +1,3 @@
+# Local kinematic options at the capped-clearance state
+
+In the earlier-balance candidate, the released hip-lift, knee and ankle correction targets reached their current control caps before the rear-toe clearance gate failed. At both retained lanes' zero-based ticks 240, 250, 260 and 265, use the independently hashed native v15 forward-kinematics executable to calculate +/-0.02-rad hip, knee and ankle gap sensitivities. Cross-check each unperturbed group gap against the recorded body-pose geometry. These are fixed-state local derivatives, not physically reachable trajectories or proof of stable support. Use the result to inform a bounded paired target test without changing physical joint limits.
