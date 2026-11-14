@@ -1,0 +1,5 @@
+# Knee clearance feedback: single support remains unqualified
+
+The contact-gated knee adjustment increased the longest qualifying single-support and clearance streak from 16 to 18 intervals, far below the registered 100. The control reproduced all 450 archived early-feedback states; the two lanes matched for 206 states before their first target difference. Both feedback audits passed, with no mismatch in 244 active samples. Full substep coverage was recorded without native/observer errors or nonfoot support.
+
+Both lanes first fell below 0.1 m root height at recorded interval 336. Both stance toes reached the accepted-state 12 rad/s speed limit before that fall. The released foot remained commanded open, so this experiment does not test regrip. State/contact epoch alignment in this probe is independently unverified and accepted-state speeds do not bound substep extrema. This is a modest constructed-start diagnostic change, not a walking or landing fix. Full raw observations and executable are retained.
