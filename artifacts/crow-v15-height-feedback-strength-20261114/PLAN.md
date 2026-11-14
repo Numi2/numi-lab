@@ -1,0 +1,5 @@
+# Stronger bounded height feedback
+
+The retained height-switch screen stayed airborne but failed 0.05 m tracking in both candidate lanes. Test whether insufficient physical flap-target feedback authority is a contributor: change gain from 0.03 to 0.08 rad/m and correction bounds from -0.009/+0.006 to -0.020/+0.012 rad, retaining the same bias, phase, launch, physical wing drives, speed and lateral controls and used seed 20261126. This is a development identification, not a promotion or a direct force.
+
+Use the exact prior preregistered switch, prefix and physical gates, including first 500 state/action/contact parity against the early-boost run, 1800-interval complete traces, no contact, toe or wing-effort violation in candidate lanes, reconstructed targets, at most 0.05 m mean absolute height error in both windows, and at least 0.12 m requested-direction mean change. Preserve lane 0/1 physical failures and all unsuccessful traces. Candidate observer epochs are inferred; neither success on used seed nor tracking establishes disturbed recovery, autonomous navigation, landing, or biological validity.
