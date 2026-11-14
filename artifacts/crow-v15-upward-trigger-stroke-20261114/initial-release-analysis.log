@@ -1,0 +1,26 @@
+{
+  "push": {
+    "6": {
+      "first_unloaded": 377,
+      "preceding_model_vertical_aero_impulse_Ns": 0.03933274951904496,
+      "preceding_max_flap_displacement_rad": 0.5477713639999999
+    },
+    "7": {
+      "first_unloaded": 376,
+      "preceding_model_vertical_aero_impulse_Ns": 0.01170243318445029,
+      "preceding_max_flap_displacement_rad": 0.47386831
+    }
+  },
+  "hold": {
+    "6": {
+      "first_unloaded": null,
+      "preceding_model_vertical_aero_impulse_Ns": null,
+      "preceding_max_flap_displacement_rad": null
+    },
+    "7": {
+      "first_unloaded": null,
+      "preceding_model_vertical_aero_impulse_Ns": null,
+      "preceding_max_flap_displacement_rad": null
+    }
+  }
+}
