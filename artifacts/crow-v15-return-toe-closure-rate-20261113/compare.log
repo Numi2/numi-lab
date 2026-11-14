@@ -1,0 +1,14 @@
+{
+  "target_rate_bounds_valid": true,
+  "max_positive_target_rate": [
+    0.045000017,
+    0.090000034
+  ],
+  "first_target_difference_zero_based": 224,
+  "prefix_pairs": 224,
+  "prefix_exact": true,
+  "front_target_max": [
+    1.04999995,
+    1.04999995
+  ]
+}
