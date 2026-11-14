@@ -1,0 +1,7 @@
+# Partial preclosure during release: failed
+
+The candidate never reached the return trigger and achieved no qualifying bilateral regrip. Its longest strict release streak was 38 intervals, versus 43 for the slower-return control; the control fell below 0.1 m at one-based interval 368 and the candidate at 432. Both stayed below the 11.99 rad/s toe-speed threshold before the detected fall. These are not successful release or grip qualifications.
+
+The control reproduced the previous slower-return candidate exactly across all 450 logged intervals, and the candidate first differed at zero-based interval 267. At interval 280 the candidate's returning foot acquired a positive rear-toe contact while its measured clearance fell below zero, resetting the consecutive-clearance counter before the 40-count return trigger. The preclosure then stopped and reopened under the implemented guard; the trial did not test the intended normal return. The support-timing script uses a fixed postreturn starting interval and its candidate entry must not be interpreted as a postreturn result, because return never occurred. Contact and state epochs are not independently synchronized.
+
+All contact and toe-velocity substeps were complete, unique and finite, with no recorded native or observer error and no recorded nonfoot support impulse. This is a constructed stationary perch test using privileged diagnostics, not walking, leg takeoff, airborne landing or biological validation. Both raw streams, binary identities and all negative outcomes are retained.
