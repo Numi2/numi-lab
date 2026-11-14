@@ -1,0 +1,8 @@
+{
+  "pid": 79905,
+  "waited_for": "turn-20261127-rebound-earlier exit 0",
+  "actual_log": "turn exit 0",
+  "action": "terminated obsolete waiter only",
+  "related_experiment": "crow-v15-release-hip-clearance-20261114",
+  "related_result_already_archived": true
+}
