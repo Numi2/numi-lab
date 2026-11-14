@@ -1,0 +1,5 @@
+# Activated balance-gain comparison: rejected
+
+Using the existing lower contact-detection threshold activated the candidate as intended. Every candidate matched the control's recorded states, targets and contact substeps before the first changed target at zero-based interval 296; the two control lanes matched throughout. All 450 states and required contact/toe substeps were present, with no observer errors or nonfoot impulse. Each lane achieved 43 qualified release intervals.
+
+Neither gain solved regrip. The control's longest bilateral supported opposed-toe streak was 11 intervals and fell at interval 370. Gain 1 held 10 intervals and fell at 370; gain 2 held one interval and fell at 360; gain 4 held at most two consecutive intervals and fell at 364. Every lane reached the modeled 12 rad/s toe-speed cap before falling. Paired repeated lanes had identical outcomes and are correlated, not independent replicates. All fail the terminal 100-interval grip gate; reject the tested gains and retain the baseline. This stationary test does not establish walking, landing or biological validity, and contact/state observer epochs remain independently unverified.

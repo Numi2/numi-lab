@@ -1,0 +1,14 @@
+{
+  "archive_commit": "b0b954a9",
+  "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-uniform-wing-handoff-20261114/push-20261126-rebound-uniform/run.stderr.gz",
+  "bytes": 188582743,
+  "sha256": "b007d53492a16e33968ea530ad7c26654b576946ff02806e563c813e81b2c7cb",
+  "retired": true,
+  "checks": [
+    "regular file",
+    "single link",
+    "exact size and sha256",
+    "lsof no open handles",
+    "independent GitHub streamed part and aggregate verification with gzip EOF"
+  ]
+}

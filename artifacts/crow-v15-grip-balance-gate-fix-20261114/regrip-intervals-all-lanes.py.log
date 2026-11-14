@@ -1,0 +1,214 @@
+{
+  "0": {
+    "return_step": 273,
+    "qualifying_steps": [
+      297,
+      298,
+      299,
+      300,
+      301,
+      302,
+      303,
+      304,
+      305,
+      306,
+      307
+    ],
+    "streaks": [
+      [
+        297,
+        307,
+        11
+      ]
+    ],
+    "failed_gate_counts": {
+      "both_up": 19,
+      "left_opp": 79,
+      "right_opp": 62,
+      "tilt": 39,
+      "speed": 21
+    }
+  },
+  "1": {
+    "return_step": 273,
+    "qualifying_steps": [
+      297,
+      298,
+      299,
+      300,
+      301,
+      302,
+      303,
+      304,
+      305,
+      306,
+      307
+    ],
+    "streaks": [
+      [
+        297,
+        307,
+        11
+      ]
+    ],
+    "failed_gate_counts": {
+      "both_up": 19,
+      "left_opp": 79,
+      "right_opp": 62,
+      "tilt": 39,
+      "speed": 21
+    }
+  },
+  "2": {
+    "return_step": 273,
+    "qualifying_steps": [
+      297,
+      298,
+      299,
+      300,
+      301,
+      302,
+      303,
+      304,
+      305,
+      306
+    ],
+    "streaks": [
+      [
+        297,
+        306,
+        10
+      ]
+    ],
+    "failed_gate_counts": {
+      "both_up": 19,
+      "left_opp": 81,
+      "right_opp": 63,
+      "tilt": 39,
+      "speed": 21
+    }
+  },
+  "3": {
+    "return_step": 273,
+    "qualifying_steps": [
+      297,
+      298,
+      299,
+      300,
+      301,
+      302,
+      303,
+      304,
+      305,
+      306
+    ],
+    "streaks": [
+      [
+        297,
+        306,
+        10
+      ]
+    ],
+    "failed_gate_counts": {
+      "both_up": 19,
+      "left_opp": 81,
+      "right_opp": 63,
+      "tilt": 39,
+      "speed": 21
+    }
+  },
+  "4": {
+    "return_step": 273,
+    "qualifying_steps": [
+      300
+    ],
+    "streaks": [
+      [
+        300,
+        300,
+        1
+      ]
+    ],
+    "failed_gate_counts": {
+      "both_up": 19,
+      "left_opp": 84,
+      "right_opp": 62,
+      "speed": 28,
+      "tilt": 33
+    }
+  },
+  "5": {
+    "return_step": 273,
+    "qualifying_steps": [
+      300
+    ],
+    "streaks": [
+      [
+        300,
+        300,
+        1
+      ]
+    ],
+    "failed_gate_counts": {
+      "both_up": 19,
+      "left_opp": 84,
+      "right_opp": 62,
+      "speed": 28,
+      "tilt": 33
+    }
+  },
+  "6": {
+    "return_step": 273,
+    "qualifying_steps": [
+      301,
+      306,
+      307
+    ],
+    "streaks": [
+      [
+        301,
+        301,
+        1
+      ],
+      [
+        306,
+        307,
+        2
+      ]
+    ],
+    "failed_gate_counts": {
+      "both_up": 23,
+      "left_opp": 85,
+      "right_opp": 63,
+      "speed": 29,
+      "tilt": 33
+    }
+  },
+  "7": {
+    "return_step": 273,
+    "qualifying_steps": [
+      301,
+      306,
+      307
+    ],
+    "streaks": [
+      [
+        301,
+        301,
+        1
+      ],
+      [
+        306,
+        307,
+        2
+      ]
+    ],
+    "failed_gate_counts": {
+      "both_up": 23,
+      "left_opp": 85,
+      "right_opp": 63,
+      "speed": 29,
+      "tilt": 33
+    }
+  }
+}

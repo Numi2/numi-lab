@@ -1,0 +1,247 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "missing_invalid_substep_count": 0,
+      "first_root_fall_zero_based": 369,
+      "pre_fall_max_toe_speed_rad_s": 12.0,
+      "pre_fall_threshold_substep_count": 13,
+      "first_threshold_substeps": [
+        [
+          365,
+          31
+        ],
+        [
+          366,
+          0
+        ],
+        [
+          366,
+          1
+        ],
+        [
+          366,
+          2
+        ],
+        [
+          366,
+          3
+        ]
+      ],
+      "final_substep_accepted_max_abs_difference_rad_s": 0.0
+    },
+    {
+      "lane": 1,
+      "missing_invalid_substep_count": 0,
+      "first_root_fall_zero_based": 369,
+      "pre_fall_max_toe_speed_rad_s": 12.0,
+      "pre_fall_threshold_substep_count": 13,
+      "first_threshold_substeps": [
+        [
+          365,
+          31
+        ],
+        [
+          366,
+          0
+        ],
+        [
+          366,
+          1
+        ],
+        [
+          366,
+          2
+        ],
+        [
+          366,
+          3
+        ]
+      ],
+      "final_substep_accepted_max_abs_difference_rad_s": 0.0
+    },
+    {
+      "lane": 2,
+      "missing_invalid_substep_count": 0,
+      "first_root_fall_zero_based": 369,
+      "pre_fall_max_toe_speed_rad_s": 12.0,
+      "pre_fall_threshold_substep_count": 23,
+      "first_threshold_substeps": [
+        [
+          365,
+          24
+        ],
+        [
+          365,
+          25
+        ],
+        [
+          365,
+          26
+        ],
+        [
+          365,
+          27
+        ],
+        [
+          365,
+          28
+        ]
+      ],
+      "final_substep_accepted_max_abs_difference_rad_s": 0.0
+    },
+    {
+      "lane": 3,
+      "missing_invalid_substep_count": 0,
+      "first_root_fall_zero_based": 369,
+      "pre_fall_max_toe_speed_rad_s": 12.0,
+      "pre_fall_threshold_substep_count": 23,
+      "first_threshold_substeps": [
+        [
+          365,
+          24
+        ],
+        [
+          365,
+          25
+        ],
+        [
+          365,
+          26
+        ],
+        [
+          365,
+          27
+        ],
+        [
+          365,
+          28
+        ]
+      ],
+      "final_substep_accepted_max_abs_difference_rad_s": 0.0
+    },
+    {
+      "lane": 4,
+      "missing_invalid_substep_count": 0,
+      "first_root_fall_zero_based": 359,
+      "pre_fall_max_toe_speed_rad_s": 12.0,
+      "pre_fall_threshold_substep_count": 20,
+      "first_threshold_substeps": [
+        [
+          301,
+          23
+        ],
+        [
+          355,
+          9
+        ],
+        [
+          355,
+          10
+        ],
+        [
+          355,
+          11
+        ],
+        [
+          355,
+          12
+        ]
+      ],
+      "final_substep_accepted_max_abs_difference_rad_s": 0.0
+    },
+    {
+      "lane": 5,
+      "missing_invalid_substep_count": 0,
+      "first_root_fall_zero_based": 359,
+      "pre_fall_max_toe_speed_rad_s": 12.0,
+      "pre_fall_threshold_substep_count": 20,
+      "first_threshold_substeps": [
+        [
+          301,
+          23
+        ],
+        [
+          355,
+          9
+        ],
+        [
+          355,
+          10
+        ],
+        [
+          355,
+          11
+        ],
+        [
+          355,
+          12
+        ]
+      ],
+      "final_substep_accepted_max_abs_difference_rad_s": 0.0
+    },
+    {
+      "lane": 6,
+      "missing_invalid_substep_count": 0,
+      "first_root_fall_zero_based": 363,
+      "pre_fall_max_toe_speed_rad_s": 12.0,
+      "pre_fall_threshold_substep_count": 52,
+      "first_threshold_substeps": [
+        [
+          297,
+          14
+        ],
+        [
+          297,
+          20
+        ],
+        [
+          297,
+          21
+        ],
+        [
+          297,
+          22
+        ],
+        [
+          297,
+          24
+        ]
+      ],
+      "final_substep_accepted_max_abs_difference_rad_s": 0.0
+    },
+    {
+      "lane": 7,
+      "missing_invalid_substep_count": 0,
+      "first_root_fall_zero_based": 363,
+      "pre_fall_max_toe_speed_rad_s": 12.0,
+      "pre_fall_threshold_substep_count": 52,
+      "first_threshold_substeps": [
+        [
+          297,
+          14
+        ],
+        [
+          297,
+          20
+        ],
+        [
+          297,
+          21
+        ],
+        [
+          297,
+          22
+        ],
+        [
+          297,
+          24
+        ]
+      ],
+      "final_substep_accepted_max_abs_difference_rad_s": 0.0
+    }
+  ],
+  "duplicate_sample_count": 0,
+  "observer_errors": [],
+  "scope": "destination toe velocities at physics substeps; contact/state epoch alignment not established"
+}
