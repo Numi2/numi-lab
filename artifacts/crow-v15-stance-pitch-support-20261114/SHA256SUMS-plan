@@ -1,0 +1,9 @@
+791075c04f1ddbb869910f2e1b5d2bdcc92bdbac84dd354f842c7aa818e8c73f  artifacts/crow-v15-stance-pitch-support-20261114/PLAN.md
+1eac54b32ed4fdc58dc43539927a4efcb28656473f53db267e69e04775bc17de  artifacts/crow-v15-stance-pitch-support-20261114/probe.cpp
+0aee344ae3e10c76dc067c81de1be533a29ba7ffe83cc4e82027802c75cec54d  artifacts/crow-v15-stance-pitch-support-20261114/run.py
+71415b889fced0b34ca49e2d0dfd8e3f5bb84b2ac892ec57a8db8443c26e7eb5  artifacts/crow-v15-stance-pitch-support-20261114/analyze.py
+cb3b344819ca183ec31ce5ea6e2378124315f3c54c39f0c058b3153daf441244  artifacts/crow-v15-stance-pitch-support-20261114/clearance-intervals.py
+2e6cf89e60866ca850ed436e1d02c24eb23464e44ccf2beae8a2367658fac034  artifacts/crow-v15-stance-pitch-support-20261114/regrip-intervals.py
+451775c0445aaca37579612a075f4939a0f9878b85b5afdd34c799bc32ad0549  artifacts/crow-v15-stance-pitch-support-20261114/joint-check.py
+770945de6fa493b30a0de2fad4c1890716a03676ef7345ebf8fb8b9e75dc2c4b  artifacts/crow-v15-stance-pitch-support-20261114/toe-speed.py
+2ff4c499b75a1c483ee5ce67bf5c68c9453d0e3a229bc5ffa6f4fc7dcad19b99  artifacts/crow-v15-stance-pitch-support-20261114/geometry-audit.py
