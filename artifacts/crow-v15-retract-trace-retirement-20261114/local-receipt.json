@@ -1,0 +1,21 @@
+{
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-retract-hold-fix-20261114/push-20261126-rebound-nonleg/run.stderr.gz",
+      "inode": 204579464,
+      "bytes": 38821404,
+      "mtime_ns": 1794675222918956511,
+      "sha256": "ff07d193df00e0f677da70ee9c9b804100dc6ac309b035a6c6f7a4d48551693e",
+      "lsof_clear": true
+    },
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-evidence-recovery-20261114/artifacts/crow-v15-retract-hold-fix-20261114/hold-20261126-rebound-nonleg/run.stderr.gz",
+      "inode": 204579994,
+      "bytes": 37987277,
+      "mtime_ns": 1794675283784191802,
+      "sha256": "7877cd15c5df4ed0aee69d5913ace5e010ce9ea172a38afe912c2e31be40d17a",
+      "lsof_clear": true
+    }
+  ],
+  "retired": true
+}
