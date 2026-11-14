@@ -1,0 +1,22 @@
+import gzip,hashlib,json,os,subprocess,threading
+from pathlib import Path
+r=Path('/Users/n/Developer/numi-crow-rl-20261107');a=r/'artifacts/crow-v15-recorded-restart-20261114';b=r/'build/crow-v15-recorded-restart-20261114';run=a/'continuation-250';run.mkdir(exist_ok=False)
+cmd=json.loads((r/'artifacts/crow-v15-uniform-handoff-second-seed-20261114/push-20261127-rebound-uniform/command.json').read_text())
+for k,v in [('--steps','250'),('--envs','1'),('--state-trace-environment','0'),('--state-trace',str(run/'trace.tsv')),('--crow-replay-pack',str(run/'replay.json')),('--policy-pack',str(b/'landing-rebound.policypack')),('--base-policy-pack',str(b/'route-rebound.policypack')),('--metallib',str(b/'restart.metallib'))]:cmd[cmd.index(k)+1]=v
+inp=Path('/tmp/crow-48s-multiview-20261114/restart-input.txt');env=dict(os.environ,DYLD_LIBRARY_PATH=str(b/'reset-observer'),CROW_RECORDED_STATE_RESTART=str(inp),CROW_RESTART_RESET_AUDIT='1',CROW_SUBSTEP_TRACE='1',CROW_CONTACT_TRACE='1',CROW_SUPPORT_TRACE='1',CROW_EARLY_FLIGHT_TRACE='1',CROW_EXPERIMENT_GAIT_SMOOTH='1')
+(run/'command.json').write_text(json.dumps(cmd,indent=2)+'\n');h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+(run/'inputs.json').write_text(json.dumps({'restart_sha256':h(inp),'host_sha256':h(b/'reset-observer/libmetalrobo.dylib'),'metallib_sha256':h(b/'restart.metallib'),'scope':'five-second exploratory reconstructed-state continuation'},indent=2)+'\n')
+p=subprocess.Popen(cmd,cwd=r,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+def save(src,path,compressed):
+    with path.open('wb') as raw:
+        if compressed:
+            with gzip.GzipFile(fileobj=raw,mode='wb',mtime=0) as out:
+                for data in iter(lambda:src.read(1<<16),b''):out.write(data)
+        else:
+            for data in iter(lambda:src.read(1<<16),b''):raw.write(data)
+ts=[threading.Thread(target=save,args=(p.stdout,run/'stdout',False)),threading.Thread(target=save,args=(p.stderr,run/'stderr.gz',True))]
+for t in ts:t.start()
+rc=p.wait()
+for t in ts:t.join()
+(run/'result.json').write_text(json.dumps({'exit_code':rc},indent=2)+'\n')
+print('continuation exit',rc)

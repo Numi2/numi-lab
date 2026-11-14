@@ -1,0 +1,5 @@
+# Preserve the recorded pose through the native task reset
+
+The first one-step smoke rejected the restart: although the host loaded q/v and scene poses, the GPU task's mandatory first-episode reset replaced them with a sampled start. Preserve that failed result. Test a separate, fingerprinted copy of the exact original task shader with only the final reset q/v and scene poses overwritten with the saved endpoint before initial observations are constructed. Keep the restored collision masks and unchanged policy tensors. This is a state reconstruction with freshly initialized task/controller history, not exact continuation.
+
+Run one step only. Require the saved root pose and velocity to appear in the task's initial reset/observation evidence or otherwise mark exact initialization unproven; compare resulting world-space scene poses to the recorded scene and retain all output. Check one-step state is finite and remains near the recorded endpoint. Failure, unavailable pre-step evidence, solver errors or any unexpected scene change precludes a claim that the checkpoint is usable. Do not interpret the sample as landing or successful flight.

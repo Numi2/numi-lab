@@ -1,0 +1,5 @@
+# Landing-phase contact diagnostic
+
+The prior nearby-perch test touched the perch but failed to establish opposed-toe grip. Its restored waypoint phase was 1; inspection shows that the contact-driven grip observer only runs in phase 5 or later. Test the prediction that selecting landing phase 5 lets real perch contact raise the toe closure ramps and improves grip. This is a commanded diagnostic, not evidence of reaching five waypoints or of autonomous selection of landing mode.
+
+Use the same saved q/v, partial-clock reconstruction, policies, seed, collision-enabled solver and relocated stationary perch as the prior nearby-perch test. Change only the restored navigation phase from 1 to 5. Run 250 intervals at 50 Hz with the teacher off and no intermediate resets. Record real toe/perch and nonfoot contacts, support impulses, tilt, velocity, first failure and the complete trace. The success requirement is at least 100 consecutive intervals with opposed toe support, without ground or nonfoot support or a fall. Mere contact, toe movement, or a success flag does not satisfy it. Preserve a failed result too.

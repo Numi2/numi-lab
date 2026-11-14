@@ -1,0 +1,5 @@
+{
+  "restart_sha256": "0d7924f157a770181a9793b7acf6a71464f1d06512c22899550ffee52ba0d66c",
+  "host_sha256": "3faca63a09fe22eb8cdac93fa533fad25914e3e0421429672e48b6237994d204",
+  "scope": "one-step reconstructed-state diagnostic; not a full native checkpoint"
+}
