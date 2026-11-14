@@ -1,0 +1,69 @@
+{
+  "rows": [
+    {
+      "lane": 6,
+      "windows": [
+        {
+          "ticks": [
+            1000,
+            1150
+          ],
+          "target_m": 0.55,
+          "samples": 151,
+          "mean_m": 0.5704414378675496,
+          "mean_absolute_error_m": 0.020441437867549622
+        },
+        {
+          "ticks": [
+            1550,
+            1800
+          ],
+          "target_m": 0.8,
+          "samples": 251,
+          "mean_m": 0.8165133476533865,
+          "mean_absolute_error_m": 0.01651334765338641
+        }
+      ],
+      "height_change_m": 0.24607190978583682,
+      "late_target_expected_samples": 526,
+      "late_target_samples": 526,
+      "late_target_max_error": 7.272738752177321e-05,
+      "passed": true
+    },
+    {
+      "lane": 7,
+      "windows": [
+        {
+          "ticks": [
+            1000,
+            1150
+          ],
+          "target_m": 0.8,
+          "samples": 151,
+          "mean_m": 0.8169537024635761,
+          "mean_absolute_error_m": 0.016953702463576116
+        },
+        {
+          "ticks": [
+            1550,
+            1800
+          ],
+          "target_m": 0.55,
+          "samples": 251,
+          "mean_m": 0.5636318489760956,
+          "mean_absolute_error_m": 0.013721483350597568
+        }
+      ],
+      "height_change_m": -0.2533218534874805,
+      "late_target_expected_samples": 526,
+      "late_target_samples": 526,
+      "late_target_max_error": 7.274594772363474e-05,
+      "passed": true
+    }
+  ],
+  "base_physical_checks_pass": true,
+  "no_duplicate_records": true,
+  "errors": [],
+  "passed_switch_screen": true,
+  "scope": "Used seed within-episode height switches; not qualification of general flight or landing."
+}
