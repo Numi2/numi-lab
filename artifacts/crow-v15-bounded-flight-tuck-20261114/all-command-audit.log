@@ -1,0 +1,121 @@
+{
+  "window": [
+    335,
+    500
+  ],
+  "rows": [
+    {
+      "lane": 0,
+      "missing_or_bad_target_records": [],
+      "first_difference_by_dof": {
+        "13": 373,
+        "14": 373,
+        "15": 373,
+        "16": 373,
+        "17": 373,
+        "18": 373
+      },
+      "only_leg_dofs_differ": true,
+      "wing_tail_toe_equal": true
+    },
+    {
+      "lane": 1,
+      "missing_or_bad_target_records": [],
+      "first_difference_by_dof": {
+        "13": 373,
+        "14": 373,
+        "15": 373,
+        "16": 373,
+        "17": 373,
+        "18": 373
+      },
+      "only_leg_dofs_differ": true,
+      "wing_tail_toe_equal": true
+    },
+    {
+      "lane": 2,
+      "missing_or_bad_target_records": [],
+      "first_difference_by_dof": {
+        "13": 373,
+        "14": 373,
+        "15": 373,
+        "16": 373,
+        "17": 373,
+        "18": 373
+      },
+      "only_leg_dofs_differ": true,
+      "wing_tail_toe_equal": true
+    },
+    {
+      "lane": 3,
+      "missing_or_bad_target_records": [],
+      "first_difference_by_dof": {
+        "13": 373,
+        "14": 373,
+        "15": 373,
+        "16": 373,
+        "17": 373,
+        "18": 373
+      },
+      "only_leg_dofs_differ": true,
+      "wing_tail_toe_equal": true
+    },
+    {
+      "lane": 4,
+      "missing_or_bad_target_records": [],
+      "first_difference_by_dof": {
+        "13": 373,
+        "14": 373,
+        "15": 373,
+        "16": 373,
+        "17": 373,
+        "18": 373
+      },
+      "only_leg_dofs_differ": true,
+      "wing_tail_toe_equal": true
+    },
+    {
+      "lane": 5,
+      "missing_or_bad_target_records": [],
+      "first_difference_by_dof": {
+        "13": 373,
+        "14": 373,
+        "15": 373,
+        "16": 373,
+        "17": 373,
+        "18": 373
+      },
+      "only_leg_dofs_differ": true,
+      "wing_tail_toe_equal": true
+    },
+    {
+      "lane": 6,
+      "missing_or_bad_target_records": [],
+      "first_difference_by_dof": {
+        "13": 373,
+        "14": 373,
+        "15": 373,
+        "16": 373,
+        "17": 373,
+        "18": 373
+      },
+      "only_leg_dofs_differ": true,
+      "wing_tail_toe_equal": true
+    },
+    {
+      "lane": 7,
+      "missing_or_bad_target_records": [],
+      "first_difference_by_dof": {
+        "13": 373,
+        "14": 373,
+        "15": 373,
+        "16": 373,
+        "17": 373,
+        "18": 373
+      },
+      "only_leg_dofs_differ": true,
+      "wing_tail_toe_equal": true
+    }
+  ],
+  "all_pass": true
+}

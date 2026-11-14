@@ -1,0 +1,5 @@
+# Contact-triggered bounded flight tuck: failed continuous transition
+
+All eight matched push/held-leg lanes on development seed 20261126 had complete substep evidence, matching prefixes and matching non-leg targets. With unchanged normalized tuck hip/ankle (-0.45,-0.80), first three-interval unload was 376 and first later contact 387. With (0,-1), both correlated lanes unloaded at 376 and recontacted at 396. The intermediate tuck cases recontacted at 388–395; they were not consistently ordered across the paired lanes. No push lane reached the toe-speed threshold, and each had about +0.171 N s paired excess upward foot impulse in intervals 371–376. All fail the registered no-recontact-through-500 and necessity screens. The trace shows a short oscillating hop; later climb or motion after recontact is not clean continuous takeoff.
+
+The change affects only bounded position commands after the contact/height/upward-speed release latch, with the same underlying drives, physics and scheduled toes. Contact/state epochs remain independently unverified. This result is not reliable takeoff, qualified/frozen flight, landing, navigation, or a full mission.
