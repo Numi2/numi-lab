@@ -1,0 +1,11 @@
+--- corrected straight push
++++ corrected straight hold
+@@ -5120,7 +5120,7 @@
+                     : crouched;
+                 if ((state.status.w & 4096u) != 0u) navigationTeacherRequested = crouched;
+                 // Explicit bounded supported extension; no body wrench.
+-                if (experimentArm>=2u && seconds>=7.4f && (bilateral || pushStarted) && (state.status.w & 4096u)==0u) {
++                if (experimentArm>=2u && experimentArm<6u && seconds>=7.4f && (bilateral || pushStarted) && (state.status.w & 4096u)==0u) {
+                     const float delay=0.0f;
+                     const float finish=joint==0u ? (experimentArm>=6u ? 0.05f : -0.15f) : joint==1u ? -0.10f : 0.83f;
+                     navigationTeacherRequested=mix(crouched,finish,smoothstep(7.4f+delay,7.48f+delay,seconds));
