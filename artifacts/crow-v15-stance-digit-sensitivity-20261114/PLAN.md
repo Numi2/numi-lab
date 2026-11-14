@@ -1,0 +1,3 @@
+# Stance digit separation sensitivity
+
+For the same previously retained 14 stance poses, hold every coordinate fixed except simultaneous +/-0.02 rad perturbations of all three front proximal joints, all front distal joints, both front segments, the rear proximal joint, the rear distal joint, or both rear segments. Record modeled foot, foretoe and rear-toe separation and cross-check the zero-perturbation geometry against the already independent stance kinematic analysis. This identifies local geometric sign and magnitude only, not physical reachability, contact or a successful controller; follow with a bounded contact-driven paired experiment if it yields a testable hypothesis.
