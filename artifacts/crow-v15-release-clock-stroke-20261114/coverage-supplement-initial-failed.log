@@ -1,0 +1,1 @@
+The first coverage-supplement invocation failed with FileNotFoundError because contact-onset-audit.json had not yet been generated. The prerequisite and then the supplement were run successfully; this was an analysis ordering error, not a native simulation error.

@@ -1,0 +1,114 @@
+{
+  "source_sha256": "08f2bf43dfd60d75ac0694577b6e63c694d57a63be837a30ccf601b78dcfa1de",
+  "rows": [
+    {
+      "lane": 6,
+      "observer_step": 369,
+      "root_height_m": 0.162705377,
+      "root_vertical_velocity_m_s": -0.00166746241
+    },
+    {
+      "lane": 6,
+      "observer_step": 370,
+      "root_height_m": 0.162658915,
+      "root_vertical_velocity_m_s": -0.00181957323
+    },
+    {
+      "lane": 6,
+      "observer_step": 371,
+      "root_height_m": 0.162624225,
+      "root_vertical_velocity_m_s": -0.00172292895
+    },
+    {
+      "lane": 6,
+      "observer_step": 372,
+      "root_height_m": 0.162588671,
+      "root_vertical_velocity_m_s": -0.00183391699
+    },
+    {
+      "lane": 6,
+      "observer_step": 373,
+      "root_height_m": 0.165163696,
+      "root_vertical_velocity_m_s": 0.186050415
+    },
+    {
+      "lane": 6,
+      "observer_step": 374,
+      "root_height_m": 0.172931209,
+      "root_vertical_velocity_m_s": 0.503129303
+    },
+    {
+      "lane": 6,
+      "observer_step": 375,
+      "root_height_m": 0.180624843,
+      "root_vertical_velocity_m_s": 0.28558135
+    },
+    {
+      "lane": 6,
+      "observer_step": 376,
+      "root_height_m": 0.184238121,
+      "root_vertical_velocity_m_s": 0.0876718014
+    },
+    {
+      "lane": 6,
+      "observer_step": 377,
+      "root_height_m": 0.180466563,
+      "root_vertical_velocity_m_s": -0.151748031
+    },
+    {
+      "lane": 7,
+      "observer_step": 369,
+      "root_height_m": 0.162705317,
+      "root_vertical_velocity_m_s": -0.0016735075
+    },
+    {
+      "lane": 7,
+      "observer_step": 370,
+      "root_height_m": 0.162658855,
+      "root_vertical_velocity_m_s": -0.00182046031
+    },
+    {
+      "lane": 7,
+      "observer_step": 371,
+      "root_height_m": 0.162624165,
+      "root_vertical_velocity_m_s": -0.00172352407
+    },
+    {
+      "lane": 7,
+      "observer_step": 372,
+      "root_height_m": 0.162588567,
+      "root_vertical_velocity_m_s": -0.00183525891
+    },
+    {
+      "lane": 7,
+      "observer_step": 373,
+      "root_height_m": 0.165164471,
+      "root_vertical_velocity_m_s": 0.186137229
+    },
+    {
+      "lane": 7,
+      "observer_step": 374,
+      "root_height_m": 0.172929302,
+      "root_vertical_velocity_m_s": 0.502785742
+    },
+    {
+      "lane": 7,
+      "observer_step": 375,
+      "root_height_m": 0.180615842,
+      "root_vertical_velocity_m_s": 0.285217911
+    },
+    {
+      "lane": 7,
+      "observer_step": 376,
+      "root_height_m": 0.182124898,
+      "root_vertical_velocity_m_s": -0.00967562199
+    },
+    {
+      "lane": 7,
+      "observer_step": 377,
+      "root_height_m": 0.180958882,
+      "root_vertical_velocity_m_s": -0.0540249608
+    }
+  ],
+  "scope": "observer q/v labels are inferred to lag contact intervals by one frame; root velocity is not whole-body COM velocity"
+}

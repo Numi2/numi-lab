@@ -1,0 +1,105 @@
+{
+  "rows": [
+    {
+      "arm": "push",
+      "lane": 6,
+      "first_unloaded": 375,
+      "streams": {
+        "contact": {
+          "missing_335_500": 0,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 0,
+          "last_recorded": 500
+        },
+        "toe": {
+          "missing_335_500": 0,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 0,
+          "last_recorded": 500
+        },
+        "aero": {
+          "missing_335_500": 1600,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 0,
+          "last_recorded": 400
+        }
+      }
+    },
+    {
+      "arm": "push",
+      "lane": 7,
+      "first_unloaded": 375,
+      "streams": {
+        "contact": {
+          "missing_335_500": 0,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 0,
+          "last_recorded": 500
+        },
+        "toe": {
+          "missing_335_500": 0,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 0,
+          "last_recorded": 500
+        },
+        "aero": {
+          "missing_335_500": 1600,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 0,
+          "last_recorded": 400
+        }
+      }
+    },
+    {
+      "arm": "hold",
+      "lane": 6,
+      "first_unloaded": 415,
+      "streams": {
+        "contact": {
+          "missing_335_500": 0,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 0,
+          "last_recorded": 500
+        },
+        "toe": {
+          "missing_335_500": 0,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 0,
+          "last_recorded": 500
+        },
+        "aero": {
+          "missing_335_500": 1600,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 224,
+          "last_recorded": 400
+        }
+      }
+    },
+    {
+      "arm": "hold",
+      "lane": 7,
+      "first_unloaded": 415,
+      "streams": {
+        "contact": {
+          "missing_335_500": 0,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 0,
+          "last_recorded": 500
+        },
+        "toe": {
+          "missing_335_500": 0,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 0,
+          "last_recorded": 500
+        },
+        "aero": {
+          "missing_335_500": 1600,
+          "duplicate_335_500": 0,
+          "missing_371_before_unload": 224,
+          "last_recorded": 400
+        }
+      }
+    }
+  ],
+  "note": "The original audit required aerodynamic samples through step 500, but aero tracing stops after step 400. It also summed an incomplete held-leg pre-unload aerodynamic window; interpret that number only as a partial sum. Retained original audit is unchanged."
+}
