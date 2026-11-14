@@ -1,0 +1,3 @@
+# Reproduced development launch video
+
+Render the native replay of environment 7 in the independently reproduced, teacher-off, 500-interval used-seed push experiment from side and front viewpoints. Verify the exact replay hash, renderer revision and native capture logs; inspect both views for visibility. State clearly that the apparent bird is an estimated mesh on simulated rigid links and that this is an incomplete development candidate, not a leg-only takeoff, qualified flight, landing or unused-layout mission. The source verification failed its original same-label observer comparison; see the observer timing audit and replay RESULT before interpreting this clip. This video supplements retained failure clips and does not replace the requested full-mission video.
