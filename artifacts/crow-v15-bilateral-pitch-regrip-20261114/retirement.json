@@ -1,0 +1,31 @@
+{
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-earlier-foot-return-20261114/trace.log.gz",
+      "bytes": 1149653,
+      "sha256": "eb73ac63fc2552c71a03371264fc19262475b5ef2158c51a63b7c5f77cdb84ee"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-earlier-foot-return-20261114/substeps.log.gz",
+      "bytes": 9097111,
+      "sha256": "63c5aa6daa1f5568301d78100ccdb881ca90b9c6a7fce6207cdba3a584f93ba6"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-bilateral-pitch-regrip-20261114/trace.log.gz",
+      "bytes": 1075765,
+      "sha256": "2f941ebe4f537ffc85e7ca32d4e6549f113dd0d065a36e797512cd7a5d41b0f9"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-bilateral-pitch-regrip-20261114/substeps.log.gz",
+      "bytes": 8525642,
+      "sha256": "9e0af47bc869c52341a86de861ac2ccf43f38a83b51d7877ad6fbc291838dd33"
+    }
+  ],
+  "checks": [
+    "regular files",
+    "single link",
+    "exact size and sha256",
+    "lsof no open handles",
+    "independent GitHub streaming and gzip EOF"
+  ]
+}
