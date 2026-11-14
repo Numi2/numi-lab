@@ -1,0 +1,5 @@
+# Released-knee clearance under combined balance
+
+At retained combined-candidate tick 295, native fixed-state geometry found a 0.558 mm rear-toe gap and 3.023 mm foot gap. Centered knee derivatives predict a +0.02 rad adjustment could add about 0.75 mm rear-toe clearance while removing 1.70 mm foot clearance. This is a local geometric hypothesis, not a dynamic result. Both lanes reproduce the combined 0.28-rad hip and 0.14-rad pitch-cap candidate; lane 1 alone increases the existing knee-clearance cap from 0.13 to 0.15 rad. All physical limits, other feedback, release gates and posture controls remain unchanged.
+
+Require exact 450-state control reproduction of the combined candidate, exact paired prefix, reconstructed joint targets and bounds, 32 complete substeps, no native or observer error, nonfoot support or accepted-state toe-speed threshold before failure, and at least 100 consecutive unchanged clearance, stance-contact, posture, load and speed gates. Preserve failures. Toes remain open and regrip, walking and landing are untested; contact/state epochs are independently unverified.
