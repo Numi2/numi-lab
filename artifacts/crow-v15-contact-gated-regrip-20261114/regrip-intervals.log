@@ -1,0 +1,26 @@
+{
+  "0": {
+    "return_step": 255,
+    "qualifying_steps": [],
+    "streaks": [],
+    "failed_gate_counts": {
+      "both_up": 12,
+      "left_opp": 74,
+      "right_opp": 67,
+      "speed": 30,
+      "tilt": 38
+    }
+  },
+  "1": {
+    "return_step": 255,
+    "qualifying_steps": [],
+    "streaks": [],
+    "failed_gate_counts": {
+      "both_up": 9,
+      "left_opp": 74,
+      "right_opp": 66,
+      "speed": 31,
+      "tilt": 38
+    }
+  }
+}

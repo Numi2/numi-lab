@@ -1,0 +1,17 @@
+{
+  "rows": [
+    {
+      "measure": "state",
+      "first_between_lane_divergence_zero_based": 254,
+      "lane0_vs_previous_lane0_mismatch_count": 0,
+      "first_reference_mismatch": []
+    },
+    {
+      "measure": "logged_targets",
+      "first_between_lane_divergence_zero_based": 254,
+      "lane0_vs_previous_lane0_mismatch_count": 0,
+      "first_reference_mismatch": []
+    }
+  ],
+  "scope": "exact logged state/target comparison; observation and command timing not independently synchronized"
+}

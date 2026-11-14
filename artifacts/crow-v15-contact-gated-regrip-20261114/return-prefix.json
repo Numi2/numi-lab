@@ -1,0 +1,21 @@
+{
+  "scope": "compares physically evolved return trial to zero-target release control before each return; logging epochs not independently verified",
+  "rows": [
+    {
+      "lane": 0,
+      "first_finished_zero_based": 254,
+      "state_mismatches_before_return": 0,
+      "first_state_mismatch": [],
+      "log_mismatches_before_return": 0,
+      "first_log_mismatch": []
+    },
+    {
+      "lane": 1,
+      "first_finished_zero_based": 254,
+      "state_mismatches_before_return": 0,
+      "first_state_mismatch": [],
+      "log_mismatches_before_return": 0,
+      "first_log_mismatch": []
+    }
+  ]
+}
