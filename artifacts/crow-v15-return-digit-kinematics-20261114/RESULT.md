@@ -1,0 +1,3 @@
+# Returning digit local geometry
+
+The fixed-state native FK baseline exactly matched the prior independently cross-checked leg geometry. In candidate lane 1 at tick 270, increasing both returning rear-toe joint angles locally decreased the rear collider gap by about 33.3 mm/rad, while increasing left hip angle increased that rear gap by about 126 mm/rad and decreased the foretoe gap by about 155.5 mm/rad. Joint perturbations respected the model bounds. This suggests a bounded hip advance combined with additional rear-toe closure as a testable physical hypothesis; linearized geometry does not establish a reachable pose, contact force, regrip or landing.
