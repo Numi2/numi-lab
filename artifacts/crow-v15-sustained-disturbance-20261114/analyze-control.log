@@ -1,0 +1,68 @@
+{
+  "checks": {
+    "expected_shader": true,
+    "same_policy_inputs": true,
+    "teacher_off": true,
+    "same_episode_lengths": true,
+    "same_failure_outcomes": true,
+    "all_first_episode_states_match": true,
+    "wrench_samples_complete": true,
+    "wrenches_finite_and_zero": true,
+    "no_observer_errors": true
+  },
+  "pass": true,
+  "parity": [
+    {
+      "lane": 0,
+      "through": 760,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 1,
+      "through": 762,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 2,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 3,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 4,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 5,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 6,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    },
+    {
+      "lane": 7,
+      "through": 1800,
+      "mismatch_count": 0,
+      "first_mismatches": []
+    }
+  ],
+  "wrench_missing": 0,
+  "wrench_max_abs": 0.0,
+  "errors": [],
+  "scope": "observational host parity control on used seed"
+}
