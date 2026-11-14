@@ -1,0 +1,3 @@
+# Local return-toe kinematic sensitivity
+
+At retained accepted states from the failed matched stance trial, independently evaluate the oriented collider/perch separation after +/-0.02 rad hypothetical perturbations of each returning leg joint (hip, knee, ankle), holding every other generalized coordinate fixed. Compare against zero-perturbation geometry, including foretoe, rear toe and foot, and retain the exact source trace and FK model identity. This is a local geometry diagnostic only: it is not a trajectory, a reachable motion, a physical contact, or a controller success. Use it to choose hypotheses for subsequent bounded contact-driven tests; do not edit the retained simulation trajectory or treat numerical separation as a measured contact impulse.
