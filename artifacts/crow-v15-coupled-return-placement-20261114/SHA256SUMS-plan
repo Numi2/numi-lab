@@ -1,0 +1,10 @@
+5f7024d4b3b492fae392c33d64af914bca5516d98ed6d4c80d4e5ff1bfdc7b04  artifacts/crow-v15-coupled-return-placement-20261114/PLAN.md
+eda2fa2f836442c53eae33f2c37d1e844cb78965002c183eb520d46db3c46eb3  artifacts/crow-v15-coupled-return-placement-20261114/probe.cpp
+73c0f42a95608b7b886e8bcd211c4d2c13766dc4249f6c70f8ff3d185fead227  artifacts/crow-v15-coupled-return-placement-20261114/run.py
+dcf11d1de8436be75ee543c8bf05f92cdcce25dbe27f87042d14b578ccb4c78a  artifacts/crow-v15-coupled-return-placement-20261114/analyze.py
+0e8b9f06e09a2507150479b0694b2ee694e2a0b95eb231aa93abc3e5c7861e8f  artifacts/crow-v15-coupled-return-placement-20261114/clearance-intervals.py
+3fa6bb32a0622e3393d4d20a6eed30ffe37bc1ef4ad6fd365797179d3deb57c7  artifacts/crow-v15-coupled-return-placement-20261114/regrip-intervals.py
+9d2482d2f863d5fd4b0ad04cca339335ac2bfb93c9b5ec1385d05375e1932264  artifacts/crow-v15-coupled-return-placement-20261114/joint-check.py
+05a31c76920ca57016201eea388ac4d4c3cd5d52af0e8627bd69d513c634775f  artifacts/crow-v15-coupled-return-placement-20261114/toe-speed.py
+f7ce036d855aec3dc5f4a1b0e20f77888bd5837a423804eff265822821018e28  artifacts/crow-v15-coupled-return-placement-20261114/geometry-audit.py
+72e657c8efcba3ed3388cf9a662f563ff163ed301df53bb2024c412b0ef4a4e5  artifacts/crow-v15-coupled-return-placement-20261114/placement-check.py
