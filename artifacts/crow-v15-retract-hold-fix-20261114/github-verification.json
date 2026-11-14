@@ -1,0 +1,17 @@
+{
+  "source_commit": "983469a4",
+  "arms": {
+    "push": {
+      "path": "artifacts/crow-v15-retract-hold-fix-20261114/push-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 38821404,
+      "sha256": "ff07d193df00e0f677da70ee9c9b804100dc6ac309b035a6c6f7a4d48551693e",
+      "gzip_eof": true
+    },
+    "hold": {
+      "path": "artifacts/crow-v15-retract-hold-fix-20261114/hold-20261126-rebound-nonleg/run.stderr.gz",
+      "bytes": 37987277,
+      "sha256": "7877cd15c5df4ed0aee69d5913ace5e010ce9ea172a38afe912c2e31be40d17a",
+      "gzip_eof": true
+    }
+  }
+}
