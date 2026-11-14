@@ -4,7 +4,7 @@ A=Path('artifacts/crow-v15-bilateral-stance-recenter-20261114');records={}
 with gzip.open(A/'trace.log.gz','rt') as f:
  for line in f:
   x=line.split()
-  if x and x[0] in ('step','control','hipcommand','jointtarget','rearKnee','rearAnkle','rightHipCommand','balance','placement','stanceFrontCouple'):
+  if x and x[0] in ('step','control','hipcommand','jointtarget','rearKnee','rearAnkle','rightHipCommand','balance','placement','stanceFrontCouple','stanceprep','stancetarget','recenter'):
    e,t=int(x[1]),int(x[2]);records.setdefault((e,t),[]).append((x[0],x[3:]))
 def rows(e,t,kind):
  return [r for r in records.get((e,t),[]) if (r[0]=='step')==(kind=='state')]
