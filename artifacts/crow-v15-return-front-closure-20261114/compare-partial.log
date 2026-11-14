@@ -1,0 +1,10 @@
+{
+  "common_states": 330,
+  "last_zero_based": 329,
+  "first_control_difference_zero_based": 252,
+  "prefix_count": 252,
+  "prefix_exact": true,
+  "control_reference_count": 330,
+  "control_reference_exact": true,
+  "note": "Partial run only; no complete 450 state parity."
+}

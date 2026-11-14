@@ -1,0 +1,19 @@
+{
+  "source_commit": "1c650047",
+  "files": [
+    {
+      "arm": "push",
+      "path": "crow-v15-post-hop-phase-transition-20261114/push-20261126-rebound-phase/run.stderr.gz",
+      "bytes": 34498392,
+      "sha256": "1f799ef5d840c6741da62f5a2447794a65d9b360f09e98f809a0e01cf8f19baa",
+      "gzip_eof": true
+    },
+    {
+      "arm": "hold",
+      "path": "crow-v15-post-hop-phase-transition-20261114/hold-20261126-rebound-phase/run.stderr.gz",
+      "bytes": 34557425,
+      "sha256": "3bfb040e162d9d6db415ad5a295eac18fe841e1ed803e4f9bfc114bbcd8b4fdc",
+      "gzip_eof": true
+    }
+  ]
+}
