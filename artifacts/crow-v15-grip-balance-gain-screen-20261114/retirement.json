@@ -1,0 +1,22 @@
+{
+  "archive_commit": "f476c746",
+  "retired": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-grip-balance-gain-screen-20261114/trace.log.gz",
+      "bytes": 1684529,
+      "sha256": "0aa05990a3e9d56718c4fc056b57414369a954cbadaec17eb27a6fa1a5ed13c9"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-grip-balance-gain-screen-20261114/substeps.log.gz",
+      "bytes": 11788853,
+      "sha256": "7b6036a0256aa36eab0e1a2226f30ab60f0b8a676241bd0a054ed206368f1b92"
+    }
+  ],
+  "checks": [
+    "regular files",
+    "single link",
+    "exact size and sha256",
+    "lsof no open handles",
+    "independent GitHub streaming and gzip EOF"
+  ]
+}
