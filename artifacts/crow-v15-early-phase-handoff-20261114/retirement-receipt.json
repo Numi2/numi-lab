@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-14",
+  "host": "macmini",
+  "path": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-v15-early-phase-handoff-20261114/push-20261126-rebound-early/run.stderr.gz",
+  "bytes": 71020830,
+  "sha256": "e5f7836a10ace76aaa9993ddaedeb0f2c18f57204aab166bb72240e47285f218",
+  "open_handles": 0,
+  "verified_archive_commit": "9c17b4e5",
+  "verification": "GitHub ordered parts streamed, hashes and gzip EOF checked independently; host original hash and no open handles checked before unlink"
+}
