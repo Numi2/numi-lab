@@ -1,0 +1,47 @@
+{
+  "reference_commit": "80845dd1",
+  "reference_sha256": "af879e162512601e38c2f5c86a58475526ecbc4fdb1cf6ec3f518ee25be5aaaa",
+  "rows": [
+    {
+      "lane": 0,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 1,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 2,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 3,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 4,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 5,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 6,
+      "mismatch_count": 0,
+      "first": []
+    },
+    {
+      "lane": 7,
+      "mismatch_count": 0,
+      "first": []
+    }
+  ],
+  "pass": true
+}
