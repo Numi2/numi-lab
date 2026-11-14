@@ -1,0 +1,398 @@
+{
+  "rows": [
+    {
+      "lane": 0,
+      "checks": {
+        "expected_observation_host": true,
+        "unchanged_other_inputs": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": false,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "signed_turn_vs_straight": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true,
+        "pronation_observed": true
+      },
+      "pass": false,
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": 396,
+      "first_unobserved_contact_interval": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.254294664,
+        0.81632936
+      ],
+      "max_tilt": 0.20811911132458363,
+      "max_lateral": 0.6208497492,
+      "signed_yaw_vs_straight": [
+        1193,
+        -0.257943035968933
+      ],
+      "level_mae": 0.008171427014925368,
+      "climb_mae": 0.007957294533864545,
+      "descent_mae": 0.009040034147410343,
+      "pronation_saturated_fraction": 0.2536397670549085,
+      "pronation_max_tracking_error": 0.0723817796
+    },
+    {
+      "lane": 1,
+      "checks": {
+        "expected_observation_host": true,
+        "unchanged_other_inputs": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "signed_turn_vs_straight": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true,
+        "pronation_observed": true
+      },
+      "pass": true,
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_unobserved_contact_interval": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.47306931,
+        0.815831959
+      ],
+      "max_tilt": 0.21061491597025878,
+      "max_lateral": 0.5667398716,
+      "signed_yaw_vs_straight": [
+        1193,
+        0.2577168497021079
+      ],
+      "level_mae": 0.010533144368159228,
+      "climb_mae": 0.008260436565737063,
+      "descent_mae": 0.007881700701195218,
+      "pronation_saturated_fraction": 0.2535357737104825,
+      "pronation_max_tracking_error": 0.0723924786
+    },
+    {
+      "lane": 2,
+      "checks": {
+        "expected_observation_host": true,
+        "unchanged_other_inputs": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "signed_turn_vs_straight": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true,
+        "pronation_observed": true
+      },
+      "pass": true,
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_unobserved_contact_interval": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.538825631,
+        0.995813549
+      ],
+      "max_tilt": 0.2130163341289175,
+      "max_lateral": 0.6007698124,
+      "signed_yaw_vs_straight": [
+        1197,
+        -0.2569386122047046
+      ],
+      "level_mae": 0.008523485383084567,
+      "climb_mae": 0.00802096361354582,
+      "descent_mae": 0.008991149215139424,
+      "pronation_saturated_fraction": 0.25358777038269553,
+      "pronation_max_tracking_error": 0.0723811984
+    },
+    {
+      "lane": 3,
+      "checks": {
+        "expected_observation_host": true,
+        "unchanged_other_inputs": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "signed_turn_vs_straight": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true,
+        "pronation_observed": true
+      },
+      "pass": true,
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_unobserved_contact_interval": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.537237287,
+        1.19555092
+      ],
+      "max_tilt": 0.21455991359719898,
+      "max_lateral": 0.5042397771,
+      "signed_yaw_vs_straight": [
+        1197,
+        0.2561012304967288
+      ],
+      "level_mae": 0.014346268970149229,
+      "climb_mae": 0.008070763223107574,
+      "descent_mae": 0.009002347705179263,
+      "pronation_saturated_fraction": 0.25379575707154745,
+      "pronation_max_tracking_error": 0.0723856762
+    },
+    {
+      "lane": 4,
+      "checks": {
+        "expected_observation_host": true,
+        "unchanged_other_inputs": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": false,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "signed_turn_vs_straight": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true,
+        "pronation_observed": true
+      },
+      "pass": false,
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": 389,
+      "first_unobserved_contact_interval": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.259654909,
+        0.816835105
+      ],
+      "max_tilt": 0.2079842108876719,
+      "max_lateral": 0.6229060295,
+      "signed_yaw_vs_straight": [
+        1193,
+        -0.25782640648846233
+      ],
+      "level_mae": 0.008814614482587075,
+      "climb_mae": 0.007927089721115534,
+      "descent_mae": 0.008038427454183261,
+      "pronation_saturated_fraction": 0.25343178036605657,
+      "pronation_max_tracking_error": 0.0723914728
+    },
+    {
+      "lane": 5,
+      "checks": {
+        "expected_observation_host": true,
+        "unchanged_other_inputs": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "signed_turn_vs_straight": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true,
+        "pronation_observed": true
+      },
+      "pass": true,
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_unobserved_contact_interval": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.472725123,
+        0.816021502
+      ],
+      "max_tilt": 0.21132174383696628,
+      "max_lateral": 0.5483350814,
+      "signed_yaw_vs_straight": [
+        1197,
+        0.2575686276732299
+      ],
+      "level_mae": 0.008066143691542287,
+      "climb_mae": 0.008054493573705183,
+      "descent_mae": 0.00904920959362548,
+      "pronation_saturated_fraction": 0.25374376039933444,
+      "pronation_max_tracking_error": 0.0723853484
+    },
+    {
+      "lane": 6,
+      "checks": {
+        "expected_observation_host": true,
+        "unchanged_other_inputs": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "signed_turn_vs_straight": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true,
+        "pronation_observed": true
+      },
+      "pass": true,
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_unobserved_contact_interval": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.538778663,
+        0.995903432
+      ],
+      "max_tilt": 0.21306384916552643,
+      "max_lateral": 0.6215402148,
+      "signed_yaw_vs_straight": [
+        1193,
+        -0.2569220245160004
+      ],
+      "level_mae": 0.008423928711442779,
+      "climb_mae": 0.007978885083665342,
+      "descent_mae": 0.00896323396414341,
+      "pronation_saturated_fraction": 0.25374376039933444,
+      "pronation_max_tracking_error": 0.0723811537
+    },
+    {
+      "lane": 7,
+      "checks": {
+        "expected_observation_host": true,
+        "unchanged_other_inputs": true,
+        "teacher_off_no_scheduled_resets": true,
+        "complete_first_episode": true,
+        "matched_prefix": true,
+        "complete_observations": true,
+        "finite": true,
+        "three_interval_release": true,
+        "no_foot_recontact": true,
+        "no_nonfoot_impulse": true,
+        "no_toe_speed_cap": true,
+        "height_tilt_lateral": true,
+        "signed_turn_vs_straight": true,
+        "level_error": true,
+        "climb_error": true,
+        "descent_error": true,
+        "pronation_observed": true
+      },
+      "pass": true,
+      "prefix_mismatches": {
+        "state": 0,
+        "target": 0,
+        "contact": 0
+      },
+      "first_release": 376,
+      "first_recontact": null,
+      "first_unobserved_contact_interval": null,
+      "first_nonfoot_impulse": null,
+      "first_toe_speed_cap": null,
+      "missing_count": 0,
+      "height_range": [
+        0.53804481,
+        1.19548881
+      ],
+      "max_tilt": 0.21454133225123945,
+      "max_lateral": 0.5593079398999999,
+      "signed_yaw_vs_straight": [
+        1197,
+        0.2561501958280373
+      ],
+      "level_mae": 0.014372635517412908,
+      "climb_mae": 0.008120324665338647,
+      "descent_mae": 0.008958469159362534,
+      "pronation_saturated_fraction": 0.2538477537437604,
+      "pronation_max_tracking_error": 0.072385855
+    }
+  ],
+  "errors": [],
+  "scope": "Observation-extended fixed-profile turn-climb-descent development screen on an already-used layout and seed; contact/state epochs not independently aligned; not flight, biological, landing or mission qualification."
+}
