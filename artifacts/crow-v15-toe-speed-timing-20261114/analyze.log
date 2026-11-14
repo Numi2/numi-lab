@@ -1,0 +1,57 @@
+{
+  "rows": [
+    {
+      "trial": "crow-v15-return-toe-closure-rate-20261113",
+      "lane": 0,
+      "first_root_below_0_1_zero_based": 307,
+      "threshold_steps_zero_based": [
+        328,
+        329,
+        330,
+        331
+      ],
+      "all_threshold_steps_after_fall": true
+    },
+    {
+      "trial": "crow-v15-return-toe-closure-rate-20261113",
+      "lane": 1,
+      "first_root_below_0_1_zero_based": 307,
+      "threshold_steps_zero_based": [
+        328,
+        329,
+        330,
+        331
+      ],
+      "all_threshold_steps_after_fall": true
+    },
+    {
+      "trial": "crow-v15-stance-pitch-support-20261114",
+      "lane": 0,
+      "first_root_below_0_1_zero_based": 307,
+      "threshold_steps_zero_based": [
+        328,
+        329,
+        330,
+        331
+      ],
+      "all_threshold_steps_after_fall": true
+    },
+    {
+      "trial": "crow-v15-stance-pitch-support-20261114",
+      "lane": 1,
+      "first_root_below_0_1_zero_based": 303,
+      "threshold_steps_zero_based": [
+        306,
+        307,
+        308,
+        310,
+        311,
+        312,
+        313
+      ],
+      "all_threshold_steps_after_fall": true
+    }
+  ],
+  "scope": "accepted control states only; substep values unobserved"
+}
+
