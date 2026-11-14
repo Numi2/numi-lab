@@ -1,0 +1,12 @@
+81f0a73a4f2f2c58f98e508e628ab759b1c44ac8851c294dae72b1c4b0b30ac9  artifacts/crow-v15-stance-front-limited-return-20261114/PLAN.md
+97e171a576200d39adf706342656d7472104c15294d3976687079dbab5147c08  artifacts/crow-v15-stance-front-limited-return-20261114/probe.cpp
+f3c2c8da1a350be09adc6ecfa45f4587ed25485bb4544f1dda6f22336cf62131  artifacts/crow-v15-stance-front-limited-return-20261114/run.py
+a777346eda03144342d508de609026afd04cbe76d1ab43a0d27b926933039911  artifacts/crow-v15-stance-front-limited-return-20261114/analyze.py
+ec2caaf58bb00149c7e28bbfa72d726ab105a064262259863539a0b5afc529b2  artifacts/crow-v15-stance-front-limited-return-20261114/compare.py
+df051715633a80af7a59e3d7e8364cdb4adc572b8d73d29136eb4837369a7b13  artifacts/crow-v15-stance-front-limited-return-20261114/correction-check.py
+8d9770b18f8e92c35f860370133a738a56cacf9eff145d14c8dc55783f3a21cb  artifacts/crow-v15-stance-front-limited-return-20261114/hip-check.py
+3c40fcec510ae2cfa6d9f8cb77fc67b0a2a9f11dc43e9f34a990da3c43a234c2  artifacts/crow-v15-stance-front-limited-return-20261114/clearance-intervals.py
+7c8c800963da85d41f9959fa602401a5853159be8306fd715736236e652e8b9f  artifacts/crow-v15-stance-front-limited-return-20261114/regrip-intervals.py
+3d24b4a66b68d601c1be94a998d3c63d42613ff1dafbe0af9fd7a7495125cfb4  artifacts/crow-v15-stance-front-limited-return-20261114/joint-check.py
+6c7322a6c2267c9077df7cc4f6d951a83c2b66d4b766300d9000d0833672a8e2  artifacts/crow-v15-stance-front-limited-return-20261114/toe-speed.py
+5f160e026a5a3d6391ec0425571a0a1bbaf74ce6f711c5a3b7c271cf008cbc9e  artifacts/crow-v15-stance-front-limited-return-20261114/geometry-audit.py
