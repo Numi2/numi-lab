@@ -1,0 +1,46 @@
+{
+  "retired": false,
+  "files": [
+    {
+      "path": "/Users/home/Documents/Codex/2026-11-07/c/crow-research-staging/artifacts/crow-v15-early-height-bias-20261114/altitude-20261127-rebound-earlyheight27/run.stderr.gz",
+      "inode": 204506959,
+      "bytes": 151099642,
+      "mtime_ns": 1794667365243928075,
+      "sha256": "73b48fbd0fbda9bc7c362f41ec45c55226dcd41380adbd9fa7edc00ac2f7ce58",
+      "lsof_clear": true
+    },
+    {
+      "path": "artifacts/crow-v15-crossseed-height-20261114/altitude-20261127-rebound-earlyheight27/run.stderr.gz.part000",
+      "inode": 204508376,
+      "bytes": 41943040,
+      "mtime_ns": 1794667525985496084,
+      "sha256": "b7e7b6b7779da9c2fd8a436f3b168a940d9aaa4f10c3114c3f2ddcdfaa54aac1",
+      "lsof_clear": true
+    },
+    {
+      "path": "artifacts/crow-v15-crossseed-height-20261114/altitude-20261127-rebound-earlyheight27/run.stderr.gz.part001",
+      "inode": 204508382,
+      "bytes": 41943040,
+      "mtime_ns": 1794667526198850761,
+      "sha256": "624f4dde9064fce6726232f3627907354c431e5059fbaa23a31d0ecae73c1706",
+      "lsof_clear": true
+    },
+    {
+      "path": "artifacts/crow-v15-crossseed-height-20261114/altitude-20261127-rebound-earlyheight27/run.stderr.gz.part002",
+      "inode": 204508397,
+      "bytes": 41943040,
+      "mtime_ns": 1794667526379559434,
+      "sha256": "5b32dc3d9ba41df6906e6f13c9e28f3edc2aa2b1f231a138f5a03ca816ae3ac4",
+      "lsof_clear": true
+    },
+    {
+      "path": "artifacts/crow-v15-crossseed-height-20261114/altitude-20261127-rebound-earlyheight27/run.stderr.gz.part003",
+      "inode": 204508405,
+      "bytes": 25270522,
+      "mtime_ns": 1794667526577884343,
+      "sha256": "b5522b9d9cb35d41eca1afdf8e0bc8c61fe76a352c0fbec8d0f908e4631745bf",
+      "lsof_clear": true
+    }
+  ],
+  "total_bytes": 302199284
+}
