@@ -1,0 +1,7 @@
+# Neural balance v2 development result
+
+The v2 series completed four updates of four environments by 512 steps (8,192 transitions), starting from v1. The final-step executed-action KLs were 0.00880, 0.00720, 0.00319, and 0.00753. Behavior likelihood reconstruction error was below 4.9e-6. This is not a physical success metric.
+
+On the two previously consumed, identically reconstructed v1-comparison starts, v2 terminated from excessive tilt: seed 20310111 at step 301, with 185 consecutive qualified intervals, and seed 20310129 at step 367, with 250 consecutive qualified intervals. It failed the required last-250-interval gate and is not promoted. V1 on these starts respectively passed at 400 and tipped at 370. All automatic resets are excluded. The v2 development evaluations use the original narrow-reset shader to match the earlier comparison, whereas v2 training used the wider reset shader and contact reward; the altered reward does not actuate the plant.
+
+The retained deterministic actions on seed 20310111 show the first four policy outputs around [0.006, 0.002, 0.030, 0.034] at step 51 and [0.005, 0.002, 0.021, 0.026] at step 251, while tilt grew from 0.137 to 0.539 rad. This is consistent with a predominantly static correction, not proof of a useful dynamic balance response. Investigate sensor-dependent correction and late-episode credit assignment before further promotion trials. As before, the branch is relocated, landing phase forced, contact control is aided by a scripted carrier, and model parameters are not biologically validated.
