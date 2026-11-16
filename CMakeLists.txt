@@ -2967,6 +2967,13 @@ if(BUILD_TESTING)
     set_tests_properties(metalrobo.crow.v15_wing_structure metalrobo.crow.v15_wing_free_dynamics metalrobo.crow.v15_wing_quiet_contact metalrobo.crow.v15_wing_cpu_gpu_reference PROPERTIES LABELS "experimental;crow;wing")
     find_program(CROW_PYTHON3_EXECUTABLE NAMES python3)
     if(CROW_PYTHON3_EXECUTABLE)
+        # 3D linearized rod with point masses; not MetalWorld.
+        add_executable(crow-feather-3d-reference tests/crow_v15_wing_fixture/rod-3d.mm)
+        target_compile_options(crow-feather-3d-reference PRIVATE -fobjc-arc)
+        target_link_libraries(crow-feather-3d-reference PRIVATE "-framework Foundation" "-framework Metal")
+        add_test(NAME metalrobo.crow.rod_coupled_3d_modal_reference
+            COMMAND "${CROW_PYTHON3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/crow_v15_wing_fixture/test-rod-3d.py" "$<TARGET_FILE:crow-feather-3d-reference>")
+        set_tests_properties(metalrobo.crow.rod_coupled_3d_modal_reference PROPERTIES LABELS "experimental;crow;rod;reference")
         # Fixed-step linear modal reference; not an attached feather solver.
         add_executable(crow-feather-modal-reference tests/crow_v15_wing_fixture/rod-modal.mm)
         target_compile_options(crow-feather-modal-reference PRIVATE -fobjc-arc)
