@@ -2952,6 +2952,10 @@ add_executable(
 )
 if(BUILD_TESTING)
     # Experimental v15 wing mechanics only; these do not qualify flight.
+    add_executable(crow_articulated_hand_response tests/crow_v15_wing_fixture/articulated-hand-response.cpp)
+    target_link_libraries(crow_articulated_hand_response PRIVATE metalrobo)
+    add_test(NAME metalrobo.crow.v15_articulated_hand_response COMMAND crow_articulated_hand_response)
+    set_tests_properties(metalrobo.crow.v15_articulated_hand_response PROPERTIES LABELS "experimental;crow;rod;reference")
     add_executable(crow_v15_wing_structure_check tests/crow_v15_wing_fixture/test-wing-mechanics.cpp)
     target_link_libraries(crow_v15_wing_structure_check PRIVATE metalrobo)
     add_executable(crow_v15_wing_dynamics_check tests/crow_v15_wing_fixture/direct-wing-dynamics.cpp)
