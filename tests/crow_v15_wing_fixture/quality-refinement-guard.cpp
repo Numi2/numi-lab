@@ -48,6 +48,11 @@ void runCase(bool hard, float bias, bool expectSuccess) {
         check(!diagnostics.succeeded() && diagnostics.dispatched && !diagnostics.published &&
               diagnostics.firstGPUStatusCode == MR_UNIFIED_QUALITY_DID_NOT_CONVERGE,
               "refinement accepted an inaccurate hard equality");
+        const auto equalityPosition = diagnostics.message.find("hard_equality=");
+        check(equalityPosition != std::string::npos &&
+              std::stof(diagnostics.message.substr(equalityPosition + 14u)) >
+                  config.feasibilityTolerance,
+              "hard-equality failure omitted its violation");
         check(result.velocity == std::vector<float>{123.0f} &&
               result.impulses == std::vector<float>{456.0f} && result.statuses.empty(),
               "failed hard equality changed the output");

@@ -802,6 +802,11 @@ MetalUnifiedQualityDiagnostics solveMetalUnifiedQuality(
                             gpuStatuses[environment]
                                 .certificates0.y
                         ) +
+                        " hard_equality=" +
+                        std::to_string(
+                            gpuStatuses[environment]
+                                .certificates0.z
+                        ) +
                         " objective=" +
                         std::to_string(
                             gpuStatuses[environment]
