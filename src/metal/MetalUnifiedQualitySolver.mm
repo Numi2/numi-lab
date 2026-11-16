@@ -493,14 +493,23 @@ MetalUnifiedQualityDiagnostics solveMetalUnifiedQuality(
             problem.generalizedVelocityCount <=
                 config.directMaximumGeneralizedVelocities &&
             problem.rowCount <= config.directMaximumRows;
-        const std::size_t hessianStride = std::max<std::size_t>(
+        const bool allHardScalar = std::all_of(
+            problem.blocks.begin(), problem.blocks.end(), [](const auto& block) {
+                return block.layout.z == MR_UNIFIED_QUALITY_SCALAR_INTERVAL &&
+                    block.layout.y == 1u &&
+                    (block.layout.w & MR_UNIFIED_QUALITY_BLOCK_HARD_EQUALITY) != 0u;
+            });
+        const std::size_t hessianStride = std::max<std::size_t>({
             (directPath || problem.generalizedVelocityCount <=
                 MR_UNIFIED_QUALITY_MAX_ADJACENT_VELOCITIES)
                 ? dynamicsStride : 1u,
             mrUnifiedQualityRefinementScratchFloats(
                 static_cast<std::uint32_t>(problem.generalizedVelocityCount),
                 static_cast<std::uint32_t>(problem.rowCount),
-                static_cast<std::uint32_t>(problem.blocks.size())));
+                static_cast<std::uint32_t>(problem.blocks.size())),
+            allHardScalar ? mrUnifiedQualityExactEqualityScratchFloats(
+                static_cast<std::uint32_t>(problem.generalizedVelocityCount),
+                static_cast<std::uint32_t>(problem.blocks.size())) : 0u});
         if (problem.problemCount >
                 std::numeric_limits<std::uint32_t>::max() ||
             problem.generalizedVelocityCount >

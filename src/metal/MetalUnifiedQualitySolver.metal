@@ -2420,6 +2420,163 @@ struct MRUnifiedQualityThreadgroupWorkspace {
     uint control[16];
 };
 
+// Exact bilateral fallback for small all-hard problems. It does not handle
+// contact cones or bounded impulses. All output is audited before success;
+// singular, inconsistent, or inaccurate candidates remain failed.
+inline bool mrUnifiedQualityExactEquality(
+    device const MRUnifiedQualityDispatchGPU& dispatch,
+    device const MRUnifiedQualityBlockGPU* blocks,
+    device const float* dynamics,
+    device const float* jacobian,
+    device const float* bias,
+    device const float* freeVelocity,
+    device float* outputVelocity,
+    device float* outputImpulse,
+    device float* scratch,
+    device MRUnifiedQualityStatusGPU* statuses,
+    const uint problem,
+    const uint lane,
+    threadgroup MRUnifiedQualityThreadgroupWorkspace& work
+) {
+    const uint n = dispatch.generalizedVelocityCount;
+    if (lane == 0u) {
+        uint m = 0u;
+        bool applicable = true;
+        for (uint i = 0u; i < dispatch.blockCount && applicable; ++i) {
+            const MRUnifiedQualityBlockGPU b = blocks[i];
+            applicable = b.layout.z == MR_UNIFIED_QUALITY_SCALAR_INTERVAL &&
+                b.layout.y == 1u &&
+                (b.layout.w & MR_UNIFIED_QUALITY_BLOCK_HARD_EQUALITY) != 0u &&
+                b.layout.x < dispatch.rowCount &&
+                b.boundsAndShift.x <= -1.0e30f && b.boundsAndShift.y >= 1.0e30f &&
+                m < n && m < MR_UNIFIED_QUALITY_MAX_EXACT_EQUALITY_VELOCITIES;
+            for (uint j = 0u; j < m && applicable; ++j)
+                applicable = blocks[uint(work.rowWork[j])].layout.x != b.layout.x;
+            if (applicable) work.rowWork[m++] = float(i);
+        }
+        const uint needed = mrUnifiedQualityExactEqualityScratchFloats(n, m);
+        work.control[1] = m;
+        work.control[2] = applicable && needed != 0u && dispatch.hessianStride >= needed ? 1u : 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    if (work.control[2] == 0u) return false;
+    const uint m = work.control[1];
+    if (lane == 0u) {
+        device float* L = scratch;
+        device float* S = scratch + n*n;
+        bool valid = true;
+        for (uint i = 0u; i < n*n; ++i) L[i] = dynamics[i];
+        for (uint i = 0u; i < n && valid; ++i) {
+            for (uint j = 0u; j <= i; ++j) {
+                float a = L[i*n+j];
+                for (uint k = 0u; k < j; ++k) a = fma(-L[i*n+k], L[j*n+k], a);
+                if (i == j) {
+                    if (!(a > dispatch.numerics.y) || !isfinite(a)) { valid=false; break; }
+                    L[i*n+i] = sqrt(a);
+                } else L[i*n+j] = a / L[j*n+j];
+            }
+        }
+        for (uint j = 0u; j < m && valid; ++j) {
+            const uint r = blocks[uint(work.rowWork[j])].layout.x;
+            for (uint i = 0u; i < n; ++i) {
+                float a = jacobian[r*n+i];
+                for (uint k = 0u; k < i; ++k) a = fma(-L[i*n+k], work.direction[k], a);
+                work.direction[i] = a / L[i*n+i];
+            }
+            for (uint ii = n; ii > 0u; --ii) {
+                const uint i = ii-1u;
+                float a = work.direction[i];
+                for (uint k = i+1u; k < n; ++k) a = fma(-L[k*n+i], work.direction[k], a);
+                work.direction[i] = a / L[i*n+i];
+            }
+            for (uint i = 0u; i < m; ++i) {
+                const uint ri = blocks[uint(work.rowWork[i])].layout.x;
+                float a = 0.0f;
+                for (uint k = 0u; k < n; ++k) a = fma(jacobian[ri*n+k], work.direction[k], a);
+                S[i*m+j] = a;
+            }
+        }
+        float maxDiagonal = 0.0f;
+        for (uint i = 0u; i < m && valid; ++i) maxDiagonal = max(maxDiagonal, abs(S[i*m+i]));
+        const float schurFloor = max(1.0e-30f, maxDiagonal * 1.0e-7f);
+        for (uint i = 0u; i < m && valid; ++i) {
+            for (uint j = 0u; j <= i; ++j) {
+                float a = S[i*m+j];
+                for (uint k = 0u; k < j; ++k) a = fma(-S[i*m+k], S[j*m+k], a);
+                if (i == j) {
+                    if (!(a > schurFloor) || !isfinite(a)) { valid=false; break; }
+                    S[i*m+i] = sqrt(a);
+                } else S[i*m+j] = a / S[j*m+j];
+            }
+        }
+        for (uint i = 0u; i < m && valid; ++i) {
+            const uint r = blocks[uint(work.rowWork[i])].layout.x;
+            float q = bias[r];
+            for (uint k = 0u; k < n; ++k) q = fma(jacobian[r*n+k], freeVelocity[k], q);
+            float a = -q;
+            for (uint k = 0u; k < i; ++k) a = fma(-S[i*m+k], work.rowAction[k], a);
+            work.rowAction[i] = a / S[i*m+i];
+        }
+        for (uint ii = m; ii > 0u && valid; --ii) {
+            const uint i = ii-1u;
+            float a = work.rowAction[i];
+            for (uint k = i+1u; k < m; ++k) a = fma(-S[k*m+i], work.rowAction[k], a);
+            work.rowAction[i] = a / S[i*m+i];
+        }
+        for (uint i = 0u; i < n && valid; ++i) {
+            float a = 0.0f;
+            for (uint j = 0u; j < m; ++j) a = fma(jacobian[blocks[uint(work.rowWork[j])].layout.x*n+i], work.rowAction[j], a);
+            for (uint k = 0u; k < i; ++k) a = fma(-L[i*n+k], work.direction[k], a);
+            work.direction[i] = a / L[i*n+i];
+        }
+        for (uint ii = n; ii > 0u && valid; --ii) {
+            const uint i = ii-1u;
+            float a = work.direction[i];
+            for (uint k = i+1u; k < n; ++k) a = fma(-L[k*n+i], work.direction[k], a);
+            work.direction[i] = a / L[i*n+i];
+            work.candidateVelocity[i] = freeVelocity[i] + work.direction[i];
+        }
+        float equality = 0.0f, residual = 0.0f, dynNorm = 0.0f, impulseNorm = 0.0f, objective = 0.0f;
+        for (uint i = 0u; i < m && valid; ++i) {
+            const uint r = blocks[uint(work.rowWork[i])].layout.x;
+            float q = bias[r];
+            for (uint k = 0u; k < n; ++k) q = fma(jacobian[r*n+k], work.candidateVelocity[k], q);
+            valid = isfinite(q) && isfinite(work.rowAction[i]);
+            equality = max(equality, abs(q));
+        }
+        for (uint i = 0u; i < n && valid; ++i) {
+            float a = 0.0f, b = 0.0f;
+            for (uint k = 0u; k < n; ++k) a = fma(dynamics[i*n+k], work.candidateVelocity[k]-freeVelocity[k], a);
+            for (uint j = 0u; j < m; ++j) b = fma(jacobian[blocks[uint(work.rowWork[j])].layout.x*n+i], work.rowAction[j], b);
+            valid = isfinite(a) && isfinite(b) && isfinite(work.candidateVelocity[i]);
+            residual = max(residual, abs(a-b));
+            dynNorm = max(dynNorm, abs(a)); impulseNorm = max(impulseNorm, abs(b));
+            objective += 0.5f * (work.candidateVelocity[i] - freeVelocity[i]) * a;
+        }
+        const float optimality = residual / (1.0f + dynNorm + impulseNorm);
+        valid = valid && isfinite(optimality) && isfinite(objective) && equality <= dispatch.tolerances.y &&
+            optimality <= dispatch.tolerances.x;
+        MRUnifiedQualityStatusGPU status = statuses[problem];
+        if (valid) {
+            for (uint i = 0u; i < n; ++i) outputVelocity[i] = work.candidateVelocity[i];
+            for (uint i = 0u; i < dispatch.rowCount; ++i) outputImpulse[i] = 0.0f;
+            for (uint i = 0u; i < m; ++i) outputImpulse[blocks[uint(work.rowWork[i])].layout.x] = work.rowAction[i];
+            status.code = MR_UNIFIED_QUALITY_SUCCESS;
+            status.solvePath = MR_UNIFIED_QUALITY_PATH_EXACT_EQUALITY;
+            status.failingBlock = MR_UNIFIED_QUALITY_INVALID_INDEX;
+            status.firstFailingStableKey = uint4(MR_UNIFIED_QUALITY_INVALID_INDEX);
+            status.certificates0 = float4(optimality, 0.0f, equality, 0.0f);
+            status.certificates1 = float4(optimality, 0.0f, 0.0f, objective);
+            status.numerics = float4(0.0f);
+        } else {
+            status.code = MR_UNIFIED_QUALITY_DID_NOT_CONVERGE;
+        }
+        statuses[problem] = status;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    return true;
+}
+
 inline void mrUnifiedQualitySolveWithWorkspace(
     device const MRUnifiedQualityDispatchGPU& dispatch,
     device const MRUnifiedQualityBlockGPU* blocks,
@@ -2481,6 +2638,22 @@ inline void mrUnifiedQualitySolveWithWorkspace(
     threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
     MRUnifiedQualityStatusGPU next = statuses[problem];
     const uint nv = dispatch.generalizedVelocityCount, rows = dispatch.rowCount, nb = dispatch.blockCount;
+    if ((next.code == MR_UNIFIED_QUALITY_SUCCESS ||
+         next.code == MR_UNIFIED_QUALITY_DID_NOT_CONVERGE ||
+         next.code == MR_UNIFIED_QUALITY_LINE_SEARCH_FAILED ||
+         next.code == MR_UNIFIED_QUALITY_FACTORIZATION_FAILED ||
+         next.code == MR_UNIFIED_QUALITY_PCG_FAILED) &&
+        mrUnifiedQualityExactEquality(
+            dispatch,
+            blocks + (dispatch.blockStride == 0u ? 0u : problem * dispatch.blockStride),
+            dynamicsMatrices + problem * dispatch.dynamicsStride,
+            jacobianMatrices + problem * dispatch.jacobianStride,
+            biasVectors + problem * dispatch.vectorStride,
+            freeVelocities + problem * dispatch.vectorStride,
+            outputVelocities + problem * dispatch.vectorStride,
+            outputImpulses + problem * dispatch.vectorStride,
+            hessianScratch + problem * dispatch.hessianStride,
+            statuses, problem, lane, workspace)) return;
     const uint required = mrUnifiedQualityRefinementScratchFloats(nv, rows, nb);
     if ((next.code != MR_UNIFIED_QUALITY_DID_NOT_CONVERGE &&
          next.code != MR_UNIFIED_QUALITY_LINE_SEARCH_FAILED) ||

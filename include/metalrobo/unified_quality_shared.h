@@ -13,6 +13,13 @@
 // Bounded adjacent-FP32 stationarity refinement for small problems.
 #define MR_UNIFIED_QUALITY_MAX_ADJACENT_VELOCITIES 64u
 #define MR_UNIFIED_QUALITY_MAX_ADJACENT_REFINEMENTS 8u
+#define MR_UNIFIED_QUALITY_MAX_EXACT_EQUALITY_VELOCITIES 96u
+// Bounded direct Schur workspace for problems consisting entirely of hard,
+// independent scalar equality rows. Unsupported shapes keep the original path.
+inline mr_u32 mrUnifiedQualityExactEqualityScratchFloats(mr_u32 nv, mr_u32 blocks) {
+    return nv > 0u && nv <= MR_UNIFIED_QUALITY_MAX_EXACT_EQUALITY_VELOCITIES &&
+        blocks > 0u && blocks <= nv ? nv * nv + blocks * blocks : 0u;
+}
 // Bounded post-Newton refinement; old smaller dispatch arenas safely skip it.
 #define MR_UNIFIED_QUALITY_MAX_EXPANSION_VELOCITIES 64u
 #define MR_UNIFIED_QUALITY_MAX_EXPANSION_REFINEMENTS 20u
@@ -38,6 +45,7 @@ enum MRUnifiedQualitySolvePath : mr_u32 {
     MR_UNIFIED_QUALITY_PATH_DIRECT = 0u,
     MR_UNIFIED_QUALITY_PATH_PCG = 1u,
     MR_UNIFIED_QUALITY_PATH_REFINED_DIRECT = 2u,
+    MR_UNIFIED_QUALITY_PATH_EXACT_EQUALITY = 3u,
 };
 
 enum MRUnifiedQualityStatusCode : mr_u32 {
