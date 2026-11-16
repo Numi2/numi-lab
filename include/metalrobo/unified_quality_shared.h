@@ -46,6 +46,7 @@ enum MRUnifiedQualitySolvePath : mr_u32 {
     MR_UNIFIED_QUALITY_PATH_PCG = 1u,
     MR_UNIFIED_QUALITY_PATH_REFINED_DIRECT = 2u,
     MR_UNIFIED_QUALITY_PATH_EXACT_EQUALITY = 3u,
+    MR_UNIFIED_QUALITY_PATH_EXACT_MIXED_SCALAR = 4u,
 };
 
 enum MRUnifiedQualityStatusCode : mr_u32 {

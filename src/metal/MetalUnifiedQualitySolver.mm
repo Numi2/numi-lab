@@ -499,6 +499,18 @@ MetalUnifiedQualityDiagnostics solveMetalUnifiedQuality(
                     block.layout.y == 1u &&
                     (block.layout.w & MR_UNIFIED_QUALITY_BLOCK_HARD_EQUALITY) != 0u;
             });
+        const auto hardCount = std::count_if(problem.blocks.begin(), problem.blocks.end(), [](const auto& b) {
+            return (b.layout.w & MR_UNIFIED_QUALITY_BLOCK_HARD_EQUALITY) != 0u;
+        });
+        const bool oneSoftScalar = hardCount > 0 && hardCount + 1 == problem.blocks.size() &&
+            std::all_of(problem.blocks.begin(), problem.blocks.end(), [](const auto& b) {
+                if (b.layout.z != MR_UNIFIED_QUALITY_SCALAR_INTERVAL || b.layout.y != 1u ||
+                    (b.layout.w & ~MR_UNIFIED_QUALITY_BLOCK_HARD_EQUALITY) != 0u) return false;
+                if ((b.layout.w & MR_UNIFIED_QUALITY_BLOCK_HARD_EQUALITY) != 0u)
+                    return b.boundsAndShift.x <= -1.0e30f && b.boundsAndShift.y >= 1.0e30f;
+                return b.boundsAndShift.x == 0.0f && b.boundsAndShift.y >= 1.0e30f &&
+                    b.regularization0.x > 0.0f && std::isfinite(b.regularization0.x);
+            });
         const std::size_t hessianStride = std::max<std::size_t>({
             (directPath || problem.generalizedVelocityCount <=
                 MR_UNIFIED_QUALITY_MAX_ADJACENT_VELOCITIES)
@@ -507,7 +519,7 @@ MetalUnifiedQualityDiagnostics solveMetalUnifiedQuality(
                 static_cast<std::uint32_t>(problem.generalizedVelocityCount),
                 static_cast<std::uint32_t>(problem.rowCount),
                 static_cast<std::uint32_t>(problem.blocks.size())),
-            allHardScalar ? mrUnifiedQualityExactEqualityScratchFloats(
+            (allHardScalar || oneSoftScalar) ? mrUnifiedQualityExactEqualityScratchFloats(
                 static_cast<std::uint32_t>(problem.generalizedVelocityCount),
                 static_cast<std::uint32_t>(problem.blocks.size())) : 0u});
         if (problem.problemCount >

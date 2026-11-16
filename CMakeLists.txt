@@ -2953,6 +2953,14 @@ add_executable(
 if(BUILD_TESTING)
     # Experimental v15 wing mechanics only; these do not qualify flight.
     # The refinement path must retain the hard-equality publication gate.
+    add_executable(crow_quality_mixed_analytic tests/crow_v15_wing_fixture/quality-mixed-scalar-analytic.cpp)
+    target_link_libraries(crow_quality_mixed_analytic PRIVATE metalrobo)
+    add_dependencies(crow_quality_mixed_analytic metalrobo_shaders)
+    add_test(NAME metalrobo.crow.quality_mixed_scalar_analytic COMMAND crow_quality_mixed_analytic)
+    set_tests_properties(metalrobo.crow.quality_mixed_scalar_analytic PROPERTIES LABELS "experimental;crow;rod;reference;rollback")
+    add_executable(crow_quality_mixed_random tests/crow_v15_wing_fixture/random-driver.cpp)
+    target_link_libraries(crow_quality_mixed_random PRIVATE metalrobo)
+    add_dependencies(crow_quality_mixed_random metalrobo_shaders)
     add_executable(crow_quality_refinement_guard tests/crow_v15_wing_fixture/quality-refinement-guard.cpp)
     target_link_libraries(crow_quality_refinement_guard PRIVATE metalrobo)
     add_dependencies(crow_quality_refinement_guard metalrobo_shaders)
@@ -2977,6 +2985,9 @@ if(BUILD_TESTING)
     set_tests_properties(metalrobo.crow.v15_wing_structure metalrobo.crow.v15_wing_free_dynamics metalrobo.crow.v15_wing_quiet_contact metalrobo.crow.v15_wing_cpu_gpu_reference PROPERTIES LABELS "experimental;crow;wing")
     find_program(CROW_PYTHON3_EXECUTABLE NAMES python3)
     if(CROW_PYTHON3_EXECUTABLE)
+        add_test(NAME metalrobo.crow.quality_mixed_scalar_random
+            COMMAND "${CROW_PYTHON3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/crow_v15_wing_fixture/test-mixed-random.py" "$<TARGET_FILE:crow_quality_mixed_random>")
+        set_tests_properties(metalrobo.crow.quality_mixed_scalar_random PROPERTIES LABELS "experimental;crow;rod;reference")
         # Native quality all-hard solve versus the retained v15 KKT oracle.
         add_executable(crow_quality_exact_v15 tests/crow_v15_wing_fixture/quality-exact-v15.cpp)
         target_link_libraries(crow_quality_exact_v15 PRIVATE metalrobo)
