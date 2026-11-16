@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 23u
+#define NM_MATTER_ABI_VERSION 24u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_MPM_STENCIL_WIDTH 27u
@@ -65,8 +65,8 @@ typedef struct NM_ALIGN16 nm_int4 {
 // Coupled-candidate storage is part of Matter's compiled ABI. Keep these
 // capacities synchronized with the borrowed MetalWorld articulated operator;
 // the bridge asserts equality at compile time.
-#define NM_MATTER_MAX_ARTICULATED_DOFS 40u
-#define NM_MATTER_MAX_ARTICULATED_Q 41u
+#define NM_MATTER_MAX_ARTICULATED_DOFS 48u
+#define NM_MATTER_MAX_ARTICULATED_Q 49u
 
 enum NMRepresentationKind : nm_u32 {
     NM_REPRESENTATION_RIGID = 0u,

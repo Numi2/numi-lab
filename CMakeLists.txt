@@ -795,6 +795,7 @@ add_library(
     src/core/EngineModelComposer.cpp
     src/core/RunProgram.cpp
     src/core/CrowEmbodiment.cpp
+    src/core/CrowArticulatedWing.cpp
     src/core/CrowForaging.cpp
     src/core/CrowManipulation.cpp
     src/core/CollisionVisualProxy.cpp
@@ -2949,6 +2950,22 @@ add_executable(
     metalrobo_metal_world_probe
     apps/metal_world_probe.cpp
 )
+if(BUILD_TESTING)
+    # Experimental v15 wing mechanics only; these do not qualify flight.
+    add_executable(crow_v15_wing_structure_check tests/crow_v15_wing_fixture/test-wing-mechanics.cpp)
+    target_link_libraries(crow_v15_wing_structure_check PRIVATE metalrobo)
+    add_executable(crow_v15_wing_dynamics_check tests/crow_v15_wing_fixture/direct-wing-dynamics.cpp)
+    target_link_libraries(crow_v15_wing_dynamics_check PRIVATE metalrobo)
+    add_dependencies(crow_v15_wing_dynamics_check metalrobo_shaders)
+    add_executable(crow_v15_wing_reference_check tests/crow_v15_wing_fixture/wing-cpu-gpu-reference.cpp)
+    target_link_libraries(crow_v15_wing_reference_check PRIVATE metalrobo)
+    add_dependencies(crow_v15_wing_reference_check metalrobo_shaders)
+    add_test(NAME metalrobo.crow.v15_wing_structure COMMAND crow_v15_wing_structure_check)
+    add_test(NAME metalrobo.crow.v15_wing_free_dynamics COMMAND crow_v15_wing_dynamics_check "${METALROBO_METALLIB}")
+    add_test(NAME metalrobo.crow.v15_wing_quiet_contact COMMAND crow_v15_wing_dynamics_check "${METALROBO_METALLIB}" contact)
+    add_test(NAME metalrobo.crow.v15_wing_cpu_gpu_reference COMMAND crow_v15_wing_reference_check "${METALROBO_METALLIB}")
+    set_tests_properties(metalrobo.crow.v15_wing_structure metalrobo.crow.v15_wing_free_dynamics metalrobo.crow.v15_wing_quiet_contact metalrobo.crow.v15_wing_cpu_gpu_reference PROPERTIES LABELS "experimental;crow;wing")
+endif()
 target_link_libraries(
     metalrobo_metal_world_probe
     PRIVATE
