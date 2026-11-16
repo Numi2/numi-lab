@@ -1,0 +1,3 @@
+# Experimental feather-rachis diagnostics
+
+These probes test an idealized 25 mm uniform rod with bending parameters from a single published carrion crow (*Corvus corone*) primary feather. They do not model an American crow feather, feather vanes, a full feather, or its physical attachment to the articulated wing. The original constrained rod tests and the temporalCone fixed-support test failed. A single qualityNewton step passed a narrow screen, but its 10-step follow-up failed support and force thresholds. Consult the corresponding archived evidence and preregistered criteria on the crow-neural-balance-evidence branch before drawing conclusions. These research-only probes do not change the production renderer, flight controller, or aerodynamic model.
