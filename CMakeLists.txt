@@ -2965,6 +2965,19 @@ if(BUILD_TESTING)
     add_test(NAME metalrobo.crow.v15_wing_quiet_contact COMMAND crow_v15_wing_dynamics_check "${METALROBO_METALLIB}" contact)
     add_test(NAME metalrobo.crow.v15_wing_cpu_gpu_reference COMMAND crow_v15_wing_reference_check "${METALROBO_METALLIB}")
     set_tests_properties(metalrobo.crow.v15_wing_structure metalrobo.crow.v15_wing_free_dynamics metalrobo.crow.v15_wing_quiet_contact metalrobo.crow.v15_wing_cpu_gpu_reference PROPERTIES LABELS "experimental;crow;wing")
+    find_program(CROW_PYTHON3_EXECUTABLE NAMES python3)
+    if(CROW_PYTHON3_EXECUTABLE)
+        add_executable(crow-feather-equality-gate tests/crow_v15_wing_fixture/feather-equality-gate.mm)
+        add_executable(crow-feather-predicted-position tests/crow_v15_wing_fixture/feather-predicted-position.mm)
+        target_link_libraries(crow-feather-equality-gate PRIVATE metalrobo)
+        target_link_libraries(crow-feather-predicted-position PRIVATE metalrobo)
+        add_dependencies(crow-feather-equality-gate metalrobo_shaders)
+        add_dependencies(crow-feather-predicted-position metalrobo_shaders)
+        add_test(NAME metalrobo.crow.rod_hard_equality_guard
+            COMMAND "${CROW_PYTHON3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/crow_v15_wing_fixture/test-equality-guard.py" "${CMAKE_CURRENT_BINARY_DIR}")
+        set_tests_properties(metalrobo.crow.rod_hard_equality_guard PROPERTIES LABELS "experimental;crow;rod;rollback")
+    endif()
+
 endif()
 target_link_libraries(
     metalrobo_metal_world_probe
