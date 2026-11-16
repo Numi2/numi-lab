@@ -128,6 +128,18 @@ runMetalDiscreteElasticRod(
     const MetalDiscreteElasticRodConfig& config = {}
 );
 
+// Experimental free-rod local-origin submission. Positions are recentered in
+// double precision before GPU packing and restored on publication. Attachments,
+// rigid bindings, and tool collision are rejected; this does not implement
+// local-frame coupling for MetalWorld or articulated wings.
+[[nodiscard]] MetalDiscreteElasticRodDiagnostics
+runMetalDiscreteElasticRodFreeLocalFrame(
+    const DiscreteElasticRodModel& model,
+    const MetalDiscreteElasticRodInput& input,
+    MetalDiscreteElasticRodResult& output,
+    const MetalDiscreteElasticRodConfig& config = {}
+);
+
 [[nodiscard]] const char* metalDiscreteElasticRodHostStatusName(
     MetalDiscreteElasticRodHostStatus status
 ) noexcept;
