@@ -1,0 +1,16 @@
+#include "metalrobo/DiscreteElasticRod.hpp"
+#include "metalrobo/MetalDiscreteElasticRod.hpp"
+#include <array>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace metalrobo;
+constexpr double L=.025,E=2.129e9,I=3.960e-12,area=3.449e-6,radius=.00185,density=1200,delta=.000025,dh=.00000001;
+DiscreteElasticRodModel model(unsigned n){DiscreteRodMaterial mat{.radius=radius,.density=density,.youngModulus=E,.poissonRatio=.35};auto m=makeStraightSutureRod(n,L,mat);m.name="related_crow_rachis_energy_instrument";m.fidelityBoundary="uniform short-segment surrogate; carrion crow sample";std::fill(m.bendStiffness.begin(),m.bendStiffness.end(),E*I);std::fill(m.stretchStiffness.begin(),m.stretchStiffness.end(),E*area);double dm=density*area*L/(n-1);for(unsigned j=0;j<n;++j)m.nodeMasses[j]=(j==0||j==n-1)?.5*dm:dm;return m;}
+DiscreteElasticRodState shaped(const DiscreteElasticRodModel&m,double d){auto s=makeDiscreteElasticRodDefaultState(m);for(auto& p:s.positions){double x=p[0]/L;if(x>.5)x=1-x;p[1]=d*(3*x-4*x*x*x);}return s;}
+double energy(const DiscreteElasticRodModel&m,double d){auto s=shaped(m,d);DiscreteElasticRodEnergy e;auto diag=evaluateDiscreteElasticRodEnergy(m,s,e);if(!diag.succeeded())throw std::runtime_error("energy reference failed");return e.total();}
+void stateJson(const DiscreteElasticRodState&s){std::cout<<"[";for(size_t i=0;i<s.positions.size();++i){if(i)std::cout<<',';std::cout<<'[';for(int j=0;j<3;++j)std::cout<<s.positions[i][j]<<',';for(int j=0;j<3;++j){if(j)std::cout<<',';std::cout<<s.velocities[i][j];}std::cout<<']';}std::cout<<']';}
+void emit(const char*backend,unsigned n,bool ok,const std::string&msg,const DiscreteElasticRodModel&m,const DiscreteElasticRodState&s){DiscreteElasticRodEnergy e;auto d=evaluateDiscreteElasticRodEnergy(m,s,e);if(!d.succeeded())throw std::runtime_error("cannot evaluate post energy");double k=0;for(size_t i=0;i<s.positions.size();++i)for(int a=0;a<3;++a)k+=.5*m.nodeMasses[i]*s.velocities[i][a]*s.velocities[i][a];for(size_t i=0;i<s.twists.size();++i)k+=.5*m.edgeRotationalInertias[i]*s.twistRates[i]*s.twistRates[i];std::cout<<"{\"backend\":"<<std::quoted(backend)<<",\"nodes\":"<<n<<",\"success\":"<<(ok?"true":"false")<<",\"message\":"<<std::quoted(msg)<<",\"elastic\":"<<e.total()<<",\"kinetic\":"<<k<<",\"state\":";stateJson(s);std::cout<<",\"twists\":[";for(size_t i=0;i<s.twists.size();++i){if(i)std::cout<<',';std::cout<<'['<<s.twists[i]<<','<<s.twistRates[i]<<']';}std::cout<<"]}\n";}
+int main(){try{std::cout<<std::setprecision(14);auto m=model(9);for(int lane=0;lane<3;++lane){double off=lane==0?0:lane==1?1:-1;auto s=shaped(m,delta);for(auto&p:s.positions)p[0]+=off;auto q=s;for(auto&p:q.positions)for(auto&x:p)x=static_cast<double>(static_cast<float>(x));std::string tag="original_"+std::to_string(lane);emit(tag.c_str(),9,true,"",m,s);tag="rounded_"+std::to_string(lane);emit(tag.c_str(),9,true,"",m,q);}return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
