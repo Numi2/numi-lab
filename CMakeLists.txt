@@ -2985,6 +2985,13 @@ if(BUILD_TESTING)
     set_tests_properties(metalrobo.crow.v15_wing_structure metalrobo.crow.v15_wing_free_dynamics metalrobo.crow.v15_wing_quiet_contact metalrobo.crow.v15_wing_cpu_gpu_reference PROPERTIES LABELS "experimental;crow;wing")
     find_program(CROW_PYTHON3_EXECUTABLE NAMES python3)
     if(CROW_PYTHON3_EXECUTABLE)
+        # Arithmetic-only precision control; this does not yet integrate a rod.
+        add_executable(crow-feather-split-stretch tests/crow_v15_wing_fixture/split-stretch-driver.mm)
+        target_compile_options(crow-feather-split-stretch PRIVATE -fobjc-arc)
+        target_link_libraries(crow-feather-split-stretch PRIVATE "-framework Foundation" "-framework Metal")
+        add_test(NAME metalrobo.crow.rod_split_stretch_reference
+            COMMAND "${CROW_PYTHON3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/crow_v15_wing_fixture/test-split-stretch.py" "$<TARGET_FILE:crow-feather-split-stretch>" "${CMAKE_CURRENT_SOURCE_DIR}/tests/crow_v15_wing_fixture/split-stretch.metal")
+        set_tests_properties(metalrobo.crow.rod_split_stretch_reference PROPERTIES LABELS "experimental;crow;rod;precision;reference")
         add_test(NAME metalrobo.crow.quality_mixed_scalar_random
             COMMAND "${CROW_PYTHON3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/crow_v15_wing_fixture/test-mixed-random.py" "$<TARGET_FILE:crow_quality_mixed_random>")
         set_tests_properties(metalrobo.crow.quality_mixed_scalar_random PROPERTIES LABELS "experimental;crow;rod;reference")
