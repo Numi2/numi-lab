@@ -2249,6 +2249,13 @@ inline void mrUnifiedQualitySolveProblem(
         }
     }
 
+    // Experimental fail-closed gate: hard equality error is a separate
+    // certificate and must not be silently ignored at publication.
+    if (failureCode == MR_UNIFIED_QUALITY_SUCCESS &&
+        scalars[3] > dispatch.tolerances.y) {
+        failureCode = MR_UNIFIED_QUALITY_DID_NOT_CONVERGE;
+    }
+
     if (failureCode != MR_UNIFIED_QUALITY_SUCCESS) {
         if (lane == 0u) {
             float largestEquality = -1.0f;
