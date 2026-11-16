@@ -2984,6 +2984,9 @@ if(BUILD_TESTING)
         add_test(NAME metalrobo.crow.quality_exact_v15_bilateral
             COMMAND "${CROW_PYTHON3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/crow_v15_wing_fixture/test-quality-exact-v15.py" "$<TARGET_FILE:crow_quality_exact_v15>" "$<TARGET_FILE:crow_articulated_hand_response>")
         set_tests_properties(metalrobo.crow.quality_exact_v15_bilateral PROPERTIES LABELS "experimental;crow;rod;reference")
+        add_test(NAME metalrobo.crow.quality_exact_v15_poses
+            COMMAND "${CROW_PYTHON3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/crow_v15_wing_fixture/test-quality-exact-v15-poses.py" "$<TARGET_FILE:crow_quality_exact_v15>" "$<TARGET_FILE:crow_articulated_hand_response>")
+        set_tests_properties(metalrobo.crow.quality_exact_v15_poses PROPERTIES LABELS "experimental;crow;rod;reference")
         # Frozen-pose v15 articulated bird and rod, standalone reference only.
         add_executable(crow-feather-articulated-kkt tests/crow_v15_wing_fixture/articulated-kkt.mm)
         target_compile_options(crow-feather-articulated-kkt PRIVATE -fobjc-arc)

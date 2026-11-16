@@ -7,10 +7,11 @@
 #include <string>
 using namespace metalrobo;
 template<class T> static void array(const T& a){std::cout<<'[';bool first=true;for(const auto& x:a){if(!first)std::cout<<',';first=false;std::cout<<x;}std::cout<<']';}
-int main(){try{
+int main(int argc,char**argv){try{if(argc!=1&&argc!=3)throw std::runtime_error("expected no arguments or elbow and wrist");
  auto p=makeCrowArticulatedWingMechanicsFixture(crowHipRollModel());auto& m=p.mechanics;
  auto it=std::find(m.bodyNames.begin(),m.bodyNames.end(),"crow_left_hand");crowToeNeed(it!=m.bodyNames.end(),"hand missing");unsigned body=unsigned(it-m.bodyNames.begin());const auto& a=m.articulations.at(0);size_t n=a.nv;
  std::vector<double> q(m.defaultQ.begin(),m.defaultQ.end()),v(m.defaultV.begin(),m.defaultV.end()),J(3*n),M(n*n),X(3*n);
+ if (argc==3) for (const auto& item : {std::pair<std::string,double>{"crow_left_elbow_flex",std::stod(argv[1])}, {"crow_left_wrist_flex",std::stod(argv[2])}}) { const auto k=std::find(m.dofNames.begin(),m.dofNames.end(),item.first); crowToeNeed(k!=m.dofNames.end(),"pose dof missing"); q.at(m.dofs.at(k-m.dofNames.begin()).qIndex)=item.second; }
  std::vector<ArticulatedBodyKinematics> bodies(a.bodyCount);ArticulatedPointQuery point{body,{.008,.012,.003}};ArticulatedPointKinematics pk;
  auto k=computeArticulatedBodyKinematics(m,0,q,v,bodies);auto j=computeArticulatedPointJacobians(m,0,q,v,std::span(&point,1),std::span(&pk,1),J);auto mass=computeArticulatedMassMatrix(m,0,q,M);auto response=computeArticulatedInverseMassResponses(m,0,q,J,X);
  crowToeNeed(k.succeeded()&&j.succeeded()&&mass.succeeded()&&response.succeeded(),"native reference query failed");auto bt=std::find_if(bodies.begin(),bodies.end(),[&](const auto& b){return b.bodyIndex==body;});crowToeNeed(bt!=bodies.end(),"missing hand kinematics");
