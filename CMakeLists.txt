@@ -2967,6 +2967,13 @@ if(BUILD_TESTING)
     set_tests_properties(metalrobo.crow.v15_wing_structure metalrobo.crow.v15_wing_free_dynamics metalrobo.crow.v15_wing_quiet_contact metalrobo.crow.v15_wing_cpu_gpu_reference PROPERTIES LABELS "experimental;crow;wing")
     find_program(CROW_PYTHON3_EXECUTABLE NAMES python3)
     if(CROW_PYTHON3_EXECUTABLE)
+        # Free rigid hand linearized reference; not articulated MetalWorld.
+        add_executable(crow-feather-rigid-kkt tests/crow_v15_wing_fixture/rigid-kkt.mm)
+        target_compile_options(crow-feather-rigid-kkt PRIVATE -fobjc-arc)
+        target_link_libraries(crow-feather-rigid-kkt PRIVATE "-framework Foundation" "-framework Metal")
+        add_test(NAME metalrobo.crow.rod_v15_rigid_hand_reference
+            COMMAND "${CROW_PYTHON3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/crow_v15_wing_fixture/test-rigid-kkt.py" "$<TARGET_FILE:crow-feather-rigid-kkt>")
+        set_tests_properties(metalrobo.crow.rod_v15_rigid_hand_reference PROPERTIES LABELS "experimental;crow;rod;reference")
         # 3D linearized rod with point masses; not MetalWorld.
         add_executable(crow-feather-3d-reference tests/crow_v15_wing_fixture/rod-3d.mm)
         target_compile_options(crow-feather-3d-reference PRIVATE -fobjc-arc)
