@@ -2967,6 +2967,13 @@ if(BUILD_TESTING)
     set_tests_properties(metalrobo.crow.v15_wing_structure metalrobo.crow.v15_wing_free_dynamics metalrobo.crow.v15_wing_quiet_contact metalrobo.crow.v15_wing_cpu_gpu_reference PROPERTIES LABELS "experimental;crow;wing")
     find_program(CROW_PYTHON3_EXECUTABLE NAMES python3)
     if(CROW_PYTHON3_EXECUTABLE)
+        # Small linearized, one-dimensional research oracle, not MetalWorld.
+        add_executable(crow-feather-two-way-kkt tests/crow_v15_wing_fixture/two-way-kkt.mm)
+        target_compile_options(crow-feather-two-way-kkt PRIVATE -fobjc-arc)
+        target_link_libraries(crow-feather-two-way-kkt PRIVATE "-framework Foundation" "-framework Metal")
+        add_test(NAME metalrobo.crow.rod_two_way_kkt_reference
+            COMMAND "${CROW_PYTHON3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/crow_v15_wing_fixture/test-two-way-kkt.py" "$<TARGET_FILE:crow-feather-two-way-kkt>")
+        set_tests_properties(metalrobo.crow.rod_two_way_kkt_reference PROPERTIES LABELS "experimental;crow;rod;reference")
         add_executable(crow-feather-local-frame tests/crow_v15_wing_fixture/feather-local-frame.mm)
         target_link_libraries(crow-feather-local-frame PRIVATE metalrobo)
         add_dependencies(crow-feather-local-frame metalrobo_shaders)

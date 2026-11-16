@@ -1,0 +1,5 @@
+# Two-way rod KKT research regression
+
+This is an experimental one-step, one-dimensional linearized rod and three moving point masses, implemented as an isolated Metal kernel. It is not integrated into MetalWorld and is not a complete feather, wing, contact or flight model. The CTest `metalrobo.crow.rod_two_way_kkt_reference` validates four cases against double-precision force, equality, momentum and ordering criteria without requiring NumPy at test time. The source Hessian is derived from the native elastic-energy owner for a short carrion-crow feather-segment surrogate; it is not an American-crow whole-feather measurement.
+
+The fixture input and oracle provenance, generator, original experiment, exact limits and failed solver controls are archived at [evidence commit 224cf2f](https://github.com/Numi2/numi-gpu-physics-pigeon-sim/commit/224cf2f). The follow-on registration and its validation are recorded on the same evidence branch. This research test does not supersede the production hard-equality guard or establish cross-suite safety.
