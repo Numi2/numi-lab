@@ -2952,6 +2952,12 @@ add_executable(
 )
 if(BUILD_TESTING)
     # Experimental v15 wing mechanics only; these do not qualify flight.
+    # The refinement path must retain the hard-equality publication gate.
+    add_executable(crow_quality_refinement_guard tests/crow_v15_wing_fixture/quality-refinement-guard.cpp)
+    target_link_libraries(crow_quality_refinement_guard PRIVATE metalrobo)
+    add_dependencies(crow_quality_refinement_guard metalrobo_shaders)
+    add_test(NAME metalrobo.crow.quality_refinement_hard_equality_guard COMMAND crow_quality_refinement_guard)
+    set_tests_properties(metalrobo.crow.quality_refinement_hard_equality_guard PROPERTIES LABELS "experimental;crow;rod;rollback")
     add_executable(crow_articulated_hand_response tests/crow_v15_wing_fixture/articulated-hand-response.cpp)
     target_link_libraries(crow_articulated_hand_response PRIVATE metalrobo)
     add_test(NAME metalrobo.crow.v15_articulated_hand_response COMMAND crow_articulated_hand_response)

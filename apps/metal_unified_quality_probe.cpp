@@ -261,12 +261,14 @@ int main() {
             0.027f,
         };
         const std::array blocks{
+            // This bilateral row has positive physical compliance: its
+            // regularized velocity need not satisfy a hard equality.
             scalarBlock(
                 0u,
                 2.0e-2f,
                 -infinity,
                 infinity,
-                true,
+                false,
                 11u
             ),
             scalarBlock(

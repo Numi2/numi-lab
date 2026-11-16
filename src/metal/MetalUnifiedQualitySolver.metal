@@ -2521,8 +2521,11 @@ inline void mrUnifiedQualitySolveWithWorkspace(
         workspace.cgDirection, workspace.cgAction, workspace.dynamicsAction,
         derivativeScratch + problem * dispatch.derivativeStride,
         workspace.candidateScalars, workspace.control, false, lane);
+    // Refinement may only publish a state meeting every certificate required
+    // by the original solve, including the separate hard-equality residual.
     if (!valid || workspace.candidateScalars[1] > dispatch.tolerances.x ||
-        workspace.candidateScalars[2] > dispatch.tolerances.y) return;
+        workspace.candidateScalars[2] > dispatch.tolerances.y ||
+        workspace.candidateScalars[3] > dispatch.tolerances.y) return;
     float publishedResidual = 0.0f, publishedFeasibility = 0.0f;
     if (!mr_quality_expansion::auditPublished(c, pb, A, J, freev, x,
             workspace.rowAction, publishedResidual, publishedFeasibility, lane) ||
