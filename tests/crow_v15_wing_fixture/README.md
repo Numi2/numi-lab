@@ -14,3 +14,5 @@ To build and run the compact checks from an appropriately configured Apple Silic
 cmake --build build/wing-capacity-48 --target crow_v15_wing_structure_check crow_v15_wing_dynamics_check crow_v15_wing_reference_check
 ctest --test-dir build/wing-capacity-48 --output-on-failure -R metalrobo.crow.v15_wing_
 ```
+
+The `live-wing-kinematics.mm`, `articulated-wing-aero.metal`, `aero-wing-probe.mm`, `aero-passivity.mm`, `aero-timestep.mm` and `aero-controlled-fold.mm` files are experimental research probes with fixed fixture-specific body indices and three lanes. They are not a general-purpose aerodynamic API or a compatible flight controller. The airflow model is an uncalibrated quasi-steady engineering approximation without wakes, body drag, feather flexibility, or biological validation. Its free-wing four-microstep passivity screen failed; the narrower 32-microstep screen passed for the three tested starts, without proving trajectory convergence. Preserve and consult the preregistered experiments and their failures in the separately versioned evidence repository before drawing conclusions.
