@@ -1,3 +1,5 @@
 # Free-rod modal research regression
 
 The CTest `metalrobo.crow.rod_free_modal_reference` executes 80 fixed 0.125 ms GPU steps of a planar, linearized nine-node free rod. It checks each position against the precomputed double-precision modal reference, energy drift and momentum. It is a standalone reference kernel, not MetalWorld, a nonlinear feather, an attached wing or a flight model. The short-segment native-energy Hessian, measured-data boundary, initial conditions, precomputed modes, generator, and original experiment are documented in [evidence commit 1fa4719](https://github.com/Numi2/numi-gpu-physics-pigeon-sim/commit/1fa4719). The model frequencies are not biological qualification.
+
+At an 8 kHz output rate the modeled non-rigid modes exceed the 4 kHz Nyquist frequency. Exact sampled linear states do not resolve intervening motion, visual flutter, collisions or time-varying aerodynamic interactions.
