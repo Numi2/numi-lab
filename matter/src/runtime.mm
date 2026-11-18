@@ -59842,6 +59842,18 @@ FrozenFEMStaticLoadSource Runtime::snapshotForFrozenFEMStaticLoad() const {
     }
     snapshot.femMaterialState.resize(
         static_cast<std::size_t>(logicalMaterialStateCount));
+    // The same minimum-length binding pads small material parameter arenas,
+    // for example a single Neo-Hookean wall with three parameters.
+    const std::uint64_t logicalParameterCount =
+        static_cast<std::uint64_t>(state_->dispatch.environmentCount) *
+        state_->dispatch.parameterCount;
+    if (logicalParameterCount > snapshot.environmentParameters.size()) {
+        snapshot.available = false;
+        snapshot.message = "frozen static source parameter arena is shorter than its logical shape";
+        return sealed;
+    }
+    snapshot.environmentParameters.resize(
+        static_cast<std::size_t>(logicalParameterCount));
     std::vector<std::uint8_t> digestInput;
     const auto appendBytes = [&](const void* data, std::size_t bytes) {
         if (bytes == 0u) return;
