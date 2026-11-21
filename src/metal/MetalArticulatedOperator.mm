@@ -17121,7 +17121,10 @@ MetalArticulatedOperatorContext::submit(
                 }
 
                 hostMark("stand_phases");
-                if (input.stand.numanXHumanMatterProgram.valid()) {
+                // Stand has integrated q. Transaction-only post-dynamics consumers
+                // also need poses and low coordinates at this new configuration.
+                if (input.stand.numanXHumanMatterProgram.valid() ||
+                    (pairedGeometry && input.stand.numanXTransactionProgram.valid())) {
                     MRArticulatedOperatorDispatchGPU refreshed = diagnostics.layout.dispatch;
                     refreshed.flags = MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
                         MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION;

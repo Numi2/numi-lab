@@ -178,6 +178,7 @@ struct TransactionAudit {
     std::uint32_t expectedDofCount = 6u;
     std::uint32_t expectedBodyCount = 1u;
     std::uint32_t expectedPointCount = 4u;
+    id<MTLBuffer> postPose = nil;
     bool candidateEncoded = false;
     bool sourceMassOperationsEncoded = false;
     id<MTLBuffer> sourceMassInput = nil;
@@ -598,6 +599,10 @@ bool encodeTransaction(void* context, const Pass& pass) noexcept {
     if (encoder == nil) {
         return audit.fail("transaction could not create its Metal blit encoder");
     }
+    if (audit.postPose != nil && pass.phase == Phase::postDynamics) {
+        [encoder copyFromBuffer:(__bridge id<MTLBuffer>)pass.bodyPoses sourceOffset:0
+                      toBuffer:audit.postPose destinationOffset:0 size:sizeof(MRArticulatedBodyPoseGPU)];
+    }
     [encoder fillBuffer:audit.markers
                   range:NSMakeRange(ordinal, 1u)
                   value:static_cast<std::uint8_t>(0x20u + ordinal)];
@@ -976,6 +981,12 @@ void runCandidateKinematics(const bool rollback) {
     SyntheticHumanFixture fixture;
     TransactionAudit audit = makeAudit(rollback);
     audit.candidateKinematics = true;
+    if (!rollback) {
+        fixture.v.at(3) = 0.75f;
+        audit.postPose = [audit.markers.device newBufferWithLength:sizeof(MRArticulatedBodyPoseGPU)
+            options:MTLResourceStorageModeShared];
+        require(audit.postPose != nil, "could not allocate post-dynamics pose witness");
+    }
     const auto originalQ = fixture.q;
     const auto originalV = fixture.v;
     const auto input = fixture.input(audit);
@@ -1002,6 +1013,24 @@ void runCandidateKinematics(const bool rollback) {
     require(diagnostics.succeeded() && diagnostics.dispatched &&
                 diagnostics.published && audit.abortCount == 0u,
             "candidate FK transaction did not complete: " + diagnostics.message);
+    // Reconstruct the accepted orientation independently from the final joint state.
+    const metalrobo::MetalArticulatedOperatorInput endpointInput{
+        .articulationIndex = 0u, .environmentCount = 1u, .pointCount = fixture.points.size(),
+        .q = result.standQ, .points = fixture.points,
+    };
+    auto endpointContext = makeContext();
+    metalrobo::MetalArticulatedOperatorResult endpoint;
+    const auto endpointStatus = endpointContext.run(fixture.model, endpointInput, endpoint);
+    require(endpointStatus.succeeded() && endpointStatus.published && endpoint.bodyPoses.size() == 1u,
+            "independent FK for the post-dynamics pose failed");
+    const auto observed = static_cast<const MRArticulatedBodyPoseGPU*>(audit.postPose.contents)->orientation;
+    const auto expected = endpoint.bodyPoses.front().orientation;
+    const float sign = observed.x*expected.x + observed.y*expected.y +
+        observed.z*expected.z + observed.w*expected.w < 0.0f ? -1.0f : 1.0f;
+    const float error = std::max({std::abs(observed.x-sign*expected.x), std::abs(observed.y-sign*expected.y),
+        std::abs(observed.z-sign*expected.z), std::abs(observed.w-sign*expected.w)});
+    require(std::isfinite(error) && error <= 4.0f*std::numeric_limits<float>::epsilon(),
+            "post-dynamics pose differs from accepted joint state: " + std::to_string(error));
     const auto dofCount =
         static_cast<std::uint32_t>(fixture.model.articulations[0].nv);
     for (const CandidateSample& sample : audit.candidateSamples) {
