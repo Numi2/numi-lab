@@ -1806,6 +1806,40 @@ public:
         return repeated(values, 1u, valid, residentBytes);
     }
 
+    // Initialize the unpublished private buffer directly on the GPU.
+    // Zero-valued state needs neither a host array nor a staging upload.
+    template <typename T>
+    [[nodiscard]] id<MTLBuffer> zeroed(
+        const std::size_t count,
+        const std::size_t repeat,
+        bool& valid,
+        std::size_t& residentBytes
+    ) {
+        if (finished_ || blit_ == nil) {
+            error_ = "cannot append to a finalized Matter upload batch";
+            valid = false;
+            return nil;
+        }
+        if (count != 0u && repeat > std::numeric_limits<std::size_t>::max() / count) {
+            valid = false;
+            return nil;
+        }
+        const NSUInteger bytes = checkedBytes(count * repeat, sizeof(T), valid);
+        if (!valid || !error_.empty()) {
+            valid = false;
+            return nil;
+        }
+        id<MTLBuffer> output = [device_ newBufferWithLength:bytes
+            options:MTLResourceStorageModePrivate];
+        if (output == nil) {
+            valid = false;
+            return nil;
+        }
+        [blit_ fillBuffer:output range:NSMakeRange(0u, bytes) value:0u];
+        residentBytes += bytes;
+        return output;
+    }
+
     [[nodiscard]] bool finish(std::string& error) {
         if (finished_) {
             error="Matter upload batch was already finalized";
@@ -12817,13 +12851,10 @@ RuntimeDiagnostics Runtime::initialize(
             std::span<const NMHumanSupportConsequenceGPU>(
                 initialHumanSupportConsequences),
             environments, valid, candidate->residentBytes);
-        const std::vector<NMDeformableContactHistoryGPU>
-            initialDeformableContactHistories(
-                world.dispatch.deformableContactCapacity);
-        candidate->deformableContactHistoriesAccepted = uploads.repeated(
-            std::span<const NMDeformableContactHistoryGPU>(
-                initialDeformableContactHistories),
-            environments, valid, candidate->residentBytes);
+        candidate->deformableContactHistoriesAccepted =
+            uploads.zeroed<NMDeformableContactHistoryGPU>(
+                world.dispatch.deformableContactCapacity, environments,
+                valid, candidate->residentBytes);
         const std::vector<NMDeformableContactFailureGPU> initialContactFailures(1u);
         candidate->deformableContactFailures = uploads.repeated(
             std::span<const NMDeformableContactFailureGPU>(initialContactFailures),
