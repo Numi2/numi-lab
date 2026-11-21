@@ -2566,7 +2566,7 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads(
 // for triangle samples on distinct articulated bodies. Rows are stable-grouped
 // by slave after implicit-row filtering; one group head owns the single output
 // write, and row order within a slave remains the source order.
-kernel void nm_numi_human_assemble_fem_body_contact_loads_grouped(
+kernel void nm_numi_human_assemble_fem_body_contact_loads_slave_ranges(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
     device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
@@ -2578,16 +2578,18 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads_grouped(
         femBodyContactNeighborhoodTriangles [[buffer(6)]],
     device const NMNumiHumanFEMBodyContactBVHNodeGPU* femBodyContactBVHNodes
         [[buffer(8)]],
-    device const uint* groupCounts [[buffer(9)]],
+    device const NMIncidenceRangeGPU* slaveRanges [[buffer(9)]],
+    constant uint& rangeCount [[buffer(11)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount *
-        dispatch.femBodyContactSampleCount;
-    if (global >= total || dispatch.femBodyContactSampleCount == 0u) return;
-    const uint environment = global / dispatch.femBodyContactSampleCount;
-    const uint head = global - environment * dispatch.femBodyContactSampleCount;
-    const uint span = groupCounts[head];
-    if (span == 0u || span > dispatch.femBodyContactSampleCount-head) return;
+    if (rangeCount == 0u || global / rangeCount >= dispatch.environmentCount)
+        return;
+    const uint environment = global / rangeCount;
+    const NMIncidenceRangeGPU range = slaveRanges[global % rangeCount];
+    const uint head = range.first;
+    const uint span = range.count;
+    if (span == 0u || head >= dispatch.femBodyContactSampleCount ||
+        span > dispatch.femBodyContactSampleCount - head) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const uint poseBase = environment * dispatch.bodyPoseStride;
     const uint node = humanContactSample(samples,head).slaveNode;
@@ -2656,7 +2658,7 @@ kernel void nm_numi_human_fem_body_contact_row_cache(
     rowCache[global]=float4(normal*(pressure*area),closure);
 }
 
-kernel void nm_numi_human_assemble_fem_body_contact_loads_grouped_cached(
+kernel void nm_numi_human_assemble_fem_body_contact_loads_slave_ranges_cached(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
     device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
@@ -2668,17 +2670,19 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads_grouped_cached(
         femBodyContactNeighborhoodTriangles [[buffer(6)]],
     device const NMNumiHumanFEMBodyContactBVHNodeGPU* femBodyContactBVHNodes
         [[buffer(8)]],
-    device const uint* groupCounts [[buffer(9)]],
+    device const NMIncidenceRangeGPU* slaveRanges [[buffer(9)]],
     device const float4* rowCache [[buffer(10)]],
+    constant uint& rangeCount [[buffer(11)]],
     uint global [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount *
-        dispatch.femBodyContactSampleCount;
-    if (global >= total || dispatch.femBodyContactSampleCount == 0u) return;
-    const uint environment = global / dispatch.femBodyContactSampleCount;
-    const uint head = global - environment * dispatch.femBodyContactSampleCount;
-    const uint span = groupCounts[head];
-    if (span == 0u || span > dispatch.femBodyContactSampleCount-head) return;
+    if (rangeCount == 0u || global / rangeCount >= dispatch.environmentCount)
+        return;
+    const uint environment = global / rangeCount;
+    const NMIncidenceRangeGPU range = slaveRanges[global % rangeCount];
+    const uint head = range.first;
+    const uint span = range.count;
+    if (span == 0u || head >= dispatch.femBodyContactSampleCount ||
+        span > dispatch.femBodyContactSampleCount - head) return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const uint node = humanContactSample(samples,head).slaveNode;
     if (node >= dispatch.femNodeCount) return;

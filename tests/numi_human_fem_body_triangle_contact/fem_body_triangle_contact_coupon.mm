@@ -1394,12 +1394,13 @@ int main(int argc, const char* argv[]) {
                 "two distinct-body triangle contacts pass CPU admission");
         std::vector<NMNumiHumanFEMBodyContactSampleGPU> groupedSamples;
         std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> groupedRanges;
-        std::vector<std::uint32_t> groupCounts;
+        std::vector<NMIncidenceRangeGPU> groupSpans;
         require(numi::matter::fem_body_contact_grouping::stableGroupRowsBySlave(
                     originalGroupSamples,originalGroupRanges,
-                    groupedSamples,groupedRanges,groupCounts) &&
+                    groupedSamples,groupedRanges,groupSpans) &&
                 groupedSamples.size()==groupSampleCount &&
-                groupCounts==std::vector<std::uint32_t>({2u,0u,1u}) &&
+                groupSpans.size()==2u && groupSpans[0].first==0u && groupSpans[0].count==2u &&
+                groupSpans[1].first==2u && groupSpans[1].count==1u &&
                 groupedSamples[0].slaveNode==3u &&
                 groupedSamples[0].bodyIndex==0u &&
                 groupedSamples[1].slaveNode==3u &&
@@ -1437,8 +1438,9 @@ int main(int argc, const char* argv[]) {
             groupedSamples.data(),groupedSamples.size()*sizeof(groupedSamples[0]));
         auto groupedRangeBuffer=dispatchBuffer(
             groupedRanges.data(),groupedRanges.size()*sizeof(groupedRanges[0]));
-        auto groupCountBuffer=dispatchBuffer(
-            groupCounts.data(),groupCounts.size()*sizeof(groupCounts[0]));
+        const auto groupCount=static_cast<std::uint32_t>(groupSpans.size());
+        auto groupSpanBuffer=dispatchBuffer(
+            groupSpans.data(),groupSpans.size()*sizeof(groupSpans[0]));
         auto groupNodeBuffer=dispatchBuffer(groupNodes.data(),sizeof(groupNodes));
         auto groupPoseBuffer=dispatchBuffer(groupPoses.data(),sizeof(groupPoses));
         auto groupTriangleBuffer=dispatchBuffer(
@@ -1453,7 +1455,7 @@ int main(int argc, const char* argv[]) {
         auto groupWrenchBuffer=dispatchBuffer(groupWrenches.data(),sizeof(groupWrenches));
         auto groupAuditBuffer=dispatchBuffer(groupAudits.data(),sizeof(groupAudits));
         require(groupDispatchBuffer && originalGroupSampleBuffer &&
-                groupedSampleBuffer && groupedRangeBuffer && groupCountBuffer &&
+                groupedSampleBuffer && groupedRangeBuffer && groupSpanBuffer &&
                 groupNodeBuffer && groupPoseBuffer && groupTriangleBuffer &&
                 groupedLoadBuffer && denseGroupLoadBuffer && groupWrenchBuffer &&
                 groupAuditBuffer,"multi-master GPU test buffers");
@@ -1472,7 +1474,7 @@ int main(int argc, const char* argv[]) {
             return result;
         };
         auto groupedPipeline=makePipeline(
-            @"nm_numi_human_assemble_fem_body_contact_loads_grouped");
+            @"nm_numi_human_assemble_fem_body_contact_loads_slave_ranges");
         auto densePipeline=makePipeline(
             @"nm_numi_human_assemble_fem_body_contact_loads_dense_oracle");
         auto wrenchPipeline=makePipeline(
@@ -1496,12 +1498,15 @@ int main(int argc, const char* argv[]) {
             [encoder setBuffer:groupTriangleBuffer offset:0 atIndex:6];
             [encoder setBuffer:groupBVHNodeBuffer offset:0
                        atIndex:(grouped?8u:7u)];
-            if (grouped) [encoder setBuffer:groupCountBuffer offset:0 atIndex:9];
+            if (grouped) {
+                [encoder setBuffer:groupSpanBuffer offset:0 atIndex:9];
+                [encoder setBytes:&groupCount length:sizeof(groupCount) atIndex:11];
+            }
             [encoder dispatchThreads:MTLSizeMake(threads,1,1)
                 threadsPerThreadgroup:MTLSizeMake(8,1,1)];
             [encoder endEncoding];
         };
-        encodeGroupKernel(groupedPipeline,groupEnvs*groupSampleCount,true,
+        encodeGroupKernel(groupedPipeline,groupEnvs*groupCount,true,
                           groupedLoadBuffer);
         encodeGroupKernel(densePipeline,groupEnvs*groupNodeCount,false,
                           denseGroupLoadBuffer);
@@ -1651,7 +1656,7 @@ int main(int argc, const char* argv[]) {
         auto ccWrenchBuffer=dispatchBuffer(
             groupWrenches.data(),2u*sizeof(NMNumiHumanBodyWrenchGPU));
         auto ccGroupedPipeline=makePipeline(
-            @"nm_numi_human_assemble_fem_body_contact_loads_grouped");
+            @"nm_numi_human_assemble_fem_body_contact_loads_slave_ranges");
         auto ccWrenchPipeline=makePipeline(
             @"nm_numi_human_assemble_fem_body_contact_wrenches");
         auto ccGeneralizedPipeline=makePipeline(
@@ -1679,8 +1684,9 @@ int main(int argc, const char* argv[]) {
             [force setBuffer:groupedRangeBuffer offset:0 atIndex:5];
             [force setBuffer:groupTriangleBuffer offset:0 atIndex:6];
             [force setBuffer:groupBVHNodeBuffer offset:0 atIndex:8];
-            [force setBuffer:groupCountBuffer offset:0 atIndex:9];
-            [force dispatchThreads:MTLSizeMake(groupSampleCount,1,1)
+            [force setBuffer:groupSpanBuffer offset:0 atIndex:9];
+            [force setBytes:&groupCount length:sizeof(groupCount) atIndex:11];
+            [force dispatchThreads:MTLSizeMake(groupCount,1,1)
                 threadsPerThreadgroup:MTLSizeMake(4,1,1)];
             [force endEncoding];
             auto wrench=[command computeCommandEncoder];

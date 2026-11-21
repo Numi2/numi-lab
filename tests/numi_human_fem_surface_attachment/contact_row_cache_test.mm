@@ -26,8 +26,8 @@ int main(int argc,const char** argv){@autoreleasepool {
  auto validationOracle=pipeline("nm_numi_human_validate_fem_body_contact_samples");
  auto auditCached=pipeline("nm_numi_human_audit_fem_body_contact_partial_cached");
  auto wrenchCached=pipeline("nm_numi_human_fem_body_contact_wrench_partial_cached");
- auto forceDirect=pipeline("nm_numi_human_assemble_fem_body_contact_loads_grouped");
- auto forceCached=pipeline("nm_numi_human_assemble_fem_body_contact_loads_grouped_cached");
+ auto forceDirect=pipeline("nm_numi_human_assemble_fem_body_contact_loads_slave_ranges");
+ auto forceCached=pipeline("nm_numi_human_assemble_fem_body_contact_loads_slave_ranges_cached");
  double maxRelative=0,maxAbsolute=0,maxForceAbsolute=0,maxForceRelative=0;
  auto compareForces=[&](const auto& a,const auto& b){
   const float* x=reinterpret_cast<const float*>(a.data());const float* y=reinterpret_cast<const float*>(b.data());
@@ -133,14 +133,15 @@ int main(int argc,const char** argv){@autoreleasepool {
     for(unsigned j=0;j<8;++j){if(!std::isfinite(x[j])){require(!std::isfinite(y[j]),"cached invalid wrench retained");continue;}
      require(std::isfinite(y[j])&&std::abs(double(x[j])-y[j])<=1.e-6+.01*std::abs(double(x[j])),"cached wrench parity");}}
    if(count<=8193){
-    std::vector<unsigned> groups(std::max(count,1u),0u);
-    for(unsigned i=0;i<count;){unsigned end=i+1;while(end<count && samples[end].slaveNode==samples[i].slaveNode)++end;groups[i]=end-i;i=end;}
-    auto gb=buffer(groups.data(),groups.size()*sizeof(unsigned));
+    std::vector<NMIncidenceRangeGPU> groups;
+    for(unsigned i=0;i<count;){unsigned end=i+1;while(end<count && samples[end].slaveNode==samples[i].slaveNode)++end;groups.push_back({i,end-i,0u,0u});i=end;}
+    const unsigned groupCount=static_cast<unsigned>(groups.size());
+    auto gb=buffer(groups.data(),groups.size()*sizeof(groups[0]));
     auto forceOut=buffer(nullptr,6*sizeof(nm_float4));
     auto runForce=[&](bool cached){std::array<nm_float4,6> initial{};for(auto& v:initial)v=f4(.125f,-.25f,.5f,0);std::memcpy(forceOut.contents,initial.data(),sizeof(initial));
      auto cb=[q commandBuffer];if(cached)query(cb);auto e=[cb computeCommandEncoder];[e setComputePipelineState:cached?forceCached:forceDirect];
-     [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBuffer:sb offset:0 atIndex:1];[e setBuffer:nb offset:0 atIndex:2];[e setBuffer:pb offset:0 atIndex:3];[e setBuffer:forceOut offset:0 atIndex:4];[e setBuffer:dummy offset:0 atIndex:5];[e setBuffer:dummy offset:0 atIndex:6];[e setBuffer:bb offset:0 atIndex:8];[e setBuffer:gb offset:0 atIndex:9];if(cached)[e setBuffer:cache offset:0 atIndex:10];[e setBuffer:rb offset:0 atIndex:5];[e setBuffer:tb offset:0 atIndex:6];
-     if(count)[e dispatchThreads:MTLSizeMake(2*count,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];[e endEncoding];[cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"force GPU completion");std::array<nm_float4,6> result{};std::memcpy(result.data(),forceOut.contents,sizeof(result));return result;};
+     [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBuffer:sb offset:0 atIndex:1];[e setBuffer:nb offset:0 atIndex:2];[e setBuffer:pb offset:0 atIndex:3];[e setBuffer:forceOut offset:0 atIndex:4];[e setBuffer:dummy offset:0 atIndex:5];[e setBuffer:dummy offset:0 atIndex:6];[e setBuffer:bb offset:0 atIndex:8];[e setBuffer:gb offset:0 atIndex:9];if(cached)[e setBuffer:cache offset:0 atIndex:10];[e setBytes:&groupCount length:sizeof(groupCount) atIndex:11];[e setBuffer:rb offset:0 atIndex:5];[e setBuffer:tb offset:0 atIndex:6];
+     if(groupCount)[e dispatchThreads:MTLSizeMake(2*groupCount,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];[e endEncoding];[cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"force GPU completion");std::array<nm_float4,6> result{};std::memcpy(result.data(),forceOut.contents,sizeof(result));return result;};
     auto fd=runForce(false),fc=runForce(true);compareForces(fd,fc);
     // Mutate the accepted-node input, then rebuild scratch. A stale cache would fail.
     static_cast<NMFEMNodeStateGPU*>(nb.contents)[0].positionAndMass.x+=.017f;

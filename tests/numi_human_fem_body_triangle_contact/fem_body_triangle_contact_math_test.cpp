@@ -135,30 +135,35 @@ int main() {
     }
     std::vector<NMNumiHumanFEMBodyContactSampleGPU> groupedSamples;
     std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> groupedRanges;
-    std::vector<std::uint32_t> groupCounts;
+    std::vector<NMIncidenceRangeGPU> groupSpans;
     require(stableGroupRowsBySlave(multiSamples,groupRanges,groupedSamples,
-                groupedRanges,groupCounts),
+                groupedRanges,groupSpans),
             "stable grouping accepts aligned solver rows");
     const std::array<std::size_t,5> expectedOrder{{0u,2u,3u,1u,4u}};
-    const std::array<std::uint32_t,5> expectedCounts{{3u,0u,0u,2u,0u}};
+    require(groupSpans.size()==2u && groupSpans[0].first==0u &&
+                groupSpans[0].count==3u && groupSpans[1].first==3u &&
+                groupSpans[1].count==2u,
+            "only the two slave groups have output entries");
     for (std::size_t i=0;i<expectedOrder.size();++i) {
         const auto original=expectedOrder[i];
         require(groupedSamples[i].slaveNode==multiSamples[original].slaveNode &&
                 groupedSamples[i].bodyIndex==multiSamples[original].bodyIndex &&
                 groupedRanges[i].firstTriangle==groupRanges[original].firstTriangle &&
-                groupedRanges[i].triangleCount==groupRanges[original].triangleCount &&
-                groupCounts[i]==expectedCounts[i],
+                groupedRanges[i].triangleCount==groupRanges[original].triangleCount,
                 "stable group order keeps source row/range alignment and head spans");
     }
-    std::vector<std::uint32_t> contiguousCounts;
-    require(!numi::matter::fem_body_contact_grouping::contiguousSlaveGroupCounts(
-                multiSamples, contiguousCounts) && contiguousCounts.empty(),
+    std::vector<NMIncidenceRangeGPU> contiguousSpans;
+    require(!numi::matter::fem_body_contact_grouping::contiguousSlaveGroupRanges(
+                multiSamples, contiguousSpans) && contiguousSpans.empty(),
             "interleaved rows retain the stable grouping fallback");
-    require(numi::matter::fem_body_contact_grouping::contiguousSlaveGroupCounts(
-                groupedSamples, contiguousCounts) && contiguousCounts == groupCounts,
+    require(numi::matter::fem_body_contact_grouping::contiguousSlaveGroupRanges(
+                groupedSamples, contiguousSpans) &&
+                std::ranges::equal(contiguousSpans, groupSpans, [](const auto& a, const auto& b) {
+                    return a.first==b.first && a.count==b.count;
+                }),
             "already contiguous rows share exact stable-group head counts");
-    std::vector<std::uint32_t> emptyCounts;
-    require(numi::matter::fem_body_contact_grouping::contiguousSlaveGroupCounts({}, emptyCounts) && emptyCounts.empty(),
+    std::vector<NMIncidenceRangeGPU> emptySpans;
+    require(numi::matter::fem_body_contact_grouping::contiguousSlaveGroupRanges({}, emptySpans) && emptySpans.empty(),
             "empty group layout is valid");
     auto duplicateBody=multiSamples;
     duplicateBody[2].bodyIndex=multiSamples[0].bodyIndex;

@@ -8,6 +8,7 @@
 #include <limits>
 #include <span>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace numi::matter::fem_body_contact_grouping {
@@ -75,26 +76,26 @@ inline OwnershipReport validateDistinctBodyTriangleSlaves(
     return report;
 }
 
-// Detect an already grouped layout without copying its large immutable rows.
-// Failure leaves counts empty so the general stable grouping can own fallback.
-inline bool contiguousSlaveGroupCounts(
+// Reuse an already grouped layout without copying the immutable contact rows.
+// Output one range per slave, in first-appearance order.
+inline bool contiguousSlaveGroupRanges(
     std::span<const NMNumiHumanFEMBodyContactSampleGPU> samples,
-    std::vector<std::uint32_t>& counts
+    std::vector<NMIncidenceRangeGPU>& ranges
 ) {
-    if (!counts.empty() || samples.size() > std::numeric_limits<std::uint32_t>::max())
+    if (!ranges.empty() || samples.size() > std::numeric_limits<std::uint32_t>::max())
         return false;
-    std::unordered_map<std::uint32_t, std::size_t> heads;
-    for (std::size_t i = 0; i < samples.size(); ++i) {
-        if (i == 0 || samples[i].slaveNode != samples[i-1].slaveNode) {
-            if (!heads.emplace(samples[i].slaveNode, i).second) return false;
+    std::unordered_set<std::uint32_t> seen;
+    for (std::size_t first = 0; first < samples.size();) {
+        const auto slave = samples[first].slaveNode;
+        if (!seen.insert(slave).second) {
+            ranges.clear();
+            return false;
         }
-    }
-    counts.assign(samples.size(), 0u);
-    for (std::size_t head = 0; head < samples.size();) {
-        std::size_t end = head + 1;
-        while (end < samples.size() && samples[end].slaveNode == samples[head].slaveNode) ++end;
-        counts[head] = static_cast<std::uint32_t>(end - head);
-        head = end;
+        std::size_t end = first + 1;
+        while (end < samples.size() && samples[end].slaveNode == slave) ++end;
+        ranges.push_back({static_cast<std::uint32_t>(first),
+                          static_cast<std::uint32_t>(end - first), 0u, 0u});
+        first = end;
     }
     return true;
 }
@@ -102,23 +103,21 @@ inline bool contiguousSlaveGroupCounts(
 // Deterministic sample-domain layout for the grouped force kernel. Group order
 // follows first appearance of each slave; rows within a group retain original
 // order. Ranges move with samples, while firstTriangle remains an index into
-// the shared unchanged triangle buffer. Only each group head has a nonzero
-// span count; non-head rows are zero.
+// the shared unchanged triangle buffer. Each range indexes one complete group.
 inline bool stableGroupRowsBySlave(
     std::span<const NMNumiHumanFEMBodyContactSampleGPU> samples,
     std::span<const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> ranges,
     std::vector<NMNumiHumanFEMBodyContactSampleGPU>& groupedSamples,
     std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>& groupedRanges,
-    std::vector<std::uint32_t>& groupCounts
+    std::vector<NMIncidenceRangeGPU>& groupRanges
 ) {
     if ((!ranges.empty() && ranges.size() != samples.size()) ||
         !groupedSamples.empty() || !groupedRanges.empty() ||
-        !groupCounts.empty() ||
+        !groupRanges.empty() ||
         samples.size() > std::numeric_limits<std::uint32_t>::max())
         return false;
     std::unordered_map<std::uint32_t, std::size_t> groupForSlave;
     std::vector<std::vector<std::size_t>> groups;
-    groups.reserve(samples.size());
     for (std::size_t row = 0u; row < samples.size(); ++row) {
         const auto slave = samples[row].slaveNode;
         auto found = groupForSlave.find(slave);
@@ -132,20 +131,19 @@ inline bool stableGroupRowsBySlave(
     }
     groupedSamples.reserve(samples.size());
     if (!ranges.empty()) groupedRanges.reserve(ranges.size());
-    groupCounts.reserve(samples.size());
+    groupRanges.reserve(groups.size());
     for (const auto& group : groups) {
         if (group.empty() || group.size() >
                 std::numeric_limits<std::uint32_t>::max()) return false;
-        const auto span = static_cast<std::uint32_t>(group.size());
+        groupRanges.push_back({static_cast<std::uint32_t>(groupedSamples.size()),
+                               static_cast<std::uint32_t>(group.size()), 0u, 0u});
         for (std::size_t local = 0u; local < group.size(); ++local) {
             const auto sourceRow = group[local];
             groupedSamples.push_back(samples[sourceRow]);
             if (!ranges.empty()) groupedRanges.push_back(ranges[sourceRow]);
-            groupCounts.push_back(local == 0u ? span : 0u);
         }
     }
     return groupedSamples.size() == samples.size() &&
-        groupCounts.size() == samples.size() &&
         (ranges.empty() || groupedRanges.size() == ranges.size());
 }
 
