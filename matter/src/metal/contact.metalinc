@@ -14053,6 +14053,9 @@ inline bool nmReferenceContactPolynomialPrefixSeparated(
     return true;
 }
 
+// Whole-sweep callers only consume proof of separation over [0, 1].
+// Restrict fractional prefix searches to line search callers that use them.
+template<bool allowPartial=true>
 inline float nmReferenceContactSweepFraction(
     uint kind,thread const MRCompensatedPositionGPU* start,
     thread const MRCompensatedPositionGPU* finish,float3 normal,float clearance) {
@@ -14066,6 +14069,7 @@ inline float nmReferenceContactSweepFraction(
     if(fraction>0.0f && fraction<1.0f) {
         if(nmReferenceContactPolynomialPrefixSeparated(kind,start,finish,normal,clearance,1.0f))
             return 1.0f;
+        if constexpr (!allowPartial)return 0.0f;
         // A real closing sweep must not force a needlessly tiny global step
         // merely because no fixed plane tracks its rotating feature. Each
         // returned dyadic prefix is certified over its ENTIRE time interval.
@@ -14183,7 +14187,7 @@ inline bool nmReferenceUnresolvedSweepSeparated(
             closestPointsOnSegments(p[0],p[1],p[2],p[3],u,v,a,b);direction=a-b;
         } else if(kind==NM_DEFORMABLE_CONTACT_POINT_POINT)direction=p[0]-p[1];
         else return false;
-        if(nmReferenceContactSweepFraction(kind,start,finish,direction,thickness)==1.0f)
+        if(nmReferenceContactSweepFraction<false>(kind,start,finish,direction,thickness)==1.0f)
             return true;
         if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
             // Endpoint/edge Voronoi regions need a point/segment axis rather
@@ -15155,7 +15159,7 @@ inline void nmContactLimitDeformableLineSearch(
                     uint trialShortenedRetries = 0u;
                     const bool planeTrialClear=referenceModeContact &&
                         (collisionGapEnabled & 2u)!=0u &&
-                        nmReferenceContactSweepFraction(contact.identity.z,
+                        nmReferenceContactSweepFraction<false>(contact.identity.z,
                             featurePotentialPosition,trialPotentialPosition,
                             contact.normalAndTOI.xyz,referenceClearance)==1.0f;
                     bool trialHit=false;
