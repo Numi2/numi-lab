@@ -4586,6 +4586,8 @@ public:
                 <<" stable_id="<<found->identity.w<<" local_triangle="<<failure.surfaceTriangleKind.y;
             require(false,message.str());
         }
+        require(wallCorrection.w==0,"accepted ventricular material volume closure failed");
+        require(skinAudit.w==0&&skinAudit.z==0,"accepted full skin intersects the bed beyond the 1 mm inspection tolerance");
         if(captureThisFrame) {
             NSDictionary* surfaceAuditOutcome=@{
                 @"schema":@"numi.human.accepted_surface_audit.v1",
@@ -4597,8 +4599,6 @@ public:
                 captureTimestampMicroseconds,surfaceAuditOutcome);
             captureThisFrame=false;
         }
-        require(wallCorrection.w==0,"accepted ventricular material volume closure failed");
-        require(skinAudit.w==0&&skinAudit.z==0,"accepted full skin intersects the bed beyond the 1 mm inspection tolerance");
         std::ostringstream metrics;metrics<<std::fixed<<std::setprecision(2)<<"Accepted time "<<time<<" s  |  "<<time/std::max(.001,CACurrentMediaTime()-wallOrigin)<<" x real time  |  breaths "<<p.status.y<<"  beats "<<p.cardiacStatus.x<<"\n"
             <<"Lung "<<p.mechanics.x*1e3<<" L  Airflow "<<p.mechanics.w*1e3<<" L/s  Pleural "<<p.mechanics.z/98.0665<<" cmH2O  Muscle activation "
             <<p.muscles[0].excitationAndActivation.y<<" / "<<p.muscles[1].excitationAndActivation.y<<"\n"
