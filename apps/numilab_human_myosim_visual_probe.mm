@@ -38477,6 +38477,9 @@ int main(int argc, char** argv) {
                         "NUMI_HUMAN_RESTING_PASSIVE_FASCIA must be 0 or 1");
                 const bool restingPassiveFasciaEnabled=passiveFasciaSetting&&
                     std::strcmp(passiveFasciaSetting,"1")==0;
+                require(!restingRegisteredLigaments ||
+                            (restingPassiveFasciaEnabled && pectoralisFasciaPayload.has_value()),
+                        "registered resting ligaments require the active fascia tissue owner and its source payload");
                 const char* skinFatFEMSetting=
                     std::getenv("NUMI_HUMAN_RESTING_SKIN_FAT_FEM");
                 require(skinFatFEMSetting==nullptr||
