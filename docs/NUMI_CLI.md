@@ -37,20 +37,30 @@ The first executable with the requested name wins. A custom capability only
 needs to implement normal command-line behavior and may optionally answer
 `--numi-describe` with a one-line description for `numi context`.
 
-`numi window` is the workspace's one-command live renderer. It builds an
-isolated presentation runtime, finds the saved authored scene, and opens an
-`MTKView` preview of environment zero:
+Run the native viewer from a Numi Lab source checkout:
 
 ```sh
-numi window
+./tools/numi window
 ```
 
-The first setup only needs an authored `numi.visual-observation.v1` file:
-place or link it at `.numi/window.visual-observation.json`. Subsequent preview
-runs need no executable, metallib, scene, or display flags. The preview uses a
-GPU-private three-slot ring and drops stale frames rather than delaying the
-native rollout; closing the window ends that preview run. See
-`numi window --help` for scene discovery and optional rollout overrides.
+On a clean checkout the bundled X500 hover scene runs with the native
+simulation and a simplified authored model. The expanded research catalog
+is generated when all optional Unitree, Franka, Numifly, and X500 inputs
+are present. Point `NUMI_WINDOW_ASSET_ROOT` at the asset tree when it lives
+elsewhere.
+
+To use a separate workspace, create a `.numi` directory there and launch the
+checkout's `tools/numi` from that workspace. The build is cached under
+`.numi/build/window` and the built-in scene
+catalog under `.numi/runs` in the workspace, which can also hold your own
+scene entries and policies. `NUMI_WINDOW_SCENE_CATALOG` selects an existing
+custom catalog. `NUMI_WINDOW_SCENE` or `--window-scene` opens a specific
+authored visual-observation file.
+
+The viewer presents accepted native state in an `MTKView` and drops stale
+frames when the render loop falls behind. Closing the window ends the
+simulation. `numi window --check` exercises live presentation and recovery
+from an invalid scene request. `numi window --help` lists the overrides.
 
 Motion imagination is another discovered capability. It executes a provider
 without giving that provider authority over robot actions or physical truth:

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot name="px4_x500_starter">
+  <!-- Simplified presentation bound to the existing X500 body. -->
+  <material name="body"><color rgba="0.91 0.47 0.19 1"/></material>
+  <material name="frame"><color rgba="0.33 0.37 0.44 1"/></material>
+  <material name="blade"><color rgba="0.63 0.68 0.75 1"/></material>
+  <link name="x500_base">
+    <visual>
+      <geometry><mesh filename="body.stl"/></geometry>
+      <material name="body"/>
+    </visual>
+    <visual>
+      <origin xyz="0 0 0.015" rpy="0 0 0.785398"/>
+      <geometry><mesh filename="arm.stl"/></geometry>
+      <material name="frame"/>
+    </visual>
+    <visual>
+      <origin xyz="0 0 0.015" rpy="0 0 -0.785398"/>
+      <geometry><mesh filename="arm.stl"/></geometry>
+      <material name="frame"/>
+    </visual>
+    <visual>
+      <origin xyz="0.174 -0.174 0.04"/>
+      <geometry><mesh filename="blade.stl"/></geometry>
+      <material name="blade"/>
+    </visual>
+    <visual>
+      <origin xyz="-0.174 0.174 0.04"/>
+      <geometry><mesh filename="blade.stl"/></geometry>
+      <material name="blade"/>
+    </visual>
+    <visual>
+      <origin xyz="0.174 0.174 0.04"/>
+      <geometry><mesh filename="blade.stl"/></geometry>
+      <material name="blade"/>
+    </visual>
+    <visual>
+      <origin xyz="-0.174 -0.174 0.04"/>
+      <geometry><mesh filename="blade.stl"/></geometry>
+      <material name="blade"/>
+    </visual>
+  </link>
+</robot>
