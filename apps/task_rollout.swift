@@ -1419,8 +1419,10 @@ private enum TaskRolloutMain {
         window: NumiWindowBridge
     ) throws -> WindowTrainingResult {
         let fileManager = FileManager.default
+        let inheritedEnvironment = ProcessInfo.processInfo.environment
         let workspace = URL(
-            fileURLWithPath: fileManager.currentDirectoryPath,
+            fileURLWithPath: inheritedEnvironment["NUMI_WORKSPACE_ROOT"] ??
+                fileManager.currentDirectoryPath,
             isDirectory: true
         )
         let stamp = ISO8601DateFormatter().string(from: Date())
@@ -1440,7 +1442,7 @@ private enum TaskRolloutMain {
             withIntermediateDirectories: true
         )
 
-        var arguments = ["numi", "train"] + request.trainingArguments
+        var arguments = ["train"] + request.trainingArguments
         arguments += [
             "--envs", String(request.environments),
             "--steps", String(request.stepsPerUpdate),
@@ -1463,16 +1465,23 @@ private enum TaskRolloutMain {
             arguments += ["--initialize-policy", identifier]
         }
 
-        var environment = ProcessInfo.processInfo.environment
+        var environment = inheritedEnvironment
         environment["NUMI_RUN_DIR"] = runDirectory.path
-        environment["NUMI_BUILD_DIR"] = workspace
-            .appendingPathComponent(".numi/window-build", isDirectory: true)
-            .path
+        environment["NUMI_BUILD_DIR"] = environment["NUMI_WINDOW_BUILD_DIR"] ??
+            workspace.appendingPathComponent(".numi/build/window").path
         environment["NUMI_SELECTION_ENVS"] = String(
             min(32, request.environments)
         )
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+        let dispatcher = environment["NUMI_LAB_ROOT"].map {
+            URL(fileURLWithPath: $0).appendingPathComponent("tools/numi")
+        }
+        if let dispatcher, fileManager.isExecutableFile(atPath: dispatcher.path) {
+            process.executableURL = dispatcher
+        } else {
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+            arguments.insert("numi", at: 0)
+        }
         process.arguments = arguments
         process.environment = environment
         process.currentDirectoryURL = workspace

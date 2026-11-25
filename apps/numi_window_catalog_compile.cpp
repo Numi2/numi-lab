@@ -11,6 +11,7 @@
 #include <cmath>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <set>
@@ -27,13 +28,16 @@ using metalrobo::EngineModel;
 struct Arguments {
     std::filesystem::path workspace;
     std::filesystem::path output;
+    bool starter = false;
 };
 
 Arguments arguments(const int argc, const char* const* argv) {
     Arguments result;
     for (int index = 1; index < argc; ++index) {
         const std::string_view option{argv[index]};
-        if (option == "--workspace" || option == "--output") {
+        if (option == "--starter") {
+            result.starter = true;
+        } else if (option == "--workspace" || option == "--output") {
             if (++index == argc) {
                 throw std::invalid_argument("missing value for " +
                     std::string{option});
@@ -785,7 +789,7 @@ void scene(
            << "  \"arguments\": [";
     for (std::size_t index = 0u; index < arguments.size(); ++index) {
         stream << (index == 0u ? "\n    " : ",\n    ")
-               << "\"" << arguments[index] << "\"";
+               << std::quoted(arguments[index]);
     }
     stream << "\n  ]";
     if (!trainingArguments.empty()) {
@@ -793,11 +797,35 @@ void scene(
         for (std::size_t index = 0u;
              index < trainingArguments.size(); ++index) {
             stream << (index == 0u ? "\n    " : ",\n    ")
-                   << "\"" << trainingArguments[index] << "\"";
+                   << std::quoted(trainingArguments[index]);
         }
         stream << "\n  ]";
     }
     stream << "\n}\n";
+    stream.close();
+    if (!stream) {
+        throw std::runtime_error("could not publish window scene " + id);
+    }
+}
+
+void writeCatalogVersion(
+    const std::filesystem::path& output,
+    const std::string_view version
+) {
+    std::ofstream stream{output / "catalog.version"};
+    stream << version << '\n';
+    stream.close();
+    if (!stream) {
+        throw std::runtime_error("could not publish catalog version");
+    }
+}
+
+void writeX500HoverScene(const std::filesystem::path& output) {
+    scene(output, "px4-x500-hover", "px4-x500", "PX4 X500 Drone",
+        "flight-area", "Flight Test Area", "hover", "Hover",
+        "px4-x500-visual-observation.json",
+        {"--robot-source", "px4-x500", "--scene", "ground",
+         "--zero-actions"});
 }
 
 } // namespace
@@ -806,6 +834,7 @@ int main(const int argc, const char* const* argv) {
     try {
         const Arguments options = arguments(argc, argv);
         std::filesystem::create_directories(options.output);
+        std::filesystem::remove(options.output / "catalog.version");
         for (const auto& entry :
              std::filesystem::directory_iterator(options.output)) {
             if (entry.is_regular_file() &&
@@ -816,6 +845,22 @@ int main(const int argc, const char* const* argv) {
         }
         constexpr std::array<float, 4u> cameraQ{{
             -0.73858354f, -0.26102070f, 0.20711737f, 0.58605883f}};
+
+        const auto px4Pack = metalrobo::builtinRobotPack("px4_x500");
+        if (!px4Pack.has_value()) {
+            throw std::runtime_error("PX4 X500 built-in robot is unavailable");
+        }
+        if (options.starter) {
+            const auto urdf = options.workspace /
+                "assets/window/px4-x500-starter.urdf";
+            cookPresentation(urdf, px4Pack->mechanics, "px4-x500", "x500_base",
+                options.output, {0.48f, -0.64f, 0.23f}, cameraQ);
+            writeX500HoverScene(options.output);
+            writeCatalogVersion(options.output, "starter-1");
+            std::cout << "wrote Numi Window starter catalog "
+                      << options.output << '\n';
+            return 0;
+        }
 
         const EngineModel g1 = metalrobo::makeUnitreeG1EngineModel();
         const auto g1Source = options.workspace /
@@ -879,6 +924,8 @@ int main(const int argc, const char* const* argv) {
 
         const auto numiflyWingDirectory = options.workspace /
             "assets/numifly/maeda-wing-pack-v1";
+        const auto wingManifest = std::filesystem::relative(
+            numiflyWingDirectory / "manifest.json", options.output).string();
         const auto numiflyPack = metalrobo::makeNumiflyRobotPack(
             metalrobo::loadNumiflyMaedaWingPack(
                 numiflyWingDirectory / "manifest.json"));
@@ -909,11 +956,11 @@ int main(const int argc, const char* const* argv) {
             "numifly-ground-visual-observation.json",
             {"--robot-source", "numifly", "--scene", "ground",
              "--task", "numifly-flight", "--numifly-wing-manifest",
-             "assets/numifly/maeda-wing-pack-v1/manifest.json",
+             wingManifest,
              "--zero-actions"},
             {"--scene", "ground", "--task", "numifly-flight",
              "--numifly-wing-manifest",
-             "assets/numifly/maeda-wing-pack-v1/manifest.json"});
+             wingManifest});
         scene(
             options.output,
             "numifly-ground-forward-flight",
@@ -923,11 +970,11 @@ int main(const int argc, const char* const* argv) {
             "numifly-ground-visual-observation.json",
             {"--robot-source", "numifly-forward-flight", "--scene", "ground",
              "--task", "numifly-forward-flight", "--numifly-wing-manifest",
-             "assets/numifly/maeda-wing-pack-v1/manifest.json",
+             wingManifest,
              "--zero-actions"},
             {"--scene", "ground", "--task", "numifly-forward-flight",
              "--numifly-wing-manifest",
-             "assets/numifly/maeda-wing-pack-v1/manifest.json"});
+             wingManifest});
 
         const auto numiflyNoLegsPack =
             metalrobo::makeNumiflyNoLegsRobotPack(
@@ -962,11 +1009,11 @@ int main(const int argc, const char* const* argv) {
             {"--robot-source", "numifly-no-legs", "--scene", "ground",
              "--task", "numifly-no-legs-flight",
              "--numifly-wing-manifest",
-             "assets/numifly/maeda-wing-pack-v1/manifest.json",
+             wingManifest,
              "--zero-actions"},
             {"--scene", "ground", "--task",
              "numifly-no-legs-flight", "--numifly-wing-manifest",
-             "assets/numifly/maeda-wing-pack-v1/manifest.json"});
+             wingManifest});
 
         const EngineModel franka = metalrobo::makeFrankaPickPlaceEngineModel();
         const auto frankaMeshes = options.workspace /
@@ -994,10 +1041,6 @@ int main(const int argc, const char* const* argv) {
             {"--robot-source", "franka-panda", "--scene", "ground",
              "--zero-actions"});
 
-        const auto px4Pack = metalrobo::builtinRobotPack("px4_x500");
-        if (!px4Pack.has_value()) {
-            throw std::runtime_error("PX4 X500 built-in robot is unavailable");
-        }
         const auto px4Meshes = options.workspace /
             ".numi/runs/px4-x500-source/source/models/x500_base/meshes";
         const auto px4URDF = options.output / "px4-x500-visual.urdf";
@@ -1005,11 +1048,7 @@ int main(const int argc, const char* const* argv) {
             px4Meshes / "1345_prop_ccw.stl");
         cookPresentation(px4URDF, px4Pack->mechanics, "px4-x500", "x500_base",
             options.output, {0.35f, -0.46f, 0.16f}, cameraQ);
-        scene(options.output, "px4-x500-hover", "px4-x500", "PX4 X500 Drone",
-            "flight-area", "Flight Test Area", "hover", "Hover Task",
-            "px4-x500-visual-observation.json",
-            {"--robot-source", "px4-x500", "--scene", "ground",
-             "--zero-actions"});
+        writeX500HoverScene(options.output);
         scene(options.output, "px4-x500-motor-sweep", "px4-x500",
             "PX4 X500 Drone", "flight-area", "Flight Test Area",
             "motor-sweep", "Motor Sweep",
@@ -1017,13 +1056,7 @@ int main(const int argc, const char* const* argv) {
             {"--robot-source", "px4-x500", "--scene", "ground",
              "--zero-actions"});
 
-        {
-            std::ofstream version{options.output / "catalog.version"};
-            version << "7\n";
-            if (!version) {
-                throw std::runtime_error("could not publish catalog version");
-            }
-        }
+        writeCatalogVersion(options.output, "10");
         std::cout << "wrote Numi Window built-in catalog "
                   << options.output << '\n';
     } catch (const std::exception& error) {

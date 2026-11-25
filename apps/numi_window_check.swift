@@ -66,7 +66,8 @@ private func writeScene(
         "task_id": "hold",
         "task_name": "Hold",
         "visual_observation": visual.path,
-        "arguments": ["--zero-actions"],
+        "arguments": ["--zero-actions", "--numifly-wing-manifest", "wing.json"],
+        "training_arguments": ["--numifly-wing-manifest", "wing.json"],
         "available": true,
     ]
     try JSONSerialization.data(withJSONObject: record).write(to: url)
@@ -152,6 +153,18 @@ private enum NumiWindowCheck {
         )
         let scenes = numiWindowSceneChoices(in: root)
         try require(scenes.count == 2, "scene catalog recursively scanned run evidence")
+        guard let childScene = scenes.first(where: { $0.id == "child-scene" }),
+              let previewPath = childScene.launchArguments.last,
+              let trainingPath = childScene.trainingArguments.last else {
+            throw WindowCheckError.failed("child scene is missing its wing paths")
+        }
+        let wing = child.appendingPathComponent("wing.json")
+        try Data().write(to: wing)
+        let wingPath = wing.resolvingSymlinksInPath().path
+        try require(URL(fileURLWithPath: previewPath).resolvingSymlinksInPath().path == wingPath,
+                    "preview wing path did not resolve relative to its scene")
+        try require(URL(fileURLWithPath: trainingPath).resolvingSymlinksInPath().path == wingPath,
+                    "training wing path did not resolve relative to its scene")
         print("numi_window_check passed policies=\(policies.count) scenes=\(scenes.count)")
     }
 }

@@ -13,7 +13,8 @@ Usage: numi window [rollout options...]
        numi window --check
        numi window add booster-k1 --source BOOSTER_ASSETS [--output DIR]
 
-Open the single native Numi UX for learning robotics. Robot chooses the
+Open a live simulation with the bundled X500 hover scene. A source checkout
+and the Apple Silicon build tools are required. Robot chooses the
 machine, Environment chooses the visible physical world, Task chooses what
 the robot practices, and Policy chooses learned behavior. Environment or Task
 changes never choose a policy. The live run is rebuilt at a rollout boundary.
@@ -27,13 +28,16 @@ owns Metal, shows live progress, and evaluates balance before offering a result
 as learned behavior. Falling experiments remain inspectable but are not loaded.
 Every run keeps its logs, evidence, and policy artifacts.
 
-`--check` runs the bounded catalog/contract check, then cycles several real
-robot worlds, one compatible policy, rejection recovery, presentation, and
-close through the native window transaction path.
+`--check` checks the catalog and opens the native viewer to test live
+presentation, rejection recovery, and close. It also exercises additional
+robot worlds and a compatible policy when they are available.
 
-Most users only need:
+From a Numi Lab checkout:
 
-  numi window
+  ./tools/numi window
+
+To use a separate workspace, create a .numi directory there and invoke the
+checkout's tools/numi from it. That workspace holds the build and scenes.
 
 Robot and scene discovery, in order:
 
@@ -73,6 +77,7 @@ Optional environment overrides:
   NUMI_WINDOW_SCENE_CATALOG robot/scene catalog root, default .numi/runs
   NUMI_WINDOW_POLICY      PolicyPack to load and refresh with Latest Policy
   NUMI_WINDOW_POLICY_CATALOG  default .numi/policies, grouped by robot folder
+  NUMI_WINDOW_ASSET_ROOT  checkout with optional research meshes, default Numi Lab
   NUMI_WINDOW_BUILD_DIR   isolated CMake build directory
   NUMI_WINDOW_BUILD_TYPE  default Release
   NUMI_WINDOW_WIDTH       default 960
@@ -105,9 +110,20 @@ window_option_value() {
 }
 
 window_workspace=${NUMI_WORKSPACE_ROOT:?Run this capability through numi.}
-window_build=${NUMI_WINDOW_BUILD_DIR:-"$window_workspace/.numi/window-build"}
+window_source=${NUMI_LAB_ROOT:?Run this capability through numi.}
+[ -f "$window_source/CMakeLists.txt" ] || {
+    printf '%s\n' "numi window: run tools/numi from a Numi Lab source checkout." >&2
+    exit 2
+}
+window_build=${NUMI_WINDOW_BUILD_DIR:-"$window_workspace/.numi/build/window"}
+case "$window_build" in
+    /*) ;;
+    *) window_build=$PWD/$window_build ;;
+esac
+export NUMI_WINDOW_BUILD_DIR="$window_build"
 window_scene=${NUMI_WINDOW_SCENE:-}
 window_policy=${NUMI_WINDOW_POLICY:-}
+window_custom_catalog=${NUMI_WINDOW_SCENE_CATALOG:-}
 export NUMI_WINDOW_POLICY_CATALOG=${NUMI_WINDOW_POLICY_CATALOG:-"$window_workspace/.numi/policies"}
 export NUMI_WINDOW_SCENE_CATALOG=${NUMI_WINDOW_SCENE_CATALOG:-"$window_workspace/.numi/runs"}
 window_catalog_default=0
@@ -116,23 +132,6 @@ window_runtime_check=0
 if [ "${1:-}" = "--check" ]; then
     window_runtime_check=1
     shift
-fi
-
-window_builtin_catalog="$window_workspace/.numi/runs/numi-window-builtins"
-window_builtin_catalog_version=$(cat "$window_builtin_catalog/catalog.version" 2>/dev/null || true)
-if [ "$window_builtin_catalog_version" != "9" ] ||
-   [ ! -f "$window_builtin_catalog/unitree-g1-ground-velocity.numi-window.json" ] ||
-   [ ! -f "$window_builtin_catalog/numifly-ground-flight.numi-window.json" ] ||
-   [ ! -f "$window_builtin_catalog/numifly-ground-forward-flight.numi-window.json" ] ||
-   [ ! -f "$window_builtin_catalog/numifly-no-legs-ground-flight.numi-window.json" ] ||
-   [ ! -f "$window_builtin_catalog/franka-pick-place.numi-window.json" ] ||
-   [ ! -f "$window_builtin_catalog/px4-x500-hover.numi-window.json" ]; then
-    cmake -S "$window_workspace" -B "$window_build" \
-        -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
-    cmake --build "$window_build" \
-        --target metalrobo_numi_window_catalog_compile -j 4
-    "$window_build/bin/metalrobo_numi_window_catalog_compile" \
-        --workspace "$window_workspace" --output "$window_builtin_catalog"
 fi
 
 if [ "${1:-}" = "add" ]; then
@@ -155,11 +154,41 @@ if [ "${1:-}" = "add" ]; then
         printf '%s\n' "numi window: add booster-k1 requires --source" >&2
         exit 2
     }
-    cmake -S "$window_workspace" -B "$window_build" \
+    cmake -S "$window_source" -B "$window_build" \
         -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
     cmake --build "$window_build" --target metalrobo_booster_k1_compile -j 4
     exec "$window_build/bin/metalrobo_booster_k1_compile" \
         --source "$window_add_source" --output "$window_add_output"
+fi
+
+cmake -S "$window_source" -B "$window_build" \
+    -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
+
+if [ -z "$window_custom_catalog" ]; then
+    window_catalog="$NUMI_WINDOW_SCENE_CATALOG/numi-window-builtins"
+    window_assets=${NUMI_WINDOW_ASSET_ROOT:-"$window_source"}
+    window_propellers="$window_assets/.numi/runs/px4-x500-source/source/models/x500_base/meshes"
+    window_catalog_mode=--starter
+    window_catalog_version=starter-1
+    if [ -f "$window_assets/build/unitree_ros/robots/g1_description/g1_29dof.urdf" ] &&
+       [ -f "$window_assets/build/franka_description/meshes/robots/fer/collision/hand.stl" ] &&
+       [ -f "$window_assets/assets/numifly/maeda-wing-pack-v1/manifest.json" ] &&
+       [ -f "$window_propellers/1345_prop_cw.stl" ] &&
+       [ -f "$window_propellers/1345_prop_ccw.stl" ]; then
+        window_catalog_mode=
+        window_catalog_version=10
+    else
+        window_assets=$window_source
+    fi
+    if [ "$(cat "$window_catalog/catalog.version" 2>/dev/null || true)" != "$window_catalog_version" ] ||
+       [ ! -f "$window_catalog/px4-x500-hover.numi-window.json" ] ||
+       [ ! -f "$window_catalog/px4-x500-visual-observation.json" ]; then
+        cmake --build "$window_build" \
+            --target metalrobo_numi_window_catalog_compile -j 4
+        "$window_build/bin/metalrobo_numi_window_catalog_compile" \
+            --workspace "$window_assets" --output "$window_catalog" \
+            ${window_catalog_mode:+"$window_catalog_mode"}
+    fi
 fi
 
 if [ -z "$window_scene" ] && [ "$window_catalog_default" -eq 0 ]; then
@@ -216,8 +245,6 @@ if [ -n "$window_policy" ] && [ ! -f "$window_policy" ]; then
     exit 2
 fi
 
-cmake -S "$window_workspace" -B "$window_build" \
-    -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
 if [ "$window_runtime_check" -eq 1 ]; then
     cmake --build "$window_build" --target \
         metalrobo_task_rollout metalrobo_task_train \

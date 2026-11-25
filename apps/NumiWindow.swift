@@ -245,7 +245,7 @@ private let numiWindowPathOptions: Set<String> = [
     "--urdf", "--srdf", "--world-pack", "--task-pack",
     "--robot-actuator-pack", "--sensor-program-pack",
     "--reality-program-pack", "--interaction-pack", "--policy-pack",
-    "--action-stream", "--dove-manifest",
+    "--action-stream", "--dove-manifest", "--numifly-wing-manifest",
 ]
 
 private func numiWindowResolvedArguments(

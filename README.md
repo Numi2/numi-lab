@@ -28,6 +28,21 @@ same compiled native physics path.
 
 [Numi Lab branch history and recovery](docs/branch-history/README.md)
 
+## Run your first simulation on Mac
+
+From an Apple Silicon Mac with Xcode and the build prerequisites, run this
+from the Numi Lab source checkout:
+
+```sh
+./tools/numi window
+```
+
+The first launch builds the native viewer and prepares the Metal pipelines.
+It opens the bundled X500 hover scene without a model download or policy
+setup. Pause or resume in the toolbar and close the window to stop the run.
+To check live Metal presentation, run `./tools/numi window --check`.
+[Window options](docs/NUMI_CLI.md)
+
 ## Platform scope
 
 - **Physics:** rigid bodies, floating and fixed articulations, coupled contact,

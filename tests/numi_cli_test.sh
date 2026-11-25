@@ -82,6 +82,13 @@ numi_context=$(
 printf '%s\n' "$numi_context" | grep 'Workspace override.' >/dev/null
 printf '%s\n' "$numi_context" | grep 'Extra capability.' >/dev/null
 
+numi_window_help=$(
+    cd "$numi_temp/workspace"
+    "$numi_repo/tools/numi" window --help
+)
+printf '%s\n' "$numi_window_help" | grep 'bundled X500 hover scene' >/dev/null
+test ! -e "$numi_temp/workspace/.numi/build"
+
 numi_train=$(
     cd "$numi_temp/workspace"
     NUMI_LAB_ROOT=$numi_repo \
