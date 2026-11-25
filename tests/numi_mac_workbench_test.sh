@@ -61,7 +61,7 @@ sed '/<geom name="pedestal_sphere"/i\
 ' "$repo/tests/fixtures/workbench_mjcf_contact.xml" > "$work/moving-parent.xml"
 "$compiler" --mjcf "$work/moving-parent.xml" --effort 0 \
     --output "$work/moving-parent.numiproject" --metallib "$library"
-PYTHONPATH="$repo/python${PYTHONPATH:+:$PYTHONPATH}" python3 - "$work" "$rollout" "$library" <<'PY'
+PYTHONPATH="$repo/python/metalrobo" python3 - "$work" "$rollout" "$library" <<'PY'
 import csv
 import hashlib
 from pathlib import Path
@@ -69,7 +69,9 @@ import struct
 import subprocess
 import sys
 
-from metalrobo.experiment import Experiment
+# The experiment wrapper is standard-library-only. Load it independently of
+# the optional installed scientific stack when checking the packaged app.
+from experiment import Experiment
 
 work, rollout, library = map(Path, sys.argv[1:])
 
