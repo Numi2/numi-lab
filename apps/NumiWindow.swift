@@ -1193,7 +1193,6 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
                             self.configureRobotSelector(selector)
                         }
                     }
-                    if self.paused { self.togglePause() }
                     self.requestScene(scene)
                 } catch {
                     guard !self.closed else { return }
@@ -1884,6 +1883,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         guard !reconfiguring else {
             return
         }
+        if paused { togglePause() }
         reconfiguring = true
         stateLabel.stringValue = "Waiting for the new scene…"
         let robotChanged = activeRobotID != choice.robotID
