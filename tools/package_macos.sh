@@ -18,7 +18,7 @@ fi
 
 mkdir -p "$1"
 output=$(CDPATH= cd "$1" && pwd -P)
-stage=$(mktemp -d "$output/.numi-macos.XXXXXX")
+stage=$(mktemp -d "${TMPDIR:-/tmp}/numi-macos.XXXXXX")
 trap 'rm -rf "$stage"' EXIT
 trap 'exit 1' HUP INT TERM
 
