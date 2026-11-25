@@ -41,4 +41,8 @@ jobs:
           build/bin/metalrobo_numi_window_check
           build/bin/metalrobo_robot_description_cooker_probe
           ctest --test-dir build --output-on-failure
-          bash tests/numi_cli_test.sh
+      - name: Exercise CLI and training dispatch
+        run: |
+          python3 -m venv "$RUNNER_TEMP/numi-cli"
+          "$RUNNER_TEMP/numi-cli/bin/python" -m pip install mlx==0.32.5
+          NUMI_MLX_PYTHON="$RUNNER_TEMP/numi-cli/bin/python" bash tests/numi_cli_test.sh

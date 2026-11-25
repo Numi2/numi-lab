@@ -204,7 +204,8 @@ std::optional<std::string> compileActuatorModes(
     EngineModel& model,
     const std::span<const RobotActuatorSpec> actuators
 ) {
-    const auto disableImplicitDrive = [&](const std::string_view jointName)
+    const auto disableImplicitDrive = [&](const std::string_view jointName,
+                                          const bool preservePassiveDamping)
         -> std::optional<std::string> {
         const auto joint = std::ranges::find(model.jointNames, jointName);
         if (joint == model.jointNames.end()) {
@@ -234,18 +235,23 @@ std::optional<std::string> compileActuatorModes(
         // enabled would add a second hidden controller and implicit inertia.
         dof->flags &= ~static_cast<std::uint32_t>(MR_DOF_FLAG_DRIVE);
         dof->drive.x = 0.0f;
-        dof->drive.y = 0.0f;
+        if (!preservePassiveDamping) {
+            dof->drive.y = 0.0f;
+        }
         return std::nullopt;
     };
     for (const RobotActuatorSpec& actuator : actuators) {
         if (actuator.kind == RobotActuatorKind::jointVelocity ||
             actuator.kind == RobotActuatorKind::jointEffort) {
-            if (const auto error = disableImplicitDrive(actuator.target)) {
+            if (const auto error = disableImplicitDrive(
+                    actuator.target,
+                    actuator.kind == RobotActuatorKind::jointEffort
+                )) {
                 return error;
             }
         } else if (actuator.kind == RobotActuatorKind::tendonPosition) {
             for (const RobotActuatorTermSpec& term : actuator.terms) {
-                if (const auto error = disableImplicitDrive(term.joint)) {
+                if (const auto error = disableImplicitDrive(term.joint, false)) {
                     return error;
                 }
             }

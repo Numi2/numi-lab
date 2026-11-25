@@ -30,5 +30,6 @@ xcrun simctl launch --console --terminate-running-process booted com.numilab.ios
 
 The check advances 100 native control ticks, measures the excursion, and
 verifies reset. Simulator builds use the buffered texture upload path.
+The iOS 26.4 simulator on M4 rejects the required Metal kernel geometry.
 Device testing and application distribution require a signed device build
 and a physical iPhone or iPad.
