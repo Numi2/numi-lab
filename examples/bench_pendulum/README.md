@@ -21,3 +21,7 @@ substep settings, native retained buffer bytes, and throughput from one to
 are reported separately. MuJoCo uses the native CPU rollout and returns the
 full physics state. This fixture covers free articulation. Compare contact,
 complex robots, GPU learning workloads, and energy independently.
+
+The comparison fails if a run reports a failed step or contact, the native
+state traces differ between repeats, or the maximum angle error exceeds
+0.0001 radians at any tested substep count.

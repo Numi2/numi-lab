@@ -230,12 +230,11 @@ std::optional<std::string> compileActuatorModes(
             return "non-position actuator requires one scalar DoF: " +
                 std::string{jointName};
         }
-        // Velocity, effort, and tendon programs write physical generalized
-        // effort from live microstep state. Leaving the position-drive flag
-        // enabled would add a second hidden controller and implicit inertia.
-        dof->flags &= ~static_cast<std::uint32_t>(MR_DOF_FLAG_DRIVE);
+        // The native task writes effort from the live microstep state.
+        // A direct-effort joint retains its damping-only implicit term.
         dof->drive.x = 0.0f;
         if (!preservePassiveDamping) {
+            dof->flags &= ~static_cast<std::uint32_t>(MR_DOF_FLAG_DRIVE);
             dof->drive.y = 0.0f;
         }
         return std::nullopt;

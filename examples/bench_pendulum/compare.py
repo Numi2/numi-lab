@@ -15,6 +15,8 @@ import numpy as np
 
 from metalrobo.experiment import Experiment
 
+MAX_ANGLE_ERROR_RADIANS = 1e-4
+
 
 def reference_model(project, gravity, substeps):
     """Map the fixture's hinge and inertial fields to the reference model."""
@@ -87,7 +89,7 @@ def main():
         replicate = args.output / f"numi-{substeps}-repeat.tsv"
         sample = experiment.run(steps=steps, physics_substeps=substeps, state_trace=trace,
                                 contact_trace=args.output / f"numi-{substeps}-contacts.tsv")
-        experiment.run(steps=steps, physics_substeps=substeps, state_trace=replicate)
+        repeated = experiment.run(steps=steps, physics_substeps=substeps, state_trace=replicate)
         model = reference_model(project, settings["gravity"], substeps)
         reference, _, _ = measure_reference(model, np.repeat(action, substeps), substeps, 1, 1)
         data = np.loadtxt(trace)
@@ -99,7 +101,8 @@ def main():
             "substeps": substeps, "maximum_absolute_error_radians": float(np.max(np.abs(error))),
             "rms_error_radians": float(np.sqrt(np.mean(error ** 2))),
             "deterministic_trace": trace.read_bytes() == replicate.read_bytes(),
-            "numi_failed_steps": sample.stats["failed_environment_steps"],
+            "numi_failed_steps": (sample.stats["failed_environment_steps"] +
+                                  repeated.stats["failed_environment_steps"]),
             "numi_maximum_contacts": sample.stats["maximum_active_contacts"],
         })
     performance = []
@@ -134,6 +137,7 @@ def main():
         "device": stats["device"], "system": platform.platform(), "mujoco": mujoco.__version__,
         "control_tick_seconds": 0.02, "ticks_per_run": steps, "repeats": args.repeats,
         "numi_world_fingerprint": stats["world_fingerprint"], "fidelity": fidelity,
+        "maximum_allowed_angle_error_radians": MAX_ANGLE_ERROR_RADIANS,
         "performance": performance,
         "measurement": "Numi and MuJoCo execute a fixed-base no-contact hinge with matched inertials, "
                        "damping, limits and control. Timed Numi runs report native transactional "
@@ -142,6 +146,13 @@ def main():
     path = args.output / "summary.json"
     path.write_text(json.dumps(report, indent=2) + "\n")
     print(path)
+    if not all(
+        sample["deterministic_trace"] and sample["numi_failed_steps"] == 0
+        and sample["numi_maximum_contacts"] == 0
+        and sample["maximum_absolute_error_radians"] <= MAX_ANGLE_ERROR_RADIANS
+        for sample in fidelity
+    ):
+        raise SystemExit("Bench Pendulum fidelity check failed")
 
 
 if __name__ == "__main__":
