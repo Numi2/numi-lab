@@ -388,17 +388,35 @@ public func numiWindowSceneChoices(in directory: URL) -> [NumiWindowSceneChoice]
     }
 }
 
-public func numiWindowSceneCatalog() -> [NumiWindowSceneChoice] {
+func numiWindowAppResources() -> URL? {
+    guard Bundle.main.bundleIdentifier == "com.numilab.mac" else { return nil }
+    return Bundle.main.resourceURL
+}
+
+private func numiWindowAppLibrary() -> URL {
+    URL.applicationSupportDirectory.appending(path: "Numi Lab", directoryHint: .isDirectory)
+}
+
+private func numiWindowSceneDirectory() -> URL {
     let environment = ProcessInfo.processInfo.environment
-    let directory = URL(fileURLWithPath:
-        environment["NUMI_WINDOW_SCENE_CATALOG"] ??
-        FileManager.default.currentDirectoryPath + "/.numi/runs",
-        isDirectory: true
+    if let path = environment["NUMI_WINDOW_SCENE_CATALOG"], !path.isEmpty {
+        return URL(fileURLWithPath: path, isDirectory: true)
+    }
+    if numiWindowAppResources() != nil {
+        return numiWindowAppLibrary().appending(path: "Scenes", directoryHint: .isDirectory)
+    }
+    return URL(fileURLWithPath: FileManager.default.currentDirectoryPath + "/.numi/runs",
+               isDirectory: true)
+}
+
+public func numiWindowSceneCatalog() -> [NumiWindowSceneChoice] {
+    let userScenes = numiWindowSceneChoices(in: numiWindowSceneDirectory())
+    guard let resources = numiWindowAppResources() else { return userScenes }
+    let included = numiWindowSceneChoices(
+        in: resources.appending(path: "Scenes", directoryHint: .isDirectory)
     )
-    // Keep every authored robot/scene contract. The selectors already group
-    // these by robot, and collapsing them to one synthetic "Studio" choice
-    // hid the distinct locomotion, recovery, manipulation, and flight scenes.
-    return numiWindowSceneChoices(in: directory)
+    let includedIDs = Set(included.map(\.id))
+    return included + userScenes.filter { !includedIDs.contains($0.id) }
 }
 
 public func numiWindowPolicyChoices(
@@ -454,17 +472,15 @@ public func numiWindowPolicyCatalog(
     if let configured = environment["NUMI_WINDOW_POLICY_CATALOG"],
        !configured.isEmpty {
         directory = URL(fileURLWithPath: configured)
+    } else if numiWindowAppResources() != nil {
+        directory = numiWindowAppLibrary().appending(path: "Policies", directoryHint: .isDirectory)
     } else {
         directory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
             .appendingPathComponent(".numi/policies", isDirectory: true)
     }
     var choices = numiWindowPolicyChoices(in: directory)
     var seen = Set(choices.map { $0.policyURL.standardizedFileURL })
-    let sceneDirectory = URL(fileURLWithPath:
-        environment["NUMI_WINDOW_SCENE_CATALOG"] ??
-        FileManager.default.currentDirectoryPath + "/.numi/runs",
-        isDirectory: true
-    )
+    let sceneDirectory = numiWindowSceneDirectory()
     for scene in sceneChoices {
         guard let option = scene.launchArguments.firstIndex(of: "--policy-pack"),
               option + 1 < scene.launchArguments.count
@@ -725,10 +741,13 @@ enum NumiWindowError: Error {
 
 @MainActor
 private final class NumiWindowController: NSObject, MTKViewDelegate,
-    NSWindowDelegate, NSToolbarDelegate
+    NSWindowDelegate, NSToolbarDelegate, NSMenuItemValidation
 {
     private static let pauseToolbarItem = NSToolbarItem.Identifier(
         "numi.window.pause"
+    )
+    private static let restartToolbarItem = NSToolbarItem.Identifier(
+        "numi.window.restart"
     )
     private static let latestPolicyToolbarItem = NSToolbarItem.Identifier(
         "numi.window.latest-policy"
@@ -760,7 +779,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private var paused = false
     private var presentationVisible = true
     private var reconfiguring = false
-    private var statusSummary: String? = "waiting for a frame"
+    private var statusSummary: String?
     private var latestEnvironmentIndex: UInt32 = 0
     private var latestFrameIndex: UInt64 = 0
     private var latestDroppedFrames: UInt32 = 0
@@ -769,6 +788,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private var lastDrawableSource = SIMD2<Int32>(repeating: 0)
     private var lastDrawableBounds = CGSize.zero
     private weak var pauseItem: NSToolbarItem?
+    private weak var restartItem: NSToolbarItem?
     private weak var latestPolicyItem: NSToolbarItem?
     private weak var policySelector: NSPopUpButton?
     private weak var robotSelector: NSPopUpButton?
@@ -783,12 +803,15 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private let loadingLabel = NSTextField(
         labelWithString: "Preparing the first simulation frame…"
     )
+    private var loadingIndicator: NSProgressIndicator?
     private var trainingArtifactsURL: URL?
     private let coachCard = NSVisualEffectView()
     private let coachTitle = NSTextField(labelWithString: "Your first robot policy")
     private let coachDetail = NSTextField(wrappingLabelWithString: "")
     private var coachDismissed = false
     private let canReloadLatestPolicy: Bool
+    private let packaged = numiWindowAppResources() != nil
+    private let canRestart: Bool
     private let policyChoices: [NumiWindowPolicyChoice]
     private var installedPolicyURL: URL?
     private var installedPolicyRobotID: String?
@@ -804,6 +827,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     var onClose: (() -> Void)?
     var onPresentationEnabledChanged: ((Bool) -> Void)?
     var onSimulationPausedChanged: ((Bool) -> Void)?
+    var onRestartRequested: (() -> Void)?
     var onLatestPolicyRequested: (() -> Void)?
     var onPolicySelected: ((NumiWindowPolicySelection) -> Void)?
     var onSceneSelected: ((String) -> Void)?
@@ -815,6 +839,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         view: NumiWindowMetalView,
         queue: MTLCommandQueue,
         pipeline: MTLRenderPipelineState,
+        canRestart: Bool,
         canReloadLatestPolicy: Bool,
         policyChoices: [NumiWindowPolicyChoice],
         initialPolicyURL: URL?,
@@ -825,6 +850,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         self.view = view
         self.queue = queue
         self.pipeline = pipeline
+        self.canRestart = canRestart
         self.canReloadLatestPolicy = canReloadLatestPolicy
         self.policyChoices = policyChoices
         self.sceneChoices = sceneChoices
@@ -847,14 +873,20 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         view.delegate = self
         window.contentView = view
         window.delegate = self
+        if packaged {
+            window.contentMinSize = NSSize(width: 440, height: 280)
+            window.center()
+        }
         let toolbar = NSToolbar(identifier: "numi.window.toolbar")
         toolbar.delegate = self
         toolbar.displayMode = .iconAndLabel
         toolbar.allowsUserCustomization = false
         toolbar.autosavesConfiguration = false
         window.toolbar = toolbar
-        configureTrainingBanner()
-        configureCoachCard()
+        if !packaged {
+            configureTrainingBanner()
+            configureCoachCard()
+        }
         configureLoadingLabel()
         view.onOrbit = { [weak self] dx, dy in
             self?.orbitCamera(dx: dx, dy: dy)
@@ -867,8 +899,10 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         }
         view.onReset = { [weak self] in self?.resetCamera() }
         view.onPause = { [weak self] in self?.togglePause() }
-        view.onTrain = { [weak self] in self?.configureTraining() }
-        view.onHelp = { [weak self] in self?.showCoach() }
+        if !packaged {
+            view.onTrain = { [weak self] in self?.configureTraining() }
+            view.onHelp = { [weak self] in self?.showCoach() }
+        }
         selectDisplayedPolicy(initialPolicyURL)
         updateChrome(force: true)
         updateCoachCard()
@@ -880,6 +914,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     }
 
     static func make(
+        canRestart: Bool,
         canReloadLatestPolicy: Bool,
         policyChoices: [NumiWindowPolicyChoice],
         initialPolicyURL: URL?,
@@ -931,6 +966,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             view: view,
             queue: queue,
             pipeline: pipeline,
+            canRestart: canRestart,
             canReloadLatestPolicy: canReloadLatestPolicy,
             policyChoices: policyChoices,
             initialPolicyURL: initialPolicyURL,
@@ -957,13 +993,15 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         view.setNeedsDisplay(view.bounds)
     }
 
-    private func didPresent(frameIndex: UInt64) {
+    private func didPresent() {
         guard !closed else { return }
+        let configurationChanged = !hasPresentedFrame || reconfiguring
         hasPresentedFrame = true
         loadingLabel.isHidden = true
-        statusSummary = nil
+        loadingIndicator?.stopAnimation(nil)
+        if configurationChanged || !packaged { statusSummary = nil }
         finishReconfiguration()
-        updateChrome(force: true)
+        if configurationChanged || !packaged { updateChrome(force: true) }
     }
 
     func showPolicyStatus(_ summary: String) {
@@ -976,6 +1014,94 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
 
     func closeWindow() {
         window.performClose(nil)
+    }
+
+    func showFailure(_ message: String) {
+        guard !closed else { return }
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Numi Lab could not run the simulation"
+        alert.informativeText = message
+        alert.runModal()
+    }
+
+    func installApplicationMenu() {
+        guard packaged else { return }
+        let mainMenu = NSMenu()
+        let appMenu = NSMenu()
+        let about = appMenu.addItem(
+            withTitle: "About Numi Lab",
+            action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)),
+            keyEquivalent: ""
+        )
+        about.target = NSApplication.shared
+        appMenu.addItem(.separator())
+        let quit = appMenu.addItem(
+            withTitle: "Quit Numi Lab", action: #selector(closeFromMenu), keyEquivalent: "q"
+        )
+        quit.target = self
+        let appItem = NSMenuItem()
+        appItem.submenu = appMenu
+        mainMenu.addItem(appItem)
+
+        let fileMenu = NSMenu(title: "File")
+        let library = fileMenu.addItem(
+            withTitle: "Show Scene Library", action: #selector(showSceneLibrary), keyEquivalent: ""
+        )
+        library.target = self
+        let close = fileMenu.addItem(withTitle: "Close", action: #selector(closeFromMenu),
+                                     keyEquivalent: "w")
+        close.target = self
+        let fileItem = NSMenuItem()
+        fileItem.submenu = fileMenu
+        mainMenu.addItem(fileItem)
+
+        let simulationMenu = NSMenu(title: "Simulation")
+        let pause = simulationMenu.addItem(withTitle: "Pause", action: #selector(togglePause),
+                                           keyEquivalent: "")
+        pause.target = self
+        let restart = simulationMenu.addItem(
+            withTitle: "Restart Simulation", action: #selector(restartSimulation), keyEquivalent: "r"
+        )
+        restart.target = self
+        let simulationItem = NSMenuItem()
+        simulationItem.submenu = simulationMenu
+        mainMenu.addItem(simulationItem)
+
+        let viewMenu = NSMenu(title: "View")
+        let camera = viewMenu.addItem(
+            withTitle: "Reset Camera", action: #selector(resetCameraAction), keyEquivalent: "0"
+        )
+        camera.target = self
+        let viewItem = NSMenuItem()
+        viewItem.submenu = viewMenu
+        mainMenu.addItem(viewItem)
+        NSApplication.shared.mainMenu = mainMenu
+    }
+
+    func validateMenuItem(_ item: NSMenuItem) -> Bool {
+        if item.action == #selector(togglePause) {
+            item.title = paused ? "Resume" : "Pause"
+            return !reconfiguring || paused
+        }
+        if item.action == #selector(restartSimulation) {
+            return canRestart && !reconfiguring && !trainingActive
+        }
+        return true
+    }
+
+    @objc private func closeFromMenu() {
+        closeWindow()
+    }
+
+    @objc private func showSceneLibrary() {
+        let directory = numiWindowSceneDirectory()
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            NSWorkspace.shared.open(directory)
+        } catch {
+            NSAlert(error: error).runModal()
+        }
     }
 
     func showInstalledPolicy(_ url: URL, revision: UInt64) {
@@ -1018,7 +1144,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             )
         }
         statusSummary = policyURL == nil
-            ? "simulation ready · no controller"
+            ? (packaged ? nil : "simulation ready · no controller")
             : "simulation ready · learned controller"
         updateCoachCard()
         updateChrome(force: true)
@@ -1141,7 +1267,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
 
     private func configureLoadingLabel() {
         loadingLabel.font = .systemFont(ofSize: 15, weight: .semibold)
-        loadingLabel.textColor = .secondaryLabelColor
+        loadingLabel.textColor = packaged ? .white : .secondaryLabelColor
         loadingLabel.alignment = .center
         loadingLabel.translatesAutoresizingMaskIntoConstraints = false
         loadingLabel.isHidden = !reconfiguring
@@ -1158,6 +1284,20 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
                 constant: -32
             ),
         ])
+        if packaged {
+            let indicator = NSProgressIndicator()
+            indicator.style = .spinning
+            indicator.isDisplayedWhenStopped = false
+            indicator.appearance = NSAppearance(named: .darkAqua)
+            indicator.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(indicator)
+            NSLayoutConstraint.activate([
+                indicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                indicator.bottomAnchor.constraint(equalTo: loadingLabel.topAnchor, constant: -16),
+            ])
+            indicator.startAnimation(nil)
+            loadingIndicator = indicator
+        }
     }
 
     private func configureCoachCard() {
@@ -1296,7 +1436,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 if succeeded {
-                    self.didPresent(frameIndex: delivery.frame.frameIndex)
+                    self.didPresent()
                 } else {
                     self.statusSummary = "display command failed"
                     self.updateChrome(force: true)
@@ -1340,29 +1480,22 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     func toolbarAllowedItemIdentifiers(
         _ toolbar: NSToolbar
     ) -> [NSToolbarItem.Identifier] {
-        [
-            Self.pauseToolbarItem,
-            Self.robotSelectorToolbarItem,
-            Self.sceneSelectorToolbarItem,
-            Self.taskSelectorToolbarItem,
-            Self.policySelectorToolbarItem,
-            Self.trainToolbarItem,
-            Self.resetCameraToolbarItem,
-        ]
+        toolbarDefaultItemIdentifiers(toolbar)
     }
 
     func toolbarDefaultItemIdentifiers(
         _ toolbar: NSToolbar
     ) -> [NSToolbarItem.Identifier] {
-        [
-            Self.pauseToolbarItem,
-            Self.robotSelectorToolbarItem,
-            Self.sceneSelectorToolbarItem,
-            Self.taskSelectorToolbarItem,
-            Self.policySelectorToolbarItem,
-            Self.trainToolbarItem,
-            Self.resetCameraToolbarItem,
-        ]
+        var items = [Self.pauseToolbarItem]
+        if canRestart { items.append(Self.restartToolbarItem) }
+        if !packaged || sceneChoices.count > 1 {
+            items += [Self.robotSelectorToolbarItem, Self.sceneSelectorToolbarItem,
+                      Self.taskSelectorToolbarItem]
+        }
+        if !packaged || canReloadLatestPolicy { items.append(Self.policySelectorToolbarItem) }
+        if !packaged { items.append(Self.trainToolbarItem) }
+        items.append(Self.resetCameraToolbarItem)
+        return items
     }
 
     func toolbar(
@@ -1376,6 +1509,15 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             item.action = #selector(togglePause)
             configurePauseItem(item)
             pauseItem = item
+            return item
+        }
+        if itemIdentifier == Self.restartToolbarItem {
+            item.action = #selector(restartSimulation)
+            item.label = "Restart"
+            item.toolTip = "Restart the simulation from its initial state (⌘R)"
+            item.image = NSImage(systemSymbolName: "arrow.counterclockwise",
+                                 accessibilityDescription: item.label)
+            restartItem = item
             return item
         }
         if itemIdentifier == Self.latestPolicyToolbarItem {
@@ -1741,10 +1883,18 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     }
 
     @objc private func togglePause() {
+        guard !packaged || !reconfiguring || paused else { return }
         paused.toggle()
+        if packaged { statusSummary = nil }
         updatePresentationState()
         onSimulationPausedChanged?(paused)
         updateChrome(force: true)
+    }
+
+    @objc func restartSimulation() {
+        guard canRestart, !reconfiguring, !trainingActive else { return }
+        onRestartRequested?()
+        if paused { togglePause() }
     }
 
     @objc private func resetCameraAction() {
@@ -1954,16 +2104,24 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             return
         }
         lastChromeUpdateSeconds = now
-        let state = paused ? "paused" : (presentationVisible ? "live" : "hidden")
-        let frameSummary = hasPresentedFrame
-            ? "env \(latestEnvironmentIndex) · frame \(latestFrameIndex) · dropped \(latestDroppedFrames)"
-            : "waiting for a frame"
-        window.title =
-            "Numi Window — \(state) · \(statusSummary ?? frameSummary)"
+        if packaged {
+            let title = activeChoice.map { "Numi Lab — \($0.robotName) · \($0.taskName)" } ?? "Numi Lab"
+            if window.title != title { window.title = title }
+            let subtitle = statusSummary ?? (reconfiguring ? "Preparing simulation" : (paused ? "Paused" : "Live"))
+            if window.subtitle != subtitle { window.subtitle = subtitle }
+        } else {
+            let state = paused ? "paused" : (presentationVisible ? "live" : "hidden")
+            let frameSummary = hasPresentedFrame
+                ? "env \(latestEnvironmentIndex) · frame \(latestFrameIndex) · dropped \(latestDroppedFrames)"
+                : "waiting for a frame"
+            window.title = "Numi Window — \(state) · \(statusSummary ?? frameSummary)"
+        }
         if force {
             if let item = pauseItem {
                 configurePauseItem(item)
+                if packaged { item.isEnabled = !reconfiguring || paused }
             }
+            restartItem?.isEnabled = !reconfiguring && !trainingActive
             if let item = latestPolicyItem {
                 configureLatestPolicyItem(item)
             }
@@ -2068,6 +2226,8 @@ public final class NumiWindowBridge: @unchecked Sendable {
     private var closed = false
     private var presentationEnabled = true
     private var simulationPaused = false
+    private var restartRequested = false
+    private var runtimeCheckPassed = false
     private var pendingNativeInspectionEnabled: Bool?
     private var latestPolicyReloadRequested = false
     private var pendingPolicySelection: NumiWindowPolicySelection?
@@ -2089,6 +2249,13 @@ public final class NumiWindowBridge: @unchecked Sendable {
         window.onSimulationPausedChanged = { [weak self] paused in
             self?.setSimulationPaused(paused)
         }
+        window.onRestartRequested = { [weak self] in
+            guard let self else { return }
+            self.stateCondition.withLock {
+                self.restartRequested = !self.closed
+                self.stateCondition.broadcast()
+            }
+        }
         window.onLatestPolicyRequested = { [weak self] in
             self?.requestLatestPolicyReload()
         }
@@ -2108,6 +2275,7 @@ public final class NumiWindowBridge: @unchecked Sendable {
 
     @MainActor
     public static func launch(
+        canRestart: Bool = false,
         canReloadLatestPolicy: Bool = false,
         policyChoices: [NumiWindowPolicyChoice] = [],
         initialPolicyURL: URL? = nil,
@@ -2119,6 +2287,7 @@ public final class NumiWindowBridge: @unchecked Sendable {
         application.setActivationPolicy(.regular)
         let bridge = NumiWindowBridge(
             window: try NumiWindowController.make(
+                canRestart: canRestart,
                 canReloadLatestPolicy: canReloadLatestPolicy,
                 policyChoices: policyChoices,
                 initialPolicyURL: initialPolicyURL,
@@ -2126,6 +2295,7 @@ public final class NumiWindowBridge: @unchecked Sendable {
                 initialSceneID: initialSceneID
             )
         )
+        bridge.window.installApplicationMenu()
         bridge.setInitialPolicy(initialPolicyURL)
         application.activate(ignoringOtherApps: true)
         return bridge
@@ -2149,6 +2319,7 @@ public final class NumiWindowBridge: @unchecked Sendable {
 
     private var hasPendingSchedulerWork: Bool {
         pendingNativeInspectionEnabled != nil ||
+            restartRequested ||
             latestPolicyReloadRequested ||
             pendingPolicySelection != nil ||
             pendingSceneSelection != nil ||
@@ -2255,9 +2426,30 @@ public final class NumiWindowBridge: @unchecked Sendable {
     }
 
     func closeAfterRuntimeCheck() {
+        stateCondition.withLock { runtimeCheckPassed = true }
         DispatchQueue.main.async { [window] in
             window.closeWindow()
         }
+    }
+
+    var didPassRuntimeCheck: Bool {
+        stateCondition.withLock { runtimeCheckPassed }
+    }
+
+    func requestRestartForRuntimeCheck() {
+        DispatchQueue.main.async { [window] in window.restartSimulation() }
+    }
+
+    func takeRestartRequest() -> Bool {
+        stateCondition.withLock {
+            let requested = restartRequested
+            restartRequested = false
+            return requested
+        }
+    }
+
+    func reportFailure(_ message: String) {
+        DispatchQueue.main.async { [window] in window.showFailure(message) }
     }
 
     private func requestTraining(_ request: NumiWindowTrainingRequest) {
