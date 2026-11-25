@@ -635,10 +635,10 @@ private struct Options {
         }
         if actionClip != nil &&
             (actionStream != nil || nativePolicy || policyPack != nil || zeroActions ||
-             environments != 1 || repeats != 1 || scheduledResets)
+             repeats != 1 || scheduledResets)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--action-clip requires one environment, one repeat, and " +
+                "--action-clip requires one repeat and " +
                 "--no-scheduled-resets, with no other action source."
             )
         }
@@ -1332,6 +1332,12 @@ private func processWindowRequests(
             translation: camera.translation,
             orientation: camera.orientation
         )
+        if window.isSimulationPaused && window.acceptsFrames {
+            try context.redrawInspection()
+            if let frame = try context.acquireInspectionFrame() {
+                window.publish(frame: frame, context: context)
+            }
+        }
     }
     func install(_ url: URL) {
         guard let loadPolicy else {
@@ -2279,10 +2285,13 @@ private enum TaskRolloutMain {
                             let width = context.layout.actionCount
                             let lastFrame = actionClip.count / width - 1
                             var batch: [Float] = []
-                            batch.reserveCapacity(stepCount * width)
+                            batch.reserveCapacity(stepCount * options.environments * width)
                             for step in 0..<stepCount {
                                 let start = min(globalStep + step, lastFrame) * width
-                                batch.append(contentsOf: actionClip[start..<(start + width)])
+                                let row = actionClip[start..<(start + width)]
+                                for _ in 0..<options.environments {
+                                    batch.append(contentsOf: row)
+                                }
                             }
                             actionBatch = batch
                         } else if options.zeroActions {
@@ -2329,17 +2338,11 @@ private enum TaskRolloutMain {
                         contactTraceLines.append(fields.joined(separator: "\t"))
                     }
                     if sampleState, advance.failedEnvironmentSteps == 0, let window {
-                        let layout = context.layout
-                        let q = Array(try context.finalConfiguration().prefix(min(9, layout.configurationCount)))
+                        let q = Array(try context.finalConfiguration().prefix(context.layout.configurationCount))
                         let scene = Array(try context.finalSceneStates().prefix(3))
-                        var normal: String?
-                        if let sample = contactSample, let a = sample.bodyA, let b = sample.bodyB {
-                            normal = String(format: "%.2f N", sample.peakNormalForce) + " · \(a) / \(b)"
-                        }
                         window.reportStateSample(
                             step: globalStep + stepCount, q: q,
-                            contacts: contactSample?.active, position: scene,
-                            strongestNormal: normal
+                            contact: contactSample, position: scene
                         )
                         nextStateSample = now + 0.2
                     }
@@ -2451,9 +2454,11 @@ private enum TaskRolloutMain {
                     let statuses = try context.statusCodes(
                         controlStepCount: stepCount
                     )
-                    guard statuses.allSatisfy({ $0 == 0 }) else {
+                    if let failed = statuses.firstIndex(where: { $0 != 0 }) {
                         throw MetalRoboTaskRolloutError.native(
-                            "Task rollout returned a nonzero GPU status."
+                            "GPU status \(statuses[failed]) at control tick " +
+                            "\(globalStep + failed / options.environments + 1), " +
+                            "environment \(failed % options.environments)."
                         )
                     }
                     if let captureDirectory,
@@ -3893,6 +3898,10 @@ private enum TaskRolloutMain {
                             requestedSelection = selection
                         } catch {
                             let detail = numiWindowErrorSummary(error)
+                            if runtimeCheckEnabled {
+                                writeDiagnostic("numi window check rejected \(selection.choiceID): \(detail)")
+                                break
+                            }
                             window.reportPolicyStatus(
                                 "selection rejected · \(detail) · restoring"
                             )
@@ -3909,7 +3918,7 @@ private enum TaskRolloutMain {
                         break
                     } catch {
                         writeDiagnostic("numi window failed: \(error)")
-                        if !restartVerified { break }
+                        if runtimeCheckEnabled || !restartVerified { break }
                         let detail = numiWindowErrorSummary(error)
                         window.reportPolicyStatus(
                             "setup failed · \(detail) · restoring"

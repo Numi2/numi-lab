@@ -186,9 +186,15 @@ public struct NumiWindowSceneChoice: Sendable {
     public let sceneName: String
     public let taskID: String
     public let taskName: String
+    public let fileURL: URL
     public let visualObservationURL: URL
     public let launchArguments: [String]
     public let trainingArguments: [String]
+
+    fileprivate var projectFolder: URL? {
+        let folder = fileURL.deletingLastPathComponent()
+        return folder.pathExtension == "numiproject" ? folder : nil
+    }
 
     public var isTrainable: Bool { !trainingArguments.isEmpty }
 
@@ -367,6 +373,7 @@ func numiWindowReadScene(at url: URL) -> NumiWindowSceneChoice? {
             : record.sceneName,
         taskID: record.taskID ?? record.sceneID,
         taskName: record.taskName ?? record.sceneName,
+        fileURL: url,
         visualObservationURL: visual,
         launchArguments: arguments,
         trainingArguments: numiWindowResolvedArguments(
@@ -398,6 +405,80 @@ private func numiWindowSceneDirectory() -> URL {
 
 private let pandaImportPrefix = "panda-import-"
 
+private struct NumiRobotProject: Decodable, Sendable {
+    var format = "numi.robot-project.v1"
+    var name: String?
+    var gravity = 9.81
+    var friction = 0.8
+    var effort = 0.1
+
+    var isValid: Bool {
+        format == "numi.robot-project.v1" && (0...100).contains(gravity) &&
+            (0...4).contains(friction) && (-1...1).contains(effort)
+    }
+
+    static func read(from folder: URL) throws -> Self {
+        let settings = try JSONDecoder().decode(Self.self, from: Data(
+            contentsOf: folder.appending(path: "project.json")
+        ))
+        guard settings.isValid else {
+            throw CocoaError(.fileReadCorruptFile, userInfo: [
+                NSLocalizedDescriptionKey: "Unsupported project version or invalid experiment settings.",
+            ])
+        }
+        return settings
+    }
+}
+
+private func importRobotProject(
+    source: URL, srdf: URL?, settings: NumiRobotProject, name: String?,
+    library: URL, resources: URL
+) throws -> NumiWindowSceneChoice {
+    let id = "robot-" + UUID().uuidString.lowercased()
+    let filename = id + ".numi-window.json"
+    let files = FileManager.default
+    try files.createDirectory(at: library, withIntermediateDirectories: true)
+    let staged = library.appending(path: "." + id, directoryHint: .isDirectory)
+    let destination = library.appending(path: id + ".numiproject", directoryHint: .isDirectory)
+    try files.createDirectory(at: staged, withIntermediateDirectories: false)
+    defer { try? files.removeItem(at: staged) }
+    var arguments = [
+        "--urdf", source.path, "--output", staged.path, "--project-id", id,
+        "--gravity", String(settings.gravity), "--friction", String(settings.friction),
+        "--effort", String(settings.effort),
+        "--metallib", resources.appending(path: "MetalRobo.metallib").path,
+    ]
+    if let srdf { arguments += ["--srdf", srdf.path] }
+    if let name { arguments += ["--project-name", name] }
+    try runNumiCatalogCompiler(resources: resources, arguments: arguments)
+    guard numiWindowReadScene(at: staged.appending(path: filename)) != nil else {
+        throw CocoaError(.fileReadCorruptFile)
+    }
+    try files.moveItem(at: staged, to: destination)
+    guard let project = numiWindowReadScene(at: destination.appending(path: filename)) else {
+        throw CocoaError(.fileReadCorruptFile)
+    }
+    return project
+}
+
+private func runNumiCatalogCompiler(resources: URL, arguments: [String]) throws {
+    let process = Process()
+    process.executableURL = resources.deletingLastPathComponent()
+        .appending(path: "Helpers/metalrobo_numi_window_catalog_compile")
+    process.arguments = arguments
+    let diagnostics = Pipe()
+    process.standardError = diagnostics
+    process.standardOutput = diagnostics
+    try process.run()
+    let data = diagnostics.fileHandleForReading.readDataToEndOfFile()
+    process.waitUntilExit()
+    guard process.terminationStatus == 0 else {
+        let reason = String(decoding: data, as: UTF8.self).split(whereSeparator: \.isNewline)
+            .last.map(String.init) ?? "The scene could not be compiled."
+        throw CocoaError(.fileReadCorruptFile, userInfo: [NSLocalizedDescriptionKey: reason])
+    }
+}
+
 private func importPandaScene(
     from selection: URL,
     to library: URL,
@@ -411,26 +492,12 @@ private func importPandaScene(
     try files.createDirectory(at: staged, withIntermediateDirectories: false)
     defer { try? files.removeItem(at: staged) }
 
-    let process = Process()
-    process.executableURL = resources.deletingLastPathComponent()
-        .appending(path: "Helpers/metalrobo_numi_window_catalog_compile")
-    process.arguments = [
+    try runNumiCatalogCompiler(resources: resources, arguments: [
         "--panda-model", selection.path, "--output", staged.path,
         "--metallib", resources.appending(path: "MetalRobo.metallib").path,
-    ]
-    let diagnostics = Pipe()
-    process.standardError = diagnostics
-    process.standardOutput = diagnostics
-    try process.run()
-    let data = diagnostics.fileHandleForReading.readDataToEndOfFile()
-    process.waitUntilExit()
-    guard process.terminationStatus == 0,
-          numiWindowReadScene(at: staged.appending(path: sceneName)) != nil
-    else {
-        let reason = String(decoding: data, as: UTF8.self).split(whereSeparator: \.isNewline)
-            .last.map(String.init) ?? "Panda scene compilation failed."
-        throw CocoaError(.fileReadCorruptFile, userInfo: [NSLocalizedDescriptionKey: reason])
-    }
+    ])
+    guard numiWindowReadScene(at: staged.appending(path: sceneName)) != nil
+    else { throw CocoaError(.fileReadCorruptFile) }
     do {
         try files.moveItem(at: staged, to: destination)
     } catch {
@@ -774,6 +841,45 @@ enum NumiWindowError: Error {
     case train(NumiWindowTrainingRequest)
 }
 
+private struct NumiStateSample: Sendable {
+    let tick: Int
+    let configuration: [Float]
+    let peakNormalForce: Float?
+    let contactCount: UInt32?
+    let bodyA: String?
+    let bodyB: String?
+    let scenePosition: [Float]
+}
+
+private final class NumiStatePlot: NSView {
+    var values: [(Int, Float)] = [] {
+        didSet { needsDisplay = true }
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        let area = bounds.insetBy(dx: 2, dy: 2)
+        NSColor.labelColor.withAlphaComponent(0.12).setFill()
+        NSBezierPath(roundedRect: area, xRadius: 4, yRadius: 4).fill()
+        guard let first = values.first, let last = values.last,
+              let minimum = values.lazy.map(\.1).min(),
+              let maximum = values.lazy.map(\.1).max() else { return }
+        let span = maximum - minimum
+        let ticks = CGFloat(max(1, last.0 - first.0))
+        let chart = area.insetBy(dx: 4, dy: 4)
+        let path = NSBezierPath()
+        for (index, sample) in values.enumerated() {
+            let fraction = span < 1e-9 ? 0.5 : CGFloat((sample.1 - minimum) / span)
+            let point = NSPoint(x: chart.minX + CGFloat(sample.0 - first.0) / ticks * chart.width,
+                                y: chart.minY + fraction * chart.height)
+            if index == 0 { path.move(to: point) } else { path.line(to: point) }
+        }
+        NSColor.controlAccentColor.setStroke()
+        path.lineWidth = 2
+        path.stroke()
+    }
+}
+
 @MainActor
 private final class NumiWindowController: NSObject, MTKViewDelegate,
     NSWindowDelegate, NSToolbarDelegate, NSMenuItemValidation
@@ -833,6 +939,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private var trainingSetupController: NumiTrainingSetupController?
     private var trainingActive = false
     private let stateInspector = NSVisualEffectView()
+    private let statePlot = NumiStatePlot()
+    private let stateChannel = NSPopUpButton()
+    private var stateSamples: [NumiStateSample] = []
     private let stateLabel = NSTextField(labelWithString: "Advance the simulation to inspect its state.")
     private let trainingBanner = NSVisualEffectView()
     private let trainingSpinner = NSProgressIndicator()
@@ -1085,10 +1194,15 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         mainMenu.addItem(appItem)
 
         let fileMenu = NSMenu(title: "File")
-        let open = fileMenu.addItem(
-            withTitle: "Open Panda Model…", action: #selector(openPandaModel), keyEquivalent: "o"
-        )
-        open.target = self
+        for (title, action, key) in [
+            ("Open Robot or Project…", #selector(openRobotProject), "o"),
+            ("Open Panda Model…", #selector(openPandaModel), ""),
+            ("Edit Experiment…", #selector(editRobotProject), ""),
+            ("Export Robot Project…", #selector(exportRobotProject), "e"),
+        ] {
+            fileMenu.addItem(withTitle: title, action: action, keyEquivalent: key).target = self
+        }
+        fileMenu.addItem(.separator())
         let library = fileMenu.addItem(
             withTitle: "Show Scene Library", action: #selector(showSceneLibrary), keyEquivalent: ""
         )
@@ -1122,6 +1236,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             withTitle: "Simulation State", action: #selector(toggleStateInspector), keyEquivalent: "i"
         )
         inspect.target = self
+        viewMenu.addItem(withTitle: "Export State Samples…", action: #selector(exportStateSamples),
+                         keyEquivalent: "").target = self
         let camera = viewMenu.addItem(
             withTitle: "Reset Camera", action: #selector(resetCameraAction), keyEquivalent: "0"
         )
@@ -1141,8 +1257,14 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             item.state = stateInspector.superview != nil && !stateInspector.isHidden ? .on : .off
             return true
         }
-        if item.action == #selector(openPandaModel) {
+        if item.action == #selector(exportStateSamples) {
+            return !stateSamples.isEmpty && !reconfiguring
+        }
+        if item.action == #selector(openPandaModel) || item.action == #selector(openRobotProject) {
             return !importingModel && !reconfiguring && !trainingActive
+        }
+        if item.action == #selector(exportRobotProject) || item.action == #selector(editRobotProject) {
+            return activeChoice?.projectFolder != nil && !importingModel && !reconfiguring && !trainingActive
         }
         if item.action == #selector(singleStep) {
             return paused && !reconfiguring && !trainingActive
@@ -1153,52 +1275,186 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         return true
     }
 
+    @objc private func openReleases() {
+        if let releases = URL(string: "https://github.com/Numi2/numi-lab/releases") {
+            NSWorkspace.shared.open(releases)
+        }
+    }
+
     @objc private func closeFromMenu() {
         closeWindow()
     }
 
-    @objc private func openPandaModel() {
+    private static let projectType = UTType(exportedAs: "com.numilab.robot-project", conformingTo: .package)
+    private static let urdfType = UTType(filenameExtension: "urdf") ?? .xml
+
+    @objc private func openRobotProject() {
+        let panel = NSOpenPanel()
+        panel.title = "Open Robot or Project"
+        panel.message = "Choose a URDF robot or an exported Numi robot project."
+        panel.allowedContentTypes = [Self.urdfType, Self.projectType]
+        panel.beginSheetModal(for: window) { [weak self] response in
+            guard let self, response == .OK, let url = panel.url else { return }
+            do {
+                if url.pathExtension.lowercased() == "numiproject" {
+                    try self.prepareRobotProject(from: url, settings: NumiRobotProject.read(from: url))
+                } else {
+                    let candidate = url.deletingPathExtension().appendingPathExtension("srdf")
+                    let srdf = FileManager.default.fileExists(atPath: candidate.path) ? candidate : nil
+                    self.startSceneImport(message: "Importing robot…") { library, resources in
+                        try importRobotProject(source: url, srdf: srdf, settings: .init(),
+                                               name: nil, library: library, resources: resources)
+                    }
+                }
+            } catch {
+                self.presentProjectError(error)
+            }
+        }
+    }
+
+    private func prepareRobotProject(from folder: URL, settings: NumiRobotProject, name: String? = nil) throws {
+        let source = folder.appending(path: "source/model.urdf")
+        let parent = folder.resolvingSymlinksInPath().standardizedFileURL.path + "/"
+        guard source.resolvingSymlinksInPath().path.hasPrefix(parent),
+              try source.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile == true
+        else { throw CocoaError(.fileReadCorruptFile) }
+        let candidate = folder.appending(path: "source/model.srdf")
+        let srdf = FileManager.default.fileExists(atPath: candidate.path) ? candidate : nil
+        if let srdf, !srdf.resolvingSymlinksInPath().path.hasPrefix(parent) {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        startSceneImport(message: "Compiling experiment…") { library, resources in
+            try importRobotProject(source: source, srdf: srdf, settings: settings,
+                                   name: name ?? settings.name, library: library, resources: resources)
+        }
+    }
+
+    @objc private func exportRobotProject() {
+        guard let choice = activeChoice, let folder = choice.projectFolder else { return }
+        let panel = NSSavePanel()
+        panel.title = "Export Robot Project"
+        panel.nameFieldStringValue = choice.robotName.replacingOccurrences(of: "/", with: "-")
+        panel.allowedContentTypes = [Self.projectType]
+        panel.beginSheetModal(for: window) { [weak self] response in
+            guard let self, response == .OK, let url = panel.url else { return }
+            do {
+                // Write to a sibling so a failed copy cannot replace a previous export.
+                let temporary = url.deletingLastPathComponent().appending(path: "." + UUID().uuidString)
+                let files = FileManager.default
+                defer { try? files.removeItem(at: temporary) }
+                try files.copyItem(at: folder, to: temporary)
+                if files.fileExists(atPath: url.path) {
+                    _ = try files.replaceItemAt(url, withItemAt: temporary)
+                } else {
+                    try files.moveItem(at: temporary, to: url)
+                }
+                self.showPolicyStatus("Exported \(url.lastPathComponent)")
+            } catch {
+                self.presentProjectError(error)
+            }
+        }
+    }
+
+    @objc private func editRobotProject() {
+        guard let choice = activeChoice, let folder = choice.projectFolder else { return }
+        do {
+            let settings = try NumiRobotProject.read(from: folder)
+            let alert = NSAlert()
+            alert.messageText = "Save an Experiment Copy"
+            alert.informativeText = "Effort sets the first actuated joint’s sine-wave amplitude as a fraction of its URDF limit."
+            alert.addButton(withTitle: "Save Copy and Run")
+            alert.addButton(withTitle: "Cancel")
+            let name = NSTextField(string: choice.robotName + " Copy")
+            let gravity = NSTextField(string: String(settings.gravity))
+            let friction = NSTextField(string: String(settings.friction))
+            let effort = NSTextField(string: String(settings.effort))
+            let form = NSGridView(views: [
+                [NSTextField(labelWithString: "Name"), name],
+                [NSTextField(labelWithString: "Gravity (m/s²)"), gravity],
+                [NSTextField(labelWithString: "Static friction"), friction],
+                [NSTextField(labelWithString: "Normalized effort"), effort],
+            ])
+            name.widthAnchor.constraint(greaterThanOrEqualToConstant: 200).isActive = true
+            form.rowSpacing = 7
+            alert.accessoryView = form
+            alert.beginSheetModal(for: window) { [weak self] response in
+                guard let self, response == .alertFirstButtonReturn else { return }
+                let title = name.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !title.isEmpty, let g = Double(gravity.stringValue),
+                      let f = Double(friction.stringValue), let e = Double(effort.stringValue),
+                      NumiRobotProject(gravity: g, friction: f, effort: e).isValid else {
+                    self.presentProjectError(CocoaError(.validationNumberTooLarge, userInfo: [
+                        NSLocalizedDescriptionKey: "Enter a name, gravity from 0 to 100, friction from 0 to 4, and effort from −1 to 1.",
+                    ]))
+                    return
+                }
+                do {
+                    try self.prepareRobotProject(from: folder,
+                        settings: NumiRobotProject(gravity: g, friction: f, effort: e), name: title)
+                } catch {
+                    self.presentProjectError(error)
+                }
+            }
+        } catch {
+            presentProjectError(error)
+        }
+    }
+
+    private func presentProjectError(_ error: Error) {
+        showPolicyStatus("Project operation failed")
+        NSAlert(error: error).beginSheetModal(for: window)
+    }
+
+    private func startSceneImport(
+        message: String,
+        operation: @escaping @Sendable (URL, URL) throws -> NumiWindowSceneChoice
+    ) {
         guard !importingModel, let resources = numiWindowAppResources() else { return }
+        importingModel = true
+        setConfigurationControlsEnabled(false)
+        showPolicyStatus(message)
+        let library = numiWindowSceneDirectory()
+        Task {
+            defer {
+                importingModel = false
+                if !reconfiguring { setConfigurationControlsEnabled(true) }
+            }
+            do {
+                let scene = try await Task.detached(priority: .userInitiated) {
+                    try operation(library, resources)
+                }.value
+                guard !closed else { return }
+                if !sceneChoices.contains(where: { $0.id == scene.id }) {
+                    sceneChoices.append(scene)
+                    if let toolbar = window.toolbar, robotSelector == nil {
+                        for (index, item) in [
+                            Self.robotSelectorToolbarItem, Self.sceneSelectorToolbarItem,
+                            Self.taskSelectorToolbarItem,
+                        ].enumerated() {
+                            toolbar.insertItem(withItemIdentifier: item, at: min(index + 2, toolbar.items.count))
+                        }
+                    } else if let robotSelector {
+                        configureRobotSelector(robotSelector)
+                    }
+                }
+                requestScene(scene)
+            } catch {
+                guard !closed else { return }
+                showPolicyStatus("Scene import failed")
+                await NSAlert(error: error).beginSheetModal(for: window)
+            }
+        }
+    }
+
+    @objc private func openPandaModel() {
         let panel = NSOpenPanel()
         panel.title = "Open Panda Model"
         panel.message = "Choose the stock Panda panda.xml or scene.xml from MuJoCo Menagerie."
         panel.allowedContentTypes = [.xml]
         panel.beginSheetModal(for: window) { [weak self] response in
             guard let self, response == .OK, let selection = panel.url else { return }
-            self.importingModel = true
-            self.setConfigurationControlsEnabled(false)
-            self.showPolicyStatus("Importing Panda Tabletop…")
-            let library = numiWindowSceneDirectory()
-            Task {
-                defer {
-                    self.importingModel = false
-                    if !self.reconfiguring { self.setConfigurationControlsEnabled(true) }
-                }
-                do {
-                    let scene = try await Task.detached(priority: .userInitiated) {
-                        try importPandaScene(from: selection, to: library, resources: resources)
-                    }.value
-                    guard !self.closed else { return }
-                    if !self.sceneChoices.contains(where: { $0.id == scene.id }) {
-                        self.sceneChoices.append(scene)
-                        if let toolbar = self.window.toolbar, self.robotSelector == nil {
-                            for (index, item) in [
-                                Self.robotSelectorToolbarItem,
-                                Self.sceneSelectorToolbarItem,
-                                Self.taskSelectorToolbarItem,
-                            ].enumerated() {
-                                toolbar.insertItem(withItemIdentifier: item, at: min(index + 2, toolbar.items.count))
-                            }
-                        } else if let selector = self.robotSelector {
-                            self.configureRobotSelector(selector)
-                        }
-                    }
-                    self.requestScene(scene)
-                } catch {
-                    guard !self.closed else { return }
-                    self.showPolicyStatus("Panda import failed")
-                    await NSAlert(error: error).beginSheetModal(for: self.window)
-                }
+            self.startSceneImport(message: "Importing Panda Tabletop…") { library, resources in
+                try importPandaScene(from: selection, to: library, resources: resources)
             }
         }
     }
@@ -1221,15 +1477,27 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             stateLabel.maximumNumberOfLines = 4
             stateLabel.lineBreakMode = .byTruncatingTail
             view.addSubview(stateInspector)
-            stateInspector.addSubview(stateLabel)
+            stateChannel.target = self
+            stateChannel.action = #selector(updateStatePlot)
+            stateChannel.controlSize = .small
+            statePlot.translatesAutoresizingMaskIntoConstraints = false
+            statePlot.heightAnchor.constraint(equalToConstant: 54).isActive = true
+            statePlot.widthAnchor.constraint(greaterThanOrEqualToConstant: 220).isActive = true
+            let chart = NSStackView(views: [stateLabel, stateChannel, statePlot])
+            chart.orientation = .vertical
+            chart.alignment = .leading
+            chart.spacing = 5
+            chart.translatesAutoresizingMaskIntoConstraints = false
+            stateInspector.addSubview(chart)
             NSLayoutConstraint.activate([
                 stateInspector.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
                 stateInspector.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -16),
                 stateInspector.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -16),
-                stateLabel.leadingAnchor.constraint(equalTo: stateInspector.leadingAnchor, constant: 12),
-                stateLabel.trailingAnchor.constraint(equalTo: stateInspector.trailingAnchor, constant: -12),
-                stateLabel.topAnchor.constraint(equalTo: stateInspector.topAnchor, constant: 10),
-                stateLabel.bottomAnchor.constraint(equalTo: stateInspector.bottomAnchor, constant: -10),
+                chart.leadingAnchor.constraint(equalTo: stateInspector.leadingAnchor, constant: 12),
+                chart.trailingAnchor.constraint(equalTo: stateInspector.trailingAnchor, constant: -12),
+                chart.topAnchor.constraint(equalTo: stateInspector.topAnchor, constant: 10),
+                chart.bottomAnchor.constraint(equalTo: stateInspector.bottomAnchor, constant: -10),
+                statePlot.trailingAnchor.constraint(equalTo: chart.trailingAnchor),
             ])
         } else {
             stateInspector.isHidden.toggle()
@@ -1237,21 +1505,76 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         onStateInspectionChanged?(!stateInspector.isHidden)
     }
 
-    func showStateSample(
-        step: Int, q: [Float], contactCount: UInt32?,
-        position: [Float], strongestNormal: String?
-    ) {
-        let joints = q.map { String(format: "%+.3f", $0) }.joined(separator: "  ")
-        var text = "Step \(step)   Contacts \(contactCount.map(String.init) ?? "—")"
-        text += "\nq (up to 9)   \(joints)"
-        if let strongestNormal {
-            text += "\nPeak normal load   \(strongestNormal)"
+    fileprivate func showStateSample(_ sample: NumiStateSample) {
+        if let last = stateSamples.last, sample.tick <= last.tick {
+            stateSamples.removeAll(keepingCapacity: true)
         }
-        if position.count == 3 {
-            let xyz = position.map { String(format: "%+.3f", $0) }.joined(separator: "  ")
+        stateSamples.append(sample)
+        if stateSamples.count > 300 { stateSamples.removeFirst() }
+        if stateChannel.numberOfItems != sample.configuration.count + 1 {
+            stateChannel.removeAllItems()
+            stateChannel.addItems(withTitles:
+                sample.configuration.indices.map { "Coordinate \($0 + 1)" } + ["Peak normal force (N)"])
+        }
+        let joints = sample.configuration.prefix(9).map {
+            String(format: "%+.3f", $0)
+        }.joined(separator: "  ")
+        var text = "Tick \(sample.tick)   Contacts \(sample.contactCount.map(String.init) ?? "—")"
+        text += "\nq   \(joints)"
+        if let force = sample.peakNormalForce, let a = sample.bodyA, let b = sample.bodyB {
+            text += "\nPeak normal load   " + String(format: "%.2f N", force) + " · \(a) / \(b)"
+        }
+        if sample.scenePosition.count == 3 {
+            let xyz = sample.scenePosition.map { String(format: "%+.3f", $0) }.joined(separator: "  ")
             text += "\nFirst scene body (m)   \(xyz)"
         }
         stateLabel.stringValue = text
+        updateStatePlot()
+    }
+
+    @objc private func updateStatePlot() {
+        let index = stateChannel.indexOfSelectedItem
+        guard index >= 0 else { return }
+        statePlot.values = stateSamples.compactMap { sample in
+            let value = index < sample.configuration.count
+                ? sample.configuration[index] : sample.peakNormalForce
+            return value.map { (sample.tick, $0) }
+        }
+    }
+
+    @objc private func exportStateSamples() {
+        guard let first = stateSamples.first else { return }
+        let columns = first.configuration.indices.map { "q\($0 + 1)" } +
+            ["active_contacts", "peak_normal_force_n", "body_a", "body_b", "scene_x", "scene_y", "scene_z"]
+        func quote(_ text: String?) -> String {
+            guard let text else { return "" }
+            let mark = String(UnicodeScalar(34))
+            return mark + text.replacingOccurrences(of: mark, with: mark + mark) + mark
+        }
+        let lines = stateSamples.map { sample in
+            let labels = [sample.contactCount.map { String($0) } ?? "",
+                          sample.peakNormalForce.map { String($0) } ?? "",
+                          quote(sample.bodyA), quote(sample.bodyB)]
+            let scene = (0..<3).map { index in
+                index < sample.scenePosition.count ? String(sample.scenePosition[index]) : ""
+            }
+            return ([String(sample.tick)] + sample.configuration.map { String($0) } + labels + scene)
+                .joined(separator: ",")
+        }
+        let contents = (["control_tick," + columns.joined(separator: ",")] + lines)
+            .joined(separator: "\n") + "\n"
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.commaSeparatedText]
+        panel.nameFieldStringValue = "Numi State Samples.csv"
+        panel.beginSheetModal(for: window) { [weak self] result in
+            guard let self, result == .OK, let url = panel.url else { return }
+            do {
+                try contents.write(to: url, atomically: true, encoding: .utf8)
+                self.showPolicyStatus("Exported \(url.lastPathComponent)")
+            } catch {
+                self.presentProjectError(error)
+            }
+        }
     }
 
     @objc private func showSceneLibrary() {
@@ -1885,6 +2208,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         }
         if paused { togglePause() }
         reconfiguring = true
+        stateSamples.removeAll(keepingCapacity: true)
+        statePlot.values = []
         stateLabel.stringValue = "Waiting for the new scene…"
         let robotChanged = activeRobotID != choice.robotID
         robotSelector?.isEnabled = false
@@ -2505,14 +2830,12 @@ public final class NumiWindowBridge: @unchecked Sendable {
     }
 
     func reportStateSample(
-        step: Int, q: [Float], contacts: UInt32?, position: [Float], strongestNormal: String?
+        step: Int, q: [Float], contact: MetalRoboTaskContactSample?, position: [Float]
     ) {
-        DispatchQueue.main.async { [window] in
-            window.showStateSample(
-                step: step, q: q, contactCount: contacts,
-                position: position, strongestNormal: strongestNormal
-            )
-        }
+        let sample = NumiStateSample(tick: step, configuration: q,
+            peakNormalForce: contact?.peakNormalForce, contactCount: contact?.active,
+            bodyA: contact?.bodyA, bodyB: contact?.bodyB, scenePosition: position)
+        DispatchQueue.main.async { [window] in window.showStateSample(sample) }
     }
 
     var presentationCount: UInt64 {

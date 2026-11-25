@@ -3839,8 +3839,13 @@ kernel void mr_locomotion_task_apply_native_actuators(
             effort += actuatorDryFriction(dof, velocity, effort);
             const float envelope = actuatorEffortEnvelope(
                 dof, actuatorProfiles[dofIndex], velocity);
+            // Direct effort overrides the task motor command. Passive
+            // mechanism damping still acts outside the actuator envelope.
+            const float passiveDamping = kind == MR_TASK_ACTUATOR_JOINT_EFFORT
+                ? -dof.drive.y * velocity
+                : 0.0f;
             workingEffort[vBase + velocityIndex] =
-                clamp(effort, -envelope, envelope);
+                clamp(effort, -envelope, envelope) + passiveDamping;
             continue;
         }
         if (kind == MR_TASK_ACTUATOR_TENDON_POSITION) {

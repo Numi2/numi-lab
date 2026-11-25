@@ -78,7 +78,9 @@ def measure(rows: list[list[float]]) -> dict[str, float]:
     }
 
 
-def mujoco_reference(xml: Path, targets: list[list[float]], output: Path) -> dict:
+def mujoco_reference(
+    xml: Path, targets: list[list[float]], output: Path, cube_mass: float, cube_friction: float,
+) -> dict:
     import mujoco
 
     model_hash = sha256(xml)
@@ -96,7 +98,7 @@ def mujoco_reference(xml: Path, targets: list[list[float]], output: Path) -> dic
     cube.add_freejoint(name="numi_cube_free")
     cube.add_geom(
         name="numi_cube_geom", type=mujoco.mjtGeom.mjGEOM_BOX,
-        size=[0.025, 0.025, 0.025], mass=0.1, friction=[0.7, 0.005, 0.0001],
+        size=[0.025, 0.025, 0.025], mass=cube_mass, friction=[cube_friction, 0.005, 0.0001],
     )
     # Keep the unused Numi target fixture and clutter present in the reference.
     target = spec.worldbody.add_body(name="numi_target", pos=[0.45, 0.25, 0])
@@ -147,6 +149,10 @@ def main() -> None:
     output.mkdir(parents=True, exist_ok=False)
     scene = args.scene.resolve()
     clip = scene.parent / "tabletop.actions.f32"
+    fixture_path = scene.parent / "tabletop.experiment.json"
+    fixture = json.loads(fixture_path.read_text()) if fixture_path.exists() else {
+        "cube_mass_kg": 0.1, "cube_static_friction": 0.7,
+    }
     with (scene.parent / "tabletop.targets.csv").open() as stream:
         targets = [[float(v) for v in row[1:]] for row in list(csv.reader(stream))[1:]]
     ticks = len(targets)
@@ -204,7 +210,8 @@ def main() -> None:
         "open_control_passed": runs["open-gripper"]["peak_lift_m"] <= MAX_OPEN_LIFT,
     }
     summary = {
-        "scope": "Nominal deterministic demonstration with distinct native Panda and stock MuJoCo dynamics.",
+        "scope": "Deterministic tabletop demonstration with distinct native Panda and stock MuJoCo dynamics.",
+        "fixture": fixture,
         "host": platform.platform(),
         "control_timestep_s": DT,
         "physics_substeps": SUBSTEPS,
@@ -221,7 +228,8 @@ def main() -> None:
     }
     if args.mujoco_panda is not None:
         reference = mujoco_reference(
-            args.mujoco_panda.resolve(), targets, output / "mujoco-state.csv"
+            args.mujoco_panda.resolve(), targets, output / "mujoco-state.csv",
+            fixture["cube_mass_kg"], fixture["cube_static_friction"],
         )
         summary["mujoco_stock_reference"] = reference
         checks["mujoco_reference_hold_lift_passed"] = reference["minimum_hold_lift_m"] >= MIN_LIFT

@@ -59,12 +59,14 @@ chmod +x "$numi_temp/fake-build/bin/metalrobo_task_rollout"
 printf 'fake native library\n' > "$numi_temp/fake-build/lib/libmetalrobo.dylib"
 printf 'fake metal library\n' > "$numi_temp/fake-build/shaders/MetalRobo.metallib"
 
+numi_expected_version=$(awk '/^[[:space:]]+VERSION [0-9]/ { print $2; exit }' "$numi_repo/CMakeLists.txt")
 numi_version=$($numi_repo/tools/numi version)
-[ "$numi_version" = "0.4.0" ]
+[ -n "$numi_expected_version" ]
+[ "$numi_version" = "$numi_expected_version" ]
 
 ln -s "$numi_repo/tools/numi" "$numi_temp/numi"
 numi_linked_version=$($numi_temp/numi version)
-[ "$numi_linked_version" = "0.4.0" ]
+[ "$numi_linked_version" = "$numi_expected_version" ]
 
 numi_codex_description=$($numi_repo/tools/numi codex --numi-describe)
 [ "$numi_codex_description" = "Install or inspect Numi Lab inside Codex." ]

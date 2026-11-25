@@ -7,6 +7,14 @@
 #include "metalrobo/VisualPresentation.hpp"
 #include "VisualKernelHashes.h"
 
+#include <TargetConditionals.h>
+
+#if TARGET_OS_OSX
+#define NUMI_VISUAL_SDK_VERSION __MAC_OS_X_VERSION_MAX_ALLOWED
+#else
+#define NUMI_VISUAL_SDK_VERSION __IPHONE_OS_VERSION_MAX_ALLOWED
+#endif
+
 #include <CommonCrypto/CommonDigest.h>
 
 #include <algorithm>
@@ -856,7 +864,7 @@ VisualAssetCookDiagnostics cookVisualEnvironment(
             "storage=rg11b10f+rg16f;"
             "coreimage=" + frameworkVersion(CIContext.class) +
             ";sdk=" +
-            std::to_string(__MAC_OS_X_VERSION_MAX_ALLOWED) +
+            std::to_string(NUMI_VISUAL_SDK_VERSION) +
             ";kernel=" METALROBO_ENVIRONMENT_KERNEL_HASH +
             ";samples=diffuse:1024,specular:64-1024,"
             "dfg:1024";
