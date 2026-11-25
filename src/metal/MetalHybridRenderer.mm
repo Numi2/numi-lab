@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#import <TargetConditionals.h>
 
 #include "metalrobo/MetalHybridRenderer.hpp"
 
@@ -1482,6 +1483,12 @@ bool createNativeVisualResources(
         }
     }
 
+#if TARGET_OS_SIMULATOR
+    if (needsMetalIO) {
+        reason = "Metal I/O texture streaming requires Apple hardware.";
+        return false;
+    }
+#else
     if (needsMetalIO) {
         MTLIOCommandQueueDescriptor* descriptor =
             [[MTLIOCommandQueueDescriptor alloc] init];
@@ -1574,6 +1581,7 @@ bool createNativeVisualResources(
             return false;
         }
     }
+#endif
 
     if (!stagingTasks.empty()) {
         const std::array<id<MTLBuffer>, 2u> staging{
@@ -1791,6 +1799,17 @@ bool loadAndPrepareStreamedGeometry(
     if (scene.geometrySources.empty()) {
         return true;
     }
+#if TARGET_OS_SIMULATOR
+    (void)device;
+    (void)queue;
+    (void)rebasePipeline;
+    (void)rebaseMaterialPipeline;
+    (void)expandPipeline;
+    (void)buildClustersPipeline;
+    (void)buffers;
+    reason = "Metal I/O geometry streaming requires Apple hardware.";
+    return false;
+#else
     MTLIOCommandQueueDescriptor* ioDescriptor =
         [[MTLIOCommandQueueDescriptor alloc] init];
     ioDescriptor.type = MTLIOCommandQueueTypeSerial;
@@ -2011,6 +2030,7 @@ bool loadAndPrepareStreamedGeometry(
         return false;
     }
     return true;
+#endif
 }
 
 bool buildCompactedPrimitiveAccelerationStructures(

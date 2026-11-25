@@ -64,6 +64,10 @@ struct MetalRunInspectorState
     std::uint32_t height = 0u;
     __strong id<MTLBuffer> rotorPhase = nil;
     float pendingRotorSeconds = 0.0f;
+    __strong id<MTLCommandQueue> lastQueue = nil;
+    __strong id<MTLBuffer> lastBodies = nil;
+    __strong id<MTLBuffer> lastMotors = nil;
+    MetalWorldInspectionPass lastPass{};
 
     [[nodiscard]] bool ensureBuffers(id<MTLDevice> device) {
         if (device == nil || width == 0u || height == 0u) {
@@ -299,6 +303,24 @@ void MetalRunInspector::setCameraOverride(
     }
 }
 
+bool MetalRunInspector::redraw() {
+    if (!state_ || state_->lastQueue == nil ||
+        !state_->enabled.load(std::memory_order_acquire)) {
+        return true;
+    }
+    id<MTLCommandBuffer> command = [state_->lastQueue commandBuffer];
+    if (command == nil) return false;
+    MetalWorldInspectionPass pass = state_->lastPass;
+    pass.commandBuffer = (__bridge void*)command;
+    pass.currentBodies = (__bridge void*)state_->lastBodies;
+    pass.multicopterMotors = (__bridge void*)state_->lastMotors;
+    pass.controlStepCount = 0u;
+    if (!encodeInspection(state_.get(), pass)) return false;
+    [command commit];
+    [command waitUntilCompleted];
+    return command.status == MTLCommandBufferStatusCompleted;
+}
+
 bool MetalRunInspector::encodeInspection(
     void* context,
     const MetalWorldInspectionPass& pass
@@ -309,6 +331,16 @@ bool MetalRunInspector::encodeInspection(
         pass.environmentCount == 0u || pass.bodyCount == 0u ||
         state->config.environmentIndex >= pass.environmentCount) {
         return false;
+    }
+    if (pass.controlStepCount != 0u) {
+        id<MTLCommandBuffer> submission = (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+        state->lastQueue = submission.commandQueue;
+        state->lastBodies = (__bridge id<MTLBuffer>)pass.currentBodies;
+        state->lastMotors = (__bridge id<MTLBuffer>)pass.multicopterMotors;
+        state->lastPass = pass;
+        state->lastPass.commandBuffer = nullptr;
+        state->lastPass.currentBodies = nullptr;
+        state->lastPass.multicopterMotors = nullptr;
     }
     if (!state->enabled.load(std::memory_order_acquire)) {
         return true;

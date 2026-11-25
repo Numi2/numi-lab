@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#import <TargetConditionals.h>
 
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
@@ -4702,6 +4703,8 @@ MetalWorldDiagnostics initializeContext(
     diagnostics.thermalState = thermalStateName(
         [NSProcessInfo processInfo].thermalState
     );
+    // The Simulator's translated Metal device reports false on Apple silicon.
+#if !TARGET_OS_SIMULATOR
     if (!device.hasUnifiedMemory) {
         return reject(
             std::move(diagnostics),
@@ -4709,6 +4712,7 @@ MetalWorldDiagnostics initializeContext(
             "MetalWorld requires unified-memory Metal"
         );
     }
+#endif
 
     id<MTLCommandQueue> queue = [device newCommandQueue];
     if (queue == nil) {

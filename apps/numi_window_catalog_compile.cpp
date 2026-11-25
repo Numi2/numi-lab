@@ -6,6 +6,7 @@
 
 #include <CommonCrypto/CommonDigest.h>
 #include "metalrobo/RunProgram.hpp"
+#include "metalrobo/RobotDescriptionCooker.hpp"
 #include "metalrobo/VisualPresentation.hpp"
 
 #include <libxml/parser.h>
@@ -22,6 +23,7 @@
 #include <map>
 #include <memory>
 #include <numbers>
+#include <numeric>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -38,6 +40,15 @@ struct Arguments {
     std::filesystem::path output;
     std::filesystem::path pandaModel;
     std::filesystem::path metallib;
+    std::filesystem::path urdf;
+    std::filesystem::path srdf;
+    std::string projectID = "robot-project";
+    std::string projectName;
+    float gravity = 9.81f;
+    float friction = 0.8f;
+    float effort = 0.1f;
+    std::optional<float> pandaCubeMass;
+    std::optional<float> pandaCubeFriction;
     bool starter = false;
 };
 
@@ -48,7 +59,11 @@ Arguments arguments(const int argc, const char* const* argv) {
         if (option == "--starter") {
             result.starter = true;
         } else if (option == "--workspace" || option == "--output" ||
-                   option == "--panda-model" || option == "--metallib") {
+                   option == "--panda-model" || option == "--metallib" ||
+                   option == "--urdf" || option == "--srdf" ||
+                   option == "--project-id" || option == "--project-name" ||
+                   option == "--gravity" || option == "--friction" || option == "--effort" ||
+                   option == "--panda-cube-mass" || option == "--panda-cube-friction") {
             if (++index == argc) {
                 throw std::invalid_argument("missing value for " +
                     std::string{option});
@@ -56,17 +71,42 @@ Arguments arguments(const int argc, const char* const* argv) {
             if (option == "--workspace") result.workspace = argv[index];
             else if (option == "--output") result.output = argv[index];
             else if (option == "--panda-model") result.pandaModel = argv[index];
-            else result.metallib = argv[index];
+            else if (option == "--metallib") result.metallib = argv[index];
+            else if (option == "--urdf") result.urdf = argv[index];
+            else if (option == "--srdf") result.srdf = argv[index];
+            else if (option == "--project-id") result.projectID = argv[index];
+            else if (option == "--project-name") result.projectName = argv[index];
+            else {
+                const std::string value = argv[index];
+                std::size_t end = 0u;
+                const float number = std::stof(value, &end);
+                const bool mass = option == "--panda-cube-mass";
+                const bool friction = option == "--friction" || option == "--panda-cube-friction";
+                const float lower = option == "--effort" ? -1.0f : (mass ? 0.01f : 0.0f);
+                const float upper = option == "--gravity" ? 100.0f : (friction ? 4.0f : 1.0f);
+                if (end != value.size() || !std::isfinite(number) ||
+                    number < lower || number > upper) {
+                    throw std::invalid_argument("Invalid value for " + std::string{option});
+                }
+                if (option == "--gravity") result.gravity = number;
+                else if (option == "--friction") result.friction = number;
+                else if (option == "--effort") result.effort = number;
+                else if (mass) result.pandaCubeMass = number;
+                else result.pandaCubeFriction = number;
+            }
         } else {
             throw std::invalid_argument("unknown option " +
                 std::string{option});
         }
     }
-    if (result.output.empty() ||
-        (result.pandaModel.empty() && result.workspace.empty()) ||
-        (!result.pandaModel.empty() && result.starter)) {
+    const auto importCount = !result.urdf.empty() + !result.pandaModel.empty();
+    if (result.output.empty() || importCount > 1 ||
+        (importCount == 0 && result.workspace.empty()) ||
+        (importCount != 0 && result.starter) ||
+        (!result.srdf.empty() && result.urdf.empty()) ||
+        ((result.pandaCubeMass || result.pandaCubeFriction) && result.pandaModel.empty())) {
         throw std::invalid_argument(
-            "Specify --output and either --workspace [--starter] or --panda-model."
+            "Specify --output and one of --workspace [--starter], --panda-model, or --urdf [--srdf]."
         );
     }
     return result;
@@ -708,6 +748,8 @@ void px4VisualURDF(
     stream << "  </link>\n</robot>\n";
 }
 
+std::string jsonString(std::string_view value);
+
 void cookPresentation(
     const std::filesystem::path& urdf,
     const EngineModel& model,
@@ -717,7 +759,8 @@ void cookPresentation(
     const std::array<float, 3u>& position,
     const std::array<float, 4u>& orientation,
     const std::string_view deformableSourceFilename = {},
-    metalrobo::VisualAssetCookOptions options = {}
+    metalrobo::VisualAssetCookOptions options = {},
+    const bool projectRelativeSources = false
 ) {
     options.id = id;
     if (options.license == "NOASSERTION") {
@@ -747,6 +790,12 @@ void cookPresentation(
     for (std::size_t index = 0u; index < packs.size(); ++index) {
         auto& pack = packs[index];
         const auto source = std::filesystem::path{pack.sourceUri}.filename().string();
+        if (projectRelativeSources) {
+            pack.sourceUri = source.starts_with("primitive-")
+                ? "builtin://numi/" + source
+                : "source/meshes/" + source;
+            pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
+        }
         if (id == "px4-x500") {
             for (std::uint32_t rotor = 0u; rotor < 4u; ++rotor) {
                 if (source != "px4-x500-rotor-" + std::to_string(rotor) + ".glb") {
@@ -768,8 +817,8 @@ void cookPresentation(
         const bool deformable = !deformableSourceFilename.empty() &&
             source == deformableSourceFilename;
         deformablePackCount += deformable ? 1u : 0u;
-        config << "    {\"path\": \"visual/" << path.filename().string()
-               << "\", \"asset_id\": \"robot\", \"semantic_id\": "
+        config << "    {\"path\": " << jsonString("visual/" + path.filename().string())
+               << ", \"asset_id\": \"robot\", \"semantic_id\": "
                << (deformable ? 2 : 1) << ", \"instance_id\": "
                << (deformable ? 2 : 1)
                << (deformable
@@ -782,8 +831,8 @@ void cookPresentation(
             "visual cook did not resolve exactly one authored deformable surface"
         );
     }
-    config << "  ],\n  \"camera\": {\n    \"parent_body\": \""
-           << parentBody << "\",\n    \"position\": ["
+    config << "  ],\n  \"camera\": {\n    \"parent_body\": "
+           << jsonString(parentBody) << ",\n    \"position\": ["
            << position[0] << ", " << position[1] << ", " << position[2]
            << "],\n    \"orientation\": [" << orientation[0] << ", "
            << orientation[1] << ", " << orientation[2] << ", "
@@ -792,6 +841,19 @@ void cookPresentation(
            << "    \"vertical_field_of_view_degrees\": 52.0,\n"
            << "    \"nominal_rate_hz\": 50.0,\n"
            << "    \"maximum_retained_bytes\": 0\n  }\n}\n";
+}
+
+std::string jsonString(std::string_view value) {
+    std::ostringstream stream;
+    stream << '"';
+    for (const unsigned char byte : value) {
+        if (byte == '"' || byte == '\\') stream << '\\' << static_cast<char>(byte);
+        else if (byte < 32u) stream << "\\u00" << std::hex << std::setw(2)
+                                   << std::setfill('0') << static_cast<unsigned>(byte);
+        else stream << static_cast<char>(byte);
+    }
+    stream << '"';
+    return stream.str();
 }
 
 void scene(
@@ -809,18 +871,18 @@ void scene(
 ) {
     std::ofstream stream{output / (id + ".numi-window.json")};
     stream << "{\n  \"format\": \"numi.window.scene.v1\",\n"
-           << "  \"id\": \"" << id << "\",\n"
-           << "  \"robot_id\": \"" << robotID << "\",\n"
-           << "  \"robot_name\": \"" << robotName << "\",\n"
-           << "  \"scene_id\": \"" << sceneID << "\",\n"
-           << "  \"scene_name\": \"" << sceneName << "\",\n"
-           << "  \"task_id\": \"" << taskID << "\",\n"
-           << "  \"task_name\": \"" << taskName << "\",\n"
-           << "  \"visual_observation\": \"" << visual << "\",\n"
+           << "  \"id\": " << jsonString(id) << ",\n"
+           << "  \"robot_id\": " << jsonString(robotID) << ",\n"
+           << "  \"robot_name\": " << jsonString(robotName) << ",\n"
+           << "  \"scene_id\": " << jsonString(sceneID) << ",\n"
+           << "  \"scene_name\": " << jsonString(sceneName) << ",\n"
+           << "  \"task_id\": " << jsonString(taskID) << ",\n"
+           << "  \"task_name\": " << jsonString(taskName) << ",\n"
+           << "  \"visual_observation\": " << jsonString(visual) << ",\n"
            << "  \"arguments\": [";
     for (std::size_t index = 0u; index < arguments.size(); ++index) {
         stream << (index == 0u ? "\n    " : ",\n    ")
-               << std::quoted(arguments[index]);
+               << jsonString(arguments[index]);
     }
     stream << "\n  ]";
     if (!trainingArguments.empty()) {
@@ -828,7 +890,7 @@ void scene(
         for (std::size_t index = 0u;
              index < trainingArguments.size(); ++index) {
             stream << (index == 0u ? "\n    " : ",\n    ")
-                   << std::quoted(trainingArguments[index]);
+                   << jsonString(trainingArguments[index]);
         }
         stream << "\n  ]";
     }
@@ -1075,6 +1137,346 @@ void writeBoxOBJ(const std::filesystem::path& path, mr_float4 half) {
     if (!stream) throw std::runtime_error("Could not write tabletop box geometry.");
 }
 
+using XmlDocument = std::unique_ptr<xmlDoc, decltype(&xmlFreeDoc)>;
+
+XmlDocument readProjectURDF(const std::filesystem::path& path) {
+    XmlDocument document{xmlReadFile(path.c_str(), nullptr, XML_PARSE_NONET |
+        XML_PARSE_NOERROR | XML_PARSE_NOWARNING), xmlFreeDoc};
+    const auto* root = document ? xmlDocGetRootElement(document.get()) : nullptr;
+    if (root == nullptr || document->intSubset || document->extSubset ||
+        xmlStrcmp(root->name, BAD_CAST "robot") != 0) {
+        throw std::runtime_error("Expected a URDF robot without an XML document type.");
+    }
+    return document;
+}
+
+void saveProjectURDF(const std::filesystem::path& path, const XmlDocument& document) {
+    if (xmlSaveFormatFileEnc(path.c_str(), document.get(), "UTF-8", 1) < 0) {
+        throw std::runtime_error("Could not save project URDF.");
+    }
+}
+
+void localizeProjectMeshes(
+    xmlNode* node, const std::filesystem::path& source,
+    const std::filesystem::path& destination,
+    std::map<std::filesystem::path, std::filesystem::path>& copied
+) {
+    for (; node != nullptr; node = node->next) {
+        if (node->type == XML_ELEMENT_NODE &&
+            xmlStrcmp(node->name, BAD_CAST "mesh") == 0) {
+            const std::string name = xmlProperty(node, "filename").value_or("");
+            const std::filesystem::path requested{name};
+            if (name.empty() || name.find("://") != std::string::npos ||
+                requested.is_absolute()) {
+                throw std::runtime_error("Use mesh paths relative to the URDF directory: " + name);
+            }
+            const auto mesh = std::filesystem::weakly_canonical(source / requested);
+            const auto relative = mesh.lexically_relative(source);
+            const auto type = mesh.extension().string();
+            if (relative.empty() || *relative.begin() == ".." ||
+                (type != ".obj" && type != ".stl" && type != ".glb") ||
+                !std::filesystem::is_regular_file(mesh)) {
+                throw std::runtime_error("Expected a local OBJ, STL, or GLB mesh: " + name);
+            }
+            if (type == ".obj") {
+                std::ifstream input{mesh};
+                for (std::string line; std::getline(input, line); ) {
+                    std::istringstream tokens{line};
+                    std::string first;
+                    if ((tokens >> first) && first == "mtllib") {
+                        throw std::runtime_error("Use embedded GLB materials or URDF colors: " + name);
+                    }
+                }
+            }
+            auto [entry, insert] = copied.try_emplace(mesh,
+                std::filesystem::path{"meshes"} / (std::to_string(copied.size()) + type));
+            if (insert) std::filesystem::copy_file(mesh, destination / entry->second);
+            xmlSetProp(node, BAD_CAST "filename", BAD_CAST entry->second.c_str());
+        }
+        localizeProjectMeshes(node->children, source, destination, copied);
+    }
+}
+
+float dimension(xmlNode* node, const char* attribute) {
+    const std::string value = xmlProperty(node, attribute).value_or("");
+    std::size_t end = 0;
+    const float result = std::stof(value, &end);
+    if (end != value.size() || !std::isfinite(result) || result <= 0.0f) {
+        throw std::runtime_error("Invalid primitive dimension: " + std::string{attribute});
+    }
+    return result;
+}
+
+void writeRevolvedOBJ(const std::filesystem::path& mesh, float radius, float length, bool sphere) {
+    constexpr unsigned slices = 32;
+    const unsigned rings = sphere ? 15 : 2;
+    std::ofstream file{mesh};
+    file << "v 0 0 " << (-length / 2) << '\n';
+    for (unsigned ring = 0; ring < rings; ++ring) {
+        const double latitude = std::numbers::pi * (ring + 1) / (rings + 1);
+        const double r = sphere ? radius * std::sin(latitude) : radius;
+        const double z = sphere ? -radius * std::cos(latitude) :
+            (static_cast<double>(ring) - 0.5) * length;
+        for (unsigned slice = 0; slice < slices; ++slice) {
+            const double azimuth = 2 * std::numbers::pi * slice / slices;
+            file << "v " << r * std::cos(azimuth) << ' ' << r * std::sin(azimuth)
+                 << ' ' << z << '\n';
+        }
+    }
+    const unsigned top = 2 + rings * slices;
+    file << "v 0 0 " << (length / 2) << '\n';
+    for (unsigned slice = 0; slice < slices; ++slice) {
+        const unsigned next = (slice + 1) % slices;
+        file << "f 1 " << 2 + next << ' ' << 2 + slice << '\n';
+        for (unsigned ring = 0; ring + 1 < rings; ++ring) {
+            const unsigned first = 2 + ring * slices;
+            file << "f " << first + slice << ' ' << first + next << ' '
+                 << first + next + slices << ' ' << first + slice + slices << '\n';
+        }
+        const unsigned last = 2 + (rings - 1) * slices;
+        file << "f " << top << ' ' << last + slice << ' ' << last + next << '\n';
+    }
+    file.close();
+    if (!file) throw std::runtime_error("Could not write project presentation geometry.");
+}
+
+void projectVisualMeshes(xmlNode* node, const std::filesystem::path& output) {
+    unsigned index = 0;
+    for (xmlNode* link = node->children; link != nullptr; link = link->next) {
+        if (link->type != XML_ELEMENT_NODE ||
+            xmlStrcmp(link->name, BAD_CAST "link") != 0) continue;
+        const std::string name = xmlProperty(link, "name").value_or("");
+        if (name.empty() || name.find_first_of("/\\") != std::string::npos ||
+            std::ranges::any_of(name, [](unsigned char c) { return c < 32; })) {
+            throw std::runtime_error("Project link names must be printable and cannot contain path separators.");
+        }
+        for (xmlNode* visual = link->children; visual != nullptr; visual = visual->next) {
+            if (visual->type != XML_ELEMENT_NODE ||
+                xmlStrcmp(visual->name, BAD_CAST "visual") != 0) continue;
+            xmlNode* geometry = xmlChild(visual, "geometry");
+            if (geometry == nullptr || xmlChild(geometry, "mesh") != nullptr) continue;
+            const auto mesh = output / ("primitive-" + std::to_string(index++) + ".obj");
+            xmlNode* primitive = xmlChild(geometry, "box");
+            if (primitive != nullptr) {
+                const auto size = vector3(xmlProperty(primitive, "size"));
+                mr_float4 half{static_cast<float>(size[0] / 2.0),
+                               static_cast<float>(size[1] / 2.0),
+                               static_cast<float>(size[2] / 2.0), 0.0f};
+                if (!(half.x > 0 && half.y > 0 && half.z > 0) ||
+                    !std::isfinite(half.x) || !std::isfinite(half.y) || !std::isfinite(half.z)) {
+                    throw std::runtime_error("Visual box dimensions must be finite and positive.");
+                }
+                writeBoxOBJ(mesh, half);
+            } else {
+                primitive = xmlChild(geometry, "sphere");
+                const bool sphere = primitive != nullptr;
+                if (!sphere) primitive = xmlChild(geometry, "cylinder");
+                if (primitive == nullptr) {
+                    throw std::runtime_error("Use a mesh, box, sphere, or cylinder for visual geometry.");
+                }
+                const float radius = dimension(primitive, "radius");
+                writeRevolvedOBJ(mesh, radius, sphere ? 2 * radius : dimension(primitive, "length"), sphere);
+            }
+            xmlUnlinkNode(primitive);
+            xmlFreeNode(primitive);
+            auto* replacement = xmlNewChild(geometry, nullptr, BAD_CAST "mesh", nullptr);
+            xmlSetProp(replacement, BAD_CAST "filename", BAD_CAST mesh.filename().c_str());
+        }
+    }
+}
+
+void requireProjectPack(const auto& result) {
+    if (!result.succeeded()) throw std::runtime_error("Project compilation failed: " + result.message);
+}
+
+void writeRobotProject(const Arguments& options) {
+    if (options.projectID.empty() || options.projectID.size() > 64 ||
+        !std::ranges::all_of(options.projectID, [](unsigned char c) {
+            return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-';
+        })) {
+        throw std::runtime_error("The project ID must use lowercase ASCII letters, digits, and hyphens.");
+    }
+    if (std::filesystem::exists(options.output) && !std::filesystem::is_empty(options.output)) {
+        throw std::runtime_error("Robot compilation requires an empty output directory.");
+    }
+    const auto source = std::filesystem::canonical(options.urdf);
+    auto document = readProjectURDF(source);
+    const std::string name = options.projectName.empty()
+        ? xmlProperty(xmlDocGetRootElement(document.get()), "name").value_or("Imported Robot")
+        : options.projectName;
+    if (name.empty() || name.size() > 200) {
+        throw std::runtime_error("The project name must have 1 to 200 UTF-8 bytes.");
+    }
+    std::filesystem::create_directories(options.output / "source/meshes");
+    const auto output = std::filesystem::canonical(options.output);
+    const auto sourceDirectory = output / "source";
+    const auto projectURDF = sourceDirectory / "model.urdf";
+    std::map<std::filesystem::path, std::filesystem::path> copied;
+    localizeProjectMeshes(xmlDocGetRootElement(document.get()), source.parent_path(),
+        sourceDirectory, copied);
+    saveProjectURDF(projectURDF, document);
+    std::filesystem::path srdf;
+    if (!options.srdf.empty()) {
+        srdf = sourceDirectory / "model.srdf";
+        std::filesystem::copy_file(options.srdf, srdf);
+    }
+
+    EngineModel mechanics;
+    metalrobo::RobotDescriptionCookOptions cook;
+    cook.gravityAndTimestep.z = -options.gravity;
+    cook.friction.x = options.friction;
+    cook.friction.y = options.friction * 0.75f;
+    requireProjectPack(metalrobo::cookRobotDescriptionFiles(projectURDF, srdf, mechanics, cook));
+
+    metalrobo::TaskPack task;
+    task.id = "robot_effort_v1";
+    metalrobo::RobotActuatorPack actuators;
+    actuators.id = "robot_actuators_v1";
+    metalrobo::SensorProgramPack sensors;
+    sensors.id = "robot_joint_state_v1";
+    for (const auto& dof : mechanics.dofs) {
+        if ((dof.flags & MR_DOF_FLAG_ACTUATED) == 0u) continue;
+        const std::string& joint = mechanics.dofNames.at(dof.vIndex);
+        if ((dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) == 0u) {
+            throw std::runtime_error("Add a positive URDF effort limit to joint " + joint);
+        }
+        actuators.actuators.push_back({
+            .id = "effort_" + std::to_string(task.actions.size()),
+            .kind = metalrobo::RobotActuatorKind::jointEffort,
+            .target = joint, .scale = dof.limits.w,
+        });
+        task.actions.push_back({actuators.actuators.back().id});
+        sensors.observation.actorFrame.push_back({
+            .source = metalrobo::TaskObservationSource::jointVelocity, .target = joint,
+        });
+    }
+    if (task.actions.empty()) {
+        throw std::runtime_error("The workbench requires at least one actuated joint.");
+    }
+    sensors.observation.critic = sensors.observation.actorFrame;
+    const auto root = mechanics.articulations.front().rootBody;
+    const std::string rootName = mechanics.bodyNames.at(root);
+    // The solver anchors a fixed root at zero. Keep URDF link origins at
+    // that anchor, including models whose fixed root has an inertial offset.
+    const auto center = mechanics.bodies.at(root).centerOfMass;
+    for (auto& joint : mechanics.joints) {
+        if (joint.parentBody == root) {
+            joint.parentAnchor.x += center.x;
+            joint.parentAnchor.y += center.y;
+            joint.parentAnchor.z += center.z;
+        }
+    }
+    mechanics.bodies[root].centerOfMass = {};
+    // Keep robot self-collision enabled. Floor rows on an immovable base or
+    // fixed descendants have zero effective mass and should never be emitted.
+    std::vector<bool> fixed(mechanics.bodies.size(), false);
+    fixed[root] = true;
+    for (const auto& joint : mechanics.joints) {
+        fixed[joint.childBody] = fixed[joint.parentBody] && joint.jointType == MR_JOINT_FIXED;
+    }
+    constexpr auto floorGroup = 2u;
+    constexpr auto fixedGroup = 4u;
+    for (auto& shape : mechanics.shapes) {
+        if (shape.bodyIndex == root) {
+            shape.localPosition.x += center.x;
+            shape.localPosition.y += center.y;
+            shape.localPosition.z += center.z;
+        }
+        if (fixed.at(shape.bodyIndex)) {
+            shape.collisionGroup = fixedGroup;
+            shape.collisionMask &= ~(floorGroup | fixedGroup);
+        }
+    }
+    metalrobo::WorldAsset robot;
+    robot.id = "robot";
+    robot.semanticClass = "robot";
+    robot.role = MR_WORLD_ASSET_ROBOT;
+    robot.render = MR_WORLD_RENDER_MESH_PBR;
+    robot.collision = MR_WORLD_COLLISION_CONVEX;
+    robot.dynamics = MR_WORLD_DYNAMICS_ARTICULATED;
+    robot.articulationIndex = 0;
+    robot.bodyIndices.resize(mechanics.bodies.size());
+    robot.shapeIndices.resize(mechanics.shapes.size());
+    robot.materialIndices.resize(mechanics.materials.size());
+    std::iota(robot.bodyIndices.begin(), robot.bodyIndices.end(), 0u);
+    std::iota(robot.shapeIndices.begin(), robot.shapeIndices.end(), 0u);
+    std::iota(robot.materialIndices.begin(), robot.materialIndices.end(), 0u);
+    metalrobo::WorldAsset floor;
+    floor.id = "locomotion_ground";
+    floor.semanticClass = "ground";
+    floor.role = MR_WORLD_ASSET_BACKGROUND;
+    floor.render = MR_WORLD_RENDER_MESH_PBR;
+    floor.collision = MR_WORLD_COLLISION_PRIMITIVES;
+    floor.bodyIndices = {static_cast<std::uint32_t>(mechanics.bodies.size())};
+    floor.shapeIndices = {static_cast<std::uint32_t>(mechanics.shapes.size())};
+    floor.materialIndices = {0u};
+    std::vector<MRBodyStateGPU> sceneBodies;
+    metalrobo::appendLocomotionSurface(mechanics, sceneBodies, metalrobo::LocomotionSurface::ground);
+    mechanics.shapes.back().collisionGroup = floorGroup;
+
+    metalrobo::EpisodeTwin episode;
+    episode.id = "robot_project_v1";
+    episode.assets = {std::move(robot), std::move(floor)};
+    episode.task = {.id = task.id, .robotAssetId = "robot", .controlPeriodSeconds = 0.02};
+    metalrobo::WorldTemplate world;
+    requireProjectPack(metalrobo::compileEpisodeTwin(episode, mechanics, world));
+    metalrobo::WorldProgram program;
+    program.id = "robot_nominal_v1";
+    metalrobo::WorldFamily family;
+    requireProjectPack(metalrobo::compileWorldFamily(world, program, family));
+    metalrobo::MRWorldPack pack;
+    requireProjectPack(metalrobo::compileWorldPack(family, pack));
+    requireProjectPack(metalrobo::writeWorldPack(pack, output / "robot.worldpack"));
+    requireProjectPack(metalrobo::writeTaskPack(task, output / "robot.taskpack"));
+    requireProjectPack(metalrobo::writeRobotActuatorPack(actuators, output / "robot.actuators"));
+    requireProjectPack(metalrobo::writeSensorProgramPack(sensors, output / "robot.sensors"));
+    requireProjectPack(metalrobo::writeRealityProgramPack(
+        {.id = program.id, .program = std::move(program),
+         .sourceProgramFingerprint = family.program.fingerprint}, output / "robot.reality"));
+
+    std::ofstream clip{output / "robot.actions.f32", std::ios::binary};
+    std::vector<float> action(task.actions.size(), 0.0f);
+    for (unsigned tick = 0; tick < 200; ++tick) {
+        action.front() = options.effort * std::sin(
+            2 * std::numbers::pi_v<float> * static_cast<float>(tick) / 200.0f);
+        clip.write(reinterpret_cast<const char*>(action.data()), action.size() * sizeof(float));
+    }
+    clip.close();
+    if (!clip) throw std::runtime_error("Could not write project effort clip.");
+    std::ofstream settings{output / "project.json"};
+    settings << std::setprecision(std::numeric_limits<float>::max_digits10)
+             << "{\n  \"format\": \"numi.robot-project.v1\",\n  \"name\": "
+             << jsonString(name) << ",\n  \"gravity\": "
+             << options.gravity << ",\n  \"friction\": " << options.friction
+             << ",\n  \"effort\": " << options.effort << ",\n  \"action_count\": " << task.actions.size() << "\n}\n";
+    settings.close();
+    if (!settings) throw std::runtime_error("Could not save project settings.");
+
+    const auto presentationSource = sourceDirectory / "presentation.urdf";
+    projectVisualMeshes(xmlDocGetRootElement(document.get()), sourceDirectory);
+    saveProjectURDF(presentationSource, document);
+    metalrobo::VisualAssetCookOptions visual;
+    visual.metallibPath = options.metallib;
+    cookPresentation(presentationSource, mechanics, options.projectID, rootName,
+        output, {1.35f, -1.4f, 0.8f},
+        {-0.73858354f, -0.26102070f, 0.20711737f, 0.58605883f}, {}, std::move(visual), true);
+    const std::string visualConfig = options.projectID + "-visual-observation.json";
+    writeSurfacePresentation(output, visualConfig, "ground", "locomotion_ground", surfacePresentation(false));
+    std::filesystem::remove(output / visualConfig);
+    std::filesystem::remove(presentationSource);
+    for (const auto& entry : std::filesystem::directory_iterator(sourceDirectory)) {
+        if (entry.path().filename().string().starts_with("primitive-")) {
+            std::filesystem::remove(entry.path());
+        }
+    }
+    scene(output, options.projectID, options.projectID, name, "ground", "Ground",
+        "effort", "Joint Effort", options.projectID + "-ground-visual-observation.json",
+        {"--world-pack", "robot.worldpack", "--task-pack", "robot.taskpack",
+         "--robot-actuator-pack", "robot.actuators", "--sensor-program-pack", "robot.sensors",
+         "--reality-program-pack", "robot.reality", "--no-scheduled-resets",
+         "--action-clip", "robot.actions.f32", "--loop-action-clip"});
+}
+
 void writePandaTabletop(const Arguments& options) {
     if (std::filesystem::exists(options.output) &&
         !std::filesystem::is_empty(options.output)) {
@@ -1116,8 +1518,53 @@ void writePandaTabletop(const Arguments& options) {
             shape.collisionMask = 1u | 4u | fingertips;
         }
     }
+    const auto cube = std::ranges::find(mechanics.bodyNames, "pick_object");
+    if (cube == mechanics.bodyNames.end()) {
+        throw std::runtime_error("Missing Panda tabletop cube.");
+    }
+    const auto cubeIndex = static_cast<std::size_t>(cube - mechanics.bodyNames.begin());
+    auto& cubeBody = mechanics.bodies.at(cubeIndex);
+    if (options.pandaCubeMass) {
+        const float mass = *options.pandaCubeMass;
+        const float ratio = mass / cubeBody.massAndInverseMass.x;
+        cubeBody.massAndInverseMass = {mass, 1.0f / mass, 0.0f, 0.0f};
+        for (auto* row : {&cubeBody.inertiaRow0, &cubeBody.inertiaRow1, &cubeBody.inertiaRow2}) {
+            row->x *= ratio; row->y *= ratio; row->z *= ratio;
+        }
+        for (auto* row : {&cubeBody.inverseInertiaRow0, &cubeBody.inverseInertiaRow1, &cubeBody.inverseInertiaRow2}) {
+            row->x /= ratio; row->y /= ratio; row->z /= ratio;
+        }
+    }
+    std::optional<std::uint32_t> cubeMaterial;
+    if (options.pandaCubeFriction) {
+        const float friction = *options.pandaCubeFriction;
+        for (auto& shape : mechanics.shapes) {
+            if (shape.bodyIndex != cubeIndex) continue;
+            if (!cubeMaterial) {
+                auto material = mechanics.materials.at(shape.materialIndex);
+                material.friction.x = friction;
+                material.friction.y = friction * (6.0f / 7.0f);
+                cubeMaterial = static_cast<std::uint32_t>(mechanics.materials.size());
+                mechanics.materials.push_back(material);
+                mechanics.world.materialCount = *cubeMaterial + 1u;
+            }
+            shape.materialIndex = *cubeMaterial;
+        }
+    }
+    std::ofstream fixture{output / "tabletop.experiment.json"};
+    fixture << std::setprecision(std::numeric_limits<float>::max_digits10)
+            << "{\"cube_mass_kg\":" << cubeBody.massAndInverseMass.x
+            << ",\"cube_static_friction\":" << options.pandaCubeFriction.value_or(0.7f) << "}\n";
+    fixture.close();
+    if (!fixture) throw std::runtime_error("Could not write Panda experiment settings.");
+
     auto episode = metalrobo::makeFrankaPickPlaceEpisodeTwin();
     episode.id = "panda_tabletop_v1";
+    if (cubeMaterial) {
+        for (auto& asset : episode.assets) {
+            if (asset.id == "pick_object") asset.materialIndices = {*cubeMaterial};
+        }
+    }
     episode.artifacts.clear();
     episode.sensors.clear();
     episode.task.controlPeriodSeconds = 0.02;
@@ -1248,6 +1695,10 @@ void writePandaTabletop(const Arguments& options) {
 int main(const int argc, const char* const* argv) {
     try {
         const Arguments options = arguments(argc, argv);
+        if (!options.urdf.empty()) {
+            writeRobotProject(options);
+            return 0;
+        }
         if (!options.pandaModel.empty()) {
             writePandaTabletop(options);
             return 0;

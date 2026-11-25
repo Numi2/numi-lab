@@ -8,7 +8,7 @@ endif()
 
 project(
     MetalRobo
-    VERSION 0.4.1
+    VERSION 0.5.0
     DESCRIPTION "Metal-native robotics simulation and reinforcement learning"
     LANGUAGES C CXX OBJCXX
 )
@@ -55,8 +55,17 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+set(METALROBO_METAL_SDK macosx)
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    if(CMAKE_OSX_SYSROOT MATCHES "iphonesimulator|iPhoneSimulator")
+        set(METALROBO_METAL_SDK iphonesimulator)
+    else()
+        set(METALROBO_METAL_SDK iphoneos)
+    endif()
+else()
+    find_library(APPKIT_FRAMEWORK AppKit REQUIRED)
+endif()
 find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
-find_library(APPKIT_FRAMEWORK AppKit REQUIRED)
 find_library(METAL_FRAMEWORK Metal REQUIRED)
 find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
 find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
@@ -251,64 +260,64 @@ set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
 add_custom_command(
     OUTPUT "${METALROBO_METALLIB}"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_CONSTRAINT_SOURCE}"
             -o "${METALROBO_CONSTRAINT_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_QUALITY_CONTACT_SOURCE}"
             -o "${METALROBO_QUALITY_CONTACT_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_UNIFIED_QUALITY_SOURCE}"
             -o "${METALROBO_UNIFIED_QUALITY_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_FREE_BODY_SOURCE}"
             -o "${METALROBO_FREE_BODY_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_MULTICOPTER_SOURCE}"
             -o "${METALROBO_MULTICOPTER_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_MEASURED_SURFACE_SOURCE}"
             -o "${METALROBO_MEASURED_SURFACE_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_COLLISION_SOURCE}"
             -o "${METALROBO_COLLISION_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_BROADPHASE_SOURCE}"
             -o "${METALROBO_BROADPHASE_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
             -o "${METALROBO_ARTICULATED_OPERATOR_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -316,13 +325,13 @@ add_custom_command(
             -DMR_ARTICULATED_OPERATOR_BODY_PARAMETERS=1
             -c "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
             -o "${METALROBO_PARAMETERIZED_ARTICULATED_OPERATOR_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
             -o "${METALROBO_ARTICULATED_ABA_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -330,7 +339,7 @@ add_custom_command(
             -DMR_ABA_BODY_PARAMETERS=1
             -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
             -o "${METALROBO_PARAMETERIZED_ARTICULATED_ABA_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -340,7 +349,7 @@ add_custom_command(
             -DMR_ABA_COMPILED_MAX_Q=17
             -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
             -o "${METALROBO_ARTICULATED_ABA_SMALL_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -348,34 +357,34 @@ add_custom_command(
             -DMR_ABA_MULTI_ARTICULATION=1
             -c "${METALROBO_ARTICULATED_ABA_SOURCE}"
             -o "${METALROBO_MULTI_ARTICULATED_ABA_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
             -o "${METALROBO_DISCRETE_ELASTIC_ROD_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_GENERALIZED_CONSTRAINT_SOURCE}"
             -o "${METALROBO_GENERALIZED_CONSTRAINT_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_MULTI_ARTICULATED_CONTACT_SOURCE}"
             -o "${METALROBO_MULTI_ARTICULATED_CONTACT_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
             -o "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -383,7 +392,7 @@ add_custom_command(
             -DMR_INVERSE_MASS_MULTI_ARTICULATION=1
             -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
             -o "${METALROBO_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -393,7 +402,7 @@ add_custom_command(
             -DMR_INVERSE_MASS_BODY_PARAMETERS=1
             -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
             -o "${METALROBO_PARAMETERIZED_MULTI_ARTICULATED_INVERSE_MASS_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
@@ -404,44 +413,44 @@ add_custom_command(
             -DMR_PARALLEL_INVERSE_MASS_STREAMING_RHS=1
             -c "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
             -o "${METALROBO_STREAMING_ARTICULATED_INVERSE_MASS_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_WORLD_SOURCE}"
             -o "${METALROBO_WORLD_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_WORLD_CONTACT_SOURCE}"
             -o "${METALROBO_WORLD_CONTACT_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_WORLD_COMPILER_SOURCE}"
             -o "${METALROBO_WORLD_COMPILER_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_LOCOMOTION_TASK_SOURCE}"
             -o "${METALROBO_LOCOMOTION_TASK_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_POLICY_INFERENCE_SOURCE}"
             -o "${METALROBO_POLICY_INFERENCE_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
             -c "${METALROBO_HYBRID_RENDERER_SOURCE}"
             -o "${METALROBO_HYBRID_RENDERER_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -fno-fast-math
@@ -449,33 +458,33 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
             -c "${METALROBO_ENVIRONMENT_PREFILTER_SOURCE}"
             -o "${METALROBO_ENVIRONMENT_PREFILTER_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
             -o "${METALROBO_VISUAL_ASSET_COOK_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_TACTILE_SOURCE}"
             -o "${METALROBO_TACTILE_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_SCENE_QUERY_SOURCE}"
             -o "${METALROBO_SCENE_QUERY_AIR}"
-    COMMAND xcrun -sdk macosx metal
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metal
             -std=metal4.0
             -O3
             -fno-fast-math
             -c "${METALROBO_POINTWORLD_SOURCE}"
             -o "${METALROBO_POINTWORLD_AIR}"
-    COMMAND xcrun -sdk macosx metallib
+    COMMAND xcrun -sdk "${METALROBO_METAL_SDK}" metallib
             "${METALROBO_CONSTRAINT_AIR}"
             "${METALROBO_QUALITY_CONTACT_AIR}"
             "${METALROBO_UNIFIED_QUALITY_AIR}"
@@ -588,9 +597,14 @@ add_custom_target(
     DEPENDS "${METALROBO_VISUAL_KERNEL_HASH_HEADER}"
 )
 
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(METALROBO_LIBRARY_KIND STATIC)
+else()
+    set(METALROBO_LIBRARY_KIND SHARED)
+endif()
 add_library(
     metalrobo
-    SHARED
+    ${METALROBO_LIBRARY_KIND}
     src/core/Model.cpp
     src/core/Franka.cpp
     src/core/FrankaEngine.cpp
@@ -721,6 +735,11 @@ set_target_properties(
         BUILD_RPATH "@loader_path/../lib"
         INSTALL_RPATH "@loader_path"
 )
+
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    include(cmake/NumiLabIOS.cmake)
+    return()
+endif()
 
 if(BUILD_TESTING)
     add_executable(

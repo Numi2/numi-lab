@@ -9,6 +9,14 @@
 #include "metalrobo/VisualPresentation.hpp"
 #include "VisualKernelHashes.h"
 
+#include <TargetConditionals.h>
+
+#if TARGET_OS_OSX
+#define NUMI_VISUAL_SDK_VERSION __MAC_OS_X_VERSION_MAX_ALLOWED
+#else
+#define NUMI_VISUAL_SDK_VERSION __IPHONE_OS_VERSION_MAX_ALLOWED
+#endif
+
 #include <CommonCrypto/CommonDigest.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -2655,6 +2663,7 @@ bool readUsdStageMetadata(
     UsdStageMetadata& output,
     std::string& message
 ) {
+#if TARGET_OS_OSX
     NSTask* task = [[NSTask alloc] init];
     task.executableURL =
         [NSURL fileURLWithPath:@"/usr/bin/usdcat"];
@@ -2723,6 +2732,12 @@ bool readUsdStageMetadata(
         return false;
     }
     return true;
+#else
+    (void)source;
+    (void)output;
+    message = "Cook USD stages on macOS before loading the visual pack on iOS.";
+    return false;
+#endif
 }
 
 Matrix4 usdCoordinateTransform(
@@ -4291,7 +4306,7 @@ VisualAssetCookDiagnostics cookModelIOAsset(
         (sourceIsUSD ? metadata.defaultPrim : std::string{}) +
         ";modelio=" + frameworkVersion(MDLAsset.class) +
         ";sdk=" +
-        std::to_string(__MAC_OS_X_VERSION_MAX_ALLOWED) +
+        std::to_string(NUMI_VISUAL_SDK_VERSION) +
         ";cook-kernel=" METALROBO_VISUAL_ASSET_COOK_KERNEL_HASH +
         ";residual-transform=metal-compute-polar-v1" +
         ";canonical-vertex-layout=mrvisualvertexgpuv2" +

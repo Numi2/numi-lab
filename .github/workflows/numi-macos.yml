@@ -1,0 +1,48 @@
+name: Numi Lab Mac
+
+on:
+  pull_request:
+    branches: [numisolver]
+  push:
+    branches: [numisolver]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: numi-macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check build tools
+        run: |
+          xcodebuild -version
+          cmake --version
+          ninja --version
+          xcrun --sdk macosx metal --version
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=26.0
+      - name: Build native app and CPU checks
+        run: |
+          cmake --build build --parallel 2 --target \
+            metalrobo_task_rollout metalrobo_numi_window_catalog_compile \
+            metalrobo_numi_window_check metalrobo_robot_description_cooker_probe \
+            metalrobo_numi_human_force_parity_test
+      - name: Check catalog metadata and CPU mechanics
+        run: |
+          build/bin/metalrobo_numi_window_check
+          build/bin/metalrobo_robot_description_cooker_probe
+          ctest --test-dir build --output-on-failure
+      - name: Exercise CLI and training dispatch
+        run: |
+          python3 -m venv "$RUNNER_TEMP/numi-cli"
+          "$RUNNER_TEMP/numi-cli/bin/python" -m pip install mlx==0.32.5
+          NUMI_MLX_PYTHON="$RUNNER_TEMP/numi-cli/bin/python" bash tests/numi_cli_test.sh

@@ -74,6 +74,10 @@ public:
         const mr_float4& orientation
     ) noexcept;
 
+    // Re-encode the last accepted pose with the current camera and no physics.
+    // Call from the same scheduler that submits the rollout.
+    [[nodiscard]] bool redraw();
+
     // Returns false when no completed presentation frame is available. A
     // successful acquire transfers one ring slot to the caller.
     [[nodiscard]] bool acquireLatestFrame(

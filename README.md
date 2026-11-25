@@ -30,9 +30,9 @@ same compiled native physics path.
 
 ## Run your first simulation on Mac
 
-The Numi Lab Mac preview opens directly into a live X500 hover simulation
+The Numi Lab Mac preview opens directly into a live X500 flight demo
 on Apple silicon with macOS 26 or later. It bundles the simulator, Metal
-shaders, and starter scene. [Mac app controls and packaging](docs/MACOS.md)
+shaders, the X500 flight demo, and the Bench Pendulum experiment. [Mac app controls and packaging](docs/MACOS.md)
 
 From an Apple Silicon Mac with Xcode and the build prerequisites, run this
 from the Numi Lab source checkout:
@@ -42,7 +42,7 @@ from the Numi Lab source checkout:
 ```
 
 The first launch builds the native viewer and prepares the Metal pipelines.
-It opens the bundled X500 hover scene without a model download or policy
+It opens the bundled X500 flight scene without a model download or policy
 setup. Pause or resume in the toolbar and close the window to stop the run.
 To check live Metal presentation, run `./tools/numi window --check`.
 [Window options](docs/NUMI_CLI.md)
@@ -522,3 +522,9 @@ Measured second-hand contact begins at **6.196 s**; the last first-hand contact 
 The receiver uses a gentle pinch of approximately **0.4 N per jaw**. The receiver has an explicitly authored **12 mm forward pad extension**; native FK and visible contact faces match. Articulated poses were rebound to this fixture with the exact world pad input bytes retained; film forces, work and motion are unchanged. Its central rigid carrier has a leading tip recessed by 10 mm (4 × 8 × 4 mm), also included in the visible geometry and crossing checks. Robot joints are prescribed, and saved-state clearance is not continuous whole-robot collision dynamics. The approved film material and energy tolerances are preserved; the finite pad edge-entry model remains a documented limitation, and gentle preload is a scene choice rather than a repair of that discontinuity; its material constants remain uncalibrated and air drag is absent. The first five seconds retain the approved older gripper-model prefix; corrected rotating-pad dynamics continue its exact state thereafter.
 
 [Source, measurements and limits](examples/plastic_bag_franka/handoff_20261024) · [Full native replay, checkpoints and preserved rejected attempts](https://github.com/Numi2/numi-lab/releases/tag/plastic-bag-franka-handoff-2026-10-24)
+
+
+## Rights
+
+Numi Lab source code is rights reserved. Third-party components and bundled
+assets retain the terms listed in [Third-party notices](THIRD_PARTY_NOTICES.md).

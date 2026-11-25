@@ -59,3 +59,8 @@ You can also compile without opening the app. Use an empty output directory.
   --output /path/to/new-panda-scene \
   --metallib "$app/Contents/Resources/MetalRobo.metallib"
 ```
+
+To repeat the same trajectory with a different object, pass
+`--panda-cube-mass` in kilograms and `--panda-cube-friction` as a coefficient
+while compiling. Use a fresh output directory per variant. The comparison
+reads those values from the compiled scene and applies them to the MuJoCo cube.

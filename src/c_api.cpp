@@ -4646,6 +4646,19 @@ int mr_task_rollout_set_inspection_camera(
     return 0;
 }
 
+int mr_task_rollout_redraw_inspection(MRTaskRolloutHandle* handle) {
+    if (!requireTaskRolloutHandle(handle) ||
+        handle->inspectionVisualRuntime == nullptr ||
+        handle->inspectionVisualRuntime->inspector == nullptr) {
+        return -1;
+    }
+    return translateErrors([&] {
+        if (!handle->inspectionVisualRuntime->inspector->redraw()) {
+            throw std::runtime_error("The paused inspection frame could not be rendered.");
+        }
+    });
+}
+
 int mr_task_rollout_release_inspection_frame(
     MRTaskRolloutHandle* handle,
     const uint32_t slot_index
