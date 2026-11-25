@@ -7862,7 +7862,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             .tendonEnvelopes = tendonProgram.envelopes,
             .stepCount = stepCount,
             .contactIterationCount = contactIterationCount,
-            .enableContact = !useFEMSkinSupport,
+            // The unilateral solver also owns skeletal joint stops. The FEM bed
+            // has already removed every rigid support row from this input.
+            .enableContact = true,
             .enableRootAssistance = enableRootAssistance,
             .groundPoint = {
                 supportContacts.header.groundPointX,
@@ -9241,7 +9243,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "segmented Human horizon requires complete authoritative state");
         horizonInput.stand.authoritativeStepCount = requestedSteps;
         if(restingProgram != nullptr)horizonInput.stand.numanXTransactionProgram=*restingProgram;
-        if(supportGeometryProgram != nullptr && horizonInput.stand.enableContact) {
+        if(supportGeometryProgram != nullptr && horizonInput.stand.enableContact &&
+                !horizonInput.stand.contacts.empty()) {
             horizonInput.stand.supportGeometryProgram=*supportGeometryProgram;
             horizonInput.stand.usePerContactSupportPlanes=supportGeometryProgram->usePerContactSupportPlanes;
         }
