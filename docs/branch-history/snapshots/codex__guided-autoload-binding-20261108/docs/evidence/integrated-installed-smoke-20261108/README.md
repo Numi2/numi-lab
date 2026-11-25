@@ -1,0 +1,7 @@
+# Integrated installed synthetic workflow
+
+A fresh configure, build, install and prefix relocation used merged source `be52afa5659a0331d6f5d6c26f7ea10f7366cb65`, combining the Window packaging and unified research histories. Four CPU CTests and 28 selector tests passed. The plan pins the exact package, runtime, scene, catalog helper, interpreter and source revision hashes.
+
+On Apple M6, the relocated installed Window check accepted a supplied synthetic scene over 16 steps. A separate 1-environment, 8-step, one-update training run and matched held-out selection both exited successfully. Each candidate/incumbent evidence record was SHA-bound to its policy and evidence bytes. A helper compiled from this exact revision's Window catalog read the actual retained artifacts and showed the selected incumbent and research candidate separately, both with `guided held-out balance screen failed`. Both had zero clean-horizon rate and 12 physical terminations per environment. The training lock was absent and the post-run process listing found no matching worker.
+
+The full output, plan, wrapper scripts, hashes, timing, unmodified configuration/build/install logs, cleanup check, and compressed run plus synthetic fixture are retained here. This establishes one bounded installed workflow, not physical accuracy, a useful controller, native visible UI, deterministic restoration, general release qualification, or a performance result. The earlier manual Window package was not modified.

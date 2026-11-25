@@ -1,0 +1,81 @@
+{
+  "environment": {
+    "NUMI_LAB_ROOT": "/Users/numi/numi-lab-integrated-install-relocated-20261108",
+    "NUMI_MLX_PYTHON": "/Users/numi/numi-window-integration-venv-20261107/bin/python",
+    "NUMI_RUN_DIR": "/Users/numi/numi-integrated-installed-smoke-20261108/workspace/.numi/runs/window-train-smoke",
+    "NUMI_SELECTION_ENVS": "1",
+    "NUMI_SELECTION_SEED": "4081019",
+    "NUMI_WINDOW_POLICY_CATALOG": "/Users/numi/numi-integrated-installed-smoke-20261108/workspace/.numi/policies",
+    "NUMI_WINDOW_SCENE_CATALOG": "/Users/numi/numi-integrated-installed-smoke-20261108/workspace/.numi/runs",
+    "NUMI_WORKSPACE_ROOT": "/Users/numi/numi-integrated-installed-smoke-20261108/workspace"
+  },
+  "revision": "be52afa5659a0331d6f5d6c26f7ea10f7366cb65",
+  "scope": "synthetic authored scene, one short train update and held-out screen; no live UI or learned-control claim",
+  "sha256": {
+    "/Users/numi/numi-integrated-installed-smoke-20261108/catalog-check": "6e832aefb7886d10177fb39895e392f03a2d0fe618bb25f901364ae80c3ae032",
+    "/Users/numi/numi-integrated-installed-smoke-20261108/catalog.swift": "fd7b2a92cb47b80150e063033686e73d0fc2b51d430b76ed0849cb13b9075822",
+    "/Users/numi/numi-integrated-installed-smoke-20261108/workspace/.numi/runs/synthetic/diagnostic.json": "deaa34004f55bedd9650a828e1897087b29b512e4ff1305344a64710316ec8c3",
+    "/Users/numi/numi-integrated-installed-smoke-20261108/workspace/.numi/runs/synthetic/diagnostic.mrvpack": "0b7184fffd12cbca351d5d5a8eebfdf832610c5c56918408ff696ee7f0e1340d",
+    "/Users/numi/numi-integrated-installed-smoke-20261108/workspace/.numi/runs/synthetic/synthetic.numi-window.json": "71e94ad4dadb6814d46b39343245f2224bf91a1dd029ce6205a7c5a82cf1159f",
+    "/Users/numi/numi-lab-integrated-install-relocated-20261108/bin/metalrobo_task_rollout": "1a608032522fbe1b6ace7540ca5b3e4611318907c7898fa740cca3d925472d34",
+    "/Users/numi/numi-lab-integrated-install-relocated-20261108/bin/metalrobo_task_train": "a79d23eab77b5d4eafa792c2a8f0a473879419a7d6988db78dc9405410b9a042",
+    "/Users/numi/numi-lab-integrated-install-relocated-20261108/bin/numi": "16cc292c2a1360091b043dd6ec04f191b33e23ba52f164c2862d9001b6e9a1c4",
+    "/Users/numi/numi-lab-integrated-install-relocated-20261108/lib/libmetalrobo.dylib": "846c382f5429fb6f1220fc3233b64a0e89fd7c8164e39fabe9fb226f160930c9",
+    "/Users/numi/numi-lab-integrated-install-relocated-20261108/lib/metalrobo/MetalRobo.metallib": "55b021d249bc1bf3e40f94158556c93910d85d3611d4d7fc7ab4bda800d6b2f3",
+    "/Users/numi/numi-lab-integrated-install-relocated-20261108/libexec/numi/train": "4a738811ba555e6b051cb56dae7f16e0f913b430588deb4c1efcb226512b1f38",
+    "/Users/numi/numi-lab-integrated-install-relocated-20261108/libexec/numi/window": "672a8a56c59ac133b80b43e7f858ae9dd35995c59eda6b354cf0a2f18f138efa",
+    "/Users/numi/numi-lab-integrated-install-relocated-20261108/share/numi/REVISION": "cd2371948cd549813e7e05bbf9cdde50085869872efaf3ee3861705b2d58928a",
+    "/Users/numi/numi-lab-integrated-install-relocated-20261108/share/numi/python/metalrobo/mlx_policy_worker.py": "c546051f494b2a5c9111951a40d6ff9735f4f72b8cc3410ed5524f3c6d3078d8",
+    "/Users/numi/numi-lab-integrated-install-relocated-20261108/share/numi/python/metalrobo/policy_selection.py": "5e5374b8a2f3508078b6904c8fb79fb2851becce171a62b72844d0bf2352e989",
+    "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/bin/python3.13": "c2d16fe8332897836229aff307d1d9cb32432d405fa889f342ffe1830b1608c5"
+  },
+  "train": {
+    "argv": [
+      "/Users/numi/numi-lab-integrated-install-relocated-20261108/bin/numi",
+      "train",
+      "--envs",
+      "1",
+      "--steps",
+      "8",
+      "--updates",
+      "1",
+      "--chunk",
+      "1",
+      "--update-epochs",
+      "1",
+      "--minibatch-size",
+      "8",
+      "--scene",
+      "ground",
+      "--task",
+      "velocity",
+      "--seed",
+      "20261107"
+    ],
+    "timeout": 120
+  },
+  "window": {
+    "argv": [
+      "/Users/numi/numi-lab-integrated-install-relocated-20261108/bin/numi",
+      "window",
+      "--check",
+      "--window-scene",
+      "/Users/numi/numi-integrated-installed-smoke-20261108/workspace/.numi/runs/synthetic/diagnostic.json",
+      "--envs",
+      "1",
+      "--steps",
+      "16",
+      "--chunk",
+      "1",
+      "--robot-source",
+      "unitree-g1",
+      "--scene",
+      "ground",
+      "--task",
+      "velocity",
+      "--zero-actions"
+    ],
+    "timeout": 60
+  },
+  "workspace": "/Users/numi/numi-integrated-installed-smoke-20261108/workspace"
+}

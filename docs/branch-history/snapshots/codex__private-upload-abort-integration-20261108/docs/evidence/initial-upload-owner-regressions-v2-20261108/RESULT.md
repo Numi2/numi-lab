@@ -1,0 +1,5 @@
+# Candidate owner regression scripts passed with existing limits
+
+On 8 November 2026 the pinned candidate-owner acceptance script ran 01:15:36.048059–01:15:49.741296 UTC and the kinematic rollback script ran 01:15:49.741653–01:15:50.012479 UTC. Both exited 0 and input identities matched before and after. Full acceptance data, diagnostics, analysis and kinematic report are retained.
+
+The acceptance analysis itself reports `all_impact_resolution_gate_passed=false` and lists production-cap cases still rejected; passing its regression assertions does not establish universal impact resolution. The kinematic script retains its known inactive-cache header/point byte mismatch after reset, while its declared live-state and recontact assertions pass. These are unrelated owner regression checks, not qualification of shared storage, already-bound cache abort, excluded device-physics program families, post-commit errors, mixed sensor state, contact-force accuracy or performance. The earlier preflight-path failure remains separately retained.

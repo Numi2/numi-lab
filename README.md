@@ -26,6 +26,8 @@ same compiled native physics path.
 
 [BirdFlowMetal](https://github.com/Numi2/numi-gpu-physics-pigeon-sim/tree/main/Integrations/NumiLab) owns the Crow and Dove research, including the bird fixtures, navigation experiments, and archived evidence index. It uses this repository’s shared physics runtime.
 
+[Numi Lab branch history and recovery](docs/branch-history/README.md)
+
 ## Platform scope
 
 - **Physics:** rigid bodies, floating and fixed articulations, coupled contact,

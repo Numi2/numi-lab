@@ -1,0 +1,7 @@
+# Guided balance-screen catalog status
+
+A selector advances a relative incumbent even when the selected policy has not passed a separate guided held-out balance screen. The catalog now labels the policy role and the screen result. It only reports a screen result when the retained evaluator metadata binds both evidence bytes and policy bytes to their SHA-256 identities. Legacy or changed inputs remain unknown. This label is not general physical, control, deployment, or biological qualification, and fingerprint-compatible research policies remain manually selectable.
+
+CPU checks cover passed and failed screen data, absent binding, edited policy or evidence, incumbent/candidate roles, selector cache reuse and policy mutation during evaluation. A fresh configured CMake status test passed; the integrated Window Swift source type-checked and its existing metadata check passed when linked against the previously built library. That is not a fresh complete app build or live UI qualification.
+
+The 200-update G1 trial's unmodified original selection chose its candidate with 85 height/tilt terminations and zero clean horizons. Its original cache metadata predates policy binding and is reported unknown. In an isolated copy only, a deliberately synthetic policy hash was added to the metadata: the same actual numerical evidence then reports a failed guided screen. This synthetic binding is a test input, not proof that the old rollout was hash-bound. `result.txt`, `check.swift`, and `sha256.txt` retain this distinction; original pilot artifacts were not changed.

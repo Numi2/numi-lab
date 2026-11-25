@@ -1,0 +1,3774 @@
+import Foundation
+import Darwin
+import AppKit
+
+// Diagnostics must never own process lifetime. FileHandle.write raises an
+// Objective-C exception when an inherited stderr pipe closes; POSIX write with
+// SIGPIPE ignored turns that ordinary launcher teardown into a bounded error.
+private func writeDiagnostic(_ message: String) {
+    let bytes = Array((message + "\n").utf8)
+    bytes.withUnsafeBytes { raw in
+        guard var base = raw.baseAddress else { return }
+        var remaining = raw.count
+        while remaining > 0 {
+            let written = Darwin.write(STDERR_FILENO, base, remaining)
+            if written > 0 {
+                remaining -= written
+                base = base.advanced(by: written)
+            } else if written < 0 && errno == EINTR {
+                continue
+            } else {
+                break
+            }
+        }
+    }
+}
+
+private struct SplitMix64 {
+    private var state: UInt64
+
+    init(seed: UInt64) {
+        state = seed
+    }
+
+    mutating func next() -> UInt64 {
+        state &+= 0x9e3779b97f4a7c15
+        var value = state
+        value =
+            (value ^ (value >> 30)) &*
+            0xbf58476d1ce4e5b9
+        value =
+            (value ^ (value >> 27)) &*
+            0x94d049bb133111eb
+        return value ^ (value >> 31)
+    }
+
+    mutating func signedUnit() -> Float {
+        let value = UInt32(truncatingIfNeeded: next() >> 40)
+        return 2 * Float(value) / Float(1 << 24) - 1
+    }
+}
+
+private func fingerprintWord(
+    _ value: UInt64,
+    byteCount: Int,
+    into hash: inout UInt64
+) {
+    for byte in 0..<byteCount {
+        hash ^= (value >> UInt64(8 * byte)) & 0xff
+        hash &*= 1_099_511_628_211
+    }
+}
+
+private func fingerprint(
+    _ batch: MetalRoboPolicyRolloutBatch,
+    into hash: inout UInt64
+) {
+    for sample in 0..<batch.sampleCount {
+        let slices: [(values: [Float], width: Int)] = [
+            (
+                batch.actorObservations,
+                batch.actorObservationCount
+            ),
+            (
+                batch.criticObservations,
+                batch.criticObservationCount
+            ),
+            (batch.latents, batch.actionCount),
+            (batch.logProbabilities, 1),
+            (batch.values, 1),
+        ]
+        for slice in slices {
+            let lower = sample * slice.width
+            for value in slice.values[
+                lower..<(lower + slice.width)
+            ] {
+                fingerprintWord(
+                    UInt64(value.bitPattern),
+                    byteCount: 4,
+                    into: &hash
+                )
+            }
+        }
+        let transition = batch.transitions[sample]
+        for value in [
+            transition.reward,
+            transition.trackingScore,
+            transition.rootHeight,
+            transition.tilt,
+            transition.taskReward,
+            transition.baseReward,
+            transition.jointVelocityReward,
+            transition.jointAccelerationReward,
+            transition.controlReward,
+            transition.postureReward,
+            transition.energyReward,
+            transition.contactReward,
+        ] {
+            fingerprintWord(
+                UInt64(value.bitPattern),
+                byteCount: 4,
+                into: &hash
+            )
+        }
+        fingerprintWord(
+            transition.done ? 1 : 0,
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            transition.timeout ? 1 : 0,
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            transition.physicsError ? 1 : 0,
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.terminationReason),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            transition.policyRevision,
+            byteCount: 8,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.timeoutBootstrapValue.bitPattern),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.episodeTrackingScore.bitPattern),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.difficultyBand),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.terrainLevel),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.impactSequenceIndex),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.impactEventFlags),
+            byteCount: 4,
+            into: &hash
+        )
+    }
+}
+
+private struct Options {
+    enum BundledRobotSource {
+        case unitreeG1, numifly, numiflyForwardFlight, numiflyNoLegs, frankaPickPlace, px4X500
+    }
+
+    var environments = 32
+    var steps = 48
+    var repeats = 20
+    var chunk = 8
+    var physicsSubsteps = 4
+    var velocityIterations = 4
+    var finalVelocityIterations = 2
+    var surface = MetalRoboLocomotionSurface.terrain
+    var unitreeG1Task = MetalRoboUnitreeG1Task.velocity
+    var bundledRobotSource = BundledRobotSource.unitreeG1
+    var measuredDoveTask: MetalRoboMeasuredSurfaceTask?
+    var measuredDoveManifest: String?
+    var numiflyFlight = false
+    var numiflyForwardFlight = false
+    var numiflyNoLegsFlight = false
+    var numiflyWingManifest =
+        "assets/numifly/maeda-wing-pack-v1/manifest.json"
+    var seed: UInt64 = 20_260_731
+    var metallib = "build/shaders/MetalRobo.metallib"
+    var verbose = false
+    var nativePolicy = false
+    var zeroActions = false
+    var actionStream: String?
+    var scheduledResets = true
+    var policyPack: String?
+    var hyperPolicyPack: String?
+    var rolloutPack: String?
+    var interactionPack: String?
+    var interactionClip: String?
+    var worldPack: String?
+    var taskPack: String?
+    var robotActuatorPack: String?
+    var sensorProgramPack: String?
+    var realityProgramPack: String?
+    var urdf: String?
+    var srdf: String?
+    var dynamicSpheres: [MetalRoboDynamicSphere] = []
+    var disableTaskTerminations = false
+    var materializeArticulatedContactResponses = false
+    var minimumDifficultyBand: Int?
+    var maximumDifficultyBand: Int?
+    var interactionResetOnly = false
+    var interactionStudentAuthority: Float?
+    var interactionResetPhaseFraction: Float?
+    var interactionResetPhaseProbability: Float?
+    var interactionResetMaximumPhase: Float?
+    var policySourceGuide = false
+    var policySourceResetPhaseFraction: Float?
+    var policySourceResetPhaseProbability: Float?
+    var policySourceResetMaximumPhase: Float?
+    var interactionPushMaximumVelocity: Float?
+    var interactionPushIntervalSeconds: Float?
+    var stateTrace: String?
+    var stateTraceEnvironment = 0
+    var motionFeatureTrace: String?
+    var motionFeatureTraceEnvironment = 0
+    var g1VisualPackDirectory: String?
+    var ballVisualPackDirectory: String?
+    var visualEnvironmentPack: String?
+    var visualObservationConfig: String?
+    var inspectionScene: String?
+    var inspectionWidth = 640
+    var inspectionHeight = 360
+    var windowRobotID: String?
+    var windowChoiceID: String?
+    var captureDirectory: String?
+    var captureWidth = 480
+    var captureHeight = 270
+    var captureStride = 1
+    var capturePolicyCamera = false
+
+    init(arguments: [String]) throws {
+        var index = 1
+        while index < arguments.count {
+            let option = arguments[index]
+            func value() throws -> String {
+                guard index + 1 < arguments.count else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "\(option) requires a value."
+                    )
+                }
+                return arguments[index + 1]
+            }
+            switch option {
+            case "--envs":
+                environments = try Self.integer(value(), option)
+                index += 1
+            case "--steps":
+                steps = try Self.integer(value(), option)
+                index += 1
+            case "--repeats":
+                repeats = try Self.integer(value(), option)
+                index += 1
+            case "--chunk":
+                chunk = try Self.integer(value(), option)
+                index += 1
+            case "--physics-substeps":
+                physicsSubsteps = try Self.integer(value(), option)
+                index += 1
+            case "--velocity-iterations":
+                velocityIterations = try Self.integer(value(), option)
+                index += 1
+            case "--final-velocity-iterations":
+                finalVelocityIterations = try Self.integer(value(), option)
+                index += 1
+            case "--seed":
+                guard let parsed = UInt64(try value()) else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--seed requires an unsigned integer."
+                    )
+                }
+                seed = parsed
+                index += 1
+            case "--metallib":
+                metallib = try value()
+                index += 1
+            case "--scene":
+                switch try value() {
+                case "ground":
+                    surface = .ground
+                case "terrain":
+                    surface = .terrain
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--scene must be ground or terrain."
+                    )
+                }
+                index += 1
+            case "--task":
+                switch try value() {
+                case "velocity":
+                    unitreeG1Task = .velocity
+                case "disturbance-recovery":
+                    unitreeG1Task = .disturbanceRecovery
+                case "supine-get-up":
+                    unitreeG1Task = .supineGetUpDiscovery
+                case "developmental-recovery":
+                    unitreeG1Task = .developmentalRecovery
+                case "adult-locomotion":
+                    unitreeG1Task = .adultLocomotion
+                case "g1-legs-locomotion":
+                    unitreeG1Task = .g1LegsLocomotion
+                case "ball-recovery":
+                    unitreeG1Task = .ballDisturbanceRecovery
+                case "ball-dodge":
+                    unitreeG1Task = .ballDodge
+                case "dove-trim":
+                    measuredDoveTask = .flightTrim
+                case "dove-drop-recovery":
+                    measuredDoveTask = .fatalDropRecovery
+                case "dove-cruise":
+                    measuredDoveTask = .cruise
+                case "dove-food-navigation":
+                    measuredDoveTask = .foodNavigation
+                case "numifly-flight":
+                    numiflyFlight = true
+                    bundledRobotSource = .numifly
+                case "numifly-forward-flight":
+                    numiflyForwardFlight = true
+                    bundledRobotSource = .numiflyForwardFlight
+                case "numifly-no-legs-flight":
+                    numiflyNoLegsFlight = true
+                    bundledRobotSource = .numiflyNoLegs
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--task must be a bundled G1 task, numifly-flight, numifly-forward-flight, numifly-no-legs-flight, dove-trim, dove-drop-recovery, dove-cruise, or dove-food-navigation."
+                    )
+                }
+                index += 1
+            case "--robot-source":
+                switch try value() {
+                case "unitree-g1": bundledRobotSource = .unitreeG1
+                case "numifly": bundledRobotSource = .numifly
+                case "numifly-forward-flight":
+                    bundledRobotSource = .numiflyForwardFlight
+                case "numifly-no-legs":
+                    bundledRobotSource = .numiflyNoLegs
+                case "franka-panda": bundledRobotSource = .frankaPickPlace
+                case "px4-x500": bundledRobotSource = .px4X500
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--robot-source must be unitree-g1, numifly, numifly-forward-flight, numifly-no-legs, franka-panda, or px4-x500."
+                    )
+                }
+                index += 1
+            case "--verbose":
+                verbose = true
+            case "--native-policy":
+                nativePolicy = true
+            case "--zero-actions":
+                zeroActions = true
+            case "--action-stream":
+                actionStream = try value()
+                index += 1
+            case "--no-scheduled-resets":
+                scheduledResets = false
+            case "--continue-after-termination", "--disable-task-terminations":
+                disableTaskTerminations = true
+            case "--materialize-articulated-contact-responses":
+                materializeArticulatedContactResponses = true
+            case "--minimum-difficulty-band":
+                minimumDifficultyBand = try Self.integer(value(), option)
+                index += 1
+            case "--maximum-difficulty-band":
+                maximumDifficultyBand = try Self.integer(value(), option)
+                index += 1
+            case "--interaction-reset-only":
+                interactionResetOnly = true
+            case "--policy-source-guide":
+                policySourceGuide = true
+            case "--policy-source-interaction-reset-phase-fraction",
+                 "--policy-source-interaction-reset-phase-probability",
+                 "--policy-source-interaction-reset-maximum-phase":
+                guard let parsed = Float(try value()), parsed.isFinite,
+                      parsed >= 0, parsed <= 1 else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "\(option) must be in [0, 1].")
+                }
+                if option == "--policy-source-interaction-reset-phase-fraction" {
+                    policySourceResetPhaseFraction = parsed
+                } else if option == "--policy-source-interaction-reset-phase-probability" {
+                    policySourceResetPhaseProbability = parsed
+                } else { policySourceResetMaximumPhase = parsed }
+                index += 1
+            case "--interaction-student-authority":
+                guard let parsed = Float(try value()),
+                      parsed.isFinite,
+                      parsed >= 0,
+                      parsed <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-student-authority must be in [0, 1]."
+                    )
+                }
+                interactionStudentAuthority = parsed
+                index += 1
+            case "--interaction-reset-phase-fraction":
+                guard let parsed = Float(try value()),
+                      parsed.isFinite,
+                      parsed >= 0,
+                      parsed <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-reset-phase-fraction must be in [0, 1]."
+                    )
+                }
+                interactionResetPhaseFraction = parsed
+                index += 1
+            case "--interaction-reset-phase-probability":
+                guard let parsed = Float(try value()),
+                      parsed.isFinite,
+                      parsed >= 0,
+                      parsed <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-reset-phase-probability must be in [0, 1]."
+                    )
+                }
+                interactionResetPhaseProbability = parsed
+                index += 1
+            case "--interaction-reset-maximum-phase":
+                guard let parsed = Float(try value()),
+                      parsed.isFinite,
+                      parsed >= 0,
+                      parsed <= 1
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-reset-maximum-phase must be in [0, 1]."
+                    )
+                }
+                interactionResetMaximumPhase = parsed
+                index += 1
+            case "--interaction-push-maximum-velocity":
+                guard let parsed = Float(try value()), parsed.isFinite,
+                      parsed >= 0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-push-maximum-velocity must be finite and nonnegative."
+                    )
+                }
+                interactionPushMaximumVelocity = parsed
+                index += 1
+            case "--interaction-push-interval-seconds":
+                guard let parsed = Float(try value()), parsed.isFinite,
+                      parsed > 0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-push-interval-seconds must be finite and positive."
+                    )
+                }
+                interactionPushIntervalSeconds = parsed
+                index += 1
+            case "--policy-pack":
+                policyPack = try value()
+                index += 1
+            case "--hyper-policy-pack":
+                hyperPolicyPack = try value()
+                index += 1
+            case "--rollout-pack":
+                rolloutPack = try value()
+                index += 1
+            case "--interaction-pack":
+                interactionPack = try value()
+                index += 1
+            case "--interaction-clip":
+                interactionClip = try value()
+                index += 1
+            case "--world-pack":
+                worldPack = try value()
+                index += 1
+            case "--dove-manifest":
+                measuredDoveManifest = try value()
+                index += 1
+            case "--numifly-wing-manifest":
+                numiflyWingManifest = try value()
+                index += 1
+            case "--task-pack":
+                taskPack = try value()
+                index += 1
+            case "--robot-actuator-pack":
+                robotActuatorPack = try value()
+                index += 1
+            case "--sensor-program-pack":
+                sensorProgramPack = try value()
+                index += 1
+            case "--reality-program-pack":
+                realityProgramPack = try value()
+                index += 1
+            case "--urdf":
+                urdf = try value()
+                index += 1
+            case "--srdf":
+                srdf = try value()
+                index += 1
+            case "--ball":
+                let fields = try value().split(separator: ",")
+                let values = fields.compactMap(Float.init)
+                guard values.count == 8 || values.count == 9 else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--ball requires x,y,z,vx,vy,vz,radius,mass[,launch_step]."
+                    )
+                }
+                guard values.allSatisfy(\.isFinite),
+                      values[6] > 0,
+                      values[7] > 0,
+                      values.count == 8 ||
+                        (values[8] >= 0 &&
+                         values[8] <= Float(0x00ff_ffff) &&
+                         values[8].rounded() == values[8])
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--ball values must be finite with positive radius and mass."
+                    )
+                }
+                dynamicSpheres.append(
+                    MetalRoboDynamicSphere(
+                        position: SIMD3(values[0], values[1], values[2]),
+                        linearVelocity: SIMD3(
+                            values[3], values[4], values[5]
+                        ),
+                        radius: values[6],
+                        mass: values[7],
+                        launchStep:
+                            values.count == 9
+                            ? UInt32(values[8])
+                            : 0
+                    )
+                )
+                index += 1
+            case "--state-trace":
+                stateTrace = try value()
+                index += 1
+            case "--state-trace-environment":
+                stateTraceEnvironment = try Self.integer(value(), option)
+                index += 1
+            case "--motion-feature-trace":
+                motionFeatureTrace = try value()
+                index += 1
+            case "--motion-feature-trace-environment":
+                motionFeatureTraceEnvironment = try Self.integer(
+                    value(), option
+                )
+                index += 1
+            case "--g1-visual-pack-dir":
+                g1VisualPackDirectory = try value()
+                index += 1
+            case "--ball-visual-pack-dir":
+                ballVisualPackDirectory = try value()
+                index += 1
+            case "--visual-environment-pack":
+                visualEnvironmentPack = try value()
+                index += 1
+            case "--visual-observation-config":
+                visualObservationConfig = try value()
+                index += 1
+            case "--inspect-scene":
+                inspectionScene = try value()
+                index += 1
+            case "--inspect-width":
+                inspectionWidth = try Self.integer(value(), option)
+                index += 1
+            case "--inspect-height":
+                inspectionHeight = try Self.integer(value(), option)
+                index += 1
+            case "--window-scene":
+                inspectionScene = try value()
+                index += 1
+            case "--window-width":
+                inspectionWidth = try Self.integer(value(), option)
+                index += 1
+            case "--window-height":
+                inspectionHeight = try Self.integer(value(), option)
+                index += 1
+            case "--window-robot-id":
+                windowRobotID = try value()
+                index += 1
+            case "--window-choice-id":
+                windowChoiceID = try value()
+                index += 1
+            case "--capture-dir":
+                captureDirectory = try value()
+                index += 1
+            case "--capture-width":
+                captureWidth = try Self.integer(value(), option)
+                index += 1
+            case "--capture-height":
+                captureHeight = try Self.integer(value(), option)
+                index += 1
+            case "--capture-stride":
+                captureStride = try Self.integer(value(), option)
+                index += 1
+            case "--capture-policy-camera":
+                capturePolicyCamera = true
+            default:
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "Unknown option \(option)."
+                )
+            }
+            index += 1
+        }
+        guard environments > 0,
+              steps > 0,
+              repeats > 0,
+              chunk > 0,
+              physicsSubsteps > 0,
+              velocityIterations > 0,
+              finalVelocityIterations >= 0
+        else {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "envs, steps, repeats, chunk, physics substeps, and velocity iterations must be positive; final velocity iterations must be non-negative."
+            )
+        }
+        if (minimumDifficultyBand == nil) !=
+            (maximumDifficultyBand == nil) ||
+            (minimumDifficultyBand ?? 0) < 0 ||
+            (minimumDifficultyBand ?? 0) >
+                (maximumDifficultyBand ?? 0)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "difficulty-band overrides require an ordered non-negative minimum and maximum."
+            )
+        }
+        let compiledPolicyCount =
+            (nativePolicy ? 1 : 0) +
+            (policyPack == nil ? 0 : 1) +
+            (hyperPolicyPack == nil ? 0 : 1)
+        if compiledPolicyCount > 1 {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--native-policy, --policy-pack, and --hyper-policy-pack are mutually exclusive."
+            )
+        }
+        if zeroActions && (nativePolicy || policyPack != nil || hyperPolicyPack != nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--zero-actions cannot be combined with a compiled policy."
+            )
+        }
+        if actionStream != nil &&
+            (zeroActions || nativePolicy || policyPack != nil || hyperPolicyPack != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--action-stream cannot be combined with another action source."
+            )
+        }
+        if rolloutPack != nil &&
+            !nativePolicy && policyPack == nil && hyperPolicyPack == nil
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--rollout-pack requires --native-policy, --policy-pack, or --hyper-policy-pack."
+            )
+        }
+        if worldPack != nil && urdf != nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--world-pack and --urdf are mutually exclusive."
+            )
+        }
+        if (measuredDoveTask == nil) != (measuredDoveManifest == nil) ||
+            (measuredDoveTask != nil &&
+             (worldPack != nil || urdf != nil || interactionPack != nil))
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Dove tasks require --dove-manifest and cannot be combined with imported or interaction mechanics."
+            )
+        }
+        let anyNumifly = bundledRobotSource == .numifly ||
+            bundledRobotSource == .numiflyForwardFlight ||
+            bundledRobotSource == .numiflyNoLegs
+        let matchingNumiflyTask =
+            (bundledRobotSource == .numifly && numiflyFlight &&
+             !numiflyForwardFlight && !numiflyNoLegsFlight) ||
+            (bundledRobotSource == .numiflyForwardFlight &&
+             numiflyForwardFlight && !numiflyFlight && !numiflyNoLegsFlight) ||
+            (bundledRobotSource == .numiflyNoLegs &&
+             numiflyNoLegsFlight && !numiflyFlight && !numiflyForwardFlight)
+        if anyNumifly != matchingNumiflyTask ||
+            (anyNumifly &&
+             (measuredDoveTask != nil || measuredDoveManifest != nil ||
+              worldPack != nil || urdf != nil || interactionPack != nil))
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Numifly variants require their matching flight task and cannot be combined with dove, imported, world-pack, or interaction mechanics."
+            )
+        }
+        if (interactionPack == nil) != (interactionClip == nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction tracking requires both --interaction-pack and --interaction-clip."
+            )
+        }
+        if let interactionPack,
+           interactionPack.isEmpty || interactionClip?.isEmpty != false
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "InteractionPack path and clip identity cannot be empty."
+            )
+        }
+        if (policySourceGuide || policySourceResetPhaseFraction != nil ||
+            policySourceResetPhaseProbability != nil || policySourceResetMaximumPhase != nil) &&
+            (!policySourceGuide || !interactionResetOnly || interactionPack == nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Policy source requires --policy-source-guide, --interaction-reset-only and an InteractionPack.")
+        }
+        if interactionResetOnly && interactionPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--interaction-reset-only requires an InteractionPack."
+            )
+        }
+        if interactionStudentAuthority != nil && interactionPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--interaction-student-authority requires an InteractionPack."
+            )
+        }
+        if interactionResetPhaseFraction != nil && interactionPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--interaction-reset-phase-fraction requires an InteractionPack."
+            )
+        }
+        if (interactionResetPhaseProbability != nil ||
+            interactionResetMaximumPhase != nil) && interactionPack == nil
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction reset curriculum options require an InteractionPack."
+            )
+        }
+        if (interactionPushMaximumVelocity == nil) !=
+            (interactionPushIntervalSeconds == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction push requires both velocity and interval options."
+            )
+        }
+        if interactionPushMaximumVelocity != nil && interactionPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction push requires an InteractionPack."
+            )
+        }
+        if interactionPack != nil &&
+            (worldPack != nil ||
+             (unitreeG1Task != .velocity &&
+              unitreeG1Task != .ballDodge &&
+              unitreeG1Task != .supineGetUpDiscovery))
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "InteractionPack evaluation supports imported URDF owner packs or bundled G1 velocity, ball-dodge, and supine-get-up mechanics; it cannot be combined with a WorldPack."
+            )
+        }
+        let importing = worldPack != nil || urdf != nil
+        let ownerArtifacts = [
+            taskPack, robotActuatorPack, sensorProgramPack, realityProgramPack,
+        ]
+        if importing != ownerArtifacts.allSatisfy({ $0 != nil }) ||
+            (!importing && ownerArtifacts.contains(where: { $0 != nil }))
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Imported mechanics require --task-pack, --robot-actuator-pack, --sensor-program-pack, and --reality-program-pack."
+            )
+        }
+        if srdf != nil && urdf == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--srdf requires --urdf."
+            )
+        }
+        if stateTrace != nil && (repeats != 1 || chunk != 1) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--state-trace requires --repeats 1 --chunk 1."
+            )
+        }
+        if stateTrace == nil && stateTraceEnvironment != 0 {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--state-trace-environment requires --state-trace."
+            )
+        }
+        if stateTraceEnvironment < 0 ||
+            stateTraceEnvironment >= environments {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--state-trace-environment must select an active environment."
+            )
+        }
+        if motionFeatureTrace != nil &&
+            (repeats != 1 || chunk != 1) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--motion-feature-trace requires --repeats 1 --chunk 1."
+            )
+        }
+        if motionFeatureTrace == nil &&
+            motionFeatureTraceEnvironment != 0 {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--motion-feature-trace-environment requires --motion-feature-trace."
+            )
+        }
+        if motionFeatureTraceEnvironment < 0 ||
+            motionFeatureTraceEnvironment >= environments {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--motion-feature-trace-environment must select an active environment."
+            )
+        }
+        if g1VisualPackDirectory == nil && ballVisualPackDirectory != nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--ball-visual-pack-dir requires --g1-visual-pack-dir."
+            )
+        }
+        if visualObservationConfig != nil &&
+            (g1VisualPackDirectory != nil ||
+             ballVisualPackDirectory != nil ||
+             visualEnvironmentPack != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--visual-observation-config cannot be combined with legacy visual preset options."
+            )
+        }
+        if g1VisualPackDirectory != nil &&
+            ((unitreeG1Task != .ballDisturbanceRecovery &&
+              unitreeG1Task != .ballDodge &&
+              unitreeG1Task != .supineGetUpDiscovery &&
+              unitreeG1Task != .developmentalRecovery) ||
+             worldPack != nil || urdf != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "The bundled visual preset requires --task supine-get-up, developmental-recovery, ball-recovery, or ball-dodge."
+            )
+        }
+        if (unitreeG1Task == .ballDisturbanceRecovery ||
+            unitreeG1Task == .ballDodge) &&
+            g1VisualPackDirectory != nil &&
+            ballVisualPackDirectory == nil
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Ball-task visualization requires --ball-visual-pack-dir."
+            )
+        }
+        if captureDirectory != nil &&
+            (environments != 1 || chunk != 1 ||
+             (g1VisualPackDirectory == nil &&
+              visualObservationConfig == nil) ||
+             captureWidth <= 0 || captureHeight <= 0 ||
+             captureStride <= 0)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Native capture requires one environment, chunk 1, a visual observation, positive dimensions, and a positive stride."
+            )
+        }
+        if capturePolicyCamera && captureDirectory == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--capture-policy-camera requires --capture-dir."
+            )
+        }
+        if inspectionScene != nil &&
+            (inspectionWidth <= 0 || inspectionHeight <= 0) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Inspection width and height must be positive."
+            )
+        }
+    }
+
+    private static func integer(
+        _ value: String,
+        _ option: String
+    ) throws -> Int {
+        guard let parsed = Int(value) else {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "\(option) requires an integer."
+            )
+        }
+        return parsed
+    }
+}
+
+private func makeVisualObservation(
+    options: Options
+) throws -> MetalRoboTaskVisualObservationConfiguration? {
+    if let path = options.visualObservationConfig {
+        var observation = try
+            MetalRoboTaskVisualObservationConfiguration.loadArtifact(
+                at: URL(fileURLWithPath: path)
+            )
+        if options.captureDirectory != nil {
+            observation.captureWidth = UInt32(options.captureWidth)
+            observation.captureHeight = UInt32(options.captureHeight)
+            observation.capturePolicyCamera =
+                options.capturePolicyCamera
+        }
+        return observation
+    }
+    guard let directory = options.g1VisualPackDirectory else {
+        return nil
+    }
+    let robotDirectory = URL(fileURLWithPath: directory)
+    let environment = options.visualEnvironmentPack.map {
+        URL(fileURLWithPath: $0)
+    }
+    var observation: MetalRoboTaskVisualObservationConfiguration
+    if let ballDirectory = options.ballVisualPackDirectory {
+        observation = try .unitreeG1BallRecovery(
+            robotPackDirectory: robotDirectory,
+            ballPackDirectory: URL(fileURLWithPath: ballDirectory),
+            environmentPackURL: environment
+        )
+    } else {
+        observation = try .unitreeG1(
+            robotPackDirectory: robotDirectory,
+            environmentPackURL: environment
+        )
+    }
+    if options.captureDirectory != nil {
+        observation.captureWidth = UInt32(options.captureWidth)
+        observation.captureHeight = UInt32(options.captureHeight)
+        observation.capturePolicyCamera = options.capturePolicyCamera
+    }
+    return observation
+}
+
+private func makeInspectionVisual(
+    options: Options
+) throws -> MetalRoboTaskVisualObservationConfiguration? {
+    guard let path = options.inspectionScene else {
+        return nil
+    }
+    var inspection = try MetalRoboTaskVisualObservationConfiguration.loadArtifact(
+        at: URL(fileURLWithPath: path)
+    )
+    inspection.width = UInt32(options.inspectionWidth)
+    inspection.height = UInt32(options.inspectionHeight)
+    // Inspection is a presentation path, never a media-export configuration.
+    // The native visual runtime still needs a nonzero presentation surface to
+    // compile the inspector sidecar. These dimensions are not an exported
+    // capture and never enter the policy observation contract.
+    inspection.captureWidth = inspection.width
+    inspection.captureHeight = inspection.height
+    inspection.capturePolicyCamera = false
+    return inspection
+}
+
+private func writeCaptureFrame(
+    _ frame: (width: Int, height: Int, values: [Float]),
+    index: Int,
+    directory: URL
+) throws {
+    var data = Data("P6\n\(frame.width) \(frame.height)\n255\n".utf8)
+    var pixels = [UInt8](
+        repeating: 0,
+        count: frame.width * frame.height * 3
+    )
+    for pixel in 0..<(frame.width * frame.height) {
+        for channel in 0..<3 {
+            let linear = max(
+                0,
+                0.62 * frame.values[pixel * 4 + channel]
+            )
+            let mapped = min(
+                1,
+                max(
+                    0,
+                    linear * (2.51 * linear + 0.03) /
+                        (linear * (2.43 * linear + 0.59) + 0.14)
+                )
+            )
+            let display = Foundation.pow(Double(mapped), 1.0 / 2.2)
+            pixels[pixel * 3 + channel] = UInt8(
+                min(255, max(0, Int(display * 255 + 0.5)))
+            )
+        }
+    }
+    data.append(contentsOf: pixels)
+    let name = String(format: "frame-%06d.ppm", index)
+    try data.write(to: directory.appendingPathComponent(name))
+}
+
+private func readActionStream(
+    path: String,
+    expectedCount: Int
+) throws -> [Float] {
+    let data = try Data(contentsOf: URL(fileURLWithPath: path))
+    let byteCount = expectedCount.multipliedReportingOverflow(
+        by: MemoryLayout<Float>.stride
+    )
+    guard expectedCount > 0,
+          !byteCount.overflow,
+          data.count == byteCount.partialValue
+    else {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--action-stream must contain exactly \(expectedCount) little-endian Float32 values."
+        )
+    }
+    var values = [Float](repeating: 0, count: expectedCount)
+    let copied = values.withUnsafeMutableBufferPointer { buffer in
+        data.copyBytes(to: UnsafeMutableRawBufferPointer(buffer))
+    }
+    guard copied == data.count,
+          values.allSatisfy(\.isFinite)
+    else {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--action-stream contains an invalid Float32 value."
+        )
+    }
+    return values
+}
+
+private func makeContext(
+    options: Options
+) throws -> (MetalRoboTaskRolloutContext, String) {
+    let visualSensor = try makeVisualObservation(options: options)
+    let inspectionVisual = try makeInspectionVisual(options: options)
+    let dynamicSpheres = options.dynamicSpheres.isEmpty &&
+        options.unitreeG1Task == .ballDodge
+        ? MetalRoboDynamicSphere.g1BallDodgeDefaults
+        : options.unitreeG1Task == .ballDisturbanceRecovery &&
+            options.dynamicSpheres.isEmpty
+            ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
+            : options.dynamicSpheres
+    let configuration = MetalRoboTaskRolloutConfiguration(
+        environmentCount: UInt32(options.environments),
+        surface: options.surface,
+        physicsSubsteps: UInt32(options.physicsSubsteps),
+        velocityIterations: UInt32(options.velocityIterations),
+        finalVelocityIterations:
+            UInt32(options.finalVelocityIterations),
+        seed: options.seed,
+        dynamicSpheres: dynamicSpheres,
+        disableTaskTerminations: options.disableTaskTerminations,
+        materializeArticulatedContactResponses:
+            options.materializeArticulatedContactResponses,
+        difficultyBandRange:
+            options.minimumDifficultyBand.map {
+                UInt32($0)...UInt32(options.maximumDifficultyBand!)
+            },
+        interactionReferenceMode: options.interactionResetOnly
+            ? .resetOnly
+            : .taskDefault,
+        interactionStudentAuthority:
+            options.interactionStudentAuthority,
+        interactionResetPhaseFraction:
+            options.interactionResetPhaseFraction,
+        interactionResetPhaseProbability:
+            options.interactionResetPhaseProbability,
+        interactionResetMaximumPhase:
+            options.interactionResetMaximumPhase,
+        policySourceGuide: options.policySourceGuide,
+        policySourceResetPhaseFraction: options.policySourceResetPhaseFraction,
+        policySourceResetPhaseProbability: options.policySourceResetPhaseProbability,
+        policySourceResetMaximumPhase: options.policySourceResetMaximumPhase,
+        interactionPush: options.interactionPushMaximumVelocity.map {
+            (maximumVelocity: $0,
+             intervalSeconds: options.interactionPushIntervalSeconds!)
+        },
+        unitreeG1Task: options.unitreeG1Task
+    )
+    if let doveManifest = options.measuredDoveManifest,
+       let doveTask = options.measuredDoveTask
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .measuredDove(
+                        manifest: URL(fileURLWithPath: doveManifest),
+                        task: doveTask
+                    ),
+                    sensorsAndPhysics: configuration,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            "measured_dove"
+        )
+    }
+    if options.bundledRobotSource == .numifly ||
+       options.bundledRobotSource == .numiflyForwardFlight ||
+       options.bundledRobotSource == .numiflyNoLegs {
+        let noLegs = options.bundledRobotSource == .numiflyNoLegs
+        let forwardFlight =
+            options.bundledRobotSource == .numiflyForwardFlight
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: noLegs
+                        ? .numiflyNoLegs(
+                            wingManifest: URL(
+                                fileURLWithPath: options.numiflyWingManifest
+                            )
+                        )
+                        : (forwardFlight
+                            ? .numiflyForwardFlight(
+                                wingManifest: URL(
+                                    fileURLWithPath: options.numiflyWingManifest
+                                )
+                            )
+                            : .numifly(
+                            wingManifest: URL(
+                                fileURLWithPath: options.numiflyWingManifest
+                            )
+                        )),
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            noLegs ? "numifly_no_legs"
+                : (forwardFlight ? "numifly_forward_flight" : "numifly")
+        )
+    }
+    if options.urdf == nil && options.worldPack == nil &&
+       options.interactionPack == nil &&
+       options.bundledRobotSource != .unitreeG1 {
+        let source: MetalRoboRunSource =
+            options.bundledRobotSource == .frankaPickPlace
+            ? .frankaPickPlace
+            : .px4X500
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: source,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            options.bundledRobotSource == .frankaPickPlace
+                ? "franka_pick_place" : "px4_x500"
+        )
+    }
+    if let interactionPack = options.interactionPack,
+       let interactionClip = options.interactionClip,
+       options.urdf == nil
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .unitreeG1,
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual,
+                    teacher: MetalRoboTeacherSource(
+                        pack: URL(fileURLWithPath: interactionPack),
+                        clipID: interactionClip
+                    )
+                ),
+                metallibPath: options.metallib
+            ),
+            "bundled_g1_interaction"
+        )
+    }
+    if let worldPack = options.worldPack,
+       let taskPack = options.taskPack,
+       let actuatorPack = options.robotActuatorPack,
+       let sensorPack = options.sensorProgramPack,
+       let realityPack = options.realityProgramPack
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .worldPack(
+                        world: URL(fileURLWithPath: worldPack),
+                        taskPack: URL(fileURLWithPath: taskPack),
+                        actuatorPack: URL(fileURLWithPath: actuatorPack),
+                        sensorPack: URL(fileURLWithPath: sensorPack),
+                        realityPack: URL(fileURLWithPath: realityPack)
+                    ),
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            "world_pack"
+        )
+    }
+    if let urdf = options.urdf,
+       let taskPack = options.taskPack,
+       let actuatorPack = options.robotActuatorPack,
+       let sensorPack = options.sensorProgramPack,
+       let realityPack = options.realityProgramPack
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .importedURDF(
+                        urdf: URL(fileURLWithPath: urdf),
+                        srdf: options.srdf.map {
+                            URL(fileURLWithPath: $0)
+                        },
+                        taskPack: URL(fileURLWithPath: taskPack),
+                        actuatorPack: URL(fileURLWithPath: actuatorPack),
+                        sensorPack: URL(fileURLWithPath: sensorPack),
+                        realityPack: URL(fileURLWithPath: realityPack)
+                    ),
+                    sensorsAndPhysics: configuration,
+                    visualSensor: visualSensor,
+                    inspectionVisual: inspectionVisual,
+                    teacher: options.interactionPack.flatMap { pack in
+                        options.interactionClip.map {
+                            MetalRoboTeacherSource(
+                                pack: URL(fileURLWithPath: pack),
+                                clipID: $0
+                            )
+                        }
+                    }
+                ),
+                metallibPath: options.metallib
+            ),
+            "urdf"
+        )
+    }
+    return (
+        try MetalRoboTaskRolloutContext(
+            manifest: MetalRoboRunManifest(
+                source: .unitreeG1,
+                sensorsAndPhysics: configuration,
+                visualSensor: visualSensor,
+                inspectionVisual: inspectionVisual
+            ),
+            metallibPath: options.metallib
+        ),
+        "bundled_g1"
+    )
+}
+
+private func actions(
+    startStep: Int,
+    stepCount: Int,
+    environmentCount: Int,
+    actionCount: Int,
+    generator: inout SplitMix64
+) -> [Float] {
+    var result = [Float](
+        repeating: 0,
+        count: stepCount * environmentCount * actionCount
+    )
+    for step in 0..<stepCount {
+        let globalStep = startStep + step
+        for environment in 0..<environmentCount {
+            for joint in 0..<actionCount {
+                let phase =
+                    0.071 * Double(globalStep) +
+                    0.113 * Double(environment) +
+                    0.173 * Double(joint)
+                let value =
+                    0.28 * Float(sin(phase)) +
+                    0.04 * generator.signedUnit()
+                let index =
+                    (step * environmentCount + environment) *
+                    actionCount + joint
+                result[index] = min(max(value, -1), 1)
+            }
+        }
+    }
+    return result
+}
+
+private func masks(
+    startStep: Int,
+    stepCount: Int,
+    environmentCount: Int,
+    pending: inout [Bool]
+) -> [UInt32] {
+    var result = [UInt32](
+        repeating: 0,
+        count: stepCount * environmentCount
+    )
+    for step in 0..<stepCount {
+        let globalStep = startStep + step
+        for environment in 0..<environmentCount {
+            let requested =
+                (step == 0 && pending[environment]) ||
+                (
+                    globalStep > 0 &&
+                    (globalStep + 37 * environment) % 257 == 0
+                )
+            if requested {
+                result[step * environmentCount + environment] = 1
+                pending[environment] = false
+            }
+        }
+    }
+    return result
+}
+
+private func processWindowRequests(
+    from context: MetalRoboTaskRolloutContext,
+    to window: NumiWindowBridge?,
+    loadPolicy: ((URL) throws -> UInt64)? = nil
+) throws {
+    guard let window else {
+        return
+    }
+    guard !window.isClosed else {
+        _ = window.waitForDeliveryDrain(timeout: 5)
+        throw NumiWindowError.closed
+    }
+    func drainPresentationForTransition() throws {
+        guard window.waitForDeliveryDrain(timeout: 5) else {
+            if window.isClosed { throw NumiWindowError.closed }
+            throw MetalRoboTaskRolloutError.native(
+                "Numi Window could not retire the displayed frame."
+            )
+        }
+    }
+    if let sceneID = window.takeSceneSelection() {
+        // Scene and policy changes both rebuild through the same serialized
+        // transaction. The current Metal world unwinds before its replacement
+        // is created, so robot switching never overlaps two native runtimes.
+        try drainPresentationForTransition()
+        throw NumiWindowError.reconfigure(NumiWindowPolicySelection(
+            choiceID: sceneID,
+            policyURL: nil
+        ))
+    }
+    if let training = window.takeTrainingRequest() {
+        try drainPresentationForTransition()
+        throw NumiWindowError.train(training)
+    }
+    if let enabled = window.takePendingNativeInspectionEnabled() {
+        try context.setInspectionEnabled(enabled)
+    }
+    if let camera = window.takeCameraControl() {
+        try context.setInspectionCamera(
+            translation: camera.translation,
+            orientation: camera.orientation
+        )
+    }
+    func install(_ url: URL) {
+        guard let loadPolicy else {
+            window.reportPolicyStatus("policy reload unavailable")
+            return
+        }
+        do {
+            let revision = try loadPolicy(url)
+            window.reportPolicyInstalled(url, revision: revision)
+        } catch {
+            // Native policy installation is transactional: a failed load
+            // leaves the currently rendered policy intact.
+            window.reportPolicyRejected(error)
+        }
+    }
+    let latestRequested = window.takeLatestPolicyReloadRequest()
+    if let selected = window.takePolicySelection() {
+        try drainPresentationForTransition()
+        throw NumiWindowError.reconfigure(selected)
+    } else if latestRequested {
+        guard let selected = window.selectedPolicy else {
+            window.reportPolicyStatus("select a policy first")
+            return
+        }
+        install(selected)
+    }
+}
+
+private func publishInspectionFrame(
+    from context: MetalRoboTaskRolloutContext,
+    to window: NumiWindowBridge?,
+    loadPolicy: ((URL) throws -> UInt64)? = nil
+) throws {
+    try processWindowRequests(
+        from: context,
+        to: window,
+        loadPolicy: loadPolicy
+    )
+    guard let window else { return }
+    guard window.acceptsFrames else {
+        if window.isClosed {
+            throw NumiWindowError.closed
+        }
+        // Occlusion gates only presentation. Simulation pause is handled by
+        // the scheduler before it submits the next native advance.
+        return
+    }
+    guard let frame = try context.acquireInspectionFrame() else {
+        return
+    }
+    window.publish(frame: frame, context: context)
+}
+
+@main
+private enum TaskRolloutMain {
+    private static func windowOptions(
+        for choice: NumiWindowSceneChoice,
+        preserving baseline: Options,
+        policyOverride: URL? = nil
+    ) throws -> Options {
+        var arguments = [CommandLine.arguments[0]]
+        var index = 0
+        while index < choice.launchArguments.count {
+            let option = choice.launchArguments[index]
+            if option == "--policy-pack" || option == "--action-stream" {
+                index += 2
+                continue
+            }
+            if option == "--native-policy" || option == "--zero-actions" {
+                index += 1
+                continue
+            }
+            arguments.append(option)
+            index += 1
+        }
+        if let policyOverride {
+            arguments.append(contentsOf: [
+                "--policy-pack", policyOverride.path,
+            ])
+        } else {
+            // A scene change has a new world/task contract until proven
+            // otherwise. Never smuggle the previous controller or action
+            // stream into the replacement world based only on a robot label.
+            arguments.append("--zero-actions")
+        }
+        arguments.append(contentsOf: [
+            "--window-scene", choice.visualObservationURL.path,
+            "--window-robot-id", choice.robotID,
+            "--window-choice-id", choice.id,
+            "--window-width", String(baseline.inspectionWidth),
+            "--window-height", String(baseline.inspectionHeight),
+            "--metallib", baseline.metallib,
+            "--envs", String(baseline.environments),
+            "--steps", String(baseline.steps),
+            "--repeats", String(baseline.repeats),
+            "--chunk", String(baseline.chunk),
+            "--physics-substeps", String(baseline.physicsSubsteps),
+            "--velocity-iterations", String(baseline.velocityIterations),
+            "--final-velocity-iterations",
+            String(baseline.finalVelocityIterations),
+            "--seed", String(baseline.seed),
+        ])
+        return try Options(arguments: arguments)
+    }
+
+    private struct WindowTrainingResult {
+        let runDirectory: URL
+        let deploymentPolicy: URL?
+        let selection: String
+    }
+
+    private static func trainingProgressSummary(
+        in runDirectory: URL,
+        updates: Int
+    ) -> String? {
+        let log = runDirectory.appendingPathComponent("stderr.log")
+        guard let contents = try? String(contentsOf: log, encoding: .utf8),
+              let line = contents.split(separator: "\n").last(where: {
+                  $0.hasPrefix("update=")
+              })
+        else { return nil }
+        var fields: [String: String] = [:]
+        for token in line.split(separator: " ") {
+            let pair = token.split(separator: "=", maxSplits: 1)
+            if pair.count == 2 {
+                fields[String(pair[0])] = String(pair[1])
+            }
+        }
+        let update = fields["update"] ?? "?"
+        let reward = fields["reward"].map { " · reward \($0)" } ?? ""
+        return "training update \(update)/\(updates)\(reward)"
+    }
+
+    private static func runTraining(
+        _ request: NumiWindowTrainingRequest,
+        window: NumiWindowBridge
+    ) throws -> WindowTrainingResult {
+        let fileManager = FileManager.default
+        let workspace = URL(
+            fileURLWithPath: fileManager.currentDirectoryPath,
+            isDirectory: true
+        )
+        let stamp = ISO8601DateFormatter().string(from: Date())
+            .replacingOccurrences(of: ":", with: "")
+            .replacingOccurrences(of: "-", with: "")
+        let safeTask = request.taskID.map {
+            $0.isLetter || $0.isNumber || $0 == "-" ? $0 : "-"
+        }
+        let runDirectory = workspace
+            .appendingPathComponent(".numi/runs", isDirectory: true)
+            .appendingPathComponent(
+                "window-train-\(stamp)-\(String(safeTask))-\(ProcessInfo.processInfo.processIdentifier)-\(UUID().uuidString.prefix(8))",
+                isDirectory: true
+            )
+        try fileManager.createDirectory(
+            at: runDirectory,
+            withIntermediateDirectories: true
+        )
+
+        var arguments = ["numi", "train"] + request.trainingArguments
+        arguments += [
+            "--envs", String(request.environments),
+            "--steps", String(request.stepsPerUpdate),
+            "--updates", String(request.updates),
+            "--chunk", String(request.chunk),
+            "--seed", String(request.seed),
+            "--minimum-difficulty-band",
+            String(request.minimumDifficultyBand),
+            "--maximum-difficulty-band",
+            String(request.maximumDifficultyBand),
+            "--checkpoint-directory",
+            runDirectory.appendingPathComponent("checkpoints").path,
+            "--checkpoint-interval", String(request.checkpointInterval),
+        ]
+        if let startingPolicyURL = request.startingPolicyURL {
+            arguments += ["--policy-pack", startingPolicyURL.path]
+        } else {
+            let identifier = "numi_window_\(request.robotID)_\(request.taskID)"
+                .replacingOccurrences(of: "-", with: "_")
+            arguments += ["--initialize-policy", identifier]
+        }
+
+        var environment = numiWindowTrainingEnvironment(
+            ProcessInfo.processInfo.environment, workspace: workspace
+        )
+        environment["NUMI_RUN_DIR"] = runDirectory.path
+        environment["NUMI_SELECTION_ENVS"] = String(
+            min(32, request.environments)
+        )
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+        process.arguments = arguments
+        process.environment = environment
+        process.currentDirectoryURL = workspace
+        let stdoutURL = runDirectory.appendingPathComponent("window-command.stdout.log")
+        let stderrURL = runDirectory.appendingPathComponent("window-command.stderr.log")
+        guard fileManager.createFile(
+                  atPath: stdoutURL.path,
+                  contents: nil
+              ),
+              fileManager.createFile(
+                  atPath: stderrURL.path,
+                  contents: nil
+              ),
+              let stdout = try? FileHandle(forWritingTo: stdoutURL),
+              let stderr = try? FileHandle(forWritingTo: stderrURL)
+        else {
+            throw MetalRoboTaskRolloutError.native(
+                "training log files could not be created"
+            )
+        }
+        defer {
+            try? stdout.close()
+            try? stderr.close()
+        }
+        process.standardOutput = stdout
+        process.standardError = stderr
+        window.reportTrainingStatus(
+            "training started · \(request.taskName) · artifacts \(runDirectory.lastPathComponent)",
+            active: true,
+            artifactsURL: runDirectory
+        )
+        try process.run()
+        let checkEnvironment = ProcessInfo.processInfo.environment
+        let cancelCheck = checkEnvironment["NUMI_WINDOW_RUNTIME_CHECK"] == "1" &&
+            checkEnvironment["NUMI_WINDOW_RUNTIME_TRAIN_CANCEL_CHECK"] == "1"
+        let cancelTrigger = checkEnvironment["NUMI_WINDOW_RUNTIME_CANCEL_TRIGGER"]
+        if cancelCheck {
+            writeDiagnostic("numi window train check pid=\(process.processIdentifier) run=\(runDirectory.path)")
+        }
+        var cancelCheckTriggered = false
+        var lastSummary: String?
+        while process.isRunning {
+            if cancelCheck, !cancelCheckTriggered, let cancelTrigger,
+               fileManager.fileExists(atPath: cancelTrigger) {
+                cancelCheckTriggered = true
+                writeDiagnostic("numi window train check closing")
+                window.closeAfterRuntimeCheck()
+            }
+            if window.isClosed {
+                process.terminate()
+                break
+            }
+            if let summary = trainingProgressSummary(
+                in: runDirectory,
+                updates: request.updates
+            ), summary != lastSummary {
+                lastSummary = summary
+                window.reportTrainingStatus(summary, active: true)
+            }
+            Thread.sleep(forTimeInterval: 0.5)
+        }
+        process.waitUntilExit()
+        if cancelCheck {
+            let lockExists = fileManager.fileExists(
+                atPath: runDirectory.appendingPathComponent(".train.lock").path)
+            writeDiagnostic("numi window train check exit=\(process.terminationStatus) lock=\(lockExists)")
+        }
+        guard process.terminationStatus == 0 else {
+            throw MetalRoboTaskRolloutError.native(
+                "training exited with status \(process.terminationStatus); artifacts: \(runDirectory.path)"
+            )
+        }
+        let deployment = runDirectory.appendingPathComponent(
+            "deployment.policypack"
+        )
+        let decision = numiGuidedPolicyDecision(policy: deployment, run: runDirectory)
+        let deploymentPolicy: URL? = decision.shouldLoad ? deployment : nil
+        let selection = decision.message
+        return WindowTrainingResult(
+            runDirectory: runDirectory,
+            deploymentPolicy: deploymentPolicy,
+            selection: selection
+        )
+    }
+
+    private static func run(
+        options: Options,
+        window: NumiWindowBridge?,
+        onFirstPresented: ((NumiWindowPolicyContract) -> Void)? = nil
+    ) throws {
+            guard window?.isClosed != true else {
+                throw NumiWindowError.closed
+            }
+            let (context, worldSource) =
+                try makeContext(options: options)
+            guard window?.isClosed != true else {
+                throw NumiWindowError.closed
+            }
+            let visualObservationEnabled =
+                context.visualSceneFingerprint != 0
+            let activeContract = NumiWindowPolicyContract(
+                version: 1,
+                worldFingerprint: context.layout.worldFingerprint,
+                taskFingerprint: context.layout.taskFingerprint,
+                observationFingerprint:
+                    context.layout.observationFingerprint,
+                actionFingerprint: context.layout.actionFingerprint
+            )
+            if options.motionFeatureTrace != nil &&
+                context.layout.motionFeatureCount == 0 {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "--motion-feature-trace requires a compiled task motion program."
+                )
+            }
+            if options.stateTrace != nil || options.captureDirectory != nil {
+                try context.setStateReadback(true)
+            }
+            let streamedActions: [Float]? = try options.actionStream.map {
+                let layout = context.layout
+                let stepEnvironments = options.environments
+                    .multipliedReportingOverflow(by: options.steps)
+                let samples = stepEnvironments.partialValue
+                    .multipliedReportingOverflow(by: options.repeats)
+                let elements = samples.partialValue
+                    .multipliedReportingOverflow(by: layout.actionCount)
+                guard !stepEnvironments.overflow,
+                      !samples.overflow,
+                      !elements.overflow
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--action-stream dimensions overflow Int."
+                    )
+                }
+                return try readActionStream(
+                    path: $0,
+                    expectedCount: elements.partialValue
+                )
+            }
+            var usesHyperPolicy = options.hyperPolicyPack != nil
+            var usesCompiledPolicy =
+                options.nativePolicy || options.policyPack != nil ||
+                usesHyperPolicy
+            if let hyperPolicyPack = options.hyperPolicyPack {
+                try context.loadHyperPolicy(
+                    at: URL(fileURLWithPath: hyperPolicyPack)
+                )
+            } else if let policyPack = options.policyPack {
+                try context.loadPolicy(
+                    at: URL(fileURLWithPath: policyPack)
+                )
+            } else if options.nativePolicy {
+                let layout = context.layout
+                let hiddenCount = 64
+                try context.setPolicy(
+                    MetalRoboPolicyPack(
+                        id: "native_rollout_zero_policy",
+                        revision: 7,
+                        contractVersion: 1,
+                        worldFingerprint: layout.worldFingerprint,
+                        taskFingerprint: layout.taskFingerprint,
+                        observationFingerprint:
+                            layout.observationFingerprint,
+                        actionFingerprint: layout.actionFingerprint,
+                        layers: [
+                            .init(
+                                inputCount:
+                                    layout.actorObservationCount,
+                                outputCount: hiddenCount,
+                                activation: .tanh,
+                                weights: [Float](
+                                    repeating: 0,
+                                    count:
+                                        layout.actorObservationCount *
+                                        hiddenCount
+                                ),
+                                bias: [Float](
+                                    repeating: 0,
+                                    count: hiddenCount
+                                )
+                            ),
+                            .init(
+                                inputCount: hiddenCount,
+                                outputCount: layout.actionCount,
+                                activation: .identity,
+                                weights: [Float](
+                                    repeating: 0,
+                                    count:
+                                        hiddenCount *
+                                        layout.actionCount
+                                ),
+                                bias: [Float](
+                                    repeating: 0,
+                                    count: layout.actionCount
+                                )
+                            ),
+                        ],
+                        criticLayers: [
+                            .init(
+                                inputCount:
+                                    layout.criticObservationCount,
+                                outputCount: hiddenCount,
+                                activation: .elu,
+                                weights: [Float](
+                                    repeating: 0,
+                                    count:
+                                        layout.criticObservationCount *
+                                        hiddenCount
+                                ),
+                                bias: [Float](
+                                    repeating: 0,
+                                    count: hiddenCount
+                                )
+                            ),
+                            .init(
+                                inputCount: hiddenCount,
+                                outputCount: 1,
+                                activation: .identity,
+                                weights: [Float](
+                                    repeating: 0,
+                                    count: hiddenCount
+                                ),
+                                bias: [0]
+                            ),
+                        ],
+                        actionLogStandardDeviation: [Float](
+                            repeating: -2,
+                            count: layout.actionCount
+                        )
+                    )
+                )
+            }
+            var installedPolicyRevision: UInt64 = 0
+            if usesCompiledPolicy {
+                installedPolicyRevision = context.installedPolicyRevision
+                guard installedPolicyRevision != 0 else {
+                    throw MetalRoboTaskRolloutError.native(
+                        "Installed policy did not publish a revision."
+                    )
+                }
+                if !usesHyperPolicy {
+                    _ = try context.advanceWithPolicy(
+                        resetMasks: [UInt32](
+                            repeating: 0,
+                            count: options.environments
+                        ),
+                        controlStepCount: 1
+                    )
+                    try processWindowRequests(
+                        from: context,
+                        to: window,
+                        loadPolicy: { url in
+                            try context.loadPolicy(at: url)
+                            usesHyperPolicy = false
+                            installedPolicyRevision =
+                                context.installedPolicyRevision
+                            return installedPolicyRevision
+                        }
+                    )
+                    let revisions = try context.transitions(
+                        controlStepCount: 1
+                    ).map(\.policyRevision)
+                    guard revisions.allSatisfy({
+                        $0 == installedPolicyRevision
+                    }) else {
+                        throw MetalRoboTaskRolloutError.native(
+                            "Native policy revision was not attached to transitions."
+                        )
+                    }
+                    let policyLogProbabilities =
+                        try context.policyLogProbabilities(
+                            controlStepCount: 1
+                        )
+                    let policyValues = try context.policyValues(
+                        controlStepCount: 1
+                    )
+                    let policyLatents = try context.policyLatents(
+                        controlStepCount: 1
+                    )
+                    guard
+                        policyLogProbabilities.allSatisfy(\.isFinite),
+                        policyValues.allSatisfy(\.isFinite),
+                        policyLatents.allSatisfy(\.isFinite)
+                    else {
+                        throw MetalRoboTaskRolloutError.native(
+                            "Native policy produced non-finite PPO records."
+                        )
+                    }
+                    if options.nativePolicy {
+                        let currentLayout = context.layout
+                        let logStandardDeviation = -2.0
+                        let standardDeviation =
+                            Foundation.exp(logStandardDeviation)
+                        let halfLogTwoPi =
+                            0.5 * Foundation.log(2 * Double.pi)
+                        for environment in 0..<options.environments {
+                            var expected = 0.0
+                            let base =
+                                environment * currentLayout.actionCount
+                            for action in 0..<currentLayout.actionCount {
+                                let latent = Double(
+                                    policyLatents[base + action]
+                                )
+                                let normal = latent / standardDeviation
+                                expected +=
+                                    -0.5 * normal * normal -
+                                    logStandardDeviation - halfLogTwoPi
+                            }
+                            guard abs(
+                                expected -
+                                    Double(
+                                        policyLogProbabilities[environment]
+                                    )
+                            ) < 2.0e-3,
+                                abs(policyValues[environment]) < 1.0e-6
+                            else {
+                                throw MetalRoboTaskRolloutError.native(
+                                    "Native stochastic-policy record disagrees with the reference distribution."
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                _ = try context.advance(
+                    normalizedActions: [Float](
+                        repeating: 0,
+                        count:
+                            options.environments *
+                            context.layout.actionCount
+                    ),
+                    resetMasks: [UInt32](
+                        repeating: 0,
+                        count: options.environments
+                    ),
+                    controlStepCount: 1
+                )
+                try processWindowRequests(
+                    from: context,
+                    to: window,
+                    loadPolicy: { url in
+                            try context.loadPolicy(
+                                at: url
+                            )
+                            usesHyperPolicy = false
+                            usesCompiledPolicy = true
+                            installedPolicyRevision =
+                                context.installedPolicyRevision
+                            return installedPolicyRevision
+                    }
+                )
+            }
+            try context.reset(seed: options.seed)
+            let baseline = context.layout
+            var generator = SplitMix64(seed: options.seed)
+            var pending = [Bool](
+                // A newly initialized resident world contains model defaults,
+                // not the task's authored reset distribution. Publish an
+                // explicit reset on the first control step just as training
+                // does; otherwise aerial and recovery tasks begin from stale
+                // model poses until the first periodic reset.
+                repeating: options.scheduledResets,
+                count: options.environments
+            )
+            var globalStep = 0
+            var totalResets = 0
+            var maximumContacts = 0
+            var maximumManifolds = 0
+            var stageHighWater: [String: Int] = [:]
+            var failedSteps = 0
+            var policySampleCount = 0
+            var transitionCount = 0
+            var minimumDifficultyBand = UInt32.max
+            var maximumDifficultyBand: UInt32 = 0
+            var terminationCount = 0
+            var rewardSum = 0.0
+            var trackingSum = 0.0
+            var rootHeightSum = 0.0
+            var tiltSum = 0.0
+            var maximumRootHeight = 0.0
+            var maximumTilt = 0.0
+            var standingStepCount = 0
+            var restoredStepCount = 0
+            var recoveryBraceStepCount = 0
+            var trunkClearStepCount = 0
+            var footSupportStepCount = 0
+            var supportTransferStepCount = 0
+            var recoveryRiseStepCount = 0
+            var quietStandStepCount = 0
+            var transitionCountByDifficultyBand: [UInt32: Int] = [:]
+            var rootHeightSumByDifficultyBand: [UInt32: Double] = [:]
+            var tiltSumByDifficultyBand: [UInt32: Double] = [:]
+            var recoveryPhaseCountsByDifficultyBand:
+                [UInt32: [String: Int]] = [:]
+            var taskRewardSum = 0.0
+            var baseRewardSum = 0.0
+            var jointVelocityRewardSum = 0.0
+            var jointAccelerationRewardSum = 0.0
+            var controlRewardSum = 0.0
+            var postureRewardSum = 0.0
+            var energyRewardSum = 0.0
+            var contactRewardSum = 0.0
+            var dodgeLinkClearanceRewardSum = 0.0
+            var dodgeEvasionRewardSum = 0.0
+            var dodgeMissRewardSum = 0.0
+            var dodgeSafeStillnessRewardSum = 0.0
+            var dodgeSafeActionRateRewardSum = 0.0
+            var dodgeCBFCorrectionRewardSum = 0.0
+            var dodgeCBFBufferRewardSum = 0.0
+            var dodgePredictedClearanceRewardSum = 0.0
+            let reportsDodgeRewardBreakdown =
+                options.worldPack == nil && options.urdf == nil &&
+                options.unitreeG1Task == .ballDodge
+            var terminationReasonCounts: [String: Int] = [:]
+            var terminationCountByEnvironment = [Int](
+                repeating: 0,
+                count: options.environments
+            )
+            var transitionCountByEnvironment = [Int](
+                repeating: 0,
+                count: options.environments
+            )
+            var trackingSumByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
+            var rootHeightSumByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
+            var minimumRootHeightByEnvironment = [Double](
+                repeating: .infinity,
+                count: options.environments
+            )
+            var tiltSumByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
+            var maximumTiltByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
+            var physicsErrorCountByEnvironment = [Int](
+                repeating: 0,
+                count: options.environments
+            )
+            var initialForwardPositionByEnvironment = [Double](
+                repeating: .nan,
+                count: options.environments
+            )
+            var maximumForwardProgressByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
+            var finalForwardProgressByEnvironment = [Double](
+                repeating: 0.0,
+                count: options.environments
+            )
+            var footSupportStepCountByEnvironment = [Int](
+                repeating: 0,
+                count: options.environments
+            )
+            var initialPelvisHeightByEnvironment = [Double](
+                repeating: .nan,
+                count: options.environments
+            )
+            var minimumPelvisHeightByEnvironment = [Double](
+                repeating: .infinity,
+                count: options.environments
+            )
+            var finalPelvisHeightByEnvironment = [Double](
+                repeating: .nan,
+                count: options.environments
+            )
+            var initialKneeFlexionByEnvironment = [Double](
+                repeating: .nan,
+                count: options.environments
+            )
+            var maximumLeftKneeFlexionByEnvironment = [Double](
+                repeating: -.infinity,
+                count: options.environments
+            )
+            var maximumRightKneeFlexionByEnvironment = [Double](
+                repeating: -.infinity,
+                count: options.environments
+            )
+            var finalKneeFlexionByEnvironment = [Double](
+                repeating: .nan,
+                count: options.environments
+            )
+            var tracedFootSupportStepCount = 0
+            var tracedInitialPelvisHeight: Double?
+            var tracedMinimumPelvisHeight = Double.infinity
+            var tracedFinalPelvisHeight: Double?
+            var tracedInitialKneeFlexion: Double?
+            var tracedMaximumLeftKneeFlexion = -Double.infinity
+            var tracedMaximumRightKneeFlexion = -Double.infinity
+            var tracedFinalKneeFlexion: Double?
+            let impactSpheres =
+                options.unitreeG1Task == .ballDodge &&
+                options.dynamicSpheres.isEmpty
+                ? MetalRoboDynamicSphere.g1BallDodgeDefaults
+                : options.unitreeG1Task == .ballDisturbanceRecovery &&
+                options.dynamicSpheres.isEmpty
+                ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
+                : options.dynamicSpheres
+            let supportsG1SquatEvidence =
+                options.stateTrace != nil &&
+                (options.unitreeG1Task == .supineGetUpDiscovery ||
+                 options.unitreeG1Task == .developmentalRecovery) &&
+                options.worldPack == nil && options.urdf == nil
+            let supportsG1ForwardEvidence =
+                options.stateTrace != nil &&
+                (options.unitreeG1Task == .velocity ||
+                 options.unitreeG1Task == .adultLocomotion ||
+                 options.unitreeG1Task == .g1LegsLocomotion) &&
+                options.worldPack == nil && options.urdf == nil
+            var impactTouches = [Int](
+                repeating: 0,
+                count: impactSpheres.count
+            )
+            var impactContacts = impactTouches
+            var impactRecoveries = impactTouches
+            var impactMisses = impactTouches
+            var impactActiveSteps = impactTouches
+            var impactPeakTilt = [Double](
+                repeating: 0.0,
+                count: impactSpheres.count
+            )
+            var impactMinimumHeight = [Double](
+                repeating: .infinity,
+                count: impactSpheres.count
+            )
+            var impactSequenceEnabledSteps = 0
+            var policyRolloutFingerprint:
+                UInt64 = 1_469_598_103_934_665_603
+            let outcomeSchema = context.outcomeSchema
+            var outcomeSums = [Double](
+                repeating: 0,
+                count: outcomeSchema.count
+            )
+            var outcomeSampleCount = 0
+            var collectedPolicyBatches:
+                [MetalRoboPolicyRolloutBatch] = []
+            var stateTraceLines: [String] = []
+            if options.stateTrace != nil {
+                let traceLayout = context.layout
+                stateTraceLines.append(
+                    "# step nq=\(traceLayout.configurationCount) " +
+                    "scene_bodies=\(traceLayout.sceneBodyCount) " +
+                    "scene_stride=13 timestep=0.02 " +
+                    "environment=\(options.stateTraceEnvironment)"
+                )
+            }
+            var motionFeatureTraceLines: [String] = []
+            if options.motionFeatureTrace != nil {
+                let traceLayout = context.layout
+                motionFeatureTraceLines.append(
+                    "# step feature_count=\(traceLayout.motionFeatureCount) " +
+                    "contract=anchor_relative_body_com_position_xyz_plus_rotation6d " +
+                    "environment=\(options.motionFeatureTraceEnvironment)"
+                )
+            }
+            let captureDirectory = options.captureDirectory.map {
+                URL(fileURLWithPath: $0, isDirectory: true)
+            }
+            if let captureDirectory {
+                try FileManager.default.createDirectory(
+                    at: captureDirectory,
+                    withIntermediateDirectories: true
+                )
+            }
+            let clock = ContinuousClock()
+            let start = clock.now
+            // A live window is a presentation sidecar, not a rollout
+            // collector. Keep its hot loop free of the training-only policy,
+            // transition, outcome and status readbacks below. Those materialize
+            // large Swift arrays every chunk and can keep unified memory and
+            // the GPU saturated for the entire million-step preview.
+            let interactivePreview = window != nil &&
+                options.rolloutPack == nil &&
+                options.stateTrace == nil &&
+                options.motionFeatureTrace == nil &&
+                options.captureDirectory == nil &&
+                !options.verbose
+            var firstPreviewFrameHeld = false
+            var consecutivePreviewRecoveries = 0
+
+            for repeatIndex in 0..<options.repeats {
+                let repeatStart = clock.now
+                var completed = 0
+                while completed < options.steps {
+                    try processWindowRequests(
+                        from: context,
+                        to: window,
+                        loadPolicy: { url in
+                            try context.loadPolicy(at: url)
+                            usesHyperPolicy = false
+                            usesCompiledPolicy = true
+                            installedPolicyRevision =
+                                context.installedPolicyRevision
+                            return installedPolicyRevision
+                        }
+                    )
+                    if window?.isSimulationPaused == true {
+                        window?.waitWhileSimulationPaused()
+                        continue
+                    }
+                    let presentationBeforeAdvance =
+                        window?.presentationCount ?? 0
+                    // The window rollout occupies one long-lived GCD block.
+                    // Drain Objective-C and Metal autoreleased temporaries at
+                    // every explicit submission/publication boundary instead
+                    // of retaining them for the million-step preview.
+                    try autoreleasepool {
+                    let stepCount = min(
+                        options.chunk,
+                        options.steps - completed
+                    )
+                    let previewChunkStart = interactivePreview
+                        ? CFAbsoluteTimeGetCurrent()
+                        : 0
+                    let resetBatch = options.scheduledResets
+                        ? masks(
+                            startStep: globalStep,
+                            stepCount: stepCount,
+                            environmentCount: options.environments,
+                            pending: &pending
+                        )
+                        : []
+                    let advance: MetalRoboTaskRolloutAdvance
+                    if usesCompiledPolicy {
+                        advance = try context.advanceWithPolicy(
+                            resetMasks: resetBatch,
+                            controlStepCount: stepCount,
+                            policyRevision:
+                                installedPolicyRevision,
+                            evaluateFinalPolicy:
+                                !usesHyperPolicy &&
+                                options.rolloutPack != nil &&
+                                repeatIndex + 1 ==
+                                    options.repeats &&
+                                completed + stepCount ==
+                                    options.steps
+                        )
+                    } else {
+                        let actionBatch: [Float]
+                        if let streamedActions {
+                            let actionCount = context.layout.actionCount
+                            let start = globalStep * options.environments *
+                                actionCount
+                            let end = start + stepCount *
+                                options.environments * actionCount
+                            actionBatch = Array(streamedActions[start..<end])
+                        } else if options.zeroActions {
+                            actionBatch = [Float](
+                                repeating: 0,
+                                count:
+                                    stepCount *
+                                    options.environments *
+                                    context.layout.actionCount
+                            )
+                        } else {
+                            actionBatch = actions(
+                                startStep: globalStep,
+                                stepCount: stepCount,
+                                environmentCount:
+                                    options.environments,
+                                actionCount:
+                                    context.layout.actionCount,
+                                generator: &generator
+                            )
+                        }
+                        advance = try context.advance(
+                            normalizedActions: actionBatch,
+                            resetMasks: resetBatch,
+                            controlStepCount: stepCount,
+                            policyRevision: 1
+                        )
+                    }
+                    try publishInspectionFrame(
+                        from: context,
+                        to: window,
+                        loadPolicy: { url in
+                            try context.loadPolicy(
+                                at: url
+                            )
+                            usesHyperPolicy = false
+                            usesCompiledPolicy = true
+                            installedPolicyRevision =
+                                context.installedPolicyRevision
+                                return installedPolicyRevision
+                            }
+                    )
+                    if interactivePreview && !firstPreviewFrameHeld {
+                        // A configuration becomes current only after the
+                        // drawable command buffer for its authored reset frame
+                        // completes. Queue submission or an arbitrary sleep is
+                        // not evidence that the user can see the new world.
+                        guard window?.waitForPresentation(
+                            after: presentationBeforeAdvance,
+                            timeout: 5
+                        ) == true else {
+                            throw MetalRoboTaskRolloutError.native(
+                                "Numi Window did not present its first frame."
+                            )
+                        }
+                        firstPreviewFrameHeld = true
+                        onFirstPresented?(activeContract)
+                    }
+                    if interactivePreview {
+                        if advance.firstGPUStatusCode != 0 ||
+                            advance.failedEnvironmentSteps != 0 {
+                            // A failed environment step is transactional: its
+                            // last accepted state is still intact. In the live
+                            // viewer, schedule a clean reset instead of tearing
+                            // down the entire app. Strict rollout/training paths
+                            // below continue to reject the same GPU status.
+                            if advance.firstFailingEnvironment <
+                                UInt32(pending.count) {
+                                pending[Int(
+                                    advance.firstFailingEnvironment
+                                )] = true
+                            } else {
+                                pending = [Bool](
+                                    repeating: true,
+                                    count: pending.count
+                                )
+                            }
+                            consecutivePreviewRecoveries += 1
+                            failedSteps += advance.failedEnvironmentSteps
+                            let status = advance.firstGPUStatusCode
+                            window?.reportPolicyStatus(
+                                "preview recovered physics status \(status)"
+                            )
+                        } else {
+                            if consecutivePreviewRecoveries > 0 {
+                                window?.reportPolicyStatus(
+                                    "preview running"
+                                )
+                            }
+                            consecutivePreviewRecoveries = 0
+                        }
+                        totalResets += advance.hostRequestedResets
+                        maximumContacts = max(
+                            maximumContacts,
+                            advance.maximumActiveContacts
+                        )
+                        maximumManifolds = max(
+                            maximumManifolds,
+                            advance.maximumManifolds
+                        )
+                        completed += stepCount
+                        globalStep += stepCount
+
+                        // Match simulated time to wall time. Rendering already
+                        // drops stale frames transactionally, but without this
+                        // pacing the hidden physics loop still monopolizes the
+                        // shared Apple GPU and can destabilize WindowServer.
+                        let targetSeconds = Double(stepCount) * 0.02
+                        let elapsedSeconds =
+                            CFAbsoluteTimeGetCurrent() - previewChunkStart
+                        if elapsedSeconds < targetSeconds {
+                            Thread.sleep(
+                                forTimeInterval:
+                                    targetSeconds - elapsedSeconds
+                            )
+                        }
+                        return
+                    }
+                    let statuses = try context.statusCodes(
+                        controlStepCount: stepCount
+                    )
+                    guard statuses.allSatisfy({ $0 == 0 }) else {
+                        throw MetalRoboTaskRolloutError.native(
+                            "Task rollout returned a nonzero GPU status."
+                        )
+                    }
+                    if let captureDirectory,
+                       globalStep % options.captureStride == 0 {
+                        try writeCaptureFrame(
+                            context.visualRGBA(),
+                            index: globalStep,
+                            directory: captureDirectory
+                        )
+                    }
+                    let observedTransitions:
+                        [MetalRoboTaskTransition]
+                    if usesCompiledPolicy {
+                        let policyBatch =
+                            try context.policyRolloutBatch(
+                                controlStepCount: stepCount
+                            )
+                        guard policyBatch.transitions
+                            .allSatisfy({
+                                $0.policyRevision ==
+                                    installedPolicyRevision
+                            })
+                        else {
+                            throw MetalRoboTaskRolloutError.native(
+                                "Policy revision changed inside a collected rollout batch."
+                            )
+                        }
+                        fingerprint(
+                            policyBatch,
+                            into: &policyRolloutFingerprint
+                        )
+                        policySampleCount +=
+                            policyBatch.sampleCount
+                        if options.rolloutPack != nil {
+                            collectedPolicyBatches.append(
+                                policyBatch
+                            )
+                        }
+                        observedTransitions =
+                            policyBatch.transitions
+                    } else {
+                        observedTransitions =
+                            try context.transitions(
+                                controlStepCount: stepCount
+                            )
+                    }
+                    let typedOutcomes = try context.outcomeValues(
+                        controlStepCount: stepCount
+                    )
+                    guard typedOutcomes.count ==
+                            observedTransitions.count * outcomeSchema.count
+                    else {
+                        throw MetalRoboTaskRolloutError.native(
+                            "Task-authored outcome shape is inconsistent."
+                        )
+                    }
+                    for transitionIndex in observedTransitions.indices {
+                        let base = transitionIndex * outcomeSchema.count
+                        for outcomeIndex in outcomeSchema.indices {
+                            outcomeSums[outcomeIndex] += Double(
+                                typedOutcomes[base + outcomeIndex]
+                            )
+                        }
+                    }
+                    outcomeSampleCount += observedTransitions.count
+                    if options.motionFeatureTrace != nil {
+                        let featureCount = context.layout.motionFeatureCount
+                        let features = try context.motionFeatures(
+                            controlStepCount: stepCount
+                        )
+                        let environment =
+                            options.motionFeatureTraceEnvironment
+                        for localStep in 0..<stepCount {
+                            let base =
+                                (localStep * options.environments + environment) *
+                                featureCount
+                            let payload = features[
+                                base..<(base + featureCount)
+                            ].map {
+                                String(format: "%.9g", $0)
+                            }.joined(separator: "\t")
+                            motionFeatureTraceLines.append(
+                                "\(globalStep + localStep + 1)\t\(payload)"
+                            )
+                        }
+                    }
+                    for (transitionIndex, transition) in
+                        observedTransitions.enumerated()
+                    {
+                        let transitionEnvironment =
+                            transitionIndex % options.environments
+                        transitionCount += 1
+                        transitionCountByEnvironment[
+                            transitionEnvironment
+                        ] += 1
+                        trackingSumByEnvironment[
+                            transitionEnvironment
+                        ] += Double(transition.trackingScore)
+                        rootHeightSumByEnvironment[
+                            transitionEnvironment
+                        ] += Double(transition.rootHeight)
+                        minimumRootHeightByEnvironment[
+                            transitionEnvironment
+                        ] = min(
+                            minimumRootHeightByEnvironment[
+                                transitionEnvironment
+                            ],
+                            Double(transition.rootHeight)
+                        )
+                        tiltSumByEnvironment[
+                            transitionEnvironment
+                        ] += Double(transition.tilt)
+                        maximumTiltByEnvironment[
+                            transitionEnvironment
+                        ] = max(
+                            maximumTiltByEnvironment[
+                                transitionEnvironment
+                            ],
+                            Double(transition.tilt)
+                        )
+                        if transition.physicsError {
+                            physicsErrorCountByEnvironment[
+                                transitionEnvironment
+                            ] += 1
+                        }
+                        let difficultyBand = transition.difficultyBand
+                        transitionCountByDifficultyBand[
+                            difficultyBand,
+                            default: 0
+                        ] += 1
+                        rootHeightSumByDifficultyBand[
+                            difficultyBand,
+                            default: 0
+                        ] += Double(transition.rootHeight)
+                        tiltSumByDifficultyBand[
+                            difficultyBand,
+                            default: 0
+                        ] += Double(transition.tilt)
+                        minimumDifficultyBand = min(
+                            minimumDifficultyBand,
+                            transition.difficultyBand
+                        )
+                        maximumDifficultyBand = max(
+                            maximumDifficultyBand,
+                            transition.difficultyBand
+                        )
+                        rewardSum += Double(transition.reward)
+                        trackingSum +=
+                            Double(transition.trackingScore)
+                        rootHeightSum +=
+                            Double(transition.rootHeight)
+                        tiltSum += Double(transition.tilt)
+                        maximumRootHeight = max(
+                            maximumRootHeight,
+                            Double(transition.rootHeight)
+                        )
+                        maximumTilt = max(
+                            maximumTilt,
+                            Double(transition.tilt)
+                        )
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 31) != 0 {
+                            standingStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["standing", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 30) != 0 {
+                            restoredStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["restored", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 29) != 0 {
+                            recoveryBraceStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["brace", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 28) != 0 {
+                            trunkClearStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["trunk_clear", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 27) != 0 {
+                            footSupportStepCount += 1
+                            footSupportStepCountByEnvironment[
+                                transitionEnvironment
+                            ] += 1
+                            if transitionEnvironment ==
+                                options.stateTraceEnvironment {
+                                tracedFootSupportStepCount += 1
+                            }
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["foot_support", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 26) != 0 {
+                            supportTransferStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["support_transfer", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 25) != 0 {
+                            recoveryRiseStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["rise", default: 0] += 1
+                        }
+                        if transition.impactEventFlags &
+                            (UInt32(1) << 24) != 0 {
+                            quietStandStepCount += 1
+                            recoveryPhaseCountsByDifficultyBand[
+                                difficultyBand,
+                                default: [:]
+                            ]["quiet_stand", default: 0] += 1
+                        }
+                        taskRewardSum +=
+                            Double(transition.taskReward)
+                        baseRewardSum +=
+                            Double(transition.baseReward)
+                        jointVelocityRewardSum +=
+                            Double(transition.jointVelocityReward)
+                        jointAccelerationRewardSum +=
+                            Double(transition.jointAccelerationReward)
+                        controlRewardSum +=
+                            Double(transition.controlReward)
+                        postureRewardSum +=
+                            Double(transition.postureReward)
+                        energyRewardSum +=
+                            Double(transition.energyReward)
+                        contactRewardSum +=
+                            Double(transition.contactReward)
+                        if reportsDodgeRewardBreakdown {
+                            dodgeLinkClearanceRewardSum += Double(
+                                transition.taskOutcomeChannel0
+                            )
+                            dodgeEvasionRewardSum += Double(
+                                transition.taskOutcomeChannel1
+                            )
+                            dodgeMissRewardSum += Double(
+                                transition.taskOutcomeChannel2
+                            )
+                            dodgeSafeStillnessRewardSum += Double(
+                                transition.taskOutcomeChannel3
+                            )
+                            dodgeSafeActionRateRewardSum += Double(
+                                transition.taskOutcomeChannel4
+                            )
+                            dodgeCBFCorrectionRewardSum += Double(
+                                transition.taskOutcomeChannel5
+                            )
+                            dodgeCBFBufferRewardSum += Double(
+                                transition.taskOutcomeChannel6
+                            )
+                            dodgePredictedClearanceRewardSum += Double(
+                                transition.taskOutcomeChannel7
+                            )
+                        }
+                        if transition.impactSequenceIndex > 0 {
+                            let impact = Int(
+                                transition.impactSequenceIndex - 1
+                            )
+                            if impact < impactSpheres.count {
+                                impactActiveSteps[impact] += 1
+                                impactPeakTilt[impact] = max(
+                                    impactPeakTilt[impact],
+                                    Double(transition.tilt)
+                                )
+                                impactMinimumHeight[impact] = min(
+                                    impactMinimumHeight[impact],
+                                    Double(transition.rootHeight)
+                                )
+                                if transition.impactEventFlags & 1 != 0 {
+                                    impactTouches[impact] += 1
+                                }
+                                if transition.impactEventFlags & 16 != 0 {
+                                    impactContacts[impact] += 1
+                                }
+                                if transition.impactEventFlags & 2 != 0 {
+                                    impactRecoveries[impact] += 1
+                                }
+                                if transition.impactEventFlags & 4 != 0 {
+                                    impactMisses[impact] += 1
+                                }
+                            }
+                        }
+                        if transition.impactEventFlags & 8 != 0 {
+                            impactSequenceEnabledSteps += 1
+                        }
+                        if transition.done {
+                            terminationCount += 1
+                            terminationCountByEnvironment[
+                                transitionEnvironment
+                            ] += 1
+                            let reason = String(
+                                transition.terminationReason
+                            )
+                            terminationReasonCounts[
+                                reason,
+                                default: 0
+                            ] += 1
+                        }
+                    }
+                    totalResets += advance.hostRequestedResets
+                    maximumContacts = max(
+                        maximumContacts,
+                        advance.maximumActiveContacts
+                    )
+                    maximumManifolds = max(
+                        maximumManifolds,
+                        advance.maximumManifolds
+                    )
+                    for (stage, count) in
+                        advance.stageHighWater
+                    {
+                        stageHighWater[stage] = max(
+                            stageHighWater[stage, default: 0],
+                            count
+                        )
+                    }
+                    failedSteps += advance.failedEnvironmentSteps
+                    if options.stateTrace != nil {
+                        let traceLayout = context.layout
+                        let environment = options.stateTraceEnvironment
+                        let allConfigurations =
+                            try context.finalConfiguration()
+                        if supportsG1ForwardEvidence &&
+                            traceLayout.configurationCount >= 7
+                        {
+                            for metricEnvironment in
+                                0..<options.environments
+                            {
+                                let metricBase = metricEnvironment *
+                                    traceLayout.configurationCount
+                                let position = Double(
+                                    allConfigurations[metricBase]
+                                )
+                                if !initialForwardPositionByEnvironment[
+                                    metricEnvironment
+                                ].isFinite {
+                                    initialForwardPositionByEnvironment[
+                                        metricEnvironment
+                                    ] = position
+                                }
+                                let origin = initialForwardPositionByEnvironment[
+                                    metricEnvironment
+                                ]
+                                let progress = position - origin
+                                maximumForwardProgressByEnvironment[
+                                    metricEnvironment
+                                ] = max(
+                                    maximumForwardProgressByEnvironment[
+                                        metricEnvironment
+                                    ],
+                                    progress
+                                )
+                                finalForwardProgressByEnvironment[
+                                    metricEnvironment
+                                ] = progress
+                            }
+                        }
+                        if supportsG1SquatEvidence &&
+                            traceLayout.configurationCount > 16 {
+                            for metricEnvironment in
+                                0..<options.environments
+                            {
+                                let metricBase = metricEnvironment *
+                                    traceLayout.configurationCount
+                                let pelvisHeight = Double(
+                                    allConfigurations[metricBase + 2]
+                                )
+                                let leftKnee = Double(
+                                    allConfigurations[metricBase + 10]
+                                )
+                                let rightKnee = Double(
+                                    allConfigurations[metricBase + 16]
+                                )
+                                let kneeFlexion =
+                                    0.5 * (leftKnee + rightKnee)
+                                if initialPelvisHeightByEnvironment[
+                                    metricEnvironment
+                                ].isNaN {
+                                    initialPelvisHeightByEnvironment[
+                                        metricEnvironment
+                                    ] = pelvisHeight
+                                    initialKneeFlexionByEnvironment[
+                                        metricEnvironment
+                                    ] = kneeFlexion
+                                }
+                                minimumPelvisHeightByEnvironment[
+                                    metricEnvironment
+                                ] = min(
+                                    minimumPelvisHeightByEnvironment[
+                                        metricEnvironment
+                                    ],
+                                    pelvisHeight
+                                )
+                                maximumLeftKneeFlexionByEnvironment[
+                                    metricEnvironment
+                                ] = max(
+                                    maximumLeftKneeFlexionByEnvironment[
+                                        metricEnvironment
+                                    ],
+                                    leftKnee
+                                )
+                                maximumRightKneeFlexionByEnvironment[
+                                    metricEnvironment
+                                ] = max(
+                                    maximumRightKneeFlexionByEnvironment[
+                                        metricEnvironment
+                                    ],
+                                    rightKnee
+                                )
+                                finalPelvisHeightByEnvironment[
+                                    metricEnvironment
+                                ] = pelvisHeight
+                                finalKneeFlexionByEnvironment[
+                                    metricEnvironment
+                                ] = kneeFlexion
+                            }
+                        }
+                        let qStart =
+                            environment * traceLayout.configurationCount
+                        let qEnd =
+                            qStart + traceLayout.configurationCount
+                        let configuration = Array(
+                            allConfigurations[qStart..<qEnd]
+                        )
+                        let allSceneStates =
+                            try context.finalSceneStates()
+                        let sceneStride =
+                            traceLayout.sceneBodyCount * 13
+                        let sceneStart = environment * sceneStride
+                        let sceneEnd = sceneStart + sceneStride
+                        let scene = Array(
+                            allSceneStates[sceneStart..<sceneEnd]
+                        )
+                        let values = configuration + scene
+                        if configuration.count > 16 {
+                            let pelvisHeight =
+                                Double(configuration[2])
+                            let leftKnee =
+                                Double(configuration[10])
+                            let rightKnee =
+                                Double(configuration[16])
+                            let kneeFlexion =
+                                0.5 * (leftKnee + rightKnee)
+                            if tracedInitialPelvisHeight == nil {
+                                tracedInitialPelvisHeight = pelvisHeight
+                                tracedInitialKneeFlexion = kneeFlexion
+                            }
+                            tracedMinimumPelvisHeight = min(
+                                tracedMinimumPelvisHeight,
+                                pelvisHeight
+                            )
+                            tracedMaximumLeftKneeFlexion = max(
+                                tracedMaximumLeftKneeFlexion,
+                                leftKnee
+                            )
+                            tracedMaximumRightKneeFlexion = max(
+                                tracedMaximumRightKneeFlexion,
+                                rightKnee
+                            )
+                            tracedFinalPelvisHeight = pelvisHeight
+                            tracedFinalKneeFlexion = kneeFlexion
+                        }
+                        let payload = values.map {
+                            String(format: "%.9g", $0)
+                        }.joined(separator: "\t")
+                        stateTraceLines.append(
+                            "\(globalStep + stepCount)\t\(payload)"
+                        )
+                    }
+                    completed += stepCount
+                    globalStep += stepCount
+                    }
+                }
+                if options.verbose {
+                    let elapsed =
+                        repeatStart.duration(to: clock.now)
+                    let measuredSubmissions =
+                        context.layout.submissionCount -
+                        baseline.submissionCount
+                    print(
+                        "repeat=\(repeatIndex + 1) " +
+                        "seconds=\(elapsed.components.seconds) " +
+                        "submissions=\(measuredSubmissions)"
+                    )
+                }
+            }
+
+            let collectionEnd = clock.now
+            let collectionLayout = context.layout
+            if let stateTrace = options.stateTrace {
+                try (stateTraceLines.joined(separator: "\n") + "\n")
+                    .write(
+                        to: URL(fileURLWithPath: stateTrace),
+                        atomically: true,
+                        encoding: .utf8
+                    )
+            }
+            if let motionFeatureTrace = options.motionFeatureTrace {
+                try (motionFeatureTraceLines.joined(separator: "\n") + "\n")
+                    .write(
+                        to: URL(fileURLWithPath: motionFeatureTrace),
+                        atomically: true,
+                        encoding: .utf8
+                    )
+            }
+            var rolloutPackBytes = 0
+            if let rolloutPack = options.rolloutPack {
+                let batch =
+                    try MetalRoboPolicyRolloutBatch
+                        .concatenating(
+                            collectedPolicyBatches
+                        )
+                let bootstrapValues =
+                    try context.bootstrapPolicyValues()
+                let outputURL = URL(
+                    fileURLWithPath: rolloutPack
+                )
+                try context.writePolicyRolloutPack(
+                    batch,
+                    bootstrapValues: bootstrapValues,
+                    id: "swift_native_task_rollout",
+                    to: outputURL
+                )
+                let attributes =
+                    try FileManager.default.attributesOfItem(
+                        atPath: outputURL.path
+                    )
+                rolloutPackBytes =
+                    (attributes[.size] as? NSNumber)?
+                        .intValue ?? 0
+            }
+
+            let elapsed = start.duration(to: collectionEnd)
+            let seconds =
+                Double(elapsed.components.seconds) +
+                Double(elapsed.components.attoseconds) / 1e18
+            let layout = collectionLayout
+            let environmentSteps =
+                options.environments *
+                options.steps *
+                options.repeats
+            let impactMetrics: [[String: Any]] =
+                impactSpheres.indices.map { impact in
+                    [
+                        "sequence_index": impact + 1,
+                        "mass_kg": impactSpheres[impact].mass,
+                        "touch_count": impactTouches[impact],
+                        "contact_count": impactContacts[impact],
+                        "recovery_count": impactRecoveries[impact],
+                        "miss_count": impactMisses[impact],
+                        "active_steps": impactActiveSteps[impact],
+                        "peak_tilt": impactPeakTilt[impact],
+                        "minimum_root_height":
+                            impactMinimumHeight[impact].isFinite
+                            ? impactMinimumHeight[impact]
+                            : 0.0,
+                    ]
+                }
+            let anyLinkProjectileHitCount =
+                impactContacts.reduce(0, +)
+            let cleanProjectileMissCount = impactMisses.reduce(0, +)
+            let completedProjectileTrialCount =
+                anyLinkProjectileHitCount + cleanProjectileMissCount
+            let balanceFailureCount =
+                (terminationReasonCounts[
+                    String(MetalRoboTaskTerminationReason.height.rawValue)
+                ] ?? 0) +
+                (terminationReasonCounts[
+                    String(MetalRoboTaskTerminationReason.tilt.rawValue)
+                ] ?? 0)
+            let evidence = try context.evidenceTelemetry()
+            let recoveryPhaseRatesByDifficultyBand: [String: Any] =
+                Dictionary(
+                    uniqueKeysWithValues:
+                        transitionCountByDifficultyBand.keys.sorted().map {
+                            band in
+                            let count = max(
+                                transitionCountByDifficultyBand[band] ?? 0,
+                                1
+                            )
+                            let phases =
+                                recoveryPhaseCountsByDifficultyBand[band] ?? [:]
+                            return (
+                                String(band),
+                                [
+                                    "transition_count": count,
+                                    "mean_root_height":
+                                        (rootHeightSumByDifficultyBand[band] ?? 0) /
+                                        Double(count),
+                                    "mean_tilt":
+                                        (tiltSumByDifficultyBand[band] ?? 0) /
+                                        Double(count),
+                                    "brace": Double(phases["brace"] ?? 0) /
+                                        Double(count),
+                                    "trunk_clear":
+                                        Double(phases["trunk_clear"] ?? 0) /
+                                        Double(count),
+                                    "foot_support":
+                                        Double(phases["foot_support"] ?? 0) /
+                                        Double(count),
+                                    "support_transfer":
+                                        Double(phases["support_transfer"] ?? 0) /
+                                        Double(count),
+                                    "rise": Double(phases["rise"] ?? 0) /
+                                        Double(count),
+                                    "standing":
+                                        Double(phases["standing"] ?? 0) /
+                                        Double(count),
+                                    "quiet_stand":
+                                        Double(phases["quiet_stand"] ?? 0) /
+                                        Double(count),
+                                    "restored":
+                                        Double(phases["restored"] ?? 0) /
+                                        Double(count),
+                                ] as [String: Any]
+                            )
+                        }
+                )
+            let cleanHorizonEnvironmentCount =
+                terminationCountByEnvironment.filter { $0 == 0 }.count
+            let forwardEvidenceAvailable =
+                supportsG1ForwardEvidence &&
+                initialForwardPositionByEnvironment.allSatisfy {
+                    $0.isFinite
+                }
+            let meanPeakForwardProgress = forwardEvidenceAvailable
+                ? maximumForwardProgressByEnvironment.reduce(0.0, +) /
+                    Double(max(options.environments, 1))
+                : 0.0
+            let meanFinalForwardProgress = forwardEvidenceAvailable
+                ? finalForwardProgressByEnvironment.reduce(0.0, +) /
+                    Double(max(options.environments, 1))
+                : 0.0
+            let squatCycleEvidenceByEnvironment: [[String: Any]] =
+                (0..<options.environments).map { environment in
+                    let available = supportsG1SquatEvidence &&
+                        initialPelvisHeightByEnvironment[
+                            environment
+                        ].isFinite &&
+                        minimumPelvisHeightByEnvironment[
+                            environment
+                        ].isFinite &&
+                        finalPelvisHeightByEnvironment[
+                            environment
+                        ].isFinite &&
+                        initialKneeFlexionByEnvironment[
+                            environment
+                        ].isFinite &&
+                        maximumLeftKneeFlexionByEnvironment[
+                            environment
+                        ].isFinite &&
+                        maximumRightKneeFlexionByEnvironment[
+                            environment
+                        ].isFinite &&
+                        finalKneeFlexionByEnvironment[
+                            environment
+                        ].isFinite
+                    let initialPelvis = available
+                        ? initialPelvisHeightByEnvironment[environment]
+                        : 0.0
+                    let minimumPelvis = available
+                        ? minimumPelvisHeightByEnvironment[environment]
+                        : 0.0
+                    let finalPelvis = available
+                        ? finalPelvisHeightByEnvironment[environment]
+                        : 0.0
+                    let initialKnee = available
+                        ? initialKneeFlexionByEnvironment[environment]
+                        : 0.0
+                    let finalKnee = available
+                        ? finalKneeFlexionByEnvironment[environment]
+                        : 0.0
+                    let pelvisExcursion = initialPelvis - minimumPelvis
+                    let kneeExcursion = available
+                        ? min(
+                            maximumLeftKneeFlexionByEnvironment[
+                                environment
+                            ],
+                            maximumRightKneeFlexionByEnvironment[
+                                environment
+                            ]
+                        ) - initialKnee
+                        : 0.0
+                    let returned = available &&
+                        abs(finalPelvis - initialPelvis) <= 0.05 &&
+                        abs(finalKnee - initialKnee) <= 0.08
+                    return [
+                        "environment": environment,
+                        "available": available,
+                        "termination_count":
+                            terminationCountByEnvironment[environment],
+                        "pelvis_descent": pelvisExcursion,
+                        "bilateral_knee_excursion": kneeExcursion,
+                        "bilateral_support_rate": Double(
+                            footSupportStepCountByEnvironment[environment]
+                        ) / Double(max(options.steps * options.repeats, 1)),
+                        "returned_to_initial_pose": returned,
+                        "completed": available &&
+                            terminationCountByEnvironment[environment] == 0 &&
+                            pelvisExcursion >= 0.02 &&
+                            kneeExcursion >= 0.10 &&
+                            returned,
+                    ]
+                }
+            let completedSquatCycleEnvironments =
+                squatCycleEvidenceByEnvironment.compactMap { evidence in
+                    evidence["completed"] as? Bool == true
+                        ? evidence["environment"] as? Int
+                        : nil
+                }
+            let tracedStateAvailable =
+                supportsG1SquatEvidence &&
+                tracedInitialPelvisHeight != nil &&
+                tracedInitialKneeFlexion != nil &&
+                tracedFinalPelvisHeight != nil &&
+                tracedFinalKneeFlexion != nil &&
+                tracedMinimumPelvisHeight.isFinite &&
+                tracedMaximumLeftKneeFlexion.isFinite &&
+                tracedMaximumRightKneeFlexion.isFinite
+            let initialPelvisHeight = tracedInitialPelvisHeight ?? 0.0
+            let finalPelvisHeight = tracedFinalPelvisHeight ?? 0.0
+            let initialKneeFlexion = tracedInitialKneeFlexion ?? 0.0
+            let finalKneeFlexion = tracedFinalKneeFlexion ?? 0.0
+            let pelvisDescent = tracedStateAvailable
+                ? initialPelvisHeight - tracedMinimumPelvisHeight
+                : 0.0
+            let bilateralKneeExcursion = tracedStateAvailable
+                ? min(
+                    tracedMaximumLeftKneeFlexion,
+                    tracedMaximumRightKneeFlexion
+                ) - initialKneeFlexion
+                : 0.0
+            let returnedToInitialPose = tracedStateAvailable &&
+                abs(finalPelvisHeight - initialPelvisHeight) <= 0.05 &&
+                abs(finalKneeFlexion - initialKneeFlexion) <= 0.08
+            let tracedTerminationCount =
+                terminationCountByEnvironment[
+                    options.stateTraceEnvironment
+                ]
+            let squatCycleEvidence: [String: Any] = [
+                "available": tracedStateAvailable,
+                "environment": options.stateTraceEnvironment,
+                "termination_count": tracedTerminationCount,
+                "initial_pelvis_height": initialPelvisHeight,
+                "minimum_pelvis_height": tracedStateAvailable
+                    ? tracedMinimumPelvisHeight : 0.0,
+                "final_pelvis_height": finalPelvisHeight,
+                "pelvis_descent": pelvisDescent,
+                "initial_mean_knee_flexion": initialKneeFlexion,
+                "maximum_left_knee_flexion": tracedStateAvailable
+                    ? tracedMaximumLeftKneeFlexion : 0.0,
+                "maximum_right_knee_flexion": tracedStateAvailable
+                    ? tracedMaximumRightKneeFlexion : 0.0,
+                "bilateral_knee_excursion": bilateralKneeExcursion,
+                "final_mean_knee_flexion": finalKneeFlexion,
+                "bilateral_support_rate":
+                    Double(tracedFootSupportStepCount) /
+                    Double(max(options.steps * options.repeats, 1)),
+                "returned_to_initial_pose": returnedToInitialPose,
+                "completed": tracedStateAvailable &&
+                    tracedTerminationCount == 0 &&
+                    pelvisDescent >= 0.02 &&
+                    bilateralKneeExcursion >= 0.10 &&
+                    returnedToInitialPose,
+            ]
+            var output: [String: Any] = [
+                "benchmark": "swift_native_task_rollout",
+                "benchmark_seed": NSNumber(value: options.seed),
+                "task": context.taskID,
+                "run_fingerprint": String(context.layout.runFingerprint),
+                "robot_fingerprint": String(
+                    context.layout.robotFingerprint
+                ),
+                "sensor_fingerprint": String(
+                    context.layout.sensorFingerprint
+                ),
+                "reality_fingerprint": String(
+                    context.layout.realityFingerprint
+                ),
+                "teacher_fingerprint": String(
+                    context.layout.teacherFingerprint
+                ),
+                "world_fingerprint": String(layout.worldFingerprint),
+                "task_fingerprint": String(layout.taskFingerprint),
+                "observation_fingerprint":
+                    String(layout.observationFingerprint),
+                "action_fingerprint": String(layout.actionFingerprint),
+                "actor_observation_count": layout.actorObservationCount,
+                "action_count": layout.actionCount,
+                "outcomes": Dictionary(uniqueKeysWithValues:
+                    outcomeSchema.enumerated().map { index, descriptor in
+                        (
+                            descriptor.id,
+                            [
+                                "mean": outcomeSampleCount == 0
+                                    ? 0.0
+                                    : outcomeSums[index] /
+                                        Double(outcomeSampleCount),
+                                "unit": descriptor.unit,
+                                "direction": descriptor.direction,
+                            ] as [String: Any]
+                        )
+                    }
+                ),
+                "world_source": worldSource,
+                "action_source":
+                    options.hyperPolicyPack != nil
+                    ? "hyper_policy_pack"
+                    : options.policyPack != nil
+                    ? "policy_pack"
+                    : options.nativePolicy
+                    ? "compiled_policy"
+                    : options.zeroActions
+                    ? "zero"
+                    : options.actionStream != nil
+                    ? "foundation_action_stream"
+                    : "host_stream",
+                "action_stream": options.actionStream ?? "",
+                "device": context.deviceName,
+                "solver_mode": "temporal_cone",
+                "articulated_contact_responses":
+                    options.materializeArticulatedContactResponses
+                    ? "materialized_inverse_aba"
+                    : "streamed_inverse_aba",
+                "scene":
+                    options.surface == .terrain
+                    ? "terrain"
+                    : "ground",
+                "dynamic_sphere_count":
+                    options.unitreeG1Task == .ballDodge &&
+                    options.dynamicSpheres.isEmpty
+                    ? MetalRoboDynamicSphere.g1BallDodgeDefaults.count
+                    : options.unitreeG1Task == .ballDisturbanceRecovery &&
+                    options.dynamicSpheres.isEmpty
+                    ? MetalRoboDynamicSphere.g1BallRecoveryDefaults.count
+                    : options.dynamicSpheres.count,
+                "impact_sequence_metrics": impactMetrics,
+                "impact_sequence_enabled_steps":
+                    impactSequenceEnabledSteps,
+                "compiled_impact_event_count":
+                    context.impactEventCount,
+                "visual_observation":
+                    visualObservationEnabled,
+                "visual_scene_fingerprint":
+                    context.visualSceneFingerprint,
+                "visual_observation_config":
+                    options.visualObservationConfig ?? "",
+                "state_trace": options.stateTrace ?? "",
+                "motion_feature_trace":
+                    options.motionFeatureTrace ?? "",
+                "environments": options.environments,
+                "steps_per_repeat": options.steps,
+                "maximum_episode_steps":
+                    layout.maximumEpisodeSteps,
+                "repeats": options.repeats,
+                "control_steps_per_submission": options.chunk,
+                "physics_substeps": options.physicsSubsteps,
+                "velocity_iterations": options.velocityIterations,
+                "final_velocity_iterations":
+                    options.finalVelocityIterations,
+                "minimum_sampled_difficulty_band":
+                    minimumDifficultyBand,
+                "maximum_sampled_difficulty_band":
+                    maximumDifficultyBand,
+                "physical_evidence": [
+                    "control_steps": evidence.controlSteps,
+                    "evidence_windows": evidence.evidenceWindows,
+                    "pending_completed_episode_count":
+                        evidence.pendingCompletedEpisodeCount,
+                    "pending_timeout_episode_count":
+                        evidence.pendingTimeoutEpisodeCount,
+                    "last_completed_episode_count":
+                        evidence.lastCompletedEpisodeCount,
+                    "last_contact_rate": evidence.lastContactRate,
+                    "last_clean_miss_rate":
+                        evidence.lastCleanMissRate,
+                    "last_balance_failure_rate":
+                        evidence.lastBalanceFailureRate,
+                    "last_mean_tracking_per_million":
+                        evidence.lastMeanTrackingPerMillion,
+                ],
+                "submission_count":
+                    NSNumber(
+                        value:
+                            layout.submissionCount -
+                            baseline.submissionCount
+                    ),
+                "environment_control_steps_per_second":
+                    Double(environmentSteps) / seconds,
+                "elapsed_seconds": seconds,
+                "gpu_milliseconds":
+                    layout.totalGPUMilliseconds -
+                    baseline.totalGPUMilliseconds,
+                "submission_milliseconds":
+                    layout.totalSubmissionMilliseconds -
+                    baseline.totalSubmissionMilliseconds,
+                "retained_buffer_bytes":
+                    layout.retainedBufferBytes,
+                "immutable_private_bytes":
+                    layout.immutablePrivateBytes,
+                "persistent_state_private_bytes":
+                    layout.persistentStatePrivateBytes,
+                "transient_private_bytes":
+                    layout.transientPrivateBytes,
+                "shared_boundary_bytes":
+                    layout.sharedBoundaryBytes,
+                "peak_aliased_bytes":
+                    layout.peakAliasedBytes,
+                "host_requested_resets": totalResets,
+                "scheduled_resets": options.scheduledResets,
+                "maximum_active_contacts": maximumContacts,
+                "maximum_manifolds": maximumManifolds,
+                "stage_high_water": stageHighWater,
+                "failed_environment_steps": failedSteps,
+                "termination_count": terminationCount,
+                "termination_reason_counts":
+                    terminationReasonCounts,
+                "termination_count_by_environment":
+                    terminationCountByEnvironment,
+                "physics_error_count_by_environment":
+                    physicsErrorCountByEnvironment,
+                "mean_tracking_score_by_environment":
+                    trackingSumByEnvironment.enumerated().map {
+                        environment, sum in
+                        sum / Double(
+                            max(
+                                transitionCountByEnvironment[
+                                    environment
+                                ],
+                                1
+                            )
+                        )
+                    },
+                "mean_root_height_by_environment":
+                    rootHeightSumByEnvironment.enumerated().map {
+                        environment, sum in
+                        sum / Double(
+                            max(
+                                transitionCountByEnvironment[
+                                    environment
+                                ],
+                                1
+                            )
+                        )
+                    },
+                "minimum_root_height_by_environment":
+                    minimumRootHeightByEnvironment.map {
+                        $0.isFinite ? $0 : 0.0
+                    },
+                "mean_tilt_by_environment":
+                    tiltSumByEnvironment.enumerated().map {
+                        environment, sum in
+                        sum / Double(
+                            max(
+                                transitionCountByEnvironment[
+                                    environment
+                                ],
+                                1
+                            )
+                        )
+                    },
+                "maximum_tilt_by_environment":
+                    maximumTiltByEnvironment,
+                "clean_horizon_environment_count":
+                    cleanHorizonEnvironmentCount,
+                "clean_horizon_environment_rate":
+                    Double(cleanHorizonEnvironmentCount) /
+                    Double(max(options.environments, 1)),
+                "forward_progress_available": forwardEvidenceAvailable,
+                "mean_peak_forward_progress_m":
+                    meanPeakForwardProgress,
+                "mean_final_forward_progress_m":
+                    meanFinalForwardProgress,
+                "maximum_forward_progress_m":
+                    forwardEvidenceAvailable
+                    ? maximumForwardProgressByEnvironment.max() ?? 0.0
+                    : 0.0,
+                "peak_forward_progress_by_environment_m":
+                    forwardEvidenceAvailable
+                    ? maximumForwardProgressByEnvironment
+                    : [],
+                "final_forward_progress_by_environment_m":
+                    forwardEvidenceAvailable
+                    ? finalForwardProgressByEnvironment
+                    : [],
+                "squat_cycle_evidence": squatCycleEvidence,
+                "squat_cycle_completed_environment_count":
+                    completedSquatCycleEnvironments.count,
+                "squat_cycle_completed_environment_rate":
+                    Double(completedSquatCycleEnvironments.count) /
+                    Double(max(options.environments, 1)),
+                "squat_cycle_completed_environments":
+                    completedSquatCycleEnvironments,
+                "squat_cycle_evidence_by_environment":
+                    squatCycleEvidenceByEnvironment,
+                "any_link_projectile_hit_count":
+                    anyLinkProjectileHitCount,
+                "clean_projectile_miss_count":
+                    cleanProjectileMissCount,
+                "completed_projectile_trial_count":
+                    completedProjectileTrialCount,
+                "any_link_dodge_rate":
+                    Double(cleanProjectileMissCount) /
+                    Double(max(completedProjectileTrialCount, 1)),
+                "any_link_projectile_hit_rate":
+                    Double(anyLinkProjectileHitCount) /
+                    Double(max(completedProjectileTrialCount, 1)),
+                "height_or_tilt_termination_count":
+                    balanceFailureCount,
+                "mean_reward":
+                    rewardSum / Double(max(transitionCount, 1)),
+                "mean_tracking_score":
+                    trackingSum /
+                    Double(max(transitionCount, 1)),
+                "mean_root_height":
+                    rootHeightSum /
+                    Double(max(transitionCount, 1)),
+                "mean_tilt":
+                    tiltSum / Double(max(transitionCount, 1)),
+                "maximum_root_height": maximumRootHeight,
+                "maximum_tilt": maximumTilt,
+                "standing_step_count": standingStepCount,
+                "restored_step_count": restoredStepCount,
+                "recovery_brace_step_count":
+                    recoveryBraceStepCount,
+                "trunk_clear_step_count": trunkClearStepCount,
+                "foot_support_step_count": footSupportStepCount,
+                "support_transfer_step_count":
+                    supportTransferStepCount,
+                "recovery_rise_step_count": recoveryRiseStepCount,
+                "quiet_stand_step_count": quietStandStepCount,
+                "recovery_phase_rates": [
+                    "brace": Double(recoveryBraceStepCount) /
+                        Double(max(transitionCount, 1)),
+                    "trunk_clear": Double(trunkClearStepCount) /
+                        Double(max(transitionCount, 1)),
+                    "foot_support": Double(footSupportStepCount) /
+                        Double(max(transitionCount, 1)),
+                    "support_transfer":
+                        Double(supportTransferStepCount) /
+                        Double(max(transitionCount, 1)),
+                    "rise": Double(recoveryRiseStepCount) /
+                        Double(max(transitionCount, 1)),
+                    "quiet_stand": Double(quietStandStepCount) /
+                        Double(max(transitionCount, 1)),
+                ],
+                "recovery_phase_rates_by_difficulty_band":
+                    recoveryPhaseRatesByDifficultyBand,
+                "mean_task_reward":
+                    taskRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_base_reward":
+                    baseRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_joint_velocity_reward":
+                    jointVelocityRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_joint_acceleration_reward":
+                    jointAccelerationRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_control_reward":
+                    controlRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_posture_reward":
+                    postureRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_energy_reward":
+                    energyRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_contact_reward":
+                    contactRewardSum /
+                    Double(max(transitionCount, 1)),
+                "policy_sample_count": policySampleCount,
+                "policy_rollout_fingerprint":
+                    usesCompiledPolicy
+                    ? String(policyRolloutFingerprint)
+                    : "",
+                "rollout_pack": options.rolloutPack ?? "",
+                "rollout_pack_bytes": rolloutPackBytes,
+            ]
+            if reportsDodgeRewardBreakdown {
+                let sampleCount = Double(max(transitionCount, 1))
+                output["mean_dodge_link_clearance_reward"] =
+                    dodgeLinkClearanceRewardSum / sampleCount
+                output["mean_dodge_evasion_reward"] =
+                    dodgeEvasionRewardSum / sampleCount
+                output["mean_dodge_miss_reward"] =
+                    dodgeMissRewardSum / sampleCount
+                output["mean_dodge_safe_stillness_reward"] =
+                    dodgeSafeStillnessRewardSum / sampleCount
+                output["mean_dodge_safe_action_rate_reward"] =
+                    dodgeSafeActionRateRewardSum / sampleCount
+                output["mean_dodge_cbf_correction_reward"] =
+                    dodgeCBFCorrectionRewardSum / sampleCount
+                output["mean_dodge_cbf_buffer_reward"] =
+                    dodgeCBFBufferRewardSum / sampleCount
+                output["mean_dodge_predicted_clearance_reward"] =
+                    dodgePredictedClearanceRewardSum / sampleCount
+            }
+            let data = try JSONSerialization.data(
+                withJSONObject: output,
+                options: [.prettyPrinted, .sortedKeys]
+            )
+            print(String(decoding: data, as: UTF8.self))
+    }
+
+    static func main() {
+        _ = signal(SIGPIPE, SIG_IGN)
+        do {
+            let sceneChoices = numiWindowSceneCatalog()
+            var rawArguments = CommandLine.arguments
+            let useCatalogDefault = rawArguments.contains("--window-default")
+            rawArguments.removeAll(where: { $0 == "--window-default" })
+            var initialSceneID: String?
+            if useCatalogDefault {
+                guard let choice = numiWindowPreferredSceneChoice(
+                    sceneChoices
+                ) else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "numi window has no robot/scene catalog. Import a robot or pass a visual scene."
+                    )
+                }
+                rawArguments.append(contentsOf: choice.launchArguments)
+                rawArguments.append(contentsOf: [
+                    "--window-scene", choice.visualObservationURL.path,
+                    "--window-robot-id", choice.robotID,
+                    "--window-choice-id", choice.id,
+                ])
+                initialSceneID = choice.id
+            }
+            let options = try Options(arguments: rawArguments)
+            guard options.inspectionScene != nil else {
+                try run(options: options, window: nil)
+                return
+            }
+            if initialSceneID == nil, let choiceID = options.windowChoiceID {
+                initialSceneID = choiceID
+            }
+            if initialSceneID == nil, let scene = options.inspectionScene {
+                let selected = URL(fileURLWithPath: scene).standardizedFileURL
+                initialSceneID = sceneChoices.first(where: {
+                    $0.visualObservationURL.standardizedFileURL == selected
+                })?.id
+            }
+            let policyChoices = numiWindowPolicyCatalog(
+                sceneChoices: sceneChoices
+            )
+            let runtimeCheckEnabled =
+                ProcessInfo.processInfo.environment[
+                    "NUMI_WINDOW_RUNTIME_CHECK"
+                ] == "1"
+            let runtimeTrainCancelCheck =
+                ProcessInfo.processInfo.environment[
+                    "NUMI_WINDOW_RUNTIME_TRAIN_CANCEL_CHECK"
+                ] == "1"
+            if runtimeTrainCancelCheck &&
+                (!runtimeCheckEnabled ||
+                 ProcessInfo.processInfo.environment[
+                    "NUMI_WINDOW_RUNTIME_CANCEL_TRIGGER"
+                 ]?.isEmpty != false) {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "training cancellation runtime check requires runtime check and a trigger path"
+                )
+            }
+            var runtimeCheckRobots: Set<String> = []
+            let runtimeCheckCatalogSceneIDs = sceneChoices.filter { choice in
+                runtimeCheckRobots.insert(choice.robotID).inserted
+            }.prefix(4).map(\.id)
+            let runtimeCheckSceneIDs = runtimeCheckEnabled
+                ? ["__numi_window_missing_scene_check__"] +
+                    runtimeCheckCatalogSceneIDs
+                : []
+            let initialPolicyURL = options.policyPack.map {
+                URL(fileURLWithPath: $0)
+            }
+            let window = try NumiWindowBridge.launch(
+                canReloadLatestPolicy:
+                    initialPolicyURL != nil || !policyChoices.isEmpty,
+                policyChoices: policyChoices,
+                initialPolicyURL: initialPolicyURL,
+                sceneChoices: sceneChoices,
+                initialSceneID: initialSceneID
+            )
+            let launchSceneID =
+                initialSceneID ?? options.windowChoiceID ?? ""
+            DispatchQueue.global(qos: .userInitiated).async {
+                var activeOptions = options
+                var requestedSelection = NumiWindowPolicySelection(
+                    choiceID: launchSceneID,
+                    policyURL: initialPolicyURL
+                )
+                var confirmedOptions: Options?
+                var confirmedSelection: NumiWindowPolicySelection?
+                var confirmedContract: NumiWindowPolicyContract?
+                var restoringConfirmedConfiguration = false
+                var restorationSummary = "restored last working setup"
+                var runtimeCheckSceneIndex = 0
+                var runtimeCheckAttemptedPolicies: Set<URL> = []
+                var runtimeTrainingRequested = false
+                while !window.isClosed {
+                    do {
+                        try run(
+                            options: activeOptions,
+                            window: window,
+                            onFirstPresented: { contract in
+                                confirmedOptions = activeOptions
+                                confirmedSelection = requestedSelection
+                                confirmedContract = contract
+                                if restoringConfirmedConfiguration {
+                                    if runtimeCheckEnabled {
+                                        writeDiagnostic(
+                                            "numi window check restored configuration"
+                                        )
+                                    }
+                                    window.reportConfigurationRestored(
+                                        requestedSelection.choiceID,
+                                        policyURL:
+                                            requestedSelection.policyURL,
+                                        contract: contract,
+                                        summary: restorationSummary
+                                    )
+                                } else {
+                                    window.reportConfigurationInstalled(
+                                        requestedSelection.choiceID,
+                                        policyURL:
+                                            requestedSelection.policyURL,
+                                        contract: contract
+                                    )
+                                }
+                                restoringConfirmedConfiguration = false
+                                if runtimeCheckEnabled {
+                                    if runtimeTrainCancelCheck && !runtimeTrainingRequested {
+                                        guard let choice = sceneChoices.first(where: {
+                                            $0.id == requestedSelection.choiceID && $0.isTrainable
+                                        }) else {
+                                            writeDiagnostic("numi window train check requires a trainable catalog scene")
+                                            window.closeAfterRuntimeCheck()
+                                            return
+                                        }
+                                        runtimeTrainingRequested = true
+                                        writeDiagnostic("numi window train check requesting training")
+                                        window.requestTrainingForRuntimeCheck(
+                                            NumiWindowTrainingRequest(
+                                                choiceID: choice.id,
+                                                robotID: choice.robotID,
+                                                robotName: choice.robotName,
+                                                environmentName: choice.sceneName,
+                                                taskID: choice.taskID,
+                                                taskName: choice.taskName,
+                                                trainingArguments: choice.trainingArguments,
+                                                startingPolicyURL: nil,
+                                                environments: 1,
+                                                stepsPerUpdate: 8,
+                                                updates: 1000,
+                                                chunk: 1,
+                                                seed: 20261107,
+                                                checkpointInterval: 1000,
+                                                minimumDifficultyBand: 0,
+                                                maximumDifficultyBand: 0
+                                            )
+                                        )
+                                        return
+                                    }
+                                    if runtimeTrainCancelCheck {
+                                        writeDiagnostic("numi window train check ended before window-close cancellation")
+                                        window.closeAfterRuntimeCheck()
+                                        return
+                                    }
+                                    let compatible =
+                                        numiWindowCompatiblePolicyChoices(
+                                            policyChoices,
+                                            robotID: "",
+                                            contract: contract
+                                        )
+                                    if requestedSelection.policyURL == nil,
+                                       let policy = compatible.first(where: {
+                                           runtimeCheckAttemptedPolicies
+                                               .insert(
+                                                   $0.policyURL
+                                                       .standardizedFileURL
+                                               ).inserted
+                                       }) {
+                                        writeDiagnostic(
+                                            "numi window check policy \(policy.displayName)"
+                                        )
+                                        window
+                                            .requestPolicySelectionForRuntimeCheck(
+                                                NumiWindowPolicySelection(
+                                                    choiceID:
+                                                        requestedSelection
+                                                            .choiceID,
+                                                    policyURL:
+                                                        policy.policyURL
+                                                )
+                                            )
+                                        return
+                                    }
+                                    while runtimeCheckSceneIndex <
+                                            runtimeCheckSceneIDs.count {
+                                        let id = runtimeCheckSceneIDs[
+                                            runtimeCheckSceneIndex
+                                        ]
+                                        runtimeCheckSceneIndex += 1
+                                        if id != requestedSelection.choiceID {
+                                            writeDiagnostic(
+                                                "numi window check scene \(id)"
+                                            )
+                                            window
+                                                .requestSceneSelectionForRuntimeCheck(
+                                                    id
+                                                )
+                                            return
+                                        }
+                                    }
+                                    writeDiagnostic(
+                                        "numi window runtime check passed"
+                                    )
+                                    window.closeAfterRuntimeCheck()
+                                }
+                            }
+                        )
+                        break
+                    } catch NumiWindowError.train(let request) {
+                        restoringConfirmedConfiguration = false
+                        do {
+                            let result = try runTraining(
+                                request,
+                                window: window
+                            )
+                            if let policy = result.deploymentPolicy,
+                               let choice = sceneChoices.first(where: {
+                                   $0.id == request.choiceID
+                               }) {
+                                activeOptions = try windowOptions(
+                                    for: choice,
+                                    preserving: activeOptions,
+                                    policyOverride: policy
+                                )
+                                requestedSelection =
+                                    NumiWindowPolicySelection(
+                                        choiceID: choice.id,
+                                        policyURL: policy
+                                    )
+                            }
+                            window.reportTrainingStatus(
+                                "training complete · \(result.selection) · \(result.runDirectory.lastPathComponent)",
+                                active: false,
+                                policyURL: result.deploymentPolicy,
+                                artifactsURL: result.runDirectory
+                            )
+                        } catch {
+                            writeDiagnostic("numi training failed: \(error)")
+                            window.reportTrainingStatus(
+                                "training stopped · artifacts and logs were retained",
+                                active: false
+                            )
+                            if let confirmedOptions,
+                               let confirmedSelection {
+                                activeOptions = confirmedOptions
+                                requestedSelection = confirmedSelection
+                                restoringConfirmedConfiguration = true
+                                restorationSummary =
+                                    "training stopped · restored last working setup"
+                            }
+                        }
+                        continue
+                    } catch NumiWindowError.reconfigure(let selection) {
+                        restoringConfirmedConfiguration = false
+                        guard let choice = sceneChoices.first(where: {
+                            $0.id == selection.choiceID
+                        }) else {
+                            window.reportPolicyStatus(
+                                "robot/scene selection is unavailable"
+                            )
+                            if let confirmedOptions,
+                               let confirmedSelection {
+                                activeOptions = confirmedOptions
+                                requestedSelection = confirmedSelection
+                                restoringConfirmedConfiguration = true
+                                restorationSummary =
+                                    "unknown selection · restored last working setup"
+                            }
+                            continue
+                        }
+                        do {
+                            activeOptions = try windowOptions(
+                                for: choice,
+                                preserving: activeOptions,
+                                policyOverride: selection.policyURL
+                            )
+                            requestedSelection = selection
+                        } catch {
+                            let detail = numiWindowErrorSummary(error)
+                            window.reportPolicyStatus(
+                                "selection rejected · \(detail) · restoring"
+                            )
+                            if let confirmedOptions,
+                               let confirmedSelection {
+                                activeOptions = confirmedOptions
+                                requestedSelection = confirmedSelection
+                                restoringConfirmedConfiguration = true
+                                restorationSummary =
+                                    "selection rejected · \(detail) · restored last working setup"
+                            }
+                        }
+                    } catch NumiWindowError.closed {
+                        break
+                    } catch {
+                        writeDiagnostic("numi window failed: \(error)")
+                        let detail = numiWindowErrorSummary(error)
+                        window.reportPolicyStatus(
+                            "setup failed · \(detail) · restoring"
+                        )
+                        if restoringConfirmedConfiguration ||
+                            confirmedContract == nil {
+                            window.reportPolicyStatus(
+                                "preview unavailable · check the selected robot setup"
+                            )
+                            break
+                        }
+                        if let confirmedOptions,
+                           let confirmedSelection {
+                            activeOptions = confirmedOptions
+                            requestedSelection = confirmedSelection
+                            restoringConfirmedConfiguration = true
+                            restorationSummary =
+                                "setup failed · \(detail) · restored last working setup"
+                        }
+                        continue
+                    }
+                }
+                DispatchQueue.main.async {
+                    let application = NSApplication.shared
+                    application.stop(nil)
+                    if let wake = NSEvent.otherEvent(
+                        with: .applicationDefined,
+                        location: .zero,
+                        modifierFlags: [],
+                        timestamp: ProcessInfo.processInfo.systemUptime,
+                        windowNumber: 0,
+                        context: nil,
+                        subtype: 0,
+                        data1: 0,
+                        data2: 0
+                    ) {
+                        application.postEvent(wake, atStart: false)
+                    }
+                }
+            }
+            NSApplication.shared.run()
+        } catch {
+            writeDiagnostic("task_rollout failed: \(error)")
+            Darwin.exit(1)
+        }
+    }
+}
