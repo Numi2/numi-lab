@@ -154,6 +154,12 @@ struct HybridDeviceStateBatch {
     mr_float4 cameraTranslationAndEnabled{0.0f, 0.0f, 0.0f, 0.0f};
     // Normalized xyzw rotation applied after the authored orientation.
     mr_float4 cameraOrientation{0.0f, 0.0f, 0.0f, 1.0f};
+    // Optional inspector-only X500 animation inputs. The phase buffer is
+    // updated on-device by the single-environment inspection graph.
+    void* inspectionMotors = nullptr;
+    void* inspectionRotorPhase = nullptr;
+    std::size_t inspectionMotorOffset = 0u;
+    float inspectionElapsedSeconds = 0.0f;
 };
 
 struct HybridDeviceObservationBuffers {

@@ -3475,6 +3475,16 @@ MetalHybridRendererDiagnostics encodeLocked(
         sizeof(options.cameraOrientation),
         12u
     );
+    const bool animateRotors = environmentCount == 1u &&
+        liveState.inspectionMotors != nullptr && liveState.inspectionRotorPhase != nullptr;
+    const float rotorSeconds = animateRotors ? liveState.inspectionElapsedSeconds : 0.0f;
+    encoder.setBuffer(animateRotors
+        ? (__bridge id<MTLBuffer>)liveState.inspectionMotors : currentBodies,
+        animateRotors ? liveState.inspectionMotorOffset : 0u, 13u);
+    encoder.setBuffer(animateRotors
+        ? (__bridge id<MTLBuffer>)liveState.inspectionRotorPhase
+        : state.buffers.visualInstanceStates, 0u, 14u);
+    encoder.setBytes(&rotorSeconds, sizeof(rotorSeconds), 15u);
     constexpr NSUInteger cameraThreads = kCameraThreads;
     encoder.dispatchThreads(environmentCount, cameraThreads);
 

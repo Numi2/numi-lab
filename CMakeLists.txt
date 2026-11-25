@@ -8,7 +8,7 @@ endif()
 
 project(
     MetalRobo
-    VERSION 0.4.0
+    VERSION 0.4.1
     DESCRIPTION "Metal-native robotics simulation and reinforcement learning"
     LANGUAGES C CXX OBJCXX
 )
@@ -924,7 +924,7 @@ set_target_properties(
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
-        INSTALL_RPATH "@loader_path/../lib"
+        INSTALL_RPATH "@loader_path/../lib;@loader_path/../Frameworks"
 )
 target_link_libraries(
     metalrobo_run_program_check

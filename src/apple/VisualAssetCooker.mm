@@ -4219,9 +4219,9 @@ VisualAssetCookDiagnostics cookModelIOAsset(
     }
     id<MTLCommandQueue> cookQueue = [device newCommandQueue];
     NSError* metalError = nil;
-    const std::filesystem::path metallibPath{
-        METALROBO_DEFAULT_METALLIB
-    };
+    const std::filesystem::path metallibPath = options.metallibPath.empty()
+        ? std::filesystem::path{METALROBO_DEFAULT_METALLIB}
+        : options.metallibPath;
     id<MTLLibrary> library = [device
         newLibraryWithURL:
             [NSURL fileURLWithPath:@(metallibPath.string().c_str())]
@@ -4282,7 +4282,7 @@ VisualAssetCookDiagnostics cookModelIOAsset(
     candidate.license = options.license;
     candidate.preprocessingProvenance =
         options.preprocessingProvenance +
-        ";input=" + std::string{sourceIsUSD ? "usd" : "stl"} +
+        ";input=" + source.extension().string().substr(1u) +
         ";importer=ModelIO+MTKMeshBufferAllocator" +
         ";metersPerUnit=" +
         std::to_string(sourceIsUSD ? metadata.metersPerUnit : 1.0) +
@@ -4443,13 +4443,13 @@ VisualAssetCookDiagnostics cookVisualAsset(
                 true
             );
         }
-        if (extension == ".stl") {
+        if (extension == ".stl" || extension == ".obj") {
             std::string sourceHash = sha256File(source);
             if (sourceHash.empty()) {
                 return reject(
                     std::move(diagnostics),
                     VisualAssetCookStatus::ioFailure,
-                    "STL source could not be hashed"
+                    "mesh source could not be hashed"
                 );
             }
             return cookModelIOAsset(
@@ -4471,7 +4471,7 @@ VisualAssetCookDiagnostics cookVisualAsset(
         return reject(
             std::move(diagnostics),
             VisualAssetCookStatus::unsupportedFormat,
-            "visual source must be GLB/glTF, STL, or a Model I/O USD asset"
+            "visual source must be GLB/glTF, STL, OBJ, or a Model I/O USD asset"
         );
     } catch (const std::bad_alloc&) {
         return reject(

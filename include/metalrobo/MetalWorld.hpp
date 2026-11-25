@@ -329,11 +329,13 @@ struct MetalWorldDeviceObservationProgram {
 struct MetalWorldInspectionPass {
     void* commandBuffer = nullptr;
     void* currentBodies = nullptr;
+    void* multicopterMotors = nullptr;
     std::uint64_t seed = 0u;
     std::uint64_t submissionIndex = 0u;
     std::uint32_t controlStepCount = 0u;
     std::uint32_t environmentCount = 0u;
     std::uint32_t bodyCount = 0u;
+    float controlTimestepSeconds = 0.0f;
 };
 
 using MetalWorldInspectionEncode = bool (*) (

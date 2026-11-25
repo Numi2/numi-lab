@@ -17592,6 +17592,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     .commandBuffer = (__bridge void*)commandBuffer,
                     .currentBodies =
                         (__bridge void*)selectedState->buffers[kCurrentBodies],
+                    .multicopterMotors = config.multicopterProgram.valid()
+                        ? (__bridge void*)selectedState->buffers[sourceMotorState]
+                        : nullptr,
                     .seed = config.taskSeed,
                     .submissionIndex =
                         selectedState->stats.submissionCount + 1u,
@@ -17602,6 +17605,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     .bodyCount = static_cast<std::uint32_t>(
                         world.model().bodies.size()
                     ),
+                    .controlTimestepSeconds = config.timestepSeconds,
                 };
                 if (!config.inspectionProgram.encode(
                         config.inspectionProgram.context,
