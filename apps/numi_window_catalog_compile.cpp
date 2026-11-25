@@ -759,7 +759,8 @@ void cookPresentation(
     const std::array<float, 3u>& position,
     const std::array<float, 4u>& orientation,
     const std::string_view deformableSourceFilename = {},
-    metalrobo::VisualAssetCookOptions options = {}
+    metalrobo::VisualAssetCookOptions options = {},
+    const bool projectRelativeSources = false
 ) {
     options.id = id;
     if (options.license == "NOASSERTION") {
@@ -789,6 +790,12 @@ void cookPresentation(
     for (std::size_t index = 0u; index < packs.size(); ++index) {
         auto& pack = packs[index];
         const auto source = std::filesystem::path{pack.sourceUri}.filename().string();
+        if (projectRelativeSources) {
+            pack.sourceUri = source.starts_with("primitive-")
+                ? "builtin://numi/" + source
+                : "source/meshes/" + source;
+            pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
+        }
         if (id == "px4-x500") {
             for (std::uint32_t rotor = 0u; rotor < 4u; ++rotor) {
                 if (source != "px4-x500-rotor-" + std::to_string(rotor) + ".glb") {
@@ -1273,7 +1280,7 @@ void projectVisualMeshes(xmlNode* node, const std::filesystem::path& output) {
             xmlUnlinkNode(primitive);
             xmlFreeNode(primitive);
             auto* replacement = xmlNewChild(geometry, nullptr, BAD_CAST "mesh", nullptr);
-            xmlSetProp(replacement, BAD_CAST "filename", BAD_CAST mesh.c_str());
+            xmlSetProp(replacement, BAD_CAST "filename", BAD_CAST mesh.filename().c_str());
         }
     }
 }
@@ -1452,7 +1459,7 @@ void writeRobotProject(const Arguments& options) {
     visual.metallibPath = options.metallib;
     cookPresentation(presentationSource, mechanics, options.projectID, rootName,
         output, {1.35f, -1.4f, 0.8f},
-        {-0.73858354f, -0.26102070f, 0.20711737f, 0.58605883f}, {}, std::move(visual));
+        {-0.73858354f, -0.26102070f, 0.20711737f, 0.58605883f}, {}, std::move(visual), true);
     const std::string visualConfig = options.projectID + "-visual-observation.json";
     writeSurfacePresentation(output, visualConfig, "ground", "locomotion_ground", surfacePresentation(false));
     std::filesystem::remove(output / visualConfig);

@@ -34,6 +34,9 @@ from pathlib import Path
 import sys
 
 folder = Path(sys.argv[1])
+project = folder / "Moved Experiment.numiproject"
+for visual in (project / "visual").glob("*.mrvpack"):
+    assert str(folder).encode() not in visual.read_bytes(), visual
 for name in ("original", "repeat", "control"):
     stats = json.loads((folder / f"{name}.json").read_text())
     assert stats["failed_environment_steps"] == 0, stats
