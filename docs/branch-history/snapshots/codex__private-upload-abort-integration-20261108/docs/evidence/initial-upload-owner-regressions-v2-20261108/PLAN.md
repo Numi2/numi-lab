@@ -1,0 +1,3 @@
+# Candidate owner full-step regression with corrected input paths
+
+This separately registered execution repeats initial-upload-owner-regressions-20261108/PLAN.md with absolute paths in the input manifest. Its prior preflight failure occurred before GPU dispatch and is preserved. Run existing full-step acceptance followed by kinematic rollback with the pinned candidate-owner probe executables and shader; each is limited to 180 seconds and stop on failure. Retain all outputs and hashes. These checks do not qualify shared storage, excluded device physics, nonempty caches, visual history, post-commit errors, contact-force accuracy or performance.

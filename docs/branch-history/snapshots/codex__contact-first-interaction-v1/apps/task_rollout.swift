@@ -1,0 +1,1496 @@
+import Foundation
+import Darwin
+
+private struct SplitMix64 {
+    private var state: UInt64
+
+    init(seed: UInt64) {
+        state = seed
+    }
+
+    mutating func next() -> UInt64 {
+        state &+= 0x9e3779b97f4a7c15
+        var value = state
+        value =
+            (value ^ (value >> 30)) &*
+            0xbf58476d1ce4e5b9
+        value =
+            (value ^ (value >> 27)) &*
+            0x94d049bb133111eb
+        return value ^ (value >> 31)
+    }
+
+    mutating func signedUnit() -> Float {
+        let value = UInt32(truncatingIfNeeded: next() >> 40)
+        return 2 * Float(value) / Float(1 << 24) - 1
+    }
+}
+
+private func fingerprintWord(
+    _ value: UInt64,
+    byteCount: Int,
+    into hash: inout UInt64
+) {
+    for byte in 0..<byteCount {
+        hash ^= (value >> UInt64(8 * byte)) & 0xff
+        hash &*= 1_099_511_628_211
+    }
+}
+
+private func fingerprint(
+    _ batch: MetalRoboPolicyRolloutBatch,
+    into hash: inout UInt64
+) {
+    for sample in 0..<batch.sampleCount {
+        let slices: [(values: [Float], width: Int)] = [
+            (
+                batch.actorObservations,
+                batch.actorObservationCount
+            ),
+            (
+                batch.criticObservations,
+                batch.criticObservationCount
+            ),
+            (batch.latents, batch.actionCount),
+            (batch.logProbabilities, 1),
+            (batch.values, 1),
+        ]
+        for slice in slices {
+            let lower = sample * slice.width
+            for value in slice.values[
+                lower..<(lower + slice.width)
+            ] {
+                fingerprintWord(
+                    UInt64(value.bitPattern),
+                    byteCount: 4,
+                    into: &hash
+                )
+            }
+        }
+        let transition = batch.transitions[sample]
+        for value in [
+            transition.reward,
+            transition.trackingScore,
+            transition.rootHeight,
+            transition.tilt,
+            transition.taskReward,
+            transition.baseReward,
+            transition.jointVelocityReward,
+            transition.jointAccelerationReward,
+            transition.controlReward,
+            transition.postureReward,
+            transition.energyReward,
+            transition.contactReward,
+        ] {
+            fingerprintWord(
+                UInt64(value.bitPattern),
+                byteCount: 4,
+                into: &hash
+            )
+        }
+        fingerprintWord(
+            transition.done ? 1 : 0,
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            transition.timeout ? 1 : 0,
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            transition.physicsError ? 1 : 0,
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.terminationReason),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            transition.policyRevision,
+            byteCount: 8,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.timeoutBootstrapValue.bitPattern),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.episodeTrackingScore.bitPattern),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.curriculumLevel),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.terrainLevel),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.impactSequenceIndex),
+            byteCount: 4,
+            into: &hash
+        )
+        fingerprintWord(
+            UInt64(transition.impactEventFlags),
+            byteCount: 4,
+            into: &hash
+        )
+    }
+}
+
+private struct Options {
+    var environments = 32
+    var steps = 48
+    var repeats = 20
+    var chunk = 8
+    var physicsSubsteps = 4
+    var velocityIterations = 4
+    var finalVelocityIterations = 2
+    var surface = MetalRoboLocomotionSurface.terrain
+    var unitreeG1Task = MetalRoboUnitreeG1Task.velocity
+    var seed: UInt64 = 20_260_731
+    var curriculumLevel: UInt32 = 0
+    var metallib = "build/shaders/MetalRobo.metallib"
+    var verbose = false
+    var nativePolicy = false
+    var zeroActions = false
+    var scheduledResets = true
+    var policyPack: String?
+    var rolloutPack: String?
+    var interactionPack: String?
+    var interactionClip: String?
+    var worldPack: String?
+    var taskPack: String?
+    var urdf: String?
+    var srdf: String?
+    var dynamicSpheres: [MetalRoboDynamicSphere] = []
+    var disableTaskTerminations = false
+    var stateTrace: String?
+    var g1VisualPackDirectory: String?
+    var ballVisualPackDirectory: String?
+    var visualEnvironmentPack: String?
+    var captureDirectory: String?
+    var captureWidth = 480
+    var captureHeight = 270
+    var captureStride = 1
+
+    init(arguments: [String]) throws {
+        var index = 1
+        while index < arguments.count {
+            let option = arguments[index]
+            func value() throws -> String {
+                guard index + 1 < arguments.count else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "\(option) requires a value."
+                    )
+                }
+                return arguments[index + 1]
+            }
+            switch option {
+            case "--envs":
+                environments = try Self.integer(value(), option)
+                index += 1
+            case "--steps":
+                steps = try Self.integer(value(), option)
+                index += 1
+            case "--repeats":
+                repeats = try Self.integer(value(), option)
+                index += 1
+            case "--chunk":
+                chunk = try Self.integer(value(), option)
+                index += 1
+            case "--physics-substeps":
+                physicsSubsteps = try Self.integer(value(), option)
+                index += 1
+            case "--velocity-iterations":
+                velocityIterations = try Self.integer(value(), option)
+                index += 1
+            case "--final-velocity-iterations":
+                finalVelocityIterations = try Self.integer(value(), option)
+                index += 1
+            case "--seed":
+                guard let parsed = UInt64(try value()) else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--seed requires an unsigned integer."
+                    )
+                }
+                seed = parsed
+                index += 1
+            case "--curriculum-level":
+                guard let parsed = UInt32(try value()) else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--curriculum-level requires an unsigned 32-bit integer."
+                    )
+                }
+                curriculumLevel = parsed
+                index += 1
+            case "--metallib":
+                metallib = try value()
+                index += 1
+            case "--scene":
+                switch try value() {
+                case "ground":
+                    surface = .ground
+                case "terrain":
+                    surface = .terrain
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--scene must be ground or terrain."
+                    )
+                }
+                index += 1
+            case "--task":
+                switch try value() {
+                case "velocity":
+                    unitreeG1Task = .velocity
+                case "disturbance-recovery":
+                    unitreeG1Task = .disturbanceRecovery
+                case "supine-get-up":
+                    unitreeG1Task = .supineGetUpDiscovery
+                case "ball-recovery":
+                    unitreeG1Task = .ballDisturbanceRecovery
+                case "ball-dodge":
+                    unitreeG1Task = .ballDodge
+                default:
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--task must be velocity, disturbance-recovery, supine-get-up, ball-recovery, or ball-dodge."
+                    )
+                }
+                index += 1
+            case "--verbose":
+                verbose = true
+            case "--native-policy":
+                nativePolicy = true
+            case "--zero-actions":
+                zeroActions = true
+            case "--no-scheduled-resets":
+                scheduledResets = false
+            case "--continue-after-termination":
+                disableTaskTerminations = true
+            case "--policy-pack":
+                policyPack = try value()
+                index += 1
+            case "--rollout-pack":
+                rolloutPack = try value()
+                index += 1
+            case "--interaction-pack":
+                interactionPack = try value()
+                index += 1
+            case "--interaction-clip":
+                interactionClip = try value()
+                index += 1
+            case "--world-pack":
+                worldPack = try value()
+                index += 1
+            case "--task-pack":
+                taskPack = try value()
+                index += 1
+            case "--urdf":
+                urdf = try value()
+                index += 1
+            case "--srdf":
+                srdf = try value()
+                index += 1
+            case "--ball":
+                let fields = try value().split(separator: ",")
+                let values = fields.compactMap(Float.init)
+                guard values.count == 8 || values.count == 9 else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--ball requires x,y,z,vx,vy,vz,radius,mass[,launch_step]."
+                    )
+                }
+                guard values.allSatisfy(\.isFinite),
+                      values[6] > 0,
+                      values[7] > 0,
+                      values.count == 8 ||
+                        (values[8] >= 0 &&
+                         values[8] <= Float(0x00ff_ffff) &&
+                         values[8].rounded() == values[8])
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--ball values must be finite with positive radius and mass."
+                    )
+                }
+                dynamicSpheres.append(
+                    MetalRoboDynamicSphere(
+                        position: SIMD3(values[0], values[1], values[2]),
+                        linearVelocity: SIMD3(
+                            values[3], values[4], values[5]
+                        ),
+                        radius: values[6],
+                        mass: values[7],
+                        launchStep:
+                            values.count == 9
+                            ? UInt32(values[8])
+                            : 0
+                    )
+                )
+                index += 1
+            case "--state-trace":
+                stateTrace = try value()
+                index += 1
+            case "--g1-visual-pack-dir":
+                g1VisualPackDirectory = try value()
+                index += 1
+            case "--ball-visual-pack-dir":
+                ballVisualPackDirectory = try value()
+                index += 1
+            case "--visual-environment-pack":
+                visualEnvironmentPack = try value()
+                index += 1
+            case "--capture-dir":
+                captureDirectory = try value()
+                index += 1
+            case "--capture-width":
+                captureWidth = try Self.integer(value(), option)
+                index += 1
+            case "--capture-height":
+                captureHeight = try Self.integer(value(), option)
+                index += 1
+            case "--capture-stride":
+                captureStride = try Self.integer(value(), option)
+                index += 1
+            default:
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "Unknown option \(option)."
+                )
+            }
+            index += 1
+        }
+        guard environments > 0,
+              steps > 0,
+              repeats > 0,
+              chunk > 0,
+              physicsSubsteps > 0,
+              velocityIterations > 0,
+              finalVelocityIterations >= 0
+        else {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "envs, steps, repeats, chunk, physics substeps, and velocity iterations must be positive; final velocity iterations must be non-negative."
+            )
+        }
+        if nativePolicy && policyPack != nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--native-policy and --policy-pack are mutually exclusive."
+            )
+        }
+        if zeroActions && (nativePolicy || policyPack != nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--zero-actions cannot be combined with a compiled policy."
+            )
+        }
+        if rolloutPack != nil &&
+            !nativePolicy && policyPack == nil
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--rollout-pack requires --native-policy or --policy-pack."
+            )
+        }
+        if worldPack != nil && urdf != nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--world-pack and --urdf are mutually exclusive."
+            )
+        }
+        if (interactionPack == nil) != (interactionClip == nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction tracking requires both --interaction-pack and --interaction-clip."
+            )
+        }
+        if let interactionPack,
+           interactionPack.isEmpty || interactionClip?.isEmpty != false
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "InteractionPack path and clip identity cannot be empty."
+            )
+        }
+        if interactionPack != nil &&
+            (worldPack != nil || urdf != nil || taskPack != nil ||
+             unitreeG1Task != .velocity || !dynamicSpheres.isEmpty)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "InteractionPack v1 evaluation uses the bundled G1 velocity mechanics preset and cannot be combined with imported mechanics, another --task, or --ball."
+            )
+        }
+        if (worldPack != nil || urdf != nil) != (taskPack != nil) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Imported mechanics require exactly one --task-pack."
+            )
+        }
+        if srdf != nil && urdf == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--srdf requires --urdf."
+            )
+        }
+        if stateTrace != nil &&
+            (environments != 1 || repeats != 1 || chunk != 1) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--state-trace requires --envs 1 --repeats 1 --chunk 1."
+            )
+        }
+        if (g1VisualPackDirectory == nil) !=
+            (ballVisualPackDirectory == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Visual rollout requires both --g1-visual-pack-dir and --ball-visual-pack-dir."
+            )
+        }
+        if g1VisualPackDirectory != nil &&
+            ((unitreeG1Task != .ballDisturbanceRecovery &&
+              unitreeG1Task != .ballDodge) ||
+             worldPack != nil || urdf != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "The bundled visual preset requires --task ball-recovery or ball-dodge."
+            )
+        }
+        if captureDirectory != nil &&
+            (environments != 1 || chunk != 1 ||
+             g1VisualPackDirectory == nil ||
+             captureWidth <= 0 || captureHeight <= 0 ||
+             captureStride <= 0)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Native capture requires one environment, chunk 1, visual packs, positive dimensions, and a positive stride."
+            )
+        }
+    }
+
+    private static func integer(
+        _ value: String,
+        _ option: String
+    ) throws -> Int {
+        guard let parsed = Int(value) else {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "\(option) requires an integer."
+            )
+        }
+        return parsed
+    }
+}
+
+private func makeG1VisualObservation(
+    options: Options
+) throws -> MetalRoboTaskVisualObservationConfiguration? {
+    guard let directory = options.g1VisualPackDirectory,
+          let ballDirectory = options.ballVisualPackDirectory
+    else {
+        return nil
+    }
+    var observation = try MetalRoboTaskVisualObservationConfiguration
+        .unitreeG1BallRecovery(
+        robotPackDirectory: URL(fileURLWithPath: directory),
+        ballPackDirectory: URL(fileURLWithPath: ballDirectory),
+        environmentPackURL: options.visualEnvironmentPack.map {
+            URL(fileURLWithPath: $0)
+        }
+    )
+    if options.captureDirectory != nil {
+        observation.captureWidth = UInt32(options.captureWidth)
+        observation.captureHeight = UInt32(options.captureHeight)
+    }
+    return observation
+}
+
+private func writeCaptureFrame(
+    _ frame: (width: Int, height: Int, values: [Float]),
+    index: Int,
+    directory: URL
+) throws {
+    var data = Data("P6\n\(frame.width) \(frame.height)\n255\n".utf8)
+    var pixels = [UInt8](
+        repeating: 0,
+        count: frame.width * frame.height * 3
+    )
+    for pixel in 0..<(frame.width * frame.height) {
+        for channel in 0..<3 {
+            let linear = max(
+                0,
+                0.62 * frame.values[pixel * 4 + channel]
+            )
+            let mapped = min(
+                1,
+                max(
+                    0,
+                    linear * (2.51 * linear + 0.03) /
+                        (linear * (2.43 * linear + 0.59) + 0.14)
+                )
+            )
+            let display = Foundation.pow(Double(mapped), 1.0 / 2.2)
+            pixels[pixel * 3 + channel] = UInt8(
+                min(255, max(0, Int(display * 255 + 0.5)))
+            )
+        }
+    }
+    data.append(contentsOf: pixels)
+    let name = String(format: "frame-%06d.ppm", index)
+    try data.write(to: directory.appendingPathComponent(name))
+}
+
+private func makeContext(
+    options: Options
+) throws -> (MetalRoboTaskRolloutContext, String) {
+    let dynamicSpheres = options.dynamicSpheres.isEmpty &&
+        options.unitreeG1Task == .ballDodge
+        ? MetalRoboDynamicSphere.g1BallDodgeDefaults
+        : options.unitreeG1Task == .ballDisturbanceRecovery &&
+            options.dynamicSpheres.isEmpty
+            ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
+            : options.dynamicSpheres
+    let configuration = MetalRoboTaskRolloutConfiguration(
+        environmentCount: UInt32(options.environments),
+        surface: options.surface,
+        physicsSubsteps: UInt32(options.physicsSubsteps),
+        velocityIterations: UInt32(options.velocityIterations),
+        finalVelocityIterations:
+            UInt32(options.finalVelocityIterations),
+        seed: options.seed,
+        dynamicSpheres: dynamicSpheres,
+        disableTaskTerminations: options.disableTaskTerminations,
+        unitreeG1Task: options.unitreeG1Task
+    )
+    if let interactionPack = options.interactionPack,
+       let interactionClip = options.interactionClip
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                unitreeG1Interaction: URL(
+                    fileURLWithPath: interactionPack
+                ),
+                clipID: interactionClip,
+                configuration: configuration,
+                metallibPath: options.metallib
+            ),
+            "bundled_g1_interaction"
+        )
+    }
+    if let worldPack = options.worldPack,
+       let taskPack = options.taskPack
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                worldPack: URL(fileURLWithPath: worldPack),
+                taskPack: URL(fileURLWithPath: taskPack),
+                configuration: configuration,
+                metallibPath: options.metallib
+            ),
+            "world_pack"
+        )
+    }
+    if let urdf = options.urdf,
+       let taskPack = options.taskPack
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                importedURDF: URL(fileURLWithPath: urdf),
+                srdf: options.srdf.map {
+                    URL(fileURLWithPath: $0)
+                },
+                taskPack: URL(fileURLWithPath: taskPack),
+                configuration: configuration,
+                metallibPath: options.metallib
+            ),
+            "urdf"
+        )
+    }
+    return (
+        try MetalRoboTaskRolloutContext(
+            unitreeG1: configuration,
+            metallibPath: options.metallib
+        ),
+        "bundled_g1"
+    )
+}
+
+private func actions(
+    startStep: Int,
+    stepCount: Int,
+    environmentCount: Int,
+    actionCount: Int,
+    generator: inout SplitMix64
+) -> [Float] {
+    var result = [Float](
+        repeating: 0,
+        count: stepCount * environmentCount * actionCount
+    )
+    for step in 0..<stepCount {
+        let globalStep = startStep + step
+        for environment in 0..<environmentCount {
+            for joint in 0..<actionCount {
+                let phase =
+                    0.071 * Double(globalStep) +
+                    0.113 * Double(environment) +
+                    0.173 * Double(joint)
+                let value =
+                    0.28 * Float(sin(phase)) +
+                    0.04 * generator.signedUnit()
+                let index =
+                    (step * environmentCount + environment) *
+                    actionCount + joint
+                result[index] = min(max(value, -1), 1)
+            }
+        }
+    }
+    return result
+}
+
+private func masks(
+    startStep: Int,
+    stepCount: Int,
+    environmentCount: Int,
+    pending: inout [Bool]
+) -> [UInt32] {
+    var result = [UInt32](
+        repeating: 0,
+        count: stepCount * environmentCount
+    )
+    for step in 0..<stepCount {
+        let globalStep = startStep + step
+        for environment in 0..<environmentCount {
+            let requested =
+                (step == 0 && pending[environment]) ||
+                (
+                    globalStep > 0 &&
+                    (globalStep + 37 * environment) % 257 == 0
+                )
+            if requested {
+                result[step * environmentCount + environment] = 1
+                pending[environment] = false
+            }
+        }
+    }
+    return result
+}
+
+@main
+private enum TaskRolloutMain {
+    static func main() {
+        do {
+            let options = try Options(
+                arguments: CommandLine.arguments
+            )
+            let (context, worldSource) =
+                try makeContext(options: options)
+            let visualObservation =
+                try makeG1VisualObservation(options: options)
+            if let visualObservation {
+                try context.attachVisualObservation(
+                    visualObservation
+                )
+            }
+            if options.stateTrace != nil || options.captureDirectory != nil {
+                try context.setStateReadback(true)
+            }
+            try context.setCurriculumLevel(
+                options.curriculumLevel
+            )
+            let usesCompiledPolicy =
+                options.nativePolicy || options.policyPack != nil
+            if let policyPack = options.policyPack {
+                try context.loadPolicy(
+                    at: URL(fileURLWithPath: policyPack)
+                )
+            } else if options.nativePolicy {
+                let layout = context.layout
+                let hiddenCount = 64
+                try context.setPolicy(
+                    MetalRoboPolicyPack(
+                        id: "native_rollout_zero_policy",
+                        revision: 7,
+                        layers: [
+                            .init(
+                                inputCount:
+                                    layout.actorObservationCount,
+                                outputCount: hiddenCount,
+                                activation: .tanh,
+                                weights: [Float](
+                                    repeating: 0,
+                                    count:
+                                        layout.actorObservationCount *
+                                        hiddenCount
+                                ),
+                                bias: [Float](
+                                    repeating: 0,
+                                    count: hiddenCount
+                                )
+                            ),
+                            .init(
+                                inputCount: hiddenCount,
+                                outputCount: layout.actionCount,
+                                activation: .identity,
+                                weights: [Float](
+                                    repeating: 0,
+                                    count:
+                                        hiddenCount *
+                                        layout.actionCount
+                                ),
+                                bias: [Float](
+                                    repeating: 0,
+                                    count: layout.actionCount
+                                )
+                            ),
+                        ],
+                        criticLayers: [
+                            .init(
+                                inputCount:
+                                    layout.criticObservationCount,
+                                outputCount: hiddenCount,
+                                activation: .elu,
+                                weights: [Float](
+                                    repeating: 0,
+                                    count:
+                                        layout.criticObservationCount *
+                                        hiddenCount
+                                ),
+                                bias: [Float](
+                                    repeating: 0,
+                                    count: hiddenCount
+                                )
+                            ),
+                            .init(
+                                inputCount: hiddenCount,
+                                outputCount: 1,
+                                activation: .identity,
+                                weights: [Float](
+                                    repeating: 0,
+                                    count: hiddenCount
+                                ),
+                                bias: [0]
+                            ),
+                        ],
+                        actionLogStandardDeviation: [Float](
+                            repeating: -2,
+                            count: layout.actionCount
+                        )
+                    )
+                )
+            }
+            var installedPolicyRevision: UInt64 = 0
+            if usesCompiledPolicy {
+                _ = try context.advanceWithPolicy(
+                    resetMasks: [UInt32](
+                        repeating: 0,
+                        count: options.environments
+                    ),
+                    controlStepCount: 1
+                )
+                let revisions = try context.transitions(
+                    controlStepCount: 1
+                ).map(\.policyRevision)
+                guard let revision = revisions.first,
+                      revision != 0,
+                      revisions.allSatisfy({ $0 == revision })
+                else {
+                    throw MetalRoboTaskRolloutError.native(
+                        "Native policy revision was not attached to transitions."
+                    )
+                }
+                installedPolicyRevision = revision
+                let policyLogProbabilities =
+                    try context.policyLogProbabilities(
+                        controlStepCount: 1
+                    )
+                let policyValues =
+                    try context.policyValues(
+                        controlStepCount: 1
+                    )
+                let policyLatents =
+                    try context.policyLatents(
+                        controlStepCount: 1
+                    )
+                guard
+                    policyLogProbabilities
+                        .allSatisfy(\.isFinite),
+                    policyValues.allSatisfy(\.isFinite),
+                    policyLatents.allSatisfy(\.isFinite)
+                else {
+                    throw MetalRoboTaskRolloutError.native(
+                        "Native policy produced non-finite PPO records."
+                    )
+                }
+                if options.nativePolicy {
+                    let currentLayout = context.layout
+                    let logStandardDeviation = -2.0
+                    let standardDeviation =
+                        Foundation.exp(logStandardDeviation)
+                    let halfLogTwoPi =
+                        0.5 * Foundation.log(2 * Double.pi)
+                    for environment in 0..<options.environments {
+                        var expected = 0.0
+                        let base =
+                            environment *
+                            currentLayout.actionCount
+                        for action in
+                            0..<currentLayout.actionCount
+                        {
+                            let latent = Double(
+                                policyLatents[base + action]
+                            )
+                            let normal =
+                                latent / standardDeviation
+                            let gaussian =
+                                -0.5 * normal * normal -
+                                logStandardDeviation -
+                                halfLogTwoPi
+                            expected += gaussian
+                        }
+                        guard abs(
+                            expected -
+                            Double(
+                                policyLogProbabilities[
+                                    environment
+                                ]
+                            )
+                        ) < 2.0e-3,
+                              abs(policyValues[environment]) <
+                                  1.0e-6
+                        else {
+                            throw MetalRoboTaskRolloutError.native(
+                                "Native stochastic-policy record disagrees with the reference distribution."
+                            )
+                        }
+                    }
+                }
+            } else {
+                _ = try context.advance(
+                    normalizedActions: [Float](
+                        repeating: 0,
+                        count:
+                            options.environments *
+                            context.layout.actionCount
+                    ),
+                    resetMasks: [UInt32](
+                        repeating: 0,
+                        count: options.environments
+                    ),
+                    controlStepCount: 1
+                )
+            }
+            try context.reset(seed: options.seed)
+            let baseline = context.layout
+            var generator = SplitMix64(seed: options.seed)
+            var pending = [Bool](
+                repeating: false,
+                count: options.environments
+            )
+            var globalStep = 0
+            var totalResets = 0
+            var maximumContacts = 0
+            var maximumManifolds = 0
+            var stageHighWater: [String: Int] = [:]
+            var failedSteps = 0
+            var policySampleCount = 0
+            var transitionCount = 0
+            var minimumCurriculumLevel = UInt32.max
+            var finalCurriculumLevel = options.curriculumLevel
+            var terminationCount = 0
+            var rewardSum = 0.0
+            var trackingSum = 0.0
+            var rootHeightSum = 0.0
+            var tiltSum = 0.0
+            var maximumRootHeight = 0.0
+            var maximumTilt = 0.0
+            var standingStepCount = 0
+            var taskRewardSum = 0.0
+            var baseRewardSum = 0.0
+            var jointVelocityRewardSum = 0.0
+            var jointAccelerationRewardSum = 0.0
+            var controlRewardSum = 0.0
+            var postureRewardSum = 0.0
+            var energyRewardSum = 0.0
+            var contactRewardSum = 0.0
+            var dodgeLinkClearanceRewardSum = 0.0
+            var dodgeEvasionRewardSum = 0.0
+            var dodgeMissRewardSum = 0.0
+            var dodgeSafeStillnessRewardSum = 0.0
+            var dodgeSafeActionRateRewardSum = 0.0
+            var dodgeCBFCorrectionRewardSum = 0.0
+            var dodgeCBFBufferRewardSum = 0.0
+            var dodgePredictedClearanceRewardSum = 0.0
+            var terminationReasonCounts: [String: Int] = [:]
+            let impactSpheres =
+                options.unitreeG1Task == .ballDodge &&
+                options.dynamicSpheres.isEmpty
+                ? MetalRoboDynamicSphere.g1BallDodgeDefaults
+                : options.unitreeG1Task == .ballDisturbanceRecovery &&
+                options.dynamicSpheres.isEmpty
+                ? MetalRoboDynamicSphere.g1BallRecoveryDefaults
+                : options.dynamicSpheres
+            var impactTouches = [Int](
+                repeating: 0,
+                count: impactSpheres.count
+            )
+            var impactContacts = impactTouches
+            var impactRecoveries = impactTouches
+            var impactMisses = impactTouches
+            var impactActiveSteps = impactTouches
+            var impactPeakTilt = [Double](
+                repeating: 0.0,
+                count: impactSpheres.count
+            )
+            var impactMinimumHeight = [Double](
+                repeating: .infinity,
+                count: impactSpheres.count
+            )
+            var impactSequenceEnabledSteps = 0
+            var policyRolloutFingerprint:
+                UInt64 = 1_469_598_103_934_665_603
+            var collectedPolicyBatches:
+                [MetalRoboPolicyRolloutBatch] = []
+            var stateTraceLines: [String] = []
+            if options.stateTrace != nil {
+                let traceLayout = context.layout
+                stateTraceLines.append(
+                    "# step nq=\(traceLayout.configurationCount) " +
+                    "scene_bodies=\(traceLayout.sceneBodyCount) " +
+                    "scene_stride=13 timestep=0.02"
+                )
+            }
+            let captureDirectory = options.captureDirectory.map {
+                URL(fileURLWithPath: $0, isDirectory: true)
+            }
+            if let captureDirectory {
+                try FileManager.default.createDirectory(
+                    at: captureDirectory,
+                    withIntermediateDirectories: true
+                )
+            }
+            let clock = ContinuousClock()
+            let start = clock.now
+
+            for repeatIndex in 0..<options.repeats {
+                let repeatStart = clock.now
+                var completed = 0
+                while completed < options.steps {
+                    let stepCount = min(
+                        options.chunk,
+                        options.steps - completed
+                    )
+                    let resetBatch = options.scheduledResets
+                        ? masks(
+                            startStep: globalStep,
+                            stepCount: stepCount,
+                            environmentCount: options.environments,
+                            pending: &pending
+                        )
+                        : []
+                    let advance: MetalRoboTaskRolloutAdvance
+                    if usesCompiledPolicy {
+                        advance = try context.advanceWithPolicy(
+                            resetMasks: resetBatch,
+                            controlStepCount: stepCount,
+                            policyRevision:
+                                installedPolicyRevision,
+                            evaluateFinalPolicy:
+                                options.rolloutPack != nil &&
+                                repeatIndex + 1 ==
+                                    options.repeats &&
+                                completed + stepCount ==
+                                    options.steps
+                        )
+                    } else {
+                        let actionBatch: [Float]
+                        if options.zeroActions {
+                            actionBatch = [Float](
+                                repeating: 0,
+                                count:
+                                    stepCount *
+                                    options.environments *
+                                    context.layout.actionCount
+                            )
+                        } else {
+                            actionBatch = actions(
+                                startStep: globalStep,
+                                stepCount: stepCount,
+                                environmentCount:
+                                    options.environments,
+                                actionCount:
+                                    context.layout.actionCount,
+                                generator: &generator
+                            )
+                        }
+                        advance = try context.advance(
+                            normalizedActions: actionBatch,
+                            resetMasks: resetBatch,
+                            controlStepCount: stepCount,
+                            policyRevision: 1
+                        )
+                    }
+                    let statuses = try context.statusCodes(
+                        controlStepCount: stepCount
+                    )
+                    guard statuses.allSatisfy({ $0 == 0 }) else {
+                        throw MetalRoboTaskRolloutError.native(
+                            "Task rollout returned a nonzero GPU status."
+                        )
+                    }
+                    if let captureDirectory,
+                       globalStep % options.captureStride == 0 {
+                        try writeCaptureFrame(
+                            context.visualRGBA(),
+                            index: globalStep,
+                            directory: captureDirectory
+                        )
+                    }
+                    let observedTransitions:
+                        [MetalRoboTaskTransition]
+                    if usesCompiledPolicy {
+                        let policyBatch =
+                            try context.policyRolloutBatch(
+                                controlStepCount: stepCount
+                            )
+                        guard policyBatch.transitions
+                            .allSatisfy({
+                                $0.policyRevision ==
+                                    installedPolicyRevision
+                            })
+                        else {
+                            throw MetalRoboTaskRolloutError.native(
+                                "Policy revision changed inside a collected rollout batch."
+                            )
+                        }
+                        fingerprint(
+                            policyBatch,
+                            into: &policyRolloutFingerprint
+                        )
+                        policySampleCount +=
+                            policyBatch.sampleCount
+                        if options.rolloutPack != nil {
+                            collectedPolicyBatches.append(
+                                policyBatch
+                            )
+                        }
+                        observedTransitions =
+                            policyBatch.transitions
+                    } else {
+                        observedTransitions =
+                            try context.transitions(
+                                controlStepCount: stepCount
+                            )
+                    }
+                    for transition in observedTransitions {
+                        transitionCount += 1
+                        minimumCurriculumLevel = min(
+                            minimumCurriculumLevel,
+                            transition.curriculumLevel
+                        )
+                        guard transition.curriculumLevel >=
+                                finalCurriculumLevel
+                        else {
+                            throw MetalRoboTaskRolloutError.native(
+                                "Native task curriculum regressed."
+                            )
+                        }
+                        finalCurriculumLevel =
+                            transition.curriculumLevel
+                        rewardSum += Double(transition.reward)
+                        trackingSum +=
+                            Double(transition.trackingScore)
+                        rootHeightSum +=
+                            Double(transition.rootHeight)
+                        tiltSum += Double(transition.tilt)
+                        maximumRootHeight = max(
+                            maximumRootHeight,
+                            Double(transition.rootHeight)
+                        )
+                        maximumTilt = max(
+                            maximumTilt,
+                            Double(transition.tilt)
+                        )
+                        if transition.rootHeight >= 0.65 &&
+                            transition.tilt <= 0.6435011
+                        {
+                            standingStepCount += 1
+                        }
+                        taskRewardSum +=
+                            Double(transition.taskReward)
+                        baseRewardSum +=
+                            Double(transition.baseReward)
+                        jointVelocityRewardSum +=
+                            Double(transition.jointVelocityReward)
+                        jointAccelerationRewardSum +=
+                            Double(transition.jointAccelerationReward)
+                        controlRewardSum +=
+                            Double(transition.controlReward)
+                        postureRewardSum +=
+                            Double(transition.postureReward)
+                        energyRewardSum +=
+                            Double(transition.energyReward)
+                        contactRewardSum +=
+                            Double(transition.contactReward)
+                        dodgeLinkClearanceRewardSum += Double(
+                            transition.dodgeLinkClearanceReward
+                        )
+                        dodgeEvasionRewardSum += Double(
+                            transition.dodgeEvasionReward
+                        )
+                        dodgeMissRewardSum += Double(
+                            transition.dodgeMissReward
+                        )
+                        dodgeSafeStillnessRewardSum += Double(
+                            transition.dodgeSafeStillnessReward
+                        )
+                        dodgeSafeActionRateRewardSum += Double(
+                            transition.dodgeSafeActionRateReward
+                        )
+                        dodgeCBFCorrectionRewardSum += Double(
+                            transition.dodgeCbfCorrectionReward
+                        )
+                        dodgeCBFBufferRewardSum += Double(
+                            transition.dodgeCbfBufferReward
+                        )
+                        dodgePredictedClearanceRewardSum += Double(
+                            transition.dodgePredictedClearanceReward
+                        )
+                        if transition.impactSequenceIndex > 0 {
+                            let impact = Int(
+                                transition.impactSequenceIndex - 1
+                            )
+                            if impact < impactSpheres.count {
+                                impactActiveSteps[impact] += 1
+                                impactPeakTilt[impact] = max(
+                                    impactPeakTilt[impact],
+                                    Double(transition.tilt)
+                                )
+                                impactMinimumHeight[impact] = min(
+                                    impactMinimumHeight[impact],
+                                    Double(transition.rootHeight)
+                                )
+                                if transition.impactEventFlags & 1 != 0 {
+                                    impactTouches[impact] += 1
+                                }
+                                if transition.impactEventFlags & 16 != 0 {
+                                    impactContacts[impact] += 1
+                                }
+                                if transition.impactEventFlags & 2 != 0 {
+                                    impactRecoveries[impact] += 1
+                                }
+                                if transition.impactEventFlags & 4 != 0 {
+                                    impactMisses[impact] += 1
+                                }
+                            }
+                        }
+                        if transition.impactEventFlags & 8 != 0 {
+                            impactSequenceEnabledSteps += 1
+                        }
+                        if transition.done {
+                            terminationCount += 1
+                            let reason = String(
+                                transition.terminationReason
+                            )
+                            terminationReasonCounts[
+                                reason,
+                                default: 0
+                            ] += 1
+                        }
+                    }
+                    totalResets += advance.hostRequestedResets
+                    maximumContacts = max(
+                        maximumContacts,
+                        advance.maximumActiveContacts
+                    )
+                    maximumManifolds = max(
+                        maximumManifolds,
+                        advance.maximumManifolds
+                    )
+                    for (stage, count) in
+                        advance.stageHighWater
+                    {
+                        stageHighWater[stage] = max(
+                            stageHighWater[stage, default: 0],
+                            count
+                        )
+                    }
+                    failedSteps += advance.failedEnvironmentSteps
+                    if options.stateTrace != nil {
+                        let values =
+                            try context.finalConfiguration() +
+                            context.finalSceneStates()
+                        let payload = values.map {
+                            String(format: "%.9g", $0)
+                        }.joined(separator: "\t")
+                        stateTraceLines.append(
+                            "\(globalStep + stepCount)\t\(payload)"
+                        )
+                    }
+                    completed += stepCount
+                    globalStep += stepCount
+                }
+                if options.verbose {
+                    let elapsed =
+                        repeatStart.duration(to: clock.now)
+                    let measuredSubmissions =
+                        context.layout.submissionCount -
+                        baseline.submissionCount
+                    print(
+                        "repeat=\(repeatIndex + 1) " +
+                        "seconds=\(elapsed.components.seconds) " +
+                        "submissions=\(measuredSubmissions)"
+                    )
+                }
+            }
+
+            let collectionEnd = clock.now
+            let collectionLayout = context.layout
+            if let stateTrace = options.stateTrace {
+                try (stateTraceLines.joined(separator: "\n") + "\n")
+                    .write(
+                        to: URL(fileURLWithPath: stateTrace),
+                        atomically: true,
+                        encoding: .utf8
+                    )
+            }
+            var rolloutPackBytes = 0
+            if let rolloutPack = options.rolloutPack {
+                let batch =
+                    try MetalRoboPolicyRolloutBatch
+                        .concatenating(
+                            collectedPolicyBatches
+                        )
+                let bootstrapValues =
+                    try context.bootstrapPolicyValues()
+                let outputURL = URL(
+                    fileURLWithPath: rolloutPack
+                )
+                try context.writePolicyRolloutPack(
+                    batch,
+                    bootstrapValues: bootstrapValues,
+                    id: "swift_native_task_rollout",
+                    to: outputURL
+                )
+                let attributes =
+                    try FileManager.default.attributesOfItem(
+                        atPath: outputURL.path
+                    )
+                rolloutPackBytes =
+                    (attributes[.size] as? NSNumber)?
+                        .intValue ?? 0
+            }
+
+            let elapsed = start.duration(to: collectionEnd)
+            let seconds =
+                Double(elapsed.components.seconds) +
+                Double(elapsed.components.attoseconds) / 1e18
+            let layout = collectionLayout
+            let environmentSteps =
+                options.environments *
+                options.steps *
+                options.repeats
+            let impactMetrics: [[String: Any]] =
+                impactSpheres.indices.map { impact in
+                    [
+                        "sequence_index": impact + 1,
+                        "mass_kg": impactSpheres[impact].mass,
+                        "touch_count": impactTouches[impact],
+                        "contact_count": impactContacts[impact],
+                        "recovery_count": impactRecoveries[impact],
+                        "miss_count": impactMisses[impact],
+                        "active_steps": impactActiveSteps[impact],
+                        "peak_tilt": impactPeakTilt[impact],
+                        "minimum_root_height":
+                            impactMinimumHeight[impact].isFinite
+                            ? impactMinimumHeight[impact]
+                            : 0.0,
+                    ]
+                }
+            let anyLinkProjectileHitCount =
+                impactContacts.reduce(0, +)
+            let cleanProjectileMissCount = impactMisses.reduce(0, +)
+            let completedProjectileTrialCount =
+                anyLinkProjectileHitCount + cleanProjectileMissCount
+            let balanceFailureCount =
+                (terminationReasonCounts[
+                    String(MetalRoboTaskTerminationReason.height.rawValue)
+                ] ?? 0) +
+                (terminationReasonCounts[
+                    String(MetalRoboTaskTerminationReason.tilt.rawValue)
+                ] ?? 0)
+            let output: [String: Any] = [
+                "benchmark": "swift_native_task_rollout",
+                "benchmark_seed": NSNumber(value: options.seed),
+                "world_source": worldSource,
+                "action_source":
+                    options.policyPack != nil
+                    ? "policy_pack"
+                    : options.nativePolicy
+                    ? "compiled_policy"
+                    : options.zeroActions
+                    ? "zero"
+                    : "host_stream",
+                "device": context.deviceName,
+                "solver_mode": "temporal_cone",
+                "scene":
+                    options.surface == .terrain
+                    ? "terrain"
+                    : "ground",
+                "dynamic_sphere_count":
+                    options.unitreeG1Task == .ballDodge &&
+                    options.dynamicSpheres.isEmpty
+                    ? MetalRoboDynamicSphere.g1BallDodgeDefaults.count
+                    : options.unitreeG1Task == .ballDisturbanceRecovery &&
+                    options.dynamicSpheres.isEmpty
+                    ? MetalRoboDynamicSphere.g1BallRecoveryDefaults.count
+                    : options.dynamicSpheres.count,
+                "impact_sequence_metrics": impactMetrics,
+                "impact_sequence_enabled_steps":
+                    impactSequenceEnabledSteps,
+                "compiled_impact_event_count":
+                    context.impactEventCount,
+                "visual_observation":
+                    visualObservation != nil,
+                "visual_scene_fingerprint":
+                    context.visualSceneFingerprint,
+                "state_trace": options.stateTrace ?? "",
+                "environments": options.environments,
+                "steps_per_repeat": options.steps,
+                "repeats": options.repeats,
+                "control_steps_per_submission": options.chunk,
+                "physics_substeps": options.physicsSubsteps,
+                "velocity_iterations": options.velocityIterations,
+                "final_velocity_iterations":
+                    options.finalVelocityIterations,
+                "initial_task_curriculum_level":
+                    options.curriculumLevel,
+                "minimum_task_curriculum_level":
+                    minimumCurriculumLevel,
+                "final_task_curriculum_level":
+                    finalCurriculumLevel,
+                "submission_count":
+                    NSNumber(
+                        value:
+                            layout.submissionCount -
+                            baseline.submissionCount
+                    ),
+                "environment_control_steps_per_second":
+                    Double(environmentSteps) / seconds,
+                "elapsed_seconds": seconds,
+                "gpu_milliseconds":
+                    layout.totalGPUMilliseconds -
+                    baseline.totalGPUMilliseconds,
+                "submission_milliseconds":
+                    layout.totalSubmissionMilliseconds -
+                    baseline.totalSubmissionMilliseconds,
+                "retained_buffer_bytes":
+                    layout.retainedBufferBytes,
+                "immutable_private_bytes":
+                    layout.immutablePrivateBytes,
+                "persistent_state_private_bytes":
+                    layout.persistentStatePrivateBytes,
+                "transient_private_bytes":
+                    layout.transientPrivateBytes,
+                "shared_boundary_bytes":
+                    layout.sharedBoundaryBytes,
+                "peak_aliased_bytes":
+                    layout.peakAliasedBytes,
+                "host_requested_resets": totalResets,
+                "scheduled_resets": options.scheduledResets,
+                "maximum_active_contacts": maximumContacts,
+                "maximum_manifolds": maximumManifolds,
+                "stage_high_water": stageHighWater,
+                "failed_environment_steps": failedSteps,
+                "termination_count": terminationCount,
+                "termination_reason_counts":
+                    terminationReasonCounts,
+                "any_link_projectile_hit_count":
+                    anyLinkProjectileHitCount,
+                "clean_projectile_miss_count":
+                    cleanProjectileMissCount,
+                "completed_projectile_trial_count":
+                    completedProjectileTrialCount,
+                "any_link_dodge_rate":
+                    Double(cleanProjectileMissCount) /
+                    Double(max(completedProjectileTrialCount, 1)),
+                "any_link_projectile_hit_rate":
+                    Double(anyLinkProjectileHitCount) /
+                    Double(max(completedProjectileTrialCount, 1)),
+                "height_or_tilt_termination_count":
+                    balanceFailureCount,
+                "mean_reward":
+                    rewardSum / Double(max(transitionCount, 1)),
+                "mean_tracking_score":
+                    trackingSum /
+                    Double(max(transitionCount, 1)),
+                "mean_root_height":
+                    rootHeightSum /
+                    Double(max(transitionCount, 1)),
+                "mean_tilt":
+                    tiltSum / Double(max(transitionCount, 1)),
+                "maximum_root_height": maximumRootHeight,
+                "maximum_tilt": maximumTilt,
+                "standing_step_count": standingStepCount,
+                "mean_task_reward":
+                    taskRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_base_reward":
+                    baseRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_joint_velocity_reward":
+                    jointVelocityRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_joint_acceleration_reward":
+                    jointAccelerationRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_control_reward":
+                    controlRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_posture_reward":
+                    postureRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_energy_reward":
+                    energyRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_contact_reward":
+                    contactRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_link_clearance_reward":
+                    dodgeLinkClearanceRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_evasion_reward":
+                    dodgeEvasionRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_miss_reward":
+                    dodgeMissRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_safe_stillness_reward":
+                    dodgeSafeStillnessRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_safe_action_rate_reward":
+                    dodgeSafeActionRateRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_cbf_correction_reward":
+                    dodgeCBFCorrectionRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_cbf_buffer_reward":
+                    dodgeCBFBufferRewardSum /
+                    Double(max(transitionCount, 1)),
+                "mean_dodge_predicted_clearance_reward":
+                    dodgePredictedClearanceRewardSum /
+                    Double(max(transitionCount, 1)),
+                "policy_sample_count": policySampleCount,
+                "policy_rollout_fingerprint":
+                    usesCompiledPolicy
+                    ? String(policyRolloutFingerprint)
+                    : "",
+                "rollout_pack": options.rolloutPack ?? "",
+                "rollout_pack_bytes": rolloutPackBytes,
+            ]
+            let data = try JSONSerialization.data(
+                withJSONObject: output,
+                options: [.prettyPrinted, .sortedKeys]
+            )
+            print(String(decoding: data, as: UTF8.self))
+        } catch {
+            FileHandle.standardError.write(
+                Data("task_rollout failed: \(error)\n".utf8)
+            )
+            Darwin.exit(1)
+        }
+    }
+}
