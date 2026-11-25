@@ -4147,6 +4147,12 @@ int mr_task_rollout_set_contact_readback(
 int mr_task_rollout_contact_sample(
     const MRTaskRolloutHandle* handle, MRTaskContactSampleC* sample
 ) {
+    return mr_task_rollout_contact_sample_for_body(handle, nullptr, sample);
+}
+
+int mr_task_rollout_contact_sample_for_body(
+    const MRTaskRolloutHandle* handle, const char* body, MRTaskContactSampleC* sample
+) {
     if (!requireTaskRolloutHandle(handle)) return -1;
     if (sample == nullptr || !handle->stepConfig.captureContactEvidence ||
         handle->result.contactStatuses.empty()) {
@@ -4161,22 +4167,28 @@ int mr_task_rollout_contact_sample(
         gLastError = "Contact sample has no accepted physics substep.";
         return -1;
     }
+    std::uint32_t selected = MR_INVALID_INDEX;
+    if (body != nullptr) {
+        const auto match = std::ranges::find(handle->model.bodyNames, body);
+        if (match == handle->model.bodyNames.end()) {
+            gLastError = "Contact sample body is not present in the model.";
+            return -1;
+        }
+        selected = static_cast<std::uint32_t>(match - handle->model.bodyNames.begin());
+    }
     *sample = {};
-    sample->active_contacts = status.activeContacts;
-    const auto firstScene = handle->world.sceneBodyIndices();
     for (std::size_t index = 0; index < status.activeContacts; ++index) {
         const auto& contact = contacts[index];
-        if (!firstScene.empty() && firstScene.front() != contact.bodyA &&
-            firstScene.front() != contact.bodyB) {
+        if (selected != MR_INVALID_INDEX && selected != contact.bodyA && selected != contact.bodyB) {
             continue;
         }
+        ++sample->active_contacts;
         const float force = contact.impulses.x / dt;
-        if (std::isfinite(force) && force > sample->strongest_normal_force_newtons &&
-            contact.bodyA < handle->model.bodyNames.size() &&
-            contact.bodyB < handle->model.bodyNames.size()) {
+        if (std::isfinite(force) && force > sample->strongest_normal_force_newtons) {
             sample->strongest_normal_force_newtons = force;
-            sample->body_a = handle->model.bodyNames[contact.bodyA].c_str();
-            sample->body_b = handle->model.bodyNames[contact.bodyB].c_str();
+            const auto& names = handle->model.bodyNames;
+            sample->body_a = contact.bodyA < names.size() ? names[contact.bodyA].c_str() : nullptr;
+            sample->body_b = contact.bodyB < names.size() ? names[contact.bodyB].c_str() : nullptr;
         }
     }
     gLastError.clear();

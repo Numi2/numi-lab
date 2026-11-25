@@ -1,6 +1,6 @@
 set(numi_mac_resources "${CMAKE_CURRENT_BINARY_DIR}/generated/numi-mac")
 set(numi_mac_contents "Numi Lab.app/Contents")
-set(NUMI_MAC_BUILD_NUMBER "1" CACHE STRING "Numi Lab Mac app build number")
+set(NUMI_MAC_BUILD_NUMBER "5" CACHE STRING "Numi Lab Mac app build number")
 configure_file(packaging/macos/Info.plist.in "${numi_mac_resources}/Info.plist" @ONLY)
 
 option(NUMI_MAC_AOT_PIPELINES "Include precompiled Metal pipelines in Numi Lab.app" ON)

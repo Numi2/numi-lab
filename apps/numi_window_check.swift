@@ -76,6 +76,15 @@ private func writeScene(
 @main
 private enum NumiWindowCheck {
     static func main() throws {
+        var recovery = NumiPreviewRecovery()
+        try require(!recovery.didAcceptStep(), "Clean preview reported a recovery")
+        try require(recovery.canRetryFailure(), "First failure should retry")
+        try require(recovery.canRetryFailure(), "Second failure should retry")
+        try require(!recovery.canRetryFailure(), "Third consecutive failure should pause")
+        try require(!recovery.canRetryFailure(), "Retry budget should remain exhausted")
+        try require(recovery.didAcceptStep(), "An accepted step should clear failure history")
+        try require(recovery.canRetryFailure(), "Recovery should restore the retry budget")
+
         let manager = FileManager.default
         let root = manager.temporaryDirectory.appendingPathComponent(
             "numi-window-check-\(UUID().uuidString)",

@@ -18,8 +18,10 @@ moved="$work/Moved Project.numiproject"
 cmp "$source" "$moved/source/model.xml"
 "$compiler" --mjcf "$moved/source/model.xml" --gravity 0 --effort 0 \
     --output "$work/Control.numiproject"
+"$compiler" --mjcf "$repo/tests/fixtures/workbench_mjcf_channels.xml" \
+    --output "$work/Channels.numiproject"
 
-python3 - "$work" <<'PY'
+python3 - "$work" "$repo/tests/fixtures/workbench_mjcf_channels.xml" <<'PY'
 import json
 from pathlib import Path
 import sys
@@ -31,6 +33,10 @@ settings = json.loads((moved / "project.json").read_text())
 assert settings["source_format"] == "mjcf" and settings["gravity"] == 8.75
 control = json.loads((folder / "Control.numiproject" / "project.json").read_text())
 assert control["gravity"] == 0 and control["effort"] == 0
+channels = json.loads((folder / "Channels.numiproject/project.json").read_text())["action_channels"]
+assert [(channel["source_motor"], channel["joint"]) for channel in channels] == [
+    ("motor_beta", "beta"), ("motor_alpha", "alpha"),
+]
 args = json.loads((moved / "robot-project.numi-window.json").read_text())["arguments"]
 assert args[args.index("--physics-substeps") + 1] == "10"
 robot = ElementTree.parse(moved / "source/model.urdf")
@@ -58,6 +64,9 @@ cases = {
 }
 for name, xml in cases.items():
     (folder / f"{name}.xml").write_text(xml)
+(folder / "duplicate-motor.xml").write_text(
+    Path(sys.argv[2]).read_text().replace('name="motor_alpha"', 'name="motor_beta"')
+)
 PY
 
 reject() {
@@ -74,4 +83,5 @@ reject two-joints 'Expected one <joint>'
 reject timestep 'must divide the 20 ms control period'
 reject asymmetric 'symmetric, enforced motor ctrlrange'
 reject unknown-joint 'unknown joint'
+reject duplicate-motor 'Motor names must be nonempty and unique'
 printf '%s\n' 'Numi Mac MJCF passed translation, relocation, settings, and rejection checks.'

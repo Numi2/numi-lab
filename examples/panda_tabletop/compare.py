@@ -52,7 +52,7 @@ def native_run(
         str(rollout), "--scene-file", str(scene), "--headless",
         "--metallib", str(metallib), "--steps", str(ticks), "--action-clip",
         str(clip), "--physics-substeps", str(SUBSTEPS), "--state-trace", str(trace),
-        "--contact-trace", str(directory / "contacts.tsv"),
+        "--contact-trace", str(directory / "contacts.tsv"), "--contact-body", "pick_object",
     ]
     (directory / "command.json").write_text(json.dumps(command, indent=2) + "\n")
     with (directory / "runtime.json").open("w") as stdout, (

@@ -14637,6 +14637,8 @@ MetalWorldCompileDiagnostics compileMetalWorld(
                 if (bodyA.articulationIndex != MR_INVALID_INDEX &&
                     bodyA.articulationIndex ==
                         bodyB.articulationIndex &&
+                    (shapeA.flags & shapeB.flags &
+                     MR_SHAPE_FLAG_AUTHORED_COLLISION_FILTER) == 0u &&
                     (bodyA.parentBody == shapeB.bodyIndex ||
                      bodyB.parentBody == shapeA.bodyIndex)) {
                     continue;

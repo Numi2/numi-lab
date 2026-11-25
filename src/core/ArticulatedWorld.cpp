@@ -631,17 +631,15 @@ ArticulatedWorldStepDiagnostics stepArticulatedWorldCpu(
         shapes.push_back(remapped);
     }
 
-    // Directly connected links share a joint volume by construction. Treat
-    // their colliders as one kinematic neighborhood unless the model grows an
-    // explicit per-pair self-collision policy. Without this model-derived
-    // filter, truthful link geometry (notably Franka's collision spheres)
-    // creates large internal impulses at valid configurations. Caller
-    // exclusions remain authoritative additions in the combined collider
-    // index space.
+    // Keep the default joint-neighborhood exclusions for native models.
+    // Imported collision policies and caller exclusions are authored in
+    // the combined collider index space.
     std::vector<CollisionPairExclusion> collisionExclusions(
         exclusions.begin(),
         exclusions.end()
     );
+    collisionExclusions.insert(collisionExclusions.end(),
+        model.collisionExclusions.begin(), model.collisionExclusions.end());
     for (std::size_t localJoint = 0u;
          localJoint < articulation.jointCount;
          ++localJoint) {
@@ -662,7 +660,9 @@ ArticulatedWorldStepDiagnostics stepArticulatedWorldCpu(
                  shapeB < model.shapes.size();
                  ++shapeB) {
                 if (model.shapes[shapeB].bodyIndex ==
-                    joint.childBody) {
+                        joint.childBody &&
+                    (model.shapes[shapeA].flags & model.shapes[shapeB].flags &
+                     MR_SHAPE_FLAG_AUTHORED_COLLISION_FILTER) == 0u) {
                     collisionExclusions.push_back({
                         .colliderA =
                             static_cast<std::uint32_t>(shapeA),

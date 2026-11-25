@@ -692,6 +692,10 @@ MR_API int mr_task_rollout_set_contact_readback(
 MR_API int mr_task_rollout_contact_sample(
     const MRTaskRolloutHandle* handle, MRTaskContactSampleC* sample
 );
+// As above, restricted to contacts involving the named body.
+MR_API int mr_task_rollout_contact_sample_for_body(
+    const MRTaskRolloutHandle* handle, const char* body, MRTaskContactSampleC* sample
+);
 MR_API int mr_task_rollout_advance(
     MRTaskRolloutHandle* handle,
     const float* normalized_actions,

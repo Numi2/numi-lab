@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -17,6 +18,7 @@ class ExperimentResult:
     stats: dict
     state_trace: Path | None
     contact_trace: Path | None
+    action_clip: bytes | None = None
 
 
 class Experiment:
@@ -57,13 +59,17 @@ class Experiment:
         self, *, steps: int = 200, environments: int = 1, chunk: int = 1,
         physics_substeps: int | None = None, seed: int = 0,
         actions: Iterable[Sequence[float]] | None = None,
+        action_clip: Path | None = None,
         state_trace: Path | None = None, contact_trace: Path | None = None,
     ) -> ExperimentResult:
         """Run the stored controller or broadcast explicit normalized actions.
 
-        Explicit rows contain one value per project actuator. The native runner
-        holds the final action if the rollout outlasts the provided sequence.
+        Explicit rows follow the project's action_channels order. Their packed
+        Float32 bytes are returned for export and replay via action_clip.
+        The native runner holds the final action if the rollout outlasts the clip.
         """
+        if actions is not None and action_clip is not None:
+            raise ValueError("Provide action rows or an action clip, one at a time")
         arguments = [
             self.rollout, "--scene-file", str(self.scene), "--headless",
             "--metallib", str(self.metallib), "--steps", str(steps),
@@ -76,6 +82,9 @@ class Experiment:
             arguments += ["--state-trace", str(state_trace)]
         if contact_trace is not None:
             arguments += ["--contact-trace", str(contact_trace)]
+        if action_clip is not None:
+            arguments += ["--action-clip", str(Path(action_clip).resolve())]
+        submitted_clip = None
         with tempfile.TemporaryDirectory(prefix="numi-actions-") as temporary:
             if actions is not None:
                 clip = Path(temporary) / "actions.f32"
@@ -93,6 +102,14 @@ class Experiment:
                 expected = json.loads((self.project / "project.json").read_text()).get("action_count")
                 if expected is not None and expected != width:
                     raise ValueError("Action rows must contain one value per project actuator")
+                submitted_clip = clip.read_bytes()
                 arguments += ["--action-clip", str(clip)]
             result = subprocess.run(arguments, check=True, capture_output=True, text=True)
-        return ExperimentResult(json.loads(result.stdout), state_trace, contact_trace)
+        stats = json.loads(result.stdout)
+        if submitted_clip is not None:
+            digest = hashlib.sha256(submitted_clip).hexdigest()
+            if stats.get("action_clip_sha256", digest) != digest:
+                raise ValueError("The native runner reported different action bytes")
+            stats["action_clip_sha256"] = digest
+            stats.pop("action_clip", None)
+        return ExperimentResult(stats, state_trace, contact_trace, submitted_clip)

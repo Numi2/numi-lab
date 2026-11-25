@@ -956,7 +956,8 @@ bool EngineModel::valid(std::string* reason) const {
         const std::uint32_t knownShapeFlags =
             MR_SHAPE_FLAG_SIMULATION_DISABLED |
             MR_SHAPE_FLAG_ENABLE_CCD |
-            MR_SHAPE_FLAG_MESH_TWO_SIDED;
+            MR_SHAPE_FLAG_MESH_TWO_SIDED |
+            MR_SHAPE_FLAG_AUTHORED_COLLISION_FILTER;
         if (shape.bodyIndex >= bodies.size() ||
             shape.shapeType > MR_SHAPE_SDF ||
             shape.materialIndex >= materials.size() ||

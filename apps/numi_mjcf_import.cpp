@@ -169,9 +169,11 @@ void inertia(xmlNode* link, const Vec3& center, const Quat& q, double mass,
 
 using Motors = std::map<std::string, double>;
 
-Motors readMotors(const xmlNode* section) {
-    Motors motors;
+std::vector<MJCFMotor> readMotors(const xmlNode* section) {
+    std::vector<MJCFMotor> motors;
     if (!section) return motors;
+    std::set<std::string> joints;
+    std::set<std::string> names;
     attributes(section, {});
     children(section, {"motor"});
     for (const auto* node = section->children; node != nullptr; node = node->next) {
@@ -187,9 +189,14 @@ Motors readMotors(const xmlNode* section) {
             (mode != "auto" && mode != "true")) {
             invalid(node, "Use positive gear and a symmetric, enforced motor ctrlrange.");
         }
-        if (!motors.emplace(joint, gear * range[1]).second) {
+        if (!joints.insert(joint).second) {
             invalid(node, "Only one motor per joint is supported.");
         }
+        const auto name = property(node, "name");
+        if (name && (name->empty() || !names.insert(*name).second)) {
+            invalid(node, "Motor names must be nonempty and unique when provided.");
+        }
+        motors.push_back({name.value_or(""), joint, gear * range[1]});
     }
     return motors;
 }
@@ -376,8 +383,8 @@ MJCFImport importMJCF(const std::filesystem::path& path) {
     if (!world) invalid(root, "Specify a worldbody.");
     attributes(world, {});
     children(world, {"body", "geom"});
-    auto motors = readMotors(single(root, "actuator"));
-    if (motors.empty()) invalid(root, "Specify at least one direct joint motor.");
+    result.motors = readMotors(single(root, "actuator"));
+    if (result.motors.empty()) invalid(root, "Specify at least one direct joint motor.");
     result.urdf.reset(xmlNewDoc(BAD_CAST "1.0"));
     auto* robot = xmlNewNode(nullptr, BAD_CAST "robot");
     if (!result.urdf || !robot) {
@@ -389,7 +396,10 @@ MJCFImport importMJCF(const std::filesystem::path& path) {
     if (!xmlNewProp(robot, BAD_CAST "name", BAD_CAST name.c_str())) throw std::bad_alloc{};
     auto* link = append(robot, "link", {{"name", "numi_mjcf_world"}});
     inertia(link, {}, {1, 0, 0, 0}, 1, {1, 1, 1, 0, 0, 0});
-    Converter converter{robot, std::move(motors), degrees};
+    Converter converter{robot, {}, degrees};
+    for (const auto& motor : result.motors) {
+        converter.motors.emplace(motor.joint, motor.effortLimit);
+    }
     for (const auto* node = world->children; node != nullptr; node = node->next) {
         if (node->type != XML_ELEMENT_NODE) continue;
         if (tag(node) == "body") {

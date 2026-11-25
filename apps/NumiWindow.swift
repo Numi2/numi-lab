@@ -848,6 +848,21 @@ enum NumiWindowError: Error {
     case train(NumiWindowTrainingRequest)
 }
 
+struct NumiPreviewRecovery {
+    private(set) var consecutiveFailures = 0
+
+    mutating func canRetryFailure() -> Bool {
+        consecutiveFailures = min(consecutiveFailures + 1, 3)
+        return consecutiveFailures < 3
+    }
+
+    mutating func didAcceptStep() -> Bool {
+        let recovered = consecutiveFailures != 0
+        consecutiveFailures = 0
+        return recovered
+    }
+}
+
 private struct NumiStateSample: Sendable {
     let tick: Int
     let configuration: [Float]
@@ -2393,6 +2408,11 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         showPolicyStatus("Replay complete · ⌘R to restart")
     }
 
+    func showPhysicsPaused(_ summary: String) {
+        if !paused { togglePause() }
+        showPolicyStatus(summary)
+    }
+
     @objc func restartSimulation() {
         guard canRestart, !reconfiguring, !trainingActive else { return }
         onRestartRequested?()
@@ -2975,6 +2995,11 @@ public final class NumiWindowBridge: @unchecked Sendable {
     func pauseAfterReplay() {
         setSimulationPaused(true)
         DispatchQueue.main.async { [window] in window.showCompletedReplay() }
+    }
+
+    func pauseAfterPhysicsFailure(_ summary: String) {
+        setSimulationPaused(true)
+        DispatchQueue.main.async { [window] in window.showPhysicsPaused(summary) }
     }
 
     func requestRestartForRuntimeCheck() {

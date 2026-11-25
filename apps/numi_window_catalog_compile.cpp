@@ -1292,6 +1292,29 @@ void requireProjectPack(const auto& result) {
     if (!result.succeeded()) throw std::runtime_error("Project compilation failed: " + result.message);
 }
 
+void applyMJCFContactFilter(EngineModel& model, std::uint32_t root) {
+    std::vector<std::uint32_t> weld(model.bodies.size(), root);
+    for (const auto& joint : model.joints) {
+        weld[joint.childBody] = joint.jointType == MR_JOINT_FIXED
+            ? weld[joint.parentBody] : joint.childBody;
+    }
+    for (auto& shape : model.shapes) shape.flags |= MR_SHAPE_FLAG_AUTHORED_COLLISION_FILTER;
+    for (std::uint32_t a = 0; a < model.shapes.size(); ++a) {
+        const auto groupA = weld[model.shapes[a].bodyIndex];
+        for (std::uint32_t b = a + 1; b < model.shapes.size(); ++b) {
+            const auto groupB = weld[model.shapes[b].bodyIndex];
+            // MJCF excludes within a weld and between neighboring moving
+            // welds. A world-welded fixture can support its moving child.
+            if (groupA == groupB ||
+                (groupA != root && groupB != root &&
+                 (weld[model.bodies[groupA].parentBody] == groupB ||
+                  weld[model.bodies[groupB].parentBody] == groupA))) {
+                model.collisionExclusions.push_back({a, b});
+            }
+        }
+    }
+}
+
 void writeRobotProject(const Arguments& options) {
     if (options.projectID.empty() || options.projectID.size() > 64 ||
         !std::ranges::all_of(options.projectID, [](unsigned char c) {
@@ -1341,11 +1364,10 @@ void writeRobotProject(const Arguments& options) {
     actuators.id = "robot_actuators_v1";
     metalrobo::SensorProgramPack sensors;
     sensors.id = "robot_joint_state_v1";
-    for (const auto& dof : mechanics.dofs) {
-        if ((dof.flags & MR_DOF_FLAG_ACTUATED) == 0u) continue;
+    const auto addActionChannel = [&](const MRDofPropertiesGPU& dof) {
         const std::string& joint = mechanics.dofNames.at(dof.vIndex);
         if ((dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) == 0u) {
-            throw std::runtime_error("Add a positive URDF effort limit to joint " + joint);
+            throw std::runtime_error("Add a positive effort limit to joint " + joint);
         }
         actuators.actuators.push_back({
             .id = "effort_" + std::to_string(task.actions.size()),
@@ -1356,6 +1378,19 @@ void writeRobotProject(const Arguments& options) {
         sensors.observation.actorFrame.push_back({
             .source = metalrobo::TaskObservationSource::jointVelocity, .target = joint,
         });
+    };
+    if (isMJCF) {
+        for (const auto& motor : mjcf.motors) {
+            const auto dof = std::ranges::find(mechanics.dofNames, motor.joint);
+            if (dof == mechanics.dofNames.end()) {
+                throw std::runtime_error("Cooked model is missing motor joint " + motor.joint);
+            }
+            addActionChannel(mechanics.dofs.at(dof - mechanics.dofNames.begin()));
+        }
+    } else {
+        for (const auto& dof : mechanics.dofs) {
+            if ((dof.flags & MR_DOF_FLAG_ACTUATED) != 0u) addActionChannel(dof);
+        }
     }
     if (task.actions.empty()) {
         throw std::runtime_error("The workbench requires at least one actuated joint.");
@@ -1394,6 +1429,7 @@ void writeRobotProject(const Arguments& options) {
             shape.collisionMask &= ~(floorGroup | fixedGroup);
         }
     }
+    if (isMJCF) applyMJCFContactFilter(mechanics, root);
     metalrobo::WorldAsset robot;
     robot.id = "robot";
     robot.semanticClass = "robot";
@@ -1460,6 +1496,19 @@ void writeRobotProject(const Arguments& options) {
              << gravity << ",\n  \"friction\": " << options.friction
              << ",\n  \"effort\": " << options.effort << ",\n  \"action_count\": " << task.actions.size();
     if (isMJCF) settings << ",\n  \"source_format\": \"mjcf\"";
+    settings << ",\n  \"action_channels\": [";
+    for (std::size_t index = 0; index < actuators.actuators.size(); ++index) {
+        const auto& actuator = actuators.actuators[index];
+        settings << (index == 0u ? "\n    " : ",\n    ")
+                 << "{\"id\": " << jsonString(actuator.id)
+                 << ", \"joint\": " << jsonString(actuator.target)
+                 << ", \"maximum_effort\": " << actuator.scale;
+        if (isMJCF && !mjcf.motors[index].name.empty()) {
+            settings << ", \"source_motor\": " << jsonString(mjcf.motors[index].name);
+        }
+        settings << '}';
+    }
+    settings << "\n  ]";
     settings << "\n}\n";
     settings.close();
     if (!settings) throw std::runtime_error("Could not save project settings.");
