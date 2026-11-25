@@ -2,6 +2,7 @@ import AppKit
 import Darwin
 import Metal
 import MetalKit
+import UniformTypeIdentifiers
 import simd
 
 public struct NumiWindowPolicyContract: Sendable, Equatable {
@@ -245,7 +246,7 @@ private let numiWindowPathOptions: Set<String> = [
     "--urdf", "--srdf", "--world-pack", "--task-pack",
     "--robot-actuator-pack", "--sensor-program-pack",
     "--reality-program-pack", "--interaction-pack", "--policy-pack",
-    "--action-stream", "--dove-manifest", "--numifly-wing-manifest",
+    "--action-stream", "--action-clip", "--dove-manifest", "--numifly-wing-manifest",
 ]
 
 private func numiWindowResolvedArguments(
@@ -289,13 +290,14 @@ private func numiWindowCatalogFiles(
     guard let roots = try? FileManager.default.contentsOfDirectory(
         at: directory,
         includingPropertiesForKeys: Array(keys),
-        options: []
+        options: [.skipsHiddenFiles]
     ) else {
         return []
     }
     var files: [URL] = []
     files.reserveCapacity(roots.count)
     for root in roots {
+        if root.lastPathComponent.hasPrefix(pandaImportPrefix) { continue }
         let values = try? root.resourceValues(forKeys: keys)
         if values?.isRegularFile == true {
             if predicate(root) { files.append(root) }
@@ -327,65 +329,50 @@ public func numiWindowSceneChoices(in directory: URL) -> [NumiWindowSceneChoice]
     let entries = numiWindowCatalogFiles(in: directory) {
         $0.lastPathComponent.hasSuffix(".numi-window.json")
     }
-    let decoder = JSONDecoder()
-    var choices: [NumiWindowSceneChoice] = []
     var seen: Set<String> = []
-    for url in entries {
-        guard let data = try? Data(contentsOf: url),
-              let record = try? decoder.decode(
-                  NumiWindowSceneChoice.Record.self,
-                  from: data
-              ),
-              record.format == "numi.window.scene.v1",
-              !record.id.isEmpty,
-              !record.robotID.isEmpty,
-              !record.sceneID.isEmpty,
-              record.available != false,
-              seen.insert(record.id).inserted
-        else {
-            continue
-        }
-        let base = url.deletingLastPathComponent()
-        let resolvedArguments = numiWindowResolvedArguments(
-            record.arguments,
-            relativeTo: base
-        )
-        let resolvedTrainingArguments = numiWindowResolvedArguments(
-            record.trainingArguments ?? [],
-            relativeTo: base
-        )
-        let legacyEnvironment =
-            numiWindowArgumentValue("--scene", in: resolvedArguments) ??
-            "studio"
-        let environmentID = record.taskID == nil
-            ? legacyEnvironment : record.sceneID
-        let environmentName = record.taskID == nil
-            ? legacyEnvironment.replacingOccurrences(of: "-", with: " ")
-                .capitalized
-            : record.sceneName
-        let visualURL = URL(fileURLWithPath: record.visualObservation,
-                            relativeTo: base).standardizedFileURL
-        guard FileManager.default.fileExists(atPath: visualURL.path) else {
-            continue
-        }
-        choices.append(NumiWindowSceneChoice(
-            id: record.id,
-            robotID: record.robotID,
-            robotName: record.robotName,
-            sceneID: environmentID,
-            sceneName: environmentName,
-            taskID: record.taskID ?? record.sceneID,
-            taskName: record.taskName ?? record.sceneName,
-            visualObservationURL: visualURL,
-            launchArguments: resolvedArguments,
-            trainingArguments: resolvedTrainingArguments
-        ))
-    }
+    let choices = entries.compactMap(numiWindowReadScene(at:))
+        .filter { seen.insert($0.id).inserted }
     return choices.sorted {
         ($0.robotName.localizedStandardCompare($1.robotName) == .orderedAscending) ||
         ($0.robotName == $1.robotName &&
          $0.sceneName.localizedStandardCompare($1.sceneName) == .orderedAscending)
     }
+}
+
+func numiWindowReadScene(at url: URL) -> NumiWindowSceneChoice? {
+    guard let data = try? Data(contentsOf: url),
+          let record = try? JSONDecoder().decode(
+              NumiWindowSceneChoice.Record.self, from: data
+          ),
+          record.format == "numi.window.scene.v1",
+          !record.id.isEmpty,
+          !record.robotID.isEmpty,
+          !record.sceneID.isEmpty,
+          record.available != false
+    else { return nil }
+
+    let base = url.deletingLastPathComponent()
+    let arguments = numiWindowResolvedArguments(record.arguments, relativeTo: base)
+    let legacyEnvironment = numiWindowArgumentValue("--scene", in: arguments) ?? "studio"
+    let visual = URL(fileURLWithPath: record.visualObservation, relativeTo: base)
+        .standardizedFileURL
+    guard FileManager.default.fileExists(atPath: visual.path) else { return nil }
+    return NumiWindowSceneChoice(
+        id: record.id,
+        robotID: record.robotID,
+        robotName: record.robotName,
+        sceneID: record.taskID == nil ? legacyEnvironment : record.sceneID,
+        sceneName: record.taskID == nil
+            ? legacyEnvironment.replacingOccurrences(of: "-", with: " ").capitalized
+            : record.sceneName,
+        taskID: record.taskID ?? record.sceneID,
+        taskName: record.taskName ?? record.sceneName,
+        visualObservationURL: visual,
+        launchArguments: arguments,
+        trainingArguments: numiWindowResolvedArguments(
+            record.trainingArguments ?? [], relativeTo: base
+        )
+    )
 }
 
 func numiWindowAppResources() -> URL? {
@@ -407,6 +394,54 @@ private func numiWindowSceneDirectory() -> URL {
     }
     return URL(fileURLWithPath: FileManager.default.currentDirectoryPath + "/.numi/runs",
                isDirectory: true)
+}
+
+private let pandaImportPrefix = "panda-import-"
+
+private func importPandaScene(
+    from selection: URL,
+    to library: URL,
+    resources: URL
+) throws -> NumiWindowSceneChoice {
+    let files = FileManager.default
+    try files.createDirectory(at: library, withIntermediateDirectories: true)
+    let destination = library.appending(path: "Panda Tabletop", directoryHint: .isDirectory)
+    let sceneName = "panda-tabletop.numi-window.json"
+    let staged = library.appending(path: pandaImportPrefix + UUID().uuidString, directoryHint: .isDirectory)
+    try files.createDirectory(at: staged, withIntermediateDirectories: false)
+    defer { try? files.removeItem(at: staged) }
+
+    let process = Process()
+    process.executableURL = resources.deletingLastPathComponent()
+        .appending(path: "Helpers/metalrobo_numi_window_catalog_compile")
+    process.arguments = [
+        "--panda-model", selection.path, "--output", staged.path,
+        "--metallib", resources.appending(path: "MetalRobo.metallib").path,
+    ]
+    let diagnostics = Pipe()
+    process.standardError = diagnostics
+    process.standardOutput = diagnostics
+    try process.run()
+    let data = diagnostics.fileHandleForReading.readDataToEndOfFile()
+    process.waitUntilExit()
+    guard process.terminationStatus == 0,
+          numiWindowReadScene(at: staged.appending(path: sceneName)) != nil
+    else {
+        let reason = String(decoding: data, as: UTF8.self).split(whereSeparator: \.isNewline)
+            .last.map(String.init) ?? "Panda scene compilation failed."
+        throw CocoaError(.fileReadCorruptFile, userInfo: [NSLocalizedDescriptionKey: reason])
+    }
+    do {
+        try files.moveItem(at: staged, to: destination)
+    } catch {
+        // The fixed destination preserves an already installed copy of the
+        // same pinned scene, including when another window publishes first.
+        guard numiWindowReadScene(at: destination.appending(path: sceneName)) != nil
+        else { throw error }
+    }
+    guard let scene = numiWindowReadScene(at: destination.appending(path: sceneName))
+    else { throw CocoaError(.fileReadCorruptFile) }
+    return scene
 }
 
 public func numiWindowSceneCatalog() -> [NumiWindowSceneChoice] {
@@ -797,6 +832,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private weak var trainItem: NSToolbarItem?
     private var trainingSetupController: NumiTrainingSetupController?
     private var trainingActive = false
+    private let stateInspector = NSVisualEffectView()
+    private let stateLabel = NSTextField(labelWithString: "Advance the simulation to inspect its state.")
     private let trainingBanner = NSVisualEffectView()
     private let trainingSpinner = NSProgressIndicator()
     private let trainingLabel = NSTextField(wrappingLabelWithString: "")
@@ -816,7 +853,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     private var installedPolicyURL: URL?
     private var installedPolicyRobotID: String?
     private var activePolicyContract: NumiWindowPolicyContract?
-    private let sceneChoices: [NumiWindowSceneChoice]
+    private var sceneChoices: [NumiWindowSceneChoice]
+    private var importingModel = false
     private let initialSceneID: String?
     private var cameraYaw: Float = 0
     private var cameraPitch: Float = 0
@@ -828,6 +866,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     var onPresentationEnabledChanged: ((Bool) -> Void)?
     var onSimulationPausedChanged: ((Bool) -> Void)?
     var onRestartRequested: (() -> Void)?
+    var onStepRequested: (() -> Void)?
+    var onStateInspectionChanged: ((Bool) -> Void)?
     var onLatestPolicyRequested: (() -> Void)?
     var onPolicySelected: ((NumiWindowPolicySelection) -> Void)?
     var onSceneSelected: ((String) -> Void)?
@@ -953,7 +993,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         view.enableSetNeedsDisplay = true
         view.isPaused = true
         // The authored inspection frame is the useful resolution ceiling.
-        // Avoid silently expanding a 960px preview into a 2x Retina drawable.
+        // Match Retina backing pixels when the source can provide them.
         view.autoResizeDrawable = false
         let window = NSWindow(
             contentRect: NSRect(x: 120, y: 120, width: 1180, height: 700),
@@ -1045,6 +1085,10 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         mainMenu.addItem(appItem)
 
         let fileMenu = NSMenu(title: "File")
+        let open = fileMenu.addItem(
+            withTitle: "Open Panda Model…", action: #selector(openPandaModel), keyEquivalent: "o"
+        )
+        open.target = self
         let library = fileMenu.addItem(
             withTitle: "Show Scene Library", action: #selector(showSceneLibrary), keyEquivalent: ""
         )
@@ -1060,6 +1104,11 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         let pause = simulationMenu.addItem(withTitle: "Pause", action: #selector(togglePause),
                                            keyEquivalent: "")
         pause.target = self
+        let step = simulationMenu.addItem(
+            withTitle: "Single Step", action: #selector(singleStep), keyEquivalent: "."
+        )
+        step.keyEquivalentModifierMask = []
+        step.target = self
         let restart = simulationMenu.addItem(
             withTitle: "Restart Simulation", action: #selector(restartSimulation), keyEquivalent: "r"
         )
@@ -1069,6 +1118,10 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         mainMenu.addItem(simulationItem)
 
         let viewMenu = NSMenu(title: "View")
+        let inspect = viewMenu.addItem(
+            withTitle: "Simulation State", action: #selector(toggleStateInspector), keyEquivalent: "i"
+        )
+        inspect.target = self
         let camera = viewMenu.addItem(
             withTitle: "Reset Camera", action: #selector(resetCameraAction), keyEquivalent: "0"
         )
@@ -1084,6 +1137,16 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             item.title = paused ? "Resume" : "Pause"
             return !reconfiguring || paused
         }
+        if item.action == #selector(toggleStateInspector) {
+            item.state = stateInspector.superview != nil && !stateInspector.isHidden ? .on : .off
+            return true
+        }
+        if item.action == #selector(openPandaModel) {
+            return !importingModel && !reconfiguring && !trainingActive
+        }
+        if item.action == #selector(singleStep) {
+            return paused && !reconfiguring && !trainingActive
+        }
         if item.action == #selector(restartSimulation) {
             return canRestart && !reconfiguring && !trainingActive
         }
@@ -1092,6 +1155,103 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
 
     @objc private func closeFromMenu() {
         closeWindow()
+    }
+
+    @objc private func openPandaModel() {
+        guard !importingModel, let resources = numiWindowAppResources() else { return }
+        let panel = NSOpenPanel()
+        panel.title = "Open Panda Model"
+        panel.message = "Choose the stock Panda panda.xml or scene.xml from MuJoCo Menagerie."
+        panel.allowedContentTypes = [.xml]
+        panel.beginSheetModal(for: window) { [weak self] response in
+            guard let self, response == .OK, let selection = panel.url else { return }
+            self.importingModel = true
+            self.setConfigurationControlsEnabled(false)
+            self.showPolicyStatus("Importing Panda Tabletop…")
+            let library = numiWindowSceneDirectory()
+            Task {
+                defer {
+                    self.importingModel = false
+                    if !self.reconfiguring { self.setConfigurationControlsEnabled(true) }
+                }
+                do {
+                    let scene = try await Task.detached(priority: .userInitiated) {
+                        try importPandaScene(from: selection, to: library, resources: resources)
+                    }.value
+                    guard !self.closed else { return }
+                    if !self.sceneChoices.contains(where: { $0.id == scene.id }) {
+                        self.sceneChoices.append(scene)
+                        if let toolbar = self.window.toolbar, self.robotSelector == nil {
+                            for (index, item) in [
+                                Self.robotSelectorToolbarItem,
+                                Self.sceneSelectorToolbarItem,
+                                Self.taskSelectorToolbarItem,
+                            ].enumerated() {
+                                toolbar.insertItem(withItemIdentifier: item, at: min(index + 2, toolbar.items.count))
+                            }
+                        } else if let selector = self.robotSelector {
+                            self.configureRobotSelector(selector)
+                        }
+                    }
+                    self.requestScene(scene)
+                } catch {
+                    guard !self.closed else { return }
+                    self.showPolicyStatus("Panda import failed")
+                    await NSAlert(error: error).beginSheetModal(for: self.window)
+                }
+            }
+        }
+    }
+
+    @objc private func singleStep() {
+        guard paused, !reconfiguring, !trainingActive else { return }
+        onStepRequested?()
+    }
+
+    @objc private func toggleStateInspector() {
+        if stateInspector.superview == nil {
+            stateInspector.material = .hudWindow
+            stateInspector.blendingMode = .withinWindow
+            stateInspector.state = .active
+            stateInspector.wantsLayer = true
+            stateInspector.layer?.cornerRadius = 8
+            stateInspector.translatesAutoresizingMaskIntoConstraints = false
+            stateLabel.translatesAutoresizingMaskIntoConstraints = false
+            stateLabel.font = .monospacedDigitSystemFont(ofSize: 11, weight: .regular)
+            stateLabel.maximumNumberOfLines = 4
+            stateLabel.lineBreakMode = .byTruncatingTail
+            view.addSubview(stateInspector)
+            stateInspector.addSubview(stateLabel)
+            NSLayoutConstraint.activate([
+                stateInspector.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+                stateInspector.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -16),
+                stateInspector.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -16),
+                stateLabel.leadingAnchor.constraint(equalTo: stateInspector.leadingAnchor, constant: 12),
+                stateLabel.trailingAnchor.constraint(equalTo: stateInspector.trailingAnchor, constant: -12),
+                stateLabel.topAnchor.constraint(equalTo: stateInspector.topAnchor, constant: 10),
+                stateLabel.bottomAnchor.constraint(equalTo: stateInspector.bottomAnchor, constant: -10),
+            ])
+        } else {
+            stateInspector.isHidden.toggle()
+        }
+        onStateInspectionChanged?(!stateInspector.isHidden)
+    }
+
+    func showStateSample(
+        step: Int, q: [Float], contactCount: UInt32?,
+        position: [Float], strongestNormal: String?
+    ) {
+        let joints = q.map { String(format: "%+.3f", $0) }.joined(separator: "  ")
+        var text = "Step \(step)   Contacts \(contactCount.map(String.init) ?? "—")"
+        text += "\nq (up to 9)   \(joints)"
+        if let strongestNormal {
+            text += "\nPeak normal load   \(strongestNormal)"
+        }
+        if position.count == 3 {
+            let xyz = position.map { String(format: "%+.3f", $0) }.joined(separator: "  ")
+            text += "\nFirst scene body (m)   \(xyz)"
+        }
+        stateLabel.stringValue = text
     }
 
     @objc private func showSceneLibrary() {
@@ -1450,7 +1610,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
 
     private func updateDrawableSize(sourceWidth: Int, sourceHeight: Int) {
-        let points = view.bounds.size
+        let points = view.convertToBacking(view.bounds).size
         guard points.width > 0, points.height > 0,
               sourceWidth > 0, sourceHeight > 0 else {
             return
@@ -1723,7 +1883,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         guard !reconfiguring else {
             return
         }
+        if paused { togglePause() }
         reconfiguring = true
+        stateLabel.stringValue = "Waiting for the new scene…"
         let robotChanged = activeRobotID != choice.robotID
         robotSelector?.isEnabled = false
         sceneSelector?.isEnabled = false
@@ -1889,6 +2051,11 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         updatePresentationState()
         onSimulationPausedChanged?(paused)
         updateChrome(force: true)
+    }
+
+    func showCompletedReplay() {
+        if !paused { togglePause() }
+        showPolicyStatus("Replay complete · ⌘R to restart")
     }
 
     @objc func restartSimulation() {
@@ -2071,7 +2238,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     }
 
     private var presentationEnabled: Bool {
-        !closed && !paused && presentationVisible
+        // The scheduler pauses physics. Keep presentation available for the
+        // final replay frame and for explicit single steps while paused.
+        !closed && presentationVisible
     }
 
     private func updatePresentationState() {
@@ -2196,11 +2365,16 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
         if (any(uv < 0.0) || any(uv >= 1.0)) {
             return float4(backdrop, 1.0);
         }
-        const uint x = min(uint(uv.x * dimensions.x),
-                           dimensions.x - 1u);
-        const uint y = min(uint((1.0 - uv.y) * dimensions.y),
-                           dimensions.y - 1u);
-        const float4 sample = source[y * dimensions.x + x];
+        const float2 pixel = clamp(float2(uv.x, 1.0 - uv.y) * float2(dimensions.xy) - 0.5,
+                                   float2(0.0), float2(dimensions.xy - 1u));
+        const uint2 low = uint2(pixel);
+        const uint2 high = min(low + 1u, dimensions.xy - 1u);
+        const float2 blend = fract(pixel);
+        const float4 top = mix(source[low.y * dimensions.x + low.x],
+                               source[low.y * dimensions.x + high.x], blend.x);
+        const float4 bottom = mix(source[high.y * dimensions.x + low.x],
+                                  source[high.y * dimensions.x + high.x], blend.x);
+        const float4 sample = mix(top, bottom, blend.y);
         const float3 linear = max(sample.xyz, 0.0);
         // Bounded highlight rolloff keeps HDR scene lighting inspectable while
         // the sRGB drawable performs the final display conversion.
@@ -2227,6 +2401,8 @@ public final class NumiWindowBridge: @unchecked Sendable {
     private var presentationEnabled = true
     private var simulationPaused = false
     private var restartRequested = false
+    private var stepRequested = false
+    private var inspectingState = false
     private var runtimeCheckPassed = false
     private var pendingNativeInspectionEnabled: Bool?
     private var latestPolicyReloadRequested = false
@@ -2255,6 +2431,17 @@ public final class NumiWindowBridge: @unchecked Sendable {
                 self.restartRequested = !self.closed
                 self.stateCondition.broadcast()
             }
+        }
+        window.onStepRequested = { [weak self] in
+            guard let self else { return }
+            self.stateCondition.withLock {
+                self.stepRequested = self.simulationPaused && !self.closed
+                self.stateCondition.broadcast()
+            }
+        }
+        window.onStateInspectionChanged = { [weak self] enabled in
+            guard let self else { return }
+            self.stateCondition.withLock { self.inspectingState = enabled }
         }
         window.onLatestPolicyRequested = { [weak self] in
             self?.requestLatestPolicyReload()
@@ -2313,13 +2500,28 @@ public final class NumiWindowBridge: @unchecked Sendable {
         stateCondition.withLock { simulationPaused }
     }
 
+    var wantsStateSamples: Bool {
+        stateCondition.withLock { inspectingState }
+    }
+
+    func reportStateSample(
+        step: Int, q: [Float], contacts: UInt32?, position: [Float], strongestNormal: String?
+    ) {
+        DispatchQueue.main.async { [window] in
+            window.showStateSample(
+                step: step, q: q, contactCount: contacts,
+                position: position, strongestNormal: strongestNormal
+            )
+        }
+    }
+
     var presentationCount: UInt64 {
         stateCondition.withLock { completedPresentationCount }
     }
 
     private var hasPendingSchedulerWork: Bool {
         pendingNativeInspectionEnabled != nil ||
-            restartRequested ||
+            restartRequested || stepRequested ||
             latestPolicyReloadRequested ||
             pendingPolicySelection != nil ||
             pendingSceneSelection != nil ||
@@ -2388,6 +2590,7 @@ public final class NumiWindowBridge: @unchecked Sendable {
     private func setSimulationPaused(_ paused: Bool) {
         stateCondition.lock()
         simulationPaused = paused && !closed
+        if !simulationPaused { stepRequested = false }
         stateCondition.broadcast()
         stateCondition.unlock()
     }
@@ -2436,8 +2639,20 @@ public final class NumiWindowBridge: @unchecked Sendable {
         stateCondition.withLock { runtimeCheckPassed }
     }
 
+    func pauseAfterReplay() {
+        setSimulationPaused(true)
+        DispatchQueue.main.async { [window] in window.showCompletedReplay() }
+    }
+
     func requestRestartForRuntimeCheck() {
         DispatchQueue.main.async { [window] in window.restartSimulation() }
+    }
+
+    func takeStepRequest() -> Bool {
+        stateCondition.withLock {
+            defer { stepRequested = false }
+            return stepRequested && simulationPaused
+        }
     }
 
     func takeRestartRequest() -> Bool {

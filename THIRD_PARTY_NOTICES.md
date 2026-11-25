@@ -6,6 +6,15 @@ do not imply endorsement by Franka Robotics, Unitree Robotics, the Isaac Lab
 Project, the ORBIT-Surgical Project, JHU, Intuitive Surgical, Medtronic, or
 their contributors.
 
+## PX4 X500 Mac preview
+
+`assets/window/px4-x500*.glb` use the X500 airframe, motor, and propeller
+meshes from `PX4/PX4-gazebo-models` revision
+`e00d3b9cde682dbcb3bf6f30a2f2b8ef4325dae8`, at `models/x500_base`.
+`tools/cook_x500_preview.py` applies the upstream visual transforms,
+reduces mesh density, and sets the preview materials. The app ships the
+upstream BSD 3-Clause notice in `PX4_X500_BSD_LICENSE.txt`.
+
 ## Franka model data
 
 The Franka kinematic, inertial, and limit constants in `src/core/Franka.cpp`

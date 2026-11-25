@@ -3,6 +3,7 @@
 
 #include "metalrobo/engine_types.h"
 #include "metalrobo/hybrid_renderer_types.h"
+#include "metalrobo/multicopter_types.h"
 #include "metalrobo/task_program_types.h"
 #include "metalrobo/world_compiler_types.h"
 #include "VisualPBR.metal"
@@ -2282,6 +2283,9 @@ kernel void mr_hybrid_prepare_cameras(
     constant MRHybridRenderUniformsGPU& uniforms [[buffer(10)]],
     constant float4& cameraTranslationAndEnabled [[buffer(11)]],
     constant float4& cameraOrientation [[buffer(12)]],
+    const device MRMulticopterStateGPU* inspectionMotors [[buffer(13)]],
+    device float4* inspectionRotorPhase [[buffer(14)]],
+    constant float& inspectionRotorSeconds [[buffer(15)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= uniforms.counts.x) {
@@ -2346,11 +2350,30 @@ kernel void mr_hybrid_prepare_cameras(
         float4(previous.position, previous.valid ? 1.0f : 0.0f);
     result.previousOrientation = previous.orientation;
     cameraStates[environment] = result;
+    float4 rotorPhase(0.0f);
+    const bool animateRotors = inspectionRotorSeconds > 0.0f;
+    if (animateRotors) {
+        // Display the accepted motor speeds at 1% speed so the blades and
+        // their opposite directions are legible at the viewer's frame rate.
+        const float4 direction(1.0f, 1.0f, -1.0f, -1.0f);
+        rotorPhase = fmod(inspectionRotorPhase[0] + direction *
+            inspectionMotors[0].rotorSpeed01 * (0.01f * inspectionRotorSeconds),
+            float4(2.0f * M_PI_F));
+        inspectionRotorPhase[0] = rotorPhase;
+    }
     for (uint visualInstance = 0u;
          visualInstance < uniforms.ray.w;
          ++visualInstance) {
-        const MRVisualInstanceGPUV2 authored =
+        MRVisualInstanceGPUV2 authored =
             visualInstances[visualInstance];
+        if (animateRotors &&
+            (authored.binding.w & MR_VISUAL_INSTANCE_INSPECTION_X500_ROTOR) != 0u) {
+            const uint rotor = (authored.binding.w >> MR_VISUAL_X500_ROTOR_INDEX_SHIFT) &
+                MR_VISUAL_X500_ROTOR_INDEX_MASK;
+            const float halfAngle = 0.5f * rotorPhase[rotor];
+            authored.orientation = quaternionProduct(
+                float4(0.0f, 0.0f, sin(halfAngle), cos(halfAngle)), authored.orientation);
+        }
         const BoundPose currentVisual = composeInstancePose(
             resolvePose(
                 authored.binding.z,

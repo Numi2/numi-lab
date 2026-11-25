@@ -771,6 +771,13 @@ public struct MetalRoboTaskRolloutLayout: Sendable {
     }
 }
 
+public struct MetalRoboTaskContactSample: Sendable {
+    public let active: UInt32
+    public let peakNormalForce: Float
+    public let bodyA: String?
+    public let bodyB: String?
+}
+
 public struct MetalRoboTaskRolloutAdvance: Sendable {
     public let controlStepCount: Int
     public let successfulEnvironmentSteps: Int
@@ -1057,6 +1064,7 @@ public enum MetalRoboRunSource: Sendable {
     case numiflyNoLegs(wingManifest: URL)
     case frankaPickPlace
     case px4X500
+    case px4X500FlightDemo
     case measuredDove(
         manifest: URL, task: MetalRoboMeasuredSurfaceTask
     )
@@ -1157,6 +1165,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             source = MR_RUN_SOURCE_FRANKA_PICK_PLACE.rawValue
         case .px4X500:
             source = MR_RUN_SOURCE_PX4_X500.rawValue
+        case .px4X500FlightDemo:
+            source = MR_RUN_SOURCE_PX4_X500_FLIGHT_DEMO.rawValue
         case let .measuredDove(manifest, task):
             source = MR_RUN_SOURCE_MEASURED_DOVE.rawValue
             measuredSurfaceManifestPath = manifest.path
@@ -1480,6 +1490,23 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             )
         }
         return MetalRoboTaskEvidenceTelemetry(native)
+    }
+
+    public func setContactReadback(_ enabled: Bool) throws {
+        guard mr_task_rollout_set_contact_readback(handle, enabled ? 1 : 0) == 0
+        else { throw MetalRoboTaskRolloutError.native(Self.lastError()) }
+    }
+
+    public func contactSample() throws -> MetalRoboTaskContactSample {
+        var sample = MRTaskContactSampleC()
+        guard mr_task_rollout_contact_sample(handle, &sample) == 0
+        else { throw MetalRoboTaskRolloutError.native(Self.lastError()) }
+        return MetalRoboTaskContactSample(
+            active: sample.active_contacts,
+            peakNormalForce: sample.strongest_normal_force_newtons,
+            bodyA: sample.body_a.map { String(cString: $0) },
+            bodyB: sample.body_b.map { String(cString: $0) }
+        )
     }
 
     public func setStateReadback(_ enabled: Bool) throws {

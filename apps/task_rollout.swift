@@ -171,7 +171,8 @@ private func fingerprint(
 
 private struct Options {
     enum BundledRobotSource {
-        case unitreeG1, numifly, numiflyForwardFlight, numiflyNoLegs, frankaPickPlace, px4X500
+        case unitreeG1, numifly, numiflyForwardFlight, numiflyNoLegs, frankaPickPlace
+        case px4X500, px4X500FlightDemo
     }
 
     var environments = 32
@@ -197,6 +198,8 @@ private struct Options {
     var nativePolicy = false
     var zeroActions = false
     var actionStream: String?
+    var actionClip: String?
+    var loopActionClip = false
     var scheduledResets = true
     var policyPack: String?
     var rolloutPack: String?
@@ -222,6 +225,7 @@ private struct Options {
     var interactionPushMaximumVelocity: Float?
     var interactionPushIntervalSeconds: Float?
     var stateTrace: String?
+    var contactTrace: String?
     var stateTraceEnvironment = 0
     var motionFeatureTrace: String?
     var motionFeatureTraceEnvironment = 0
@@ -348,9 +352,10 @@ private struct Options {
                     bundledRobotSource = .numiflyNoLegs
                 case "franka-panda": bundledRobotSource = .frankaPickPlace
                 case "px4-x500": bundledRobotSource = .px4X500
+                case "px4-x500-flight-demo": bundledRobotSource = .px4X500FlightDemo
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--robot-source must be unitree-g1, numifly, numifly-forward-flight, numifly-no-legs, franka-panda, or px4-x500."
+                        "--robot-source must be unitree-g1, numifly, numifly-forward-flight, numifly-no-legs, franka-panda, px4-x500, or px4-x500-flight-demo."
                     )
                 }
                 index += 1
@@ -363,6 +368,11 @@ private struct Options {
             case "--action-stream":
                 actionStream = try value()
                 index += 1
+            case "--action-clip":
+                actionClip = try value()
+                index += 1
+            case "--loop-action-clip":
+                loopActionClip = true
             case "--no-scheduled-resets":
                 scheduledResets = false
             case "--continue-after-termination", "--disable-task-terminations":
@@ -522,6 +532,9 @@ private struct Options {
             case "--state-trace":
                 stateTrace = try value()
                 index += 1
+            case "--contact-trace":
+                contactTrace = try value()
+                index += 1
             case "--state-trace-environment":
                 stateTraceEnvironment = try Self.integer(value(), option)
                 index += 1
@@ -619,6 +632,18 @@ private struct Options {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--action-stream cannot be combined with another action source."
             )
+        }
+        if actionClip != nil &&
+            (actionStream != nil || nativePolicy || policyPack != nil || zeroActions ||
+             environments != 1 || repeats != 1 || scheduledResets)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--action-clip requires one environment, one repeat, and " +
+                "--no-scheduled-resets, with no other action source."
+            )
+        }
+        if loopActionClip && actionClip == nil {
+            throw MetalRoboTaskRolloutError.invalidShape("--loop-action-clip requires --action-clip.")
         }
         if rolloutPack != nil &&
             !nativePolicy && policyPack == nil
@@ -729,6 +754,11 @@ private struct Options {
         if srdf != nil && urdf == nil {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--srdf requires --urdf."
+            )
+        }
+        if contactTrace != nil && (environments != 1 || repeats != 1 || chunk != 1) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--contact-trace requires --envs 1 --repeats 1 --chunk 1."
             )
         }
         if stateTrace != nil && (repeats != 1 || chunk != 1) {
@@ -963,6 +993,27 @@ private func readActionStream(
     return values
 }
 
+private func readActionClip(path: String, actionCount: Int) throws -> [Float] {
+    let url = URL(fileURLWithPath: path)
+    let values = try url.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
+    let stride = actionCount * MemoryLayout<Float>.stride
+    guard values.isRegularFile == true, let size = values.fileSize,
+          stride > 0, size >= stride, size <= 4 * 1024 * 1024,
+          size % stride == 0
+    else {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--action-clip must have complete action frames and be at most 4 MiB."
+        )
+    }
+    let clip = try readActionStream(path: path, expectedCount: size / MemoryLayout<Float>.stride)
+    guard clip.allSatisfy({ abs($0) <= 1 }) else {
+        throw MetalRoboTaskRolloutError.invalidShape(
+            "--action-clip values must be in [-1, 1]."
+        )
+    }
+    return clip
+}
+
 private func makeContext(
     options: Options
 ) throws -> (MetalRoboTaskRolloutContext, String) {
@@ -1065,10 +1116,11 @@ private func makeContext(
     if options.urdf == nil && options.worldPack == nil &&
        options.interactionPack == nil &&
        options.bundledRobotSource != .unitreeG1 {
-        let source: MetalRoboRunSource =
-            options.bundledRobotSource == .frankaPickPlace
-            ? .frankaPickPlace
-            : .px4X500
+        let (source, name): (MetalRoboRunSource, String) = switch options.bundledRobotSource {
+        case .frankaPickPlace: (.frankaPickPlace, "franka_pick_place")
+        case .px4X500FlightDemo: (.px4X500FlightDemo, "px4_x500_flight_demo")
+        default: (.px4X500, "px4_x500")
+        }
         return (
             try MetalRoboTaskRolloutContext(
                 manifest: MetalRoboRunManifest(
@@ -1079,8 +1131,7 @@ private func makeContext(
                 ),
                 metallibPath: options.metallib
             ),
-            options.bundledRobotSource == .frankaPickPlace
-                ? "franka_pick_place" : "px4_x500"
+            name
         )
     }
     if let interactionPack = options.interactionPack,
@@ -1345,7 +1396,12 @@ private enum TaskRolloutMain {
         var index = 0
         while index < choice.launchArguments.count {
             let option = choice.launchArguments[index]
-            if option == "--policy-pack" || option == "--action-stream" {
+            if option == "--loop-action-clip" && policyOverride != nil {
+                index += 1
+                continue
+            }
+            if option == "--policy-pack" || option == "--action-stream" ||
+                (option == "--action-clip" && policyOverride != nil) {
                 index += 2
                 continue
             }
@@ -1360,7 +1416,7 @@ private enum TaskRolloutMain {
             arguments.append(contentsOf: [
                 "--policy-pack", policyOverride.path,
             ])
-        } else {
+        } else if !arguments.contains("--action-clip") {
             // A scene change has a new world/task contract until proven
             // otherwise. Never smuggle the previous controller or action
             // stream into the replacement world based only on a robot label.
@@ -1627,9 +1683,9 @@ private enum TaskRolloutMain {
                     "--motion-feature-trace requires a compiled task motion program."
                 )
             }
-            if options.stateTrace != nil || options.captureDirectory != nil {
-                try context.setStateReadback(true)
-            }
+            let needsStateTrace = options.stateTrace != nil || options.captureDirectory != nil
+            var stateReadbackEnabled = needsStateTrace
+            if stateReadbackEnabled { try context.setStateReadback(true) }
             let streamedActions: [Float]? = try options.actionStream.map {
                 let layout = context.layout
                 let stepEnvironments = options.environments
@@ -1651,6 +1707,10 @@ private enum TaskRolloutMain {
                     expectedCount: elements.partialValue
                 )
             }
+            let actionClip = try options.actionClip.map {
+                try readActionClip(path: $0, actionCount: context.layout.actionCount)
+            }
+            let clipStepCount = actionClip.map { $0.count / context.layout.actionCount }
             var usesCompiledPolicy =
                 options.nativePolicy || options.policyPack != nil
             if let policyPack = options.policyPack {
@@ -2070,6 +2130,9 @@ private enum TaskRolloutMain {
                     "environment=\(options.stateTraceEnvironment)"
                 )
             }
+            var contactTraceLines = [
+                "tick\tactive_contacts\tpeak_normal_force_n\tbody_a\tbody_b",
+            ]
             var motionFeatureTraceLines: [String] = []
             if options.motionFeatureTrace != nil {
                 let traceLayout = context.layout
@@ -2098,12 +2161,15 @@ private enum TaskRolloutMain {
             let interactivePreview = window != nil &&
                 options.rolloutPack == nil &&
                 options.stateTrace == nil &&
+                options.contactTrace == nil &&
                 options.motionFeatureTrace == nil &&
                 options.captureDirectory == nil &&
                 !options.verbose
             var firstPreviewFrameHeld = false
             var restartAwaitingPresentation = false
             var consecutivePreviewRecoveries = 0
+            var nextStateSample = 0.0
+            var contactReadbackEnabled = false
 
             for repeatIndex in 0..<options.repeats {
                 let repeatStart = clock.now
@@ -2120,7 +2186,9 @@ private enum TaskRolloutMain {
                             return installedPolicyRevision
                         }
                     )
-                    if let window, window.takeRestartRequest() {
+                    if let window, window.takeRestartRequest() ||
+                        (interactivePreview && options.loopActionClip && !usesCompiledPolicy &&
+                         !window.isSimulationPaused && globalStep >= (clipStepCount ?? Int.max)) {
                         guard interactivePreview, streamedActions == nil else {
                             window.reportPolicyStatus("Restart is unavailable during this run")
                             continue
@@ -2140,9 +2208,31 @@ private enum TaskRolloutMain {
                         consecutivePreviewRecoveries = 0
                         restartAwaitingPresentation = onRestartPresented != nil
                     }
-                    if window?.isSimulationPaused == true {
+                    let singleStep = window?.takeStepRequest() == true
+                    if window?.isSimulationPaused == true && !singleStep {
                         window?.waitWhileSimulationPaused()
                         continue
+                    }
+                    let batchLimit = min(singleStep ? 1 : options.chunk, options.steps - completed)
+                    let clipRemaining = window == nil ? nil : clipStepCount.map { $0 - globalStep }
+                    let stepCount = if let clipRemaining, clipRemaining > 0 {
+                        min(batchLimit, clipRemaining)
+                    } else {
+                        batchLimit
+                    }
+                    let endsClip = !usesCompiledPolicy && clipRemaining == stepCount
+                    let now = CFAbsoluteTimeGetCurrent()
+                    let sampleState = endsClip || (window?.wantsStateSamples == true &&
+                        (singleStep || now >= nextStateSample))
+                    if stateReadbackEnabled != (needsStateTrace || sampleState) {
+                        stateReadbackEnabled = needsStateTrace || sampleState
+                        try context.setStateReadback(stateReadbackEnabled)
+                    }
+                    let sampleContacts = options.contactTrace != nil ||
+                        (sampleState && options.environments == 1)
+                    if contactReadbackEnabled != sampleContacts {
+                        try context.setContactReadback(sampleContacts)
+                        contactReadbackEnabled = sampleContacts
                     }
                     let presentationBeforeAdvance =
                         window?.presentationCount ?? 0
@@ -2151,10 +2241,6 @@ private enum TaskRolloutMain {
                     // every explicit submission/publication boundary instead
                     // of retaining them for the million-step preview.
                     try autoreleasepool {
-                    let stepCount = min(
-                        options.chunk,
-                        options.steps - completed
-                    )
                     let previewChunkStart = interactivePreview
                         ? CFAbsoluteTimeGetCurrent()
                         : 0
@@ -2189,6 +2275,16 @@ private enum TaskRolloutMain {
                             let end = start + stepCount *
                                 options.environments * actionCount
                             actionBatch = Array(streamedActions[start..<end])
+                        } else if let actionClip {
+                            let width = context.layout.actionCount
+                            let lastFrame = actionClip.count / width - 1
+                            var batch: [Float] = []
+                            batch.reserveCapacity(stepCount * width)
+                            for step in 0..<stepCount {
+                                let start = min(globalStep + step, lastFrame) * width
+                                batch.append(contentsOf: actionClip[start..<(start + width)])
+                            }
+                            actionBatch = batch
                         } else if options.zeroActions {
                             actionBatch = [Float](
                                 repeating: 0,
@@ -2214,6 +2310,38 @@ private enum TaskRolloutMain {
                             controlStepCount: stepCount,
                             policyRevision: 1
                         )
+                    }
+                    let contactSample: MetalRoboTaskContactSample?
+                    if sampleContacts && advance.failedEnvironmentSteps == 0 {
+                        if options.contactTrace != nil {
+                            contactSample = try context.contactSample()
+                        } else {
+                            contactSample = try? context.contactSample()
+                        }
+                    } else {
+                        contactSample = nil
+                    }
+                    if options.contactTrace != nil, let sample = contactSample {
+                        let fields = [
+                            String(globalStep + stepCount), String(sample.active),
+                            String(sample.peakNormalForce), sample.bodyA ?? "", sample.bodyB ?? "",
+                        ]
+                        contactTraceLines.append(fields.joined(separator: "\t"))
+                    }
+                    if sampleState, advance.failedEnvironmentSteps == 0, let window {
+                        let layout = context.layout
+                        let q = Array(try context.finalConfiguration().prefix(min(9, layout.configurationCount)))
+                        let scene = Array(try context.finalSceneStates().prefix(3))
+                        var normal: String?
+                        if let sample = contactSample, let a = sample.bodyA, let b = sample.bodyB {
+                            normal = String(format: "%.2f N", sample.peakNormalForce) + " · \(a) / \(b)"
+                        }
+                        window.reportStateSample(
+                            step: globalStep + stepCount, q: q,
+                            contacts: contactSample?.active, position: scene,
+                            strongestNormal: normal
+                        )
+                        nextStateSample = now + 0.2
                     }
                     try publishInspectionFrame(
                         from: context,
@@ -2301,6 +2429,9 @@ private enum TaskRolloutMain {
                         )
                         completed += stepCount
                         globalStep += stepCount
+                        if endsClip && !options.loopActionClip && advance.failedEnvironmentSteps == 0 {
+                            window?.pauseAfterReplay()
+                        }
 
                         // Match simulated time to wall time. Rendering already
                         // drops stale frames transactionally, but without this
@@ -2839,6 +2970,10 @@ private enum TaskRolloutMain {
                         encoding: .utf8
                     )
             }
+            if let contactTrace = options.contactTrace {
+                try (contactTraceLines.joined(separator: "\n") + "\n")
+                    .write(to: URL(fileURLWithPath: contactTrace), atomically: true, encoding: .utf8)
+            }
             if let motionFeatureTrace = options.motionFeatureTrace {
                 try (motionFeatureTraceLines.joined(separator: "\n") + "\n")
                     .write(
@@ -3154,10 +3289,13 @@ private enum TaskRolloutMain {
                     ? "compiled_policy"
                     : options.zeroActions
                     ? "zero"
+                    : options.actionClip != nil
+                    ? "authored_action_clip"
                     : options.actionStream != nil
                     ? "foundation_action_stream"
                     : "host_stream",
                 "action_stream": options.actionStream ?? "",
+                "action_clip": options.actionClip ?? "",
                 "device": context.deviceName,
                 "solver_mode": "temporal_cone",
                 "articulated_contact_responses":
@@ -3460,13 +3598,46 @@ private enum TaskRolloutMain {
             if bundleDefault, let resources {
                 rawArguments = [rawArguments[0], "--window-default",
                                 "--metallib", resources.appending(path: "MetalRobo.metallib").path,
-                                "--envs", "1", "--steps", "1000000", "--chunk", "4",
-                                "--repeats", "1", "--window-width", "960", "--window-height", "540"]
+                                "--envs", "1", "--steps", "1000000", "--chunk", "2",
+                                "--repeats", "1", "--window-width", "1280", "--window-height", "720"]
             }
-            let sceneChoices = numiWindowSceneCatalog()
+            var sceneChoices = numiWindowSceneCatalog()
+            let headlessScene = rawArguments.contains("--headless")
+            rawArguments.removeAll { $0 == "--headless" }
+            var openedScene: NumiWindowSceneChoice?
+            if let index = rawArguments.firstIndex(of: "--scene-file") {
+                guard index + 1 < rawArguments.count,
+                      let choice = numiWindowReadScene(
+                        at: URL(fileURLWithPath: rawArguments[index + 1])
+                      )
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape("Could not open the Numi scene file.")
+                }
+                rawArguments.removeSubrange(index...(index + 1))
+                sceneChoices.removeAll { $0.id == choice.id }
+                sceneChoices.append(choice)
+                openedScene = choice
+                if let resources, !rawArguments.contains("--metallib") {
+                    rawArguments += ["--metallib", resources.appending(path: "MetalRobo.metallib").path]
+                }
+                // Scene arguments are defaults. Explicit run options such as trace or seed come last.
+                rawArguments.insert(contentsOf: [
+                    "--envs", "1", "--repeats", "1",
+                    "--steps", headlessScene ? "400" : "1000000",
+                    "--chunk", headlessScene ? "1" : "4",
+                ] + choice.launchArguments, at: 1)
+                if !headlessScene {
+                    rawArguments += [
+                        "--window-scene", choice.visualObservationURL.path,
+                        "--window-robot-id", choice.robotID, "--window-choice-id", choice.id,
+                    ]
+                }
+            } else if headlessScene {
+                throw MetalRoboTaskRolloutError.invalidShape("--headless requires --scene-file.")
+            }
             let useCatalogDefault = rawArguments.contains("--window-default")
             rawArguments.removeAll(where: { $0 == "--window-default" })
-            var initialSceneID: String?
+            var initialSceneID: String? = openedScene?.id
             if useCatalogDefault {
                 let starter = bundleDefault ? sceneChoices.first { $0.id == "px4-x500-hover" } : nil
                 guard let choice = starter ?? numiWindowPreferredSceneChoice(sceneChoices) else {
@@ -3515,7 +3686,7 @@ private enum TaskRolloutMain {
                 URL(fileURLWithPath: $0)
             }
             let window = try NumiWindowBridge.launch(
-                canRestart: bundleDefault,
+                canRestart: bundleDefault || openedScene != nil,
                 canReloadLatestPolicy:
                     initialPolicyURL != nil || !policyChoices.isEmpty,
                 policyChoices: policyChoices,
@@ -3525,7 +3696,9 @@ private enum TaskRolloutMain {
             )
             let launchSceneID =
                 initialSceneID ?? options.windowChoiceID ?? ""
+            let startupScenes = sceneChoices
             DispatchQueue.global(qos: .userInitiated).async {
+                var sceneChoices = startupScenes
                 var activeOptions = options
                 var requestedSelection = NumiWindowPolicySelection(
                     choiceID: launchSceneID,
@@ -3689,6 +3862,12 @@ private enum TaskRolloutMain {
                         continue
                     } catch NumiWindowError.reconfigure(let selection) {
                         restoringConfirmedConfiguration = false
+                        if !sceneChoices.contains(where: { $0.id == selection.choiceID }),
+                           let imported = numiWindowSceneCatalog().first(where: {
+                               $0.id == selection.choiceID
+                           }) {
+                            sceneChoices.append(imported)
+                        }
                         guard let choice = sceneChoices.first(where: {
                             $0.id == selection.choiceID
                         }) else {

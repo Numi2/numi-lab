@@ -2059,24 +2059,19 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         );
     }
 
-    const auto parentBody = std::ranges::find(
-        handle.model.bodyNames,
-        program.cameraParentBody
-    );
-    if (parentBody == handle.model.bodyNames.end()) {
-        throw std::invalid_argument(
-            "head-camera parent body is not present in the compiled world"
-        );
-    }
-    const std::uint32_t parentBodyIndex =
-        static_cast<std::uint32_t>(
-            parentBody - handle.model.bodyNames.begin()
-        );
-    if (handle.model.bodies[parentBodyIndex].articulationIndex ==
-        MR_INVALID_INDEX) {
-        throw std::invalid_argument(
-            "visual camera must be attached to an articulated link"
-        );
+    const bool worldCamera = !deviceObservation && program.cameraParentBody == "world";
+    std::uint32_t parentBodyIndex = MR_INVALID_INDEX;
+    std::uint32_t articulationIndex = 0u;
+    if (!worldCamera) {
+        const auto parentBody = std::ranges::find(handle.model.bodyNames, program.cameraParentBody);
+        if (parentBody == handle.model.bodyNames.end()) {
+            throw std::invalid_argument("Camera parent body is absent from the compiled world.");
+        }
+        parentBodyIndex = static_cast<std::uint32_t>(parentBody - handle.model.bodyNames.begin());
+        articulationIndex = handle.model.bodies[parentBodyIndex].articulationIndex;
+        if (articulationIndex == MR_INVALID_INDEX) {
+            throw std::invalid_argument("Visual camera requires an articulated link.");
+        }
     }
 
     const auto sceneIndices = handle.world.sceneBodyIndices();
@@ -2188,7 +2183,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         MR_WORLD_ASSET_ROBOT,
         MR_WORLD_RENDER_MESH_PBR,
         MR_WORLD_DYNAMICS_ARTICULATED,
-        handle.model.bodies[parentBodyIndex].articulationIndex
+        articulationIndex
     ));
 
     std::string manipulatedAsset;
@@ -2270,7 +2265,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     metalrobo::SensorSpec camera;
     camera.id = "head_rgbd";
     camera.parentAssetId = "robot";
-    camera.parentKind = MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK;
+    camera.parentKind = worldCamera ? MR_WORLD_SENSOR_PARENT_WORLD
+        : MR_WORLD_SENSOR_PARENT_ARTICULATED_LINK;
     camera.parentBodyIndex = parentBodyIndex;
     camera.kind = MR_WORLD_SENSOR_RGBD;
     camera.localPose.position = {
@@ -3081,7 +3077,8 @@ static MRTaskRolloutHandle* createFrankaRun(
 
 static MRTaskRolloutHandle* createPX4X500Run(
     const MRTaskRolloutConfigC* config,
-    const char* metallib_path
+    const char* metallib_path,
+    const bool flightDemo
 ) {
     if (config == nullptr) {
         gLastError = "task-rollout config is null.";
@@ -3097,7 +3094,7 @@ static MRTaskRolloutHandle* createPX4X500Run(
             );
         }
         metalrobo::RunManifest manifest;
-        manifest.id = "px4_x500_hover_run";
+        manifest.id = flightDemo ? "px4_x500_flight_demo" : "px4_x500_hover_run";
         manifest.robot = std::move(*robot);
         manifest.scene = metalrobo::makePX4X500HoverScenePack();
         manifest.sensors.id = "px4_x500_state_sensors";
@@ -3105,6 +3102,7 @@ static MRTaskRolloutHandle* createPX4X500Run(
             manifest.sensors.observation,
             manifest.reality.reset
         );
+        if (flightDemo) manifest.reality.reset.operators.clear();
         manifest.reality.id = "px4_x500_nominal_reality";
         manifest.teacher.id = "no_teacher";
         applyRunProfile(manifest, *config);
@@ -3758,9 +3756,11 @@ MRTaskRolloutHandle* mr_create_task_rollout(
         );
         break;
     case MR_RUN_SOURCE_PX4_X500:
+    case MR_RUN_SOURCE_PX4_X500_FLIGHT_DEMO:
         result = createPX4X500Run(
             &manifest->profile,
-            manifest->metallib_path
+            manifest->metallib_path,
+            manifest->source == MR_RUN_SOURCE_PX4_X500_FLIGHT_DEMO
         );
         break;
     case MR_RUN_SOURCE_MEASURED_DOVE:
@@ -4123,6 +4123,58 @@ int mr_task_rollout_set_state_readback(
         return -1;
     }
     handle->stepConfig.publishFinalState = enabled != 0u;
+    gLastError.clear();
+    return 0;
+}
+
+int mr_task_rollout_set_contact_readback(
+    MRTaskRolloutHandle* handle, const uint32_t enabled
+) {
+    if (!requireTaskRolloutHandle(handle)) return -1;
+    if (enabled > 1u || (enabled != 0u && handle->environmentCount != 1u)) {
+        gLastError = "Contact readback requires one environment.";
+        return -1;
+    }
+    handle->stepConfig.captureContactEvidence = enabled != 0u;
+    gLastError.clear();
+    return 0;
+}
+
+int mr_task_rollout_contact_sample(
+    const MRTaskRolloutHandle* handle, MRTaskContactSampleC* sample
+) {
+    if (!requireTaskRolloutHandle(handle)) return -1;
+    if (sample == nullptr || !handle->stepConfig.captureContactEvidence ||
+        handle->result.contactStatuses.empty()) {
+        gLastError = "Contact sample is unavailable.";
+        return -1;
+    }
+    const auto& status = handle->result.contactStatuses.back();
+    const auto& contacts = handle->result.contactEvidence.contacts;
+    const float dt = handle->stepConfig.timestepSeconds /
+        static_cast<float>(handle->stepConfig.physicsSubsteps);
+    if (status.code != 0u || status.activeContacts > contacts.size() || !(dt > 0.0f)) {
+        gLastError = "Contact sample has no accepted physics substep.";
+        return -1;
+    }
+    *sample = {};
+    sample->active_contacts = status.activeContacts;
+    const auto firstScene = handle->world.sceneBodyIndices();
+    for (std::size_t index = 0; index < status.activeContacts; ++index) {
+        const auto& contact = contacts[index];
+        if (!firstScene.empty() && firstScene.front() != contact.bodyA &&
+            firstScene.front() != contact.bodyB) {
+            continue;
+        }
+        const float force = contact.impulses.x / dt;
+        if (std::isfinite(force) && force > sample->strongest_normal_force_newtons &&
+            contact.bodyA < handle->model.bodyNames.size() &&
+            contact.bodyB < handle->model.bodyNames.size()) {
+            sample->strongest_normal_force_newtons = force;
+            sample->body_a = handle->model.bodyNames[contact.bodyA].c_str();
+            sample->body_b = handle->model.bodyNames[contact.bodyB].c_str();
+        }
+    }
     gLastError.clear();
     return 0;
 }

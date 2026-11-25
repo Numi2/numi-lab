@@ -1,4 +1,5 @@
 #include "metalrobo/MetalRunInspector.hpp"
+#include "metalrobo/multicopter_types.h"
 
 #import <Metal/Metal.h>
 
@@ -61,6 +62,8 @@ struct MetalRunInspectorState
     std::uint32_t usableSlotCount = 0u;
     std::uint32_t width = 0u;
     std::uint32_t height = 0u;
+    __strong id<MTLBuffer> rotorPhase = nil;
+    float pendingRotorSeconds = 0.0f;
 
     [[nodiscard]] bool ensureBuffers(id<MTLDevice> device) {
         if (device == nil || width == 0u || height == 0u) {
@@ -310,6 +313,9 @@ bool MetalRunInspector::encodeInspection(
     if (!state->enabled.load(std::memory_order_acquire)) {
         return true;
     }
+    if (pass.multicopterMotors != nullptr) {
+        state->pendingRotorSeconds += pass.controlStepCount * pass.controlTimestepSeconds;
+    }
 
     std::uint32_t slotIndex = MR_INVALID_INDEX;
     for (std::uint32_t index = 0u; index < state->usableSlotCount; ++index) {
@@ -373,6 +379,21 @@ bool MetalRunInspector::encodeInspection(
         liveState.frameIndex
     );
     liveState.source = MR_VISUAL_SOURCE_SIMULATION;
+    if (pass.multicopterMotors != nullptr) {
+        if (state->rotorPhase == nil) {
+            const mr_float4 initialPhase{};
+            state->rotorPhase = [currentBodies.device newBufferWithBytes:&initialPhase
+                length:sizeof(initialPhase) options:MTLResourceStorageModeShared];
+        }
+        if (state->rotorPhase != nil) {
+            liveState.inspectionMotors = pass.multicopterMotors;
+            liveState.inspectionRotorPhase = (__bridge void*)state->rotorPhase;
+            liveState.inspectionMotorOffset =
+                state->config.environmentIndex * sizeof(MRMulticopterStateGPU);
+            liveState.inspectionElapsedSeconds = state->pendingRotorSeconds;
+            state->pendingRotorSeconds = 0.0f;
+        }
+    }
     liveState.cameraTranslationAndEnabled = {
         state->cameraTranslation[0].load(std::memory_order_acquire),
         state->cameraTranslation[1].load(std::memory_order_acquire),

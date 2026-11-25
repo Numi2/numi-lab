@@ -35,14 +35,17 @@ set(numi_mac_scene "${numi_mac_resources}/Scenes")
 set(numi_mac_model "${CMAKE_CURRENT_SOURCE_DIR}/assets/window")
 add_custom_command(
     OUTPUT "${numi_mac_scene}/catalog.version"
+    COMMAND "${CMAKE_COMMAND}" -E rm -rf "${numi_mac_scene}"
     COMMAND $<TARGET_FILE:metalrobo_numi_window_catalog_compile>
             --starter --workspace "${CMAKE_CURRENT_SOURCE_DIR}"
             --output "${numi_mac_scene}"
     DEPENDS metalrobo_numi_window_catalog_compile
             "${numi_mac_model}/px4-x500-starter.urdf"
-            "${numi_mac_model}/body.stl"
-            "${numi_mac_model}/arm.stl"
-            "${numi_mac_model}/blade.stl"
+            "${numi_mac_model}/px4-x500.glb"
+            "${numi_mac_model}/px4-x500-rotor-0.glb"
+            "${numi_mac_model}/px4-x500-rotor-1.glb"
+            "${numi_mac_model}/px4-x500-rotor-2.glb"
+            "${numi_mac_model}/px4-x500-rotor-3.glb"
     VERBATIM
 )
 
@@ -64,6 +67,9 @@ add_custom_target(numi_lab_macos DEPENDS
 install(TARGETS metalrobo_task_rollout
     RUNTIME DESTINATION "${numi_mac_contents}/MacOS"
     COMPONENT NumiLabMac EXCLUDE_FROM_ALL)
+install(TARGETS metalrobo_numi_window_catalog_compile
+    RUNTIME DESTINATION "${numi_mac_contents}/Helpers"
+    COMPONENT NumiLabMac EXCLUDE_FROM_ALL)
 install(TARGETS metalrobo
     LIBRARY DESTINATION "${numi_mac_contents}/Frameworks"
     COMPONENT NumiLabMac EXCLUDE_FROM_ALL)
@@ -73,6 +79,7 @@ install(FILES "${numi_mac_resources}/Info.plist"
 install(FILES "${METALROBO_METALLIB}" "${numi_mac_pipeline_archive}"
     "${numi_mac_resources}/NumiLab.icns" THIRD_PARTY_NOTICES.md
     licenses/CISST_LICENSE.txt
+    licenses/PX4_X500_BSD_LICENSE.txt
     examples/plastic_bag_franka/approved_20261024/source/LIBCCD-BSD-LICENSE.txt
     DESTINATION "${numi_mac_contents}/Resources"
     COMPONENT NumiLabMac EXCLUDE_FROM_ALL)

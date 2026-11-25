@@ -1,19 +1,27 @@
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/G1.hpp"
 #include "metalrobo/LocomotionWorld.hpp"
+#include "metalrobo/LearningPacks.hpp"
+#include "metalrobo/WorldPack.hpp"
+
+#include <CommonCrypto/CommonDigest.h>
 #include "metalrobo/RunProgram.hpp"
 #include "metalrobo/VisualPresentation.hpp"
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <map>
+#include <memory>
+#include <numbers>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -28,6 +36,8 @@ using metalrobo::EngineModel;
 struct Arguments {
     std::filesystem::path workspace;
     std::filesystem::path output;
+    std::filesystem::path pandaModel;
+    std::filesystem::path metallib;
     bool starter = false;
 };
 
@@ -37,20 +47,27 @@ Arguments arguments(const int argc, const char* const* argv) {
         const std::string_view option{argv[index]};
         if (option == "--starter") {
             result.starter = true;
-        } else if (option == "--workspace" || option == "--output") {
+        } else if (option == "--workspace" || option == "--output" ||
+                   option == "--panda-model" || option == "--metallib") {
             if (++index == argc) {
                 throw std::invalid_argument("missing value for " +
                     std::string{option});
             }
-            (option == "--workspace" ? result.workspace : result.output) =
-                argv[index];
+            if (option == "--workspace") result.workspace = argv[index];
+            else if (option == "--output") result.output = argv[index];
+            else if (option == "--panda-model") result.pandaModel = argv[index];
+            else result.metallib = argv[index];
         } else {
             throw std::invalid_argument("unknown option " +
                 std::string{option});
         }
     }
-    if (result.workspace.empty() || result.output.empty()) {
-        throw std::invalid_argument("--workspace and --output are required");
+    if (result.output.empty() ||
+        (result.pandaModel.empty() && result.workspace.empty()) ||
+        (!result.pandaModel.empty() && result.starter)) {
+        throw std::invalid_argument(
+            "Specify --output and either --workspace [--starter] or --panda-model."
+        );
     }
     return result;
 }
@@ -699,13 +716,14 @@ void cookPresentation(
     const std::filesystem::path& output,
     const std::array<float, 3u>& position,
     const std::array<float, 4u>& orientation,
-    const std::string_view deformableSourceFilename = {}
+    const std::string_view deformableSourceFilename = {},
+    metalrobo::VisualAssetCookOptions options = {}
 ) {
-    metalrobo::VisualAssetCookOptions options;
     options.id = id;
-    options.license = "NOASSERTION";
-    options.preprocessingProvenance =
-        "Numi Window source-authored robot catalog";
+    if (options.license == "NOASSERTION") {
+        options.preprocessingProvenance =
+            "Numi Window source-authored robot catalog";
+    }
     for (std::uint32_t body = 0u; body < model.bodyNames.size(); ++body) {
         options.linkBodyIndices.emplace(model.bodyNames[body], body);
         options.linkCenterOfMassOffsets.emplace(
@@ -727,15 +745,28 @@ void cookPresentation(
            << "  \"packs\": [\n";
     std::uint32_t deformablePackCount = 0u;
     for (std::size_t index = 0u; index < packs.size(); ++index) {
+        auto& pack = packs[index];
+        const auto source = std::filesystem::path{pack.sourceUri}.filename().string();
+        if (id == "px4-x500") {
+            for (std::uint32_t rotor = 0u; rotor < 4u; ++rotor) {
+                if (source != "px4-x500-rotor-" + std::to_string(rotor) + ".glb") {
+                    continue;
+                }
+                for (auto& instance : pack.instances) {
+                    instance.binding.w |= MR_VISUAL_INSTANCE_INSPECTION_X500_ROTOR |
+                        (rotor << MR_VISUAL_X500_ROTOR_INDEX_SHIFT);
+                }
+                pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
+            }
+        }
         const auto path = visualDirectory /
-            (packs[index].id + "_" + std::to_string(index) + ".mrvpack");
+            (pack.id + "_" + std::to_string(index) + ".mrvpack");
         std::string reason;
-        if (!metalrobo::writeVisualAssetPack(packs[index], path, &reason)) {
+        if (!metalrobo::writeVisualAssetPack(pack, path, &reason)) {
             throw std::runtime_error("could not write visual pack: " + reason);
         }
         const bool deformable = !deformableSourceFilename.empty() &&
-            std::filesystem::path{packs[index].sourceUri}.filename().string() ==
-                deformableSourceFilename;
+            source == deformableSourceFilename;
         deformablePackCount += deformable ? 1u : 0u;
         config << "    {\"path\": \"visual/" << path.filename().string()
                << "\", \"asset_id\": \"robot\", \"semantic_id\": "
@@ -828,11 +859,399 @@ void writeX500HoverScene(const std::filesystem::path& output) {
          "--zero-actions"});
 }
 
+void writeX500FlightPreview(const std::filesystem::path& output) {
+    constexpr unsigned ticks = 300u;
+    constexpr float duration = 6.0f;
+    constexpr float frequency = std::numbers::pi_v<float> / duration;
+    const auto robot = metalrobo::builtinRobotPack("px4_x500").value();
+    const float hover = robot.multicopter->mixer.hoverAndScales.x;
+    const float collectiveScale = robot.multicopter->mixer.hoverAndScales.y;
+    std::ofstream clip{output / "px4-x500-flight.actions.f32", std::ios::binary};
+    for (unsigned tick = 0u; tick < ticks; ++tick) {
+        const float progress = std::numbers::pi_v<float> *
+            (static_cast<float>(tick) + 0.5f) / static_cast<float>(ticks);
+        const float sinSquared = std::pow(std::sin(progress), 2.0f);
+        // Acceleration profile of a 0.55 m climb and descent with zero
+        // velocity and acceleration at both ends.
+        const float shape = frequency * frequency * sinSquared * (12.0f - 16.0f * sinSquared);
+        const float speed = hover * std::sqrt(1.0f + (0.55f * shape - 0.003f) / 9.81f);
+        const std::array actions{(speed - hover) / collectiveScale, 0.0f, 0.0f, 0.72f * shape};
+        clip.write(reinterpret_cast<const char*>(actions.data()), sizeof(actions));
+    }
+    clip.close();
+    if (!clip) throw std::runtime_error("Could not write the X500 flight preview clip.");
+    scene(output, "px4-x500-hover", "px4-x500", "PX4 X500 Drone",
+        "flight-area", "Flight Test Area", "flight-demo", "Flight Demo",
+        "px4-x500-ground-visual-observation.json",
+        {"--robot-source", "px4-x500-flight-demo", "--scene", "ground",
+         "--no-scheduled-resets", "--action-clip", "px4-x500-flight.actions.f32",
+         "--loop-action-clip"});
+}
+
+constexpr std::string_view pandaRevision =
+    "eea4c7431b63da8278b0ff31638e0b0e941cec0e";
+
+std::string checkedPandaXML(
+    const std::filesystem::path& path,
+    const std::string_view expectedHash
+) {
+    if (!std::filesystem::is_regular_file(path) ||
+        std::filesystem::file_size(path) > 65536u) {
+        throw std::runtime_error("Choose the stock Menagerie panda.xml or scene.xml.");
+    }
+    std::ifstream input{path, std::ios::binary};
+    std::string contents(65537u, '\0');
+    input.read(contents.data(), static_cast<std::streamsize>(contents.size()));
+    contents.resize(static_cast<std::size_t>(input.gcount()));
+    std::array<unsigned char, CC_SHA256_DIGEST_LENGTH> digest{};
+    CC_SHA256(contents.data(), static_cast<CC_LONG>(contents.size()), digest.data());
+    std::ostringstream hash;
+    hash << std::hex << std::setfill('0');
+    for (const unsigned char byte : digest) hash << std::setw(2) << unsigned(byte);
+    if (hash.str() != expectedHash) {
+        throw std::runtime_error(
+            "Unsupported Panda MJCF revision. Choose an unmodified model from "
+            "MuJoCo Menagerie commit " + std::string{pandaRevision} + ".");
+    }
+    return contents;
+}
+
+void writePandaVisualDescription(
+    const std::filesystem::path& selection,
+    const std::filesystem::path& output
+) {
+    const auto folder = std::filesystem::canonical(selection.parent_path());
+    const bool sceneSelected = selection.filename() == "scene.xml";
+    if (sceneSelected) {
+        (void)checkedPandaXML(selection,
+            "d3933265c01e4301f192163364b2389013c283a9b1645ab158da8a5d837789a7");
+    }
+    const std::string xml = checkedPandaXML(sceneSelected ? folder / "panda.xml" : selection,
+        "c047a49f3c770ff2393e2a74f7e0fbd9d99080a305407254f8ff53ac053cde3b");
+    const std::unique_ptr<xmlDoc, decltype(&xmlFreeDoc)> source{
+        xmlReadMemory(xml.data(), static_cast<int>(xml.size()), nullptr,
+            nullptr, XML_PARSE_NONET), xmlFreeDoc};
+    if (!source) throw std::runtime_error("Could not read Panda MJCF.");
+    xmlNodePtr root = xmlDocGetRootElement(source.get());
+    const auto assetFolder = folder /
+        xmlProperty(xmlChild(root, "compiler"), "meshdir").value_or("assets");
+    std::map<std::string, std::filesystem::path> meshes;
+    std::map<std::string, std::string> materials;
+    for (xmlNodePtr node = xmlChild(root, "asset")->children;
+         node != nullptr; node = node->next) {
+        if (node->type != XML_ELEMENT_NODE) continue;
+        if (xmlStrEqual(node->name, BAD_CAST "mesh")) {
+            const std::filesystem::path file = xmlProperty(node, "file").value();
+            meshes.emplace(xmlProperty(node, "name").value_or(file.stem().string()), file);
+        } else if (xmlStrEqual(node->name, BAD_CAST "material")) {
+            materials.emplace(xmlProperty(node, "name").value(),
+                xmlProperty(node, "rgba").value());
+        }
+    }
+
+    const std::unique_ptr<xmlDoc, decltype(&xmlFreeDoc)> visual{
+        xmlNewDoc(BAD_CAST "1.0"), xmlFreeDoc};
+    xmlNodePtr robot = xmlNewNode(nullptr, BAD_CAST "robot");
+    xmlDocSetRootElement(visual.get(), robot);
+    xmlNewProp(robot, BAD_CAST "name", BAD_CAST "panda_menagerie");
+
+    const auto addBody = [&](auto&& visit, xmlNodePtr body) -> void {
+        const std::string name = xmlProperty(body, "name").value();
+        const std::string nativeName = name == "left_finger" ? "panda_leftfinger"
+            : name == "right_finger" ? "panda_rightfinger" : "panda_" + name;
+        xmlNodePtr link = xmlNewChild(robot, nullptr, BAD_CAST "link", nullptr);
+        xmlNewProp(link, BAD_CAST "name", BAD_CAST nativeName.c_str());
+        for (xmlNodePtr child = body->children; child != nullptr; child = child->next) {
+            if (child->type != XML_ELEMENT_NODE) continue;
+            if (xmlStrEqual(child->name, BAD_CAST "body")) {
+                visit(visit, child);
+            } else if (xmlStrEqual(child->name, BAD_CAST "geom") &&
+                       xmlProperty(child, "class") == "visual") {
+                const auto relative = meshes.at(xmlProperty(child, "mesh").value());
+                const auto path = assetFolder / relative;
+                if (!std::filesystem::is_regular_file(path) ||
+                    std::filesystem::canonical(path).parent_path() != assetFolder ||
+                    std::filesystem::file_size(path) > 8u * 1024u * 1024u) {
+                    throw std::runtime_error("Missing or invalid Panda mesh " +
+                        relative.string() + ". Keep the stock assets folder beside the XML.");
+                }
+                xmlNodePtr part = xmlNewChild(link, nullptr, BAD_CAST "visual", nullptr);
+                xmlNodePtr geometry = xmlNewChild(part, nullptr, BAD_CAST "geometry", nullptr);
+                xmlNodePtr mesh = xmlNewChild(geometry, nullptr, BAD_CAST "mesh", nullptr);
+                xmlNewProp(mesh, BAD_CAST "filename", BAD_CAST path.c_str());
+                xmlNodePtr material = xmlNewChild(part, nullptr, BAD_CAST "material", nullptr);
+                xmlNodePtr color = xmlNewChild(material, nullptr, BAD_CAST "color", nullptr);
+                const std::string& rgba = materials.at(xmlProperty(child, "material").value());
+                xmlNewProp(color, BAD_CAST "rgba", BAD_CAST rgba.c_str());
+            }
+        }
+    };
+    addBody(addBody, xmlChild(xmlChild(root, "worldbody"), "body"));
+    if (xmlSaveFormatFileEnc(output.c_str(), visual.get(), "UTF-8", 1) < 0) {
+        throw std::runtime_error("Could not write Panda presentation description.");
+    }
+}
+
+void requirePandaPack(const auto& result) {
+    if (!result.succeeded()) {
+        throw std::runtime_error("Panda tabletop compilation failed: " + result.message);
+    }
+}
+
+// Native nominal home and scale are taken from the WorldPack and its actuators.
+// This clip uses control ticks at 50 Hz with zero endpoint velocity/acceleration.
+void writePandaClip(
+    const std::filesystem::path& output,
+    const std::vector<float>& home,
+    const std::vector<metalrobo::RobotActuatorSpec>& actuators
+) {
+    struct Keyframe {
+        unsigned tick;
+        float shoulder, elbow, wrist, finger;
+    };
+    constexpr std::array<Keyframe, 9u> keys{{
+        {35, -0.7853982f, -2.3561945f, 1.5707963f, 0.039f},
+        {75, 0.0855445f, -2.3873337f, 2.4728781f, 0.039f},
+        {115, 0.3361294f, -2.3918243f, 2.7279537f, 0.039f},
+        {150, 0.4587454f, -2.3658219f, 2.8245673f, 0.039f},
+        {185, 0.4587454f, -2.3658219f, 2.8245673f, 0.006f},
+        {225, 0.4587454f, -2.3658219f, 2.8245673f, 0.006f},
+        {275, 0.2712647f, -2.3990754f, 2.6703400f, 0.006f},
+        {310, 0.1283840f, -2.3952529f, 2.5236369f, 0.006f},
+        {370, 0.1283840f, -2.3952529f, 2.5236369f, 0.006f},
+    }};
+    if (home.size() != 9u || actuators.size() != home.size()) {
+        throw std::runtime_error("Panda clip requires seven arm joints and two fingers.");
+    }
+    std::ofstream clip{output / "tabletop.actions.f32", std::ios::binary};
+    std::ofstream targets{output / "tabletop.targets.csv"};
+    targets << std::setprecision(std::numeric_limits<float>::max_digits10);
+    targets << "tick,joint1,joint2,joint3,joint4,joint5,joint6,joint7,"
+               "finger_joint1,finger_joint2\n";
+    std::vector<float> previous = home;
+    unsigned previousTick = 0;
+    for (const Keyframe& key : keys) {
+        const std::array<float, 9u> goal{
+            0.0f, key.shoulder, 0.0f, key.elbow, 0.0f, key.wrist,
+            0.785398163f, key.finger, key.finger,
+        };
+        for (unsigned tick = previousTick + 1; tick <= key.tick; ++tick) {
+            const float t = static_cast<float>(tick - previousTick) /
+                static_cast<float>(key.tick - previousTick);
+            const float blend = t * t * t * (10.0f + t * (-15.0f + 6.0f * t));
+            targets << tick;
+            for (std::size_t joint = 0; joint < goal.size(); ++joint) {
+                const float q = std::lerp(previous[joint], goal[joint], blend);
+                const float action = (q - home[joint]) / actuators[joint].scale;
+                if (std::abs(action) > 1.0f) {
+                    throw std::runtime_error("Panda clip target exceeds actuator range.");
+                }
+                clip.write(reinterpret_cast<const char*>(&action), sizeof(action));
+                targets << ',' << q;
+            }
+            targets << '\n';
+        }
+        previous.assign(goal.begin(), goal.end());
+        previousTick = key.tick;
+    }
+    clip.close();
+    targets.close();
+    if (!clip || !targets) throw std::runtime_error("Could not write Panda clip.");
+}
+
+void writeBoxOBJ(const std::filesystem::path& path, mr_float4 half) {
+    std::ofstream stream{path};
+    const std::array<float, 3> extents{half.x, half.y, half.z};
+    for (unsigned corner = 0u; corner < 8u; ++corner) {
+        stream << "v";
+        for (unsigned axis = 0u; axis < extents.size(); ++axis) {
+            stream << ' ' << (corner & (1u << axis) ? extents[axis] : -extents[axis]);
+        }
+        stream << '\n';
+    }
+    stream << "f 1 3 4 2\nf 5 6 8 7\nf 1 2 6 5\nf 3 7 8 4\n"
+              "f 1 5 7 3\nf 2 4 8 6\n";
+    stream.close();
+    if (!stream) throw std::runtime_error("Could not write tabletop box geometry.");
+}
+
+void writePandaTabletop(const Arguments& options) {
+    if (std::filesystem::exists(options.output) &&
+        !std::filesystem::is_empty(options.output)) {
+        throw std::runtime_error("Panda tabletop requires an empty output directory.");
+    }
+    std::filesystem::create_directories(options.output);
+    const auto output = std::filesystem::canonical(options.output);
+    const auto visualDescription = output / "panda-visual.urdf";
+    writePandaVisualDescription(
+        std::filesystem::absolute(options.pandaModel).lexically_normal(), visualDescription);
+
+    EngineModel mechanics = metalrobo::makeFrankaPickPlaceEngineModel();
+    // Anchor the fixed mount at the stock MJCF link origin. The solver places
+    // a fixed root at zero, so express its joint, collision, and visual frames
+    // relative to the link origin for this scene.
+    const auto root = mechanics.articulations.front().rootBody;
+    const auto center = mechanics.bodies.at(root).centerOfMass;
+    for (auto& joint : mechanics.joints) {
+        if (joint.parentBody == root) {
+            joint.parentAnchor.x += center.x;
+            joint.parentAnchor.y += center.y;
+            joint.parentAnchor.z += center.z;
+        }
+    }
+    mechanics.bodies[root].centerOfMass = {};
+    // The authored cube is a fingertip grasp fixture. Broad arm proxies
+    // remain available to the rest of the workcell, but cannot lift the cube.
+    constexpr std::uint32_t fingertips = 8u;
+    for (auto& shape : mechanics.shapes) {
+        if (shape.bodyIndex == root) {
+            shape.localPosition.x += center.x;
+            shape.localPosition.y += center.y;
+            shape.localPosition.z += center.z;
+        }
+        const std::string& body = mechanics.bodyNames.at(shape.bodyIndex);
+        if (body == "panda_leftfinger" || body == "panda_rightfinger") {
+            shape.collisionGroup |= fingertips;
+        } else if (body == "pick_object") {
+            shape.collisionMask = 1u | 4u | fingertips;
+        }
+    }
+    auto episode = metalrobo::makeFrankaPickPlaceEpisodeTwin();
+    episode.id = "panda_tabletop_v1";
+    episode.artifacts.clear();
+    episode.sensors.clear();
+    episode.task.controlPeriodSeconds = 0.02;
+    metalrobo::WorldTemplate world;
+    requirePandaPack(metalrobo::compileEpisodeTwin(episode, mechanics, world));
+    metalrobo::WorldProgram program;
+    program.id = "panda_tabletop_nominal";
+    metalrobo::WorldFamily family;
+    requirePandaPack(metalrobo::compileWorldFamily(world, program, family));
+    metalrobo::MRWorldPack worldPack;
+    requirePandaPack(metalrobo::compileWorldPack(family, worldPack));
+    requirePandaPack(metalrobo::writeWorldPack(worldPack, output / "tabletop.worldpack"));
+
+    metalrobo::TaskObservationProgram observations;
+    metalrobo::TaskResetProgram reset;
+    auto task = metalrobo::makeFrankaPickPlaceTaskPack(observations, reset);
+    task.id = "panda_tabletop_v1";
+    auto robot = metalrobo::builtinRobotPack("franka_panda").value();
+    constexpr std::array<float, 7> armStiffness{4500, 4500, 3500, 3500, 2000, 2000, 2000};
+    for (std::size_t index = 0; index < robot.actuators.size(); ++index) {
+        auto& actuator = robot.actuators[index];
+        actuator.scale = actuator.kind == metalrobo::RobotActuatorKind::gripperPosition
+            ? 0.04f : 2.5f;
+        if (index < armStiffness.size()) {
+            const float stiffness = armStiffness[index];
+            actuator.parameters = {stiffness, stiffness / 10.0f, 0, 0};
+        }
+    }
+    writePandaClip(output, mechanics.defaultQ, robot.actuators);
+    requirePandaPack(metalrobo::writeTaskPack(task, output / "tabletop.taskpack"));
+    requirePandaPack(metalrobo::writeRobotActuatorPack(
+        {.id = "panda_tabletop_actuators", .actuators = std::move(robot.actuators)},
+        output / "tabletop.actuators"));
+    requirePandaPack(metalrobo::writeSensorProgramPack(
+        {.id = "panda_tabletop_sensors", .observation = std::move(observations)},
+        output / "tabletop.sensors"));
+    requirePandaPack(metalrobo::writeRealityProgramPack(
+        {.id = "panda_tabletop_nominal", .program = std::move(program),
+         .sourceProgramFingerprint = family.program.fingerprint},
+        output / "tabletop.reality"));
+    metalrobo::VisualAssetCookOptions visual;
+    visual.license = "Apache-2.0";
+    visual.preprocessingProvenance = "MuJoCo Menagerie Panda " + std::string{pandaRevision};
+    visual.metallibPath = options.metallib;
+    cookPresentation(visualDescription, mechanics, "panda-tabletop", "panda_link0",
+        output, {0.88f, -0.58f, 0.37f},
+        {-0.73858354f, -0.26102070f, 0.20711737f, 0.58605883f},
+        {}, std::move(visual));
+    const std::string config = "panda-tabletop-visual-observation.json";
+    const auto ground = surfacePresentation(false);
+    writeSurfacePresentation(output, config, "ground", "workspace", ground);
+    const auto tabletopConfig = output / "panda-tabletop-ground-visual-observation.json";
+    std::ifstream input{tabletopConfig};
+    std::string contents{std::istreambuf_iterator<char>(input), {}};
+    input.close();
+    const std::string marker = "  \"packs\": [\n";
+    const auto offset = contents.find(marker);
+    if (offset == std::string::npos) {
+        throw std::runtime_error("Panda visual config has no pack table.");
+    }
+    constexpr std::array boxNames{"pick_object", "target_fixture", "clutter"};
+    constexpr std::array<mr_float4, 3u> colors{{
+        {0.82f, 0.19f, 0.045f, 1.0f},
+        {0.09f, 0.43f, 0.25f, 1.0f},
+        {0.09f, 0.28f, 0.62f, 1.0f},
+    }};
+    for (unsigned index = 0u; index < boxNames.size(); ++index) {
+        const std::string box = boxNames[index];
+        const auto body = std::ranges::find(mechanics.bodyNames, box);
+        const auto bodyIndex = std::distance(mechanics.bodyNames.begin(), body);
+        const auto shape = std::ranges::find_if(mechanics.shapes, [&](const auto& candidate) {
+            return candidate.bodyIndex == bodyIndex && candidate.shapeType == MR_SHAPE_BOX;
+        });
+        if (body == mechanics.bodyNames.end() || shape == mechanics.shapes.end()) {
+            throw std::runtime_error("Panda tabletop box is unresolved: " + box);
+        }
+        const auto mesh = output / (box + ".obj");
+        writeBoxOBJ(mesh, shape->dimensions);
+        metalrobo::VisualAssetCookOptions boxOptions;
+        boxOptions.id = box;
+        boxOptions.metallibPath = options.metallib;
+        metalrobo::VisualAssetPackV2 pack;
+        requirePandaPack(metalrobo::cookVisualAsset(mesh, pack, boxOptions));
+        const auto visualBody = static_cast<std::uint32_t>(bodyIndex);
+        for (auto& instance : pack.instances) {
+            instance.binding.y = visualBody;
+            instance.binding.z = MR_VISUAL_BINDING_RIGID_BODY;
+            instance.identity.z = visualBody;
+        }
+        for (auto& binding : pack.symbolicBindings) {
+            binding.link = box;
+            binding.bodyIndex = visualBody;
+            binding.binding = MR_VISUAL_BINDING_RIGID_BODY;
+        }
+        for (auto& material : pack.materials) {
+            material.baseColorAndOpacity = colors[index];
+        }
+        pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
+        std::filesystem::remove(mesh);
+        std::string error;
+        const std::string filename = box + ".mrvpack";
+        if (!metalrobo::writeVisualAssetPack(pack, output / "visual" / filename, &error)) {
+            throw std::runtime_error("Could not write tabletop " + box + ": " + error);
+        }
+        const std::string instance = std::to_string(index + 3u);
+        contents.insert(offset + marker.size(),
+            "    {\"path\": \"visual/" + filename + "\", \"asset_id\": \"" + box +
+            "\", \"semantic_id\": " + instance + ", \"instance_id\": " + instance + "},\n");
+    }
+    std::ofstream tabletopVisual{tabletopConfig};
+    tabletopVisual << contents;
+    tabletopVisual.close();
+    if (!tabletopVisual) throw std::runtime_error("Could not write Panda tabletop presentation.");
+    std::filesystem::remove(visualDescription);
+    std::filesystem::remove(output / config);
+    scene(output, "panda-tabletop", "panda-tabletop", "Franka Panda",
+        "tabletop", "Tabletop", "grasp", "Tabletop Grasp",
+        "panda-tabletop-ground-visual-observation.json",
+        {"--world-pack", "tabletop.worldpack", "--task-pack", "tabletop.taskpack",
+         "--robot-actuator-pack", "tabletop.actuators",
+         "--sensor-program-pack", "tabletop.sensors",
+         "--reality-program-pack", "tabletop.reality", "--no-scheduled-resets",
+         "--action-clip", "tabletop.actions.f32"});
+}
+
 } // namespace
 
 int main(const int argc, const char* const* argv) {
     try {
         const Arguments options = arguments(argc, argv);
+        if (!options.pandaModel.empty()) {
+            writePandaTabletop(options);
+            return 0;
+        }
         std::filesystem::create_directories(options.output);
         std::filesystem::remove(options.output / "catalog.version");
         for (const auto& entry :
@@ -853,10 +1272,15 @@ int main(const int argc, const char* const* argv) {
         if (options.starter) {
             const auto urdf = options.workspace /
                 "assets/window/px4-x500-starter.urdf";
-            cookPresentation(urdf, px4Pack->mechanics, "px4-x500", "x500_base",
-                options.output, {0.48f, -0.64f, 0.23f}, cameraQ);
-            writeX500HoverScene(options.output);
-            writeCatalogVersion(options.output, "starter-1");
+            metalrobo::VisualAssetCookOptions visual;
+            visual.license = "BSD-3-Clause";
+            visual.preprocessingProvenance = "PX4-gazebo-models e00d3b9cde682dbcb3bf6f30a2f2b8ef4325dae8";
+            cookPresentation(urdf, px4Pack->mechanics, "px4-x500", "world",
+                options.output, {0.78f, -1.03f, 2.59f}, cameraQ, {}, std::move(visual));
+            writeSurfacePresentation(options.output, "px4-x500-visual-observation.json",
+                "ground", "locomotion_ground", surfacePresentation(false));
+            writeX500FlightPreview(options.output);
+            writeCatalogVersion(options.output, "starter-2");
             std::cout << "wrote Numi Window starter catalog "
                       << options.output << '\n';
             return 0;

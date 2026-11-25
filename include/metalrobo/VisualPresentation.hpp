@@ -283,6 +283,7 @@ struct VisualAssetCookOptions {
     bool generateTangents = true;
     bool generateMipmaps = true;
     bool preserveVertexColors = true;
+    std::filesystem::path metallibPath;
     std::map<std::string, std::uint32_t> linkBodyIndices;
     // Articulated runtime poses are body center-of-mass poses.  A URDF mesh
     // is authored in its link-origin frame, so a bound visual needs this

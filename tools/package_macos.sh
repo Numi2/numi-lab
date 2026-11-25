@@ -29,6 +29,7 @@ cmake --install "$build" --prefix "$stage" --component NumiLabMac
 
 app="$stage/Numi Lab.app"
 library="$app/Contents/Frameworks/libmetalrobo.dylib"
+catalog_compiler="$app/Contents/Helpers/metalrobo_numi_window_catalog_compile"
 xattr -cr "$app"
 [ "$(lipo -archs "$app/Contents/MacOS/metalrobo_task_rollout")" = arm64 ]
 [ "$(lipo -archs "$library")" = arm64 ]
@@ -36,10 +37,12 @@ version=$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Co
 name="Numi-Lab-$version-macOS-arm64"
 if [ -n "$identity" ]; then
     codesign --force --options runtime --timestamp --sign "$identity" "$library"
+    codesign --force --options runtime --timestamp --sign "$identity" "$catalog_compiler"
     codesign --force --options runtime --timestamp --sign "$identity" "$app"
 else
     name="$name-local-preview"
     codesign --force --sign - "$library"
+    codesign --force --sign - "$catalog_compiler"
     codesign --force --sign - "$app"
 fi
 codesign --verify --deep --strict "$app"

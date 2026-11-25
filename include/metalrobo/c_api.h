@@ -191,6 +191,7 @@ enum MRRunManifestSourceC {
     MR_RUN_SOURCE_NUMIFLY = 6u,
     MR_RUN_SOURCE_NUMIFLY_NO_LEGS = 7u,
     MR_RUN_SOURCE_NUMIFLY_FORWARD_FLIGHT = 8u,
+    MR_RUN_SOURCE_PX4_X500_FLIGHT_DEMO = 9u,
 };
 
 enum MRMeasuredSurfaceTaskC {
@@ -672,6 +673,24 @@ MR_API size_t mr_task_rollout_copy_visual_rgba(
 MR_API int mr_task_rollout_set_state_readback(
     MRTaskRolloutHandle* handle,
     uint32_t enabled
+);
+
+typedef struct MRTaskContactSampleC {
+    uint32_t active_contacts;
+    float strongest_normal_force_newtons;
+    const char* body_a;
+    const char* body_b;
+} MRTaskContactSampleC;
+
+// Diagnostic readback for a single environment, disabled by default.
+MR_API int mr_task_rollout_set_contact_readback(
+    MRTaskRolloutHandle* handle, uint32_t enabled
+);
+
+// Last accepted physics substep. The force is normal impulse divided by
+// substep duration. Body names are borrowed from the rollout handle.
+MR_API int mr_task_rollout_contact_sample(
+    const MRTaskRolloutHandle* handle, MRTaskContactSampleC* sample
 );
 MR_API int mr_task_rollout_advance(
     MRTaskRolloutHandle* handle,
