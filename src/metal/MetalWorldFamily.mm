@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#import <TargetConditionals.h>
 
 #include "metalrobo/MetalWorldFamily.hpp"
 #include "metalrobo/WorldPack.hpp"
@@ -312,6 +313,8 @@ MetalWorldFamilyDiagnostics initialize(
         );
     }
     diagnostics.deviceName = nsString(device.name);
+    // The Simulator's translated Metal device reports false on Apple silicon.
+#if !TARGET_OS_SIMULATOR
     if (!device.hasUnifiedMemory) {
         return reject(
             std::move(diagnostics),
@@ -319,6 +322,7 @@ MetalWorldFamilyDiagnostics initialize(
             "world-family sampling requires unified-memory Metal"
         );
     }
+#endif
 
     id<MTLCommandQueue> queue = [device newCommandQueue];
     if (queue == nil) {
