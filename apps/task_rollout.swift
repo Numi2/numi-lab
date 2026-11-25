@@ -942,6 +942,11 @@ private func makeInspectionVisual(
     )
     inspection.width = UInt32(options.inspectionWidth)
     inspection.height = UInt32(options.inspectionHeight)
+    if inspection.maximumRetainedBytes == 0,
+       UInt64(inspection.width) * UInt64(inspection.height) > 1280 * 720 {
+        // Leave room for the larger tile and image buffers alongside scene geometry.
+        inspection.maximumRetainedBytes = 384 * 1024 * 1024
+    }
     // Inspection is a presentation path, never a media-export configuration.
     inspection.captureWidth = 0
     inspection.captureHeight = 0
