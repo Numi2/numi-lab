@@ -3730,6 +3730,7 @@ private enum TaskRolloutMain {
                         break
                     } catch {
                         writeDiagnostic("numi window failed: \(error)")
+                        if !restartVerified { break }
                         let detail = numiWindowErrorSummary(error)
                         window.reportPolicyStatus(
                             "setup failed · \(detail) · restoring"
