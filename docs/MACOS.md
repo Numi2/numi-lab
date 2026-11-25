@@ -21,9 +21,9 @@ reopen the app. The app adds the catalog's robot, environment, and task options
 to the toolbar. Compatible policy packs can live in the sibling `Policies`
 folder. Use the [source viewer](NUMI_CLI.md) for building catalogs and training.
 
-**File → Open Robot or Project** imports a fixed-base URDF and an optional
-same-name SRDF from the same folder. Cooked scenes are stored in the scene
-library. **File → Edit Experiment** saves a new copy with its own gravity,
+**File → Open Robot or Project** imports a fixed-base URDF with its optional
+same-name SRDF or a supported MuJoCo MJCF XML model. Cooked scenes are stored
+in the scene library. **File → Edit Experiment** saves a new copy with its own gravity,
 friction, and effort amplitude. **File → Export Robot Project** creates a
 portable `.numiproject` package with the source, assets, settings, and native
 packs. Open the package to compile it into the local library. Each project
@@ -33,9 +33,30 @@ the URDF directory. Visual primitives support box, sphere, and cylinder.
 Collision meshes use closed convex OBJ or STL. Start with **Bench Pendulum**
 from the robot selector.
 
+### MJCF support
+
+Use a standalone `.xml` file with named fixed-base bodies, explicit mass
+and inertia, up to one hinge or limited slide per body, and at least one
+direct joint motor. Motors use positive scalar gear and symmetric control
+limits. The importer preserves joint pivots, quaternion orientations, limits,
+damping, and the authored downward gravity and timestep. The timestep must
+divide the 20 ms control period into 1–100 equal substeps. Body geoms can be
+boxes, spheres, and cylinders with standard collision masks or both masks
+set to zero for visual-only geometry. An optional horizontal world plane at
+Z = 0 uses Numi's ground contact. The viewer still shows its stage grid for
+models without a colliding ground.
+
+Models with defaults, includes, meshes, floating joints, custom contact
+parameters, or other unsupported MJCF features report an error with the XML
+line that needs attention. Numi Lab runs imported projects with its own Metal
+solver and contact model. Exported MJCF projects retain the input XML and the
+compiled model. The [comparison fixture](../tests/fixtures/workbench_pendulum.xml)
+is a small example you can open directly in the app.
+
 **View → Export State Samples** writes up to the latest 300 samples, taken
 about five times a second while the inspector is open. Headless
-`--state-trace` and `--contact-trace` capture every control tick. The
+`--state-trace` and `--contact-trace` sample at the end of each submission.
+Use `--chunk 1` to capture every control tick. The
 [Python experiment API](#script-a-run) can compile and run the same project.
 
 **File → Open Panda Model** imports the pinned stock Panda from MuJoCo
@@ -47,6 +68,11 @@ fixed camera. All four propellers follow the simulated motor speeds and
 turn in their modeled directions. The viewer draws them at 1% speed so
 their rotation is visible at the display frame rate. Pause or single-step
 the demo with the same controls.
+
+The Mac viewer renders at 1920 × 1080 on launch. Set
+`NUMI_MAC_RENDER_720P=1` when launching the app executable from Terminal
+to use 1280 × 720. Run with `NUMI_MAC_PROFILE_PLAYBACK=1` to log completed
+presentations and simulation steps during continuous playback.
 
 ## Build and check
 
@@ -99,5 +125,8 @@ print(result.stats["environment_control_steps_per_second"])
 
 Supply `actions=[(0.1,), (0.2,)]` to drive a one-actuator project directly.
 The native runner broadcasts each row across environments and holds the
-last row when the sequence ends. See the [matched MuJoCo fixture](../examples/bench_pendulum/README.md)
+last row when the sequence ends. Pass an MJCF XML path to the same
+`Experiment.compile` call to run an imported MJCF model. The authored
+gravity and timestep apply unless you pass `gravity` to `compile` or
+`physics_substeps` to `run`. See the [matched MuJoCo fixture](../examples/bench_pendulum/README.md)
 and [iOS target](IOS.md).

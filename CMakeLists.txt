@@ -8,7 +8,7 @@ endif()
 
 project(
     MetalRobo
-    VERSION 0.5.0
+    VERSION 0.5.1
     DESCRIPTION "Metal-native robotics simulation and reinforcement learning"
     LANGUAGES C CXX OBJCXX
 )
@@ -903,6 +903,7 @@ add_executable(
 add_executable(
     metalrobo_numi_window_catalog_compile
     apps/numi_window_catalog_compile.cpp
+    apps/numi_mjcf_import.cpp
 )
 target_link_libraries(metalrobo_robot_catalog PRIVATE metalrobo)
 target_link_libraries(

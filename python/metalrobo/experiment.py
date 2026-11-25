@@ -34,17 +34,20 @@ class Experiment:
     @classmethod
     def compile(
         cls, urdf: Path, project: Path, *, app: Path, srdf: Path | None = None,
-        gravity: float = 9.81, friction: float = 0.8, effort: float = 0.1,
+        gravity: float | None = None, friction: float = 0.8, effort: float = 0.1,
     ) -> Experiment:
-        """Cook a local fixed-base URDF with optional SRDF into an empty project."""
+        """Cook a fixed-base URDF or supported MJCF XML into an empty project."""
         contents = Path(app).resolve() / "Contents"
         metallib = contents / "Resources" / "MetalRobo.metallib"
+        source = Path(urdf).resolve()
         arguments = [
             contents / "Helpers" / "metalrobo_numi_window_catalog_compile",
-            "--urdf", str(Path(urdf).resolve()), "--output", str(Path(project).resolve()),
-            "--metallib", str(metallib), "--gravity", str(gravity),
+            "--mjcf" if source.suffix.lower() == ".xml" else "--urdf", str(source),
+            "--output", str(Path(project).resolve()), "--metallib", str(metallib),
             "--friction", str(friction), "--effort", str(effort),
         ]
+        if gravity is not None:
+            arguments += ["--gravity", str(gravity)]
         if srdf is not None:
             arguments += ["--srdf", str(Path(srdf).resolve())]
         subprocess.run(arguments, check=True, capture_output=True, text=True)
@@ -52,7 +55,7 @@ class Experiment:
 
     def run(
         self, *, steps: int = 200, environments: int = 1, chunk: int = 1,
-        physics_substeps: int = 4, seed: int = 0,
+        physics_substeps: int | None = None, seed: int = 0,
         actions: Iterable[Sequence[float]] | None = None,
         state_trace: Path | None = None, contact_trace: Path | None = None,
     ) -> ExperimentResult:
@@ -65,8 +68,10 @@ class Experiment:
             self.rollout, "--scene-file", str(self.scene), "--headless",
             "--metallib", str(self.metallib), "--steps", str(steps),
             "--envs", str(environments), "--chunk", str(chunk),
-            "--physics-substeps", str(physics_substeps), "--seed", str(seed),
+            "--seed", str(seed),
         ]
+        if physics_substeps is not None:
+            arguments += ["--physics-substeps", str(physics_substeps)]
         if state_trace is not None:
             arguments += ["--state-trace", str(state_trace)]
         if contact_trace is not None:

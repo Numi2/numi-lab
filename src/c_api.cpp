@@ -3673,6 +3673,10 @@ static MRTaskRolloutHandle* createWorldPackRun(
             *config,
             "world_pack_run"
         );
+        // Run composition takes gravity from the profile. Keep the loaded
+        // world's authored gravity while the runner selects the substep size.
+        run.profile.physics.gravityAndTimestep =
+            run.robot.mechanics.world.gravityAndTimestep;
         run.robot.id = worldPack.family.worldTemplate.task.robotAssetId;
         run.scene.authoredAssets =
             worldPack.family.worldTemplate.assets;
