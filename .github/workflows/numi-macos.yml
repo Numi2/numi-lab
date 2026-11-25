@@ -40,6 +40,7 @@ jobs:
         run: |
           build/bin/metalrobo_numi_window_check
           build/bin/metalrobo_robot_description_cooker_probe
+          tests/numi_mac_mjcf_test.sh build/bin/metalrobo_numi_window_catalog_compile
           ctest --test-dir build --output-on-failure
       - name: Exercise CLI and training dispatch
         run: |

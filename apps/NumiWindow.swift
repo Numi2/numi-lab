@@ -408,12 +408,14 @@ private let pandaImportPrefix = "panda-import-"
 private struct NumiRobotProject: Decodable, Sendable {
     var format = "numi.robot-project.v1"
     var name: String?
+    var source_format: String?
     var gravity = 9.81
     var friction = 0.8
     var effort = 0.1
 
     var isValid: Bool {
-        format == "numi.robot-project.v1" && (0...100).contains(gravity) &&
+        format == "numi.robot-project.v1" &&
+            (source_format == nil || source_format == "mjcf") && (0...100).contains(gravity) &&
             (0...4).contains(friction) && (-1...1).contains(effort)
     }
 
@@ -431,7 +433,7 @@ private struct NumiRobotProject: Decodable, Sendable {
 }
 
 private func importRobotProject(
-    source: URL, srdf: URL?, settings: NumiRobotProject, name: String?,
+    source: URL, srdf: URL?, settings: NumiRobotProject?, name: String?,
     library: URL, resources: URL
 ) throws -> NumiWindowSceneChoice {
     let id = "robot-" + UUID().uuidString.lowercased()
@@ -442,12 +444,17 @@ private func importRobotProject(
     let destination = library.appending(path: id + ".numiproject", directoryHint: .isDirectory)
     try files.createDirectory(at: staged, withIntermediateDirectories: false)
     defer { try? files.removeItem(at: staged) }
+    let mjcf = source.pathExtension.lowercased() == "xml"
     var arguments = [
-        "--urdf", source.path, "--output", staged.path, "--project-id", id,
-        "--gravity", String(settings.gravity), "--friction", String(settings.friction),
-        "--effort", String(settings.effort),
+        mjcf ? "--mjcf" : "--urdf", source.path, "--output", staged.path, "--project-id", id,
         "--metallib", resources.appending(path: "MetalRobo.metallib").path,
     ]
+    if let settings {
+        arguments += [
+            "--gravity", String(settings.gravity), "--friction", String(settings.friction),
+            "--effort", String(settings.effort),
+        ]
+    }
     if let srdf { arguments += ["--srdf", srdf.path] }
     if let name { arguments += ["--project-name", name] }
     try runNumiCatalogCompiler(resources: resources, arguments: arguments)
@@ -1291,8 +1298,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     @objc private func openRobotProject() {
         let panel = NSOpenPanel()
         panel.title = "Open Robot or Project"
-        panel.message = "Choose a URDF robot or an exported Numi robot project."
-        panel.allowedContentTypes = [Self.urdfType, Self.projectType]
+        panel.message = "Choose a URDF robot, a supported MJCF XML model, or a Numi robot project."
+        panel.allowedContentTypes = [Self.urdfType, .xml, Self.projectType]
         panel.beginSheetModal(for: window) { [weak self] response in
             guard let self, response == .OK, let url = panel.url else { return }
             do {
@@ -1300,9 +1307,10 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
                     try self.prepareRobotProject(from: url, settings: NumiRobotProject.read(from: url))
                 } else {
                     let candidate = url.deletingPathExtension().appendingPathExtension("srdf")
-                    let srdf = FileManager.default.fileExists(atPath: candidate.path) ? candidate : nil
+                    let srdf = url.pathExtension.lowercased() == "urdf" &&
+                        FileManager.default.fileExists(atPath: candidate.path) ? candidate : nil
                     self.startSceneImport(message: "Importing robot…") { library, resources in
-                        try importRobotProject(source: url, srdf: srdf, settings: .init(),
+                        try importRobotProject(source: url, srdf: srdf, settings: nil,
                                                name: nil, library: library, resources: resources)
                     }
                 }
@@ -1313,13 +1321,14 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
     }
 
     private func prepareRobotProject(from folder: URL, settings: NumiRobotProject, name: String? = nil) throws {
-        let source = folder.appending(path: "source/model.urdf")
+        let mjcf = settings.source_format == "mjcf"
+        let source = folder.appending(path: mjcf ? "source/model.xml" : "source/model.urdf")
         let parent = folder.resolvingSymlinksInPath().standardizedFileURL.path + "/"
         guard source.resolvingSymlinksInPath().path.hasPrefix(parent),
               try source.resourceValues(forKeys: [.isRegularFileKey]).isRegularFile == true
         else { throw CocoaError(.fileReadCorruptFile) }
         let candidate = folder.appending(path: "source/model.srdf")
-        let srdf = FileManager.default.fileExists(atPath: candidate.path) ? candidate : nil
+        let srdf = !mjcf && FileManager.default.fileExists(atPath: candidate.path) ? candidate : nil
         if let srdf, !srdf.resolvingSymlinksInPath().path.hasPrefix(parent) {
             throw CocoaError(.fileReadCorruptFile)
         }
@@ -1361,7 +1370,7 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
             let settings = try NumiRobotProject.read(from: folder)
             let alert = NSAlert()
             alert.messageText = "Save an Experiment Copy"
-            alert.informativeText = "Effort sets the first actuated joint’s sine-wave amplitude as a fraction of its URDF limit."
+            alert.informativeText = "Effort sets the first actuated joint’s sine-wave amplitude as a fraction of its effort limit."
             alert.addButton(withTitle: "Save Copy and Run")
             alert.addButton(withTitle: "Cancel")
             let name = NSTextField(string: choice.robotName + " Copy")
@@ -1390,7 +1399,8 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
                 }
                 do {
                     try self.prepareRobotProject(from: folder,
-                        settings: NumiRobotProject(gravity: g, friction: f, effort: e), name: title)
+                        settings: NumiRobotProject(source_format: settings.source_format,
+                            gravity: g, friction: f, effort: e), name: title)
                 } catch {
                     self.presentProjectError(error)
                 }

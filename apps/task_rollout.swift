@@ -170,6 +170,7 @@ private func fingerprint(
 }
 
 private struct Options {
+    static let defaultPhysicsSubsteps = 4
     enum BundledRobotSource {
         case unitreeG1, numifly, numiflyForwardFlight, numiflyNoLegs, frankaPickPlace
         case px4X500, px4X500FlightDemo
@@ -179,7 +180,7 @@ private struct Options {
     var steps = 48
     var repeats = 20
     var chunk = 8
-    var physicsSubsteps = 4
+    var physicsSubsteps = defaultPhysicsSubsteps
     var velocityIterations = 4
     var finalVelocityIterations = 2
     var surface = MetalRoboLocomotionSurface.terrain
@@ -1396,6 +1397,7 @@ private enum TaskRolloutMain {
     private static func windowOptions(
         for choice: NumiWindowSceneChoice,
         preserving baseline: Options,
+        defaultPhysicsSubsteps: Int,
         policyOverride: URL? = nil
     ) throws -> Options {
         var arguments = [CommandLine.arguments[0]]
@@ -1439,12 +1441,14 @@ private enum TaskRolloutMain {
             "--steps", String(baseline.steps),
             "--repeats", String(baseline.repeats),
             "--chunk", String(baseline.chunk),
-            "--physics-substeps", String(baseline.physicsSubsteps),
             "--velocity-iterations", String(baseline.velocityIterations),
             "--final-velocity-iterations",
             String(baseline.finalVelocityIterations),
             "--seed", String(baseline.seed),
         ])
+        if !arguments.contains("--physics-substeps") {
+            arguments += ["--physics-substeps", String(defaultPhysicsSubsteps)]
+        }
         return try Options(arguments: arguments)
     }
 
@@ -2176,6 +2180,10 @@ private enum TaskRolloutMain {
             var consecutivePreviewRecoveries = 0
             var nextStateSample = 0.0
             var contactReadbackEnabled = false
+            let profilePlayback = interactivePreview &&
+                ProcessInfo.processInfo.environment["NUMI_MAC_PROFILE_PLAYBACK"] == "1"
+            var playbackSteps: Int64 = 0
+            var playbackStart: (wall: Double, presented: UInt64, steps: Int64)?
 
             for repeatIndex in 0..<options.repeats {
                 let repeatStart = clock.now
@@ -2448,6 +2456,21 @@ private enum TaskRolloutMain {
                                 forTimeInterval:
                                     targetSeconds - elapsedSeconds
                             )
+                        }
+                        if profilePlayback, let window {
+                            playbackSteps += Int64(stepCount)
+                            let now = ProcessInfo.processInfo.systemUptime
+                            let presented = window.presentationCount
+                            if let start = playbackStart, now - start.wall >= 5 {
+                                writeDiagnostic(String(format:
+                                    "playback %dx%d wall=%.3f frames=%llu steps=%lld failed=%llu",
+                                    options.inspectionWidth, options.inspectionHeight,
+                                    now - start.wall, presented - start.presented,
+                                    playbackSteps - start.steps, UInt64(failedSteps)))
+                                playbackStart = (now, presented, playbackSteps)
+                            } else if playbackStart == nil {
+                                playbackStart = (now, presented, playbackSteps)
+                            }
                         }
                         return
                     }
@@ -3601,11 +3624,18 @@ private enum TaskRolloutMain {
         let bundleDefault = resources != nil && (rawArguments.count == 1 || bundleCheck)
         do {
             if bundleDefault, let resources {
+                let standard = ProcessInfo.processInfo.environment["NUMI_MAC_RENDER_720P"] == "1"
                 rawArguments = [rawArguments[0], "--window-default",
                                 "--metallib", resources.appending(path: "MetalRobo.metallib").path,
                                 "--envs", "1", "--steps", "1000000", "--chunk", "2",
-                                "--repeats", "1", "--window-width", "1280", "--window-height", "720"]
+                                "--repeats", "1", "--window-width", standard ? "1280" : "1920",
+                                "--window-height", standard ? "720" : "1080"]
             }
+            // A project's authored timestep belongs to its scene. Carry
+            // the launch override or engine default into other scenes.
+            let explicitSubsteps = rawArguments.lastIndex(of: "--physics-substeps")
+                .flatMap { rawArguments.dropFirst($0 + 1).first }.flatMap { Int($0) }
+            let defaultPhysicsSubsteps = explicitSubsteps ?? Options.defaultPhysicsSubsteps
             var sceneChoices = numiWindowSceneCatalog()
             let headlessScene = rawArguments.contains("--headless")
             rawArguments.removeAll { $0 == "--headless" }
@@ -3835,6 +3865,7 @@ private enum TaskRolloutMain {
                                 activeOptions = try windowOptions(
                                     for: choice,
                                     preserving: activeOptions,
+                                    defaultPhysicsSubsteps: defaultPhysicsSubsteps,
                                     policyOverride: policy
                                 )
                                 requestedSelection =
@@ -3893,6 +3924,7 @@ private enum TaskRolloutMain {
                             activeOptions = try windowOptions(
                                 for: choice,
                                 preserving: activeOptions,
+                                defaultPhysicsSubsteps: defaultPhysicsSubsteps,
                                 policyOverride: selection.policyURL
                             )
                             requestedSelection = selection

@@ -1,0 +1,23 @@
+<mujoco model="MJCF Pendulum">
+  <compiler angle="degree"/>
+  <option gravity="0 0 -8.75" timestep="0.002"/>
+  <worldbody>
+    <body name="stand">
+      <inertial pos="0 0 0" mass="5" diaginertia="0.13 0.12 0.09"/>
+      <geom type="box" size="0.15 0.22 0.025" pos="0 0 0.025" rgba="0.12 0.27 0.37 1"/>
+      <geom type="box" size="0.03 0.03 0.4" pos="0 -0.15 0.4" contype="0" conaffinity="0"/>
+      <geom type="box" size="0.03 0.03 0.4" pos="0 0.15 0.4" contype="0" conaffinity="0"/>
+      <geom type="cylinder" size="0.028 0.20" pos="0 0 0.8" quat="0.707106781187 0.707106781187 0 0"
+            contype="0" conaffinity="0"/>
+      <body name="arm" pos="0 0 0.72" quat="0.923879532511 0 0 0.382683432365">
+        <joint name="pivot" pos="0 0 0.08" axis="0 1 0" range="-145 145" damping="0.08"/>
+        <inertial pos="0 0 -0.18" mass="1" diaginertia="0.021 0.021 0.003"/>
+        <geom type="box" size="0.019 0.0275 0.23" pos="0 0 -0.15" rgba="0.92 0.39 0.07 1"/>
+        <geom type="sphere" size="0.066" pos="0 0 -0.38" rgba="0.92 0.39 0.07 1"/>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name="drive" joint="pivot" gear="2" ctrlrange="-6 6"/>
+  </actuator>
+</mujoco>

@@ -8,6 +8,7 @@
 #include "metalrobo/RunProgram.hpp"
 #include "metalrobo/RobotDescriptionCooker.hpp"
 #include "metalrobo/VisualPresentation.hpp"
+#include "numi_mjcf_import.hpp"
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
@@ -41,10 +42,11 @@ struct Arguments {
     std::filesystem::path pandaModel;
     std::filesystem::path metallib;
     std::filesystem::path urdf;
+    std::filesystem::path mjcf;
     std::filesystem::path srdf;
     std::string projectID = "robot-project";
     std::string projectName;
-    float gravity = 9.81f;
+    std::optional<float> gravity;
     float friction = 0.8f;
     float effort = 0.1f;
     std::optional<float> pandaCubeMass;
@@ -60,7 +62,7 @@ Arguments arguments(const int argc, const char* const* argv) {
             result.starter = true;
         } else if (option == "--workspace" || option == "--output" ||
                    option == "--panda-model" || option == "--metallib" ||
-                   option == "--urdf" || option == "--srdf" ||
+                   option == "--urdf" || option == "--mjcf" || option == "--srdf" ||
                    option == "--project-id" || option == "--project-name" ||
                    option == "--gravity" || option == "--friction" || option == "--effort" ||
                    option == "--panda-cube-mass" || option == "--panda-cube-friction") {
@@ -73,6 +75,7 @@ Arguments arguments(const int argc, const char* const* argv) {
             else if (option == "--panda-model") result.pandaModel = argv[index];
             else if (option == "--metallib") result.metallib = argv[index];
             else if (option == "--urdf") result.urdf = argv[index];
+            else if (option == "--mjcf") result.mjcf = argv[index];
             else if (option == "--srdf") result.srdf = argv[index];
             else if (option == "--project-id") result.projectID = argv[index];
             else if (option == "--project-name") result.projectName = argv[index];
@@ -99,14 +102,14 @@ Arguments arguments(const int argc, const char* const* argv) {
                 std::string{option});
         }
     }
-    const auto importCount = !result.urdf.empty() + !result.pandaModel.empty();
+    const auto importCount = !result.urdf.empty() + !result.mjcf.empty() + !result.pandaModel.empty();
     if (result.output.empty() || importCount > 1 ||
         (importCount == 0 && result.workspace.empty()) ||
         (importCount != 0 && result.starter) ||
         (!result.srdf.empty() && result.urdf.empty()) ||
         ((result.pandaCubeMass || result.pandaCubeFriction) && result.pandaModel.empty())) {
         throw std::invalid_argument(
-            "Specify --output and one of --workspace [--starter], --panda-model, or --urdf [--srdf]."
+            "Specify --output and one of --workspace [--starter], --panda-model, --mjcf, or --urdf [--srdf]."
         );
     }
     return result;
@@ -1299,8 +1302,11 @@ void writeRobotProject(const Arguments& options) {
     if (std::filesystem::exists(options.output) && !std::filesystem::is_empty(options.output)) {
         throw std::runtime_error("Robot compilation requires an empty output directory.");
     }
-    const auto source = std::filesystem::canonical(options.urdf);
-    auto document = readProjectURDF(source);
+    const bool isMJCF = !options.mjcf.empty();
+    const auto source = std::filesystem::canonical(isMJCF ? options.mjcf : options.urdf);
+    auto mjcf = isMJCF ? numi::importMJCF(source) : numi::MJCFImport{};
+    auto document = isMJCF ? std::move(mjcf.urdf) : readProjectURDF(source);
+    const float gravity = options.gravity.value_or(mjcf.gravity);
     const std::string name = options.projectName.empty()
         ? xmlProperty(xmlDocGetRootElement(document.get()), "name").value_or("Imported Robot")
         : options.projectName;
@@ -1315,6 +1321,7 @@ void writeRobotProject(const Arguments& options) {
     localizeProjectMeshes(xmlDocGetRootElement(document.get()), source.parent_path(),
         sourceDirectory, copied);
     saveProjectURDF(projectURDF, document);
+    if (isMJCF) std::filesystem::copy_file(source, sourceDirectory / "model.xml");
     std::filesystem::path srdf;
     if (!options.srdf.empty()) {
         srdf = sourceDirectory / "model.srdf";
@@ -1323,7 +1330,7 @@ void writeRobotProject(const Arguments& options) {
 
     EngineModel mechanics;
     metalrobo::RobotDescriptionCookOptions cook;
-    cook.gravityAndTimestep.z = -options.gravity;
+    cook.gravityAndTimestep.z = -gravity;
     cook.friction.x = options.friction;
     cook.friction.y = options.friction * 0.75f;
     requireProjectPack(metalrobo::cookRobotDescriptionFiles(projectURDF, srdf, mechanics, cook));
@@ -1413,6 +1420,9 @@ void writeRobotProject(const Arguments& options) {
     std::vector<MRBodyStateGPU> sceneBodies;
     metalrobo::appendLocomotionSurface(mechanics, sceneBodies, metalrobo::LocomotionSurface::ground);
     mechanics.shapes.back().collisionGroup = floorGroup;
+    if (isMJCF && !mjcf.ground) {
+        for (auto& shape : mechanics.shapes) shape.collisionMask &= ~floorGroup;
+    }
 
     metalrobo::EpisodeTwin episode;
     episode.id = "robot_project_v1";
@@ -1447,8 +1457,10 @@ void writeRobotProject(const Arguments& options) {
     settings << std::setprecision(std::numeric_limits<float>::max_digits10)
              << "{\n  \"format\": \"numi.robot-project.v1\",\n  \"name\": "
              << jsonString(name) << ",\n  \"gravity\": "
-             << options.gravity << ",\n  \"friction\": " << options.friction
-             << ",\n  \"effort\": " << options.effort << ",\n  \"action_count\": " << task.actions.size() << "\n}\n";
+             << gravity << ",\n  \"friction\": " << options.friction
+             << ",\n  \"effort\": " << options.effort << ",\n  \"action_count\": " << task.actions.size();
+    if (isMJCF) settings << ",\n  \"source_format\": \"mjcf\"";
+    settings << "\n}\n";
     settings.close();
     if (!settings) throw std::runtime_error("Could not save project settings.");
 
@@ -1469,12 +1481,17 @@ void writeRobotProject(const Arguments& options) {
             std::filesystem::remove(entry.path());
         }
     }
-    scene(output, options.projectID, options.projectID, name, "ground", "Ground",
-        "effort", "Joint Effort", options.projectID + "-ground-visual-observation.json",
-        {"--world-pack", "robot.worldpack", "--task-pack", "robot.taskpack",
+    std::vector<std::string> launchArguments{
+         "--world-pack", "robot.worldpack", "--task-pack", "robot.taskpack",
          "--robot-actuator-pack", "robot.actuators", "--sensor-program-pack", "robot.sensors",
          "--reality-program-pack", "robot.reality", "--no-scheduled-resets",
-         "--action-clip", "robot.actions.f32", "--loop-action-clip"});
+         "--action-clip", "robot.actions.f32", "--loop-action-clip"};
+    if (isMJCF) {
+        launchArguments.insert(launchArguments.end(),
+            {"--physics-substeps", std::to_string(mjcf.physicsSubsteps)});
+    }
+    scene(output, options.projectID, options.projectID, name, "ground", "Ground",
+        "effort", "Joint Effort", options.projectID + "-ground-visual-observation.json", launchArguments);
 }
 
 void writePandaTabletop(const Arguments& options) {
@@ -1695,7 +1712,7 @@ void writePandaTabletop(const Arguments& options) {
 int main(const int argc, const char* const* argv) {
     try {
         const Arguments options = arguments(argc, argv);
-        if (!options.urdf.empty()) {
+        if (!options.urdf.empty() || !options.mjcf.empty()) {
             writeRobotProject(options);
             return 0;
         }
