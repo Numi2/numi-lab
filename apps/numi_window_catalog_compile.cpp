@@ -1546,6 +1546,7 @@ void writePandaTabletop(const Arguments& options) {
                 material.friction.y = friction * (6.0f / 7.0f);
                 cubeMaterial = static_cast<std::uint32_t>(mechanics.materials.size());
                 mechanics.materials.push_back(material);
+                mechanics.world.materialCount = *cubeMaterial + 1u;
             }
             shape.materialIndex = *cubeMaterial;
         }
