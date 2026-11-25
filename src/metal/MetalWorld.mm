@@ -4626,7 +4626,9 @@ id<MTLComputePipelineState> makePipeline(
     id<MTLDevice> device,
     id<MTLLibrary> library,
     NSString* functionName,
-    NSError** error
+    NSError** error,
+    id<MTLBinaryArchive> archive,
+    unsigned* archiveHits
 ) {
     id<MTLFunction> function =
         [library newFunctionWithName:functionName];
@@ -4644,6 +4646,20 @@ id<MTLComputePipelineState> makePipeline(
                        }];
         }
         return nil;
+    }
+    if (archive != nil) {
+        MTLComputePipelineDescriptor* descriptor = [MTLComputePipelineDescriptor new];
+        descriptor.computeFunction = function;
+        descriptor.binaryArchives = @[archive];
+        id<MTLComputePipelineState> pipeline = [device
+            newComputePipelineStateWithDescriptor:descriptor
+                                          options:MTLPipelineOptionFailOnBinaryArchiveMiss
+                                       reflection:nil
+                                            error:nil];
+        if (pipeline != nil) {
+            ++*archiveHits;
+            return pipeline;
+        }
     }
     return [device
         newComputePipelineStateWithFunction:function
@@ -4726,13 +4742,25 @@ MetalWorldDiagnostics initializeContext(
         );
     }
 
-    error = nil;
-    id<MTLComputePipelineState> aba = makePipeline(
-        device,
-        library,
-        @"mr_articulated_aba_step",
-        &error
-    );
+    id<MTLBinaryArchive> archive = nil;
+    NSBundle* bundle = NSBundle.mainBundle;
+    NSURL* archiveURL = [bundle URLForResource:@"MetalRobo.binary" withExtension:@"metallib"];
+    if (archiveURL != nil &&
+        [bundle.bundleIdentifier isEqualToString:@"com.numilab.mac"] &&
+        [path isEqualToString:[bundle pathForResource:@"MetalRobo" ofType:@"metallib"]]) {
+        MTLBinaryArchiveDescriptor* descriptor = [MTLBinaryArchiveDescriptor new];
+        descriptor.url = archiveURL;
+        archive = [device newBinaryArchiveWithDescriptor:descriptor error:nil];
+    }
+
+    unsigned archiveHits = 0;
+    auto createPipeline = [&](NSString* functionName) {
+        error = nil;
+        return makePipeline(device, library, functionName, &error, archive,
+                            &archiveHits);
+    };
+
+    id<MTLComputePipelineState> aba = createPipeline(@"mr_articulated_aba_step");
     if (aba == nil) {
         return reject(
             std::move(diagnostics),
@@ -4741,13 +4769,7 @@ MetalWorldDiagnostics initializeContext(
                 describeError(error)
         );
     }
-    error = nil;
-    id<MTLComputePipelineState> parameterizedABA = makePipeline(
-        device,
-        library,
-        @"mr_parameterized_articulated_aba_step",
-        &error
-    );
+    id<MTLComputePipelineState> parameterizedABA = createPipeline(@"mr_parameterized_articulated_aba_step");
     if (parameterizedABA == nil) {
         return reject(
             std::move(diagnostics),
@@ -4756,13 +4778,7 @@ MetalWorldDiagnostics initializeContext(
                 describeError(error)
         );
     }
-    error = nil;
-    id<MTLComputePipelineState> smallABA = makePipeline(
-        device,
-        library,
-        @"mr_articulated_aba_step_small",
-        &error
-    );
+    id<MTLComputePipelineState> smallABA = createPipeline(@"mr_articulated_aba_step_small");
     if (smallABA == nil) {
         return reject(
             std::move(diagnostics),
@@ -4771,13 +4787,7 @@ MetalWorldDiagnostics initializeContext(
                 describeError(error)
         );
     }
-    error = nil;
-    id<MTLComputePipelineState> multiABA = makePipeline(
-        device,
-        library,
-        @"mr_multi_articulated_aba_step",
-        &error
-    );
+    id<MTLComputePipelineState> multiABA = createPipeline(@"mr_multi_articulated_aba_step");
     if (multiABA == nil) {
         return reject(
             std::move(diagnostics),
@@ -4786,13 +4796,7 @@ MetalWorldDiagnostics initializeContext(
                 describeError(error)
         );
     }
-    error = nil;
-    id<MTLComputePipelineState> prepare = makePipeline(
-        device,
-        library,
-        @"mr_metal_world_prepare",
-        &error
-    );
+    id<MTLComputePipelineState> prepare = createPipeline(@"mr_metal_world_prepare");
     if (prepare == nil) {
         return reject(
             std::move(diagnostics),
@@ -4801,13 +4805,7 @@ MetalWorldDiagnostics initializeContext(
                 describeError(error)
         );
     }
-    error = nil;
-    id<MTLComputePipelineState> driveRefresh = makePipeline(
-        device,
-        library,
-        @"mr_metal_world_refresh_drives",
-        &error
-    );
+    id<MTLComputePipelineState> driveRefresh = createPipeline(@"mr_metal_world_refresh_drives");
     if (driveRefresh == nil) {
         return reject(
             std::move(diagnostics),
@@ -4816,13 +4814,7 @@ MetalWorldDiagnostics initializeContext(
                 describeError(error)
         );
     }
-    error = nil;
-    id<MTLComputePipelineState> commit = makePipeline(
-        device,
-        library,
-        @"mr_metal_world_commit",
-        &error
-    );
+    id<MTLComputePipelineState> commit = createPipeline(@"mr_metal_world_commit");
     if (commit == nil) {
         return reject(
             std::move(diagnostics),
@@ -4831,13 +4823,7 @@ MetalWorldDiagnostics initializeContext(
                 describeError(error)
         );
     }
-    error = nil;
-    id<MTLComputePipelineState> capture = makePipeline(
-        device,
-        library,
-        @"mr_metal_world_capture",
-        &error
-    );
+    id<MTLComputePipelineState> capture = createPipeline(@"mr_metal_world_capture");
     if (capture == nil) {
         return reject(
             std::move(diagnostics),
@@ -4950,281 +4936,270 @@ MetalWorldDiagnostics initializeContext(
     __strong id<MTLComputePipelineState> authoredIRSeed = nil;
     __strong id<MTLComputePipelineState>
         generalizedConstraintSolve = nil;
-    auto createContactPipeline = [&](
-        NSString* functionName
-    ) {
-        error = nil;
-        return makePipeline(
-            device,
-            library,
-            functionName,
-            &error
-        );
-    };
     operatorPipeline =
-        createContactPipeline(@"mr_articulated_operator");
-    parameterizedOperatorPipeline = createContactPipeline(
+        createPipeline(@"mr_articulated_operator");
+    parameterizedOperatorPipeline = createPipeline(
         @"mr_parameterized_articulated_operator"
     );
     taskObserve =
-        createContactPipeline(@"mr_locomotion_task_observe");
-    taskThreatSelect = createContactPipeline(
+        createPipeline(@"mr_locomotion_task_observe");
+    taskThreatSelect = createPipeline(
         @"mr_locomotion_task_select_threat_query"
     );
-    taskJointCbf = createContactPipeline(
+    taskJointCbf = createPipeline(
         @"mr_locomotion_task_joint_cbf_teacher"
     );
-    taskMotion = createContactPipeline(
+    taskMotion = createPipeline(
         @"mr_locomotion_task_motion_features"
     );
     taskApply =
-        createContactPipeline(@"mr_locomotion_task_apply_actions");
-    taskNativeActuator = createContactPipeline(
+        createPipeline(@"mr_locomotion_task_apply_actions");
+    taskNativeActuator = createPipeline(
         @"mr_locomotion_task_apply_native_actuators"
     );
     taskEffort =
-        createContactPipeline(@"mr_locomotion_task_measure_effort");
-    multicopter = createContactPipeline(
+        createPipeline(@"mr_locomotion_task_measure_effort");
+    multicopter = createPipeline(
         @"mr_step_compiled_multicopters"
     );
-    multicopterCommit = createContactPipeline(
+    multicopterCommit = createPipeline(
         @"mr_commit_compiled_multicopters"
     );
-    taskImpactContact = createContactPipeline(
+    taskImpactContact = createPipeline(
         @"mr_locomotion_task_latch_impact_contact"
     );
     taskComplete =
-        createContactPipeline(@"mr_locomotion_task_complete");
-    taskEvidence = createContactPipeline(
+        createPipeline(@"mr_locomotion_task_complete");
+    taskEvidence = createPipeline(
         @"mr_locomotion_task_update_evidence"
     );
     policyDense =
-        createContactPipeline(@"mr_policy_dense_layer");
-    policySample = createContactPipeline(
+        createPipeline(@"mr_policy_dense_layer");
+    policySample = createPipeline(
         @"mr_policy_sample_and_score"
     );
     contactPrepare =
-        createContactPipeline(@"mr_world_prepare_contact_step");
-    observationStateSelect = createContactPipeline(
+        createPipeline(@"mr_world_prepare_contact_step");
+    observationStateSelect = createPipeline(
         @"mr_world_select_observation_state"
     );
     bodyProjection =
-        createContactPipeline(@"mr_world_build_body_states");
+        createPipeline(@"mr_world_build_body_states");
     scenePrediction =
-        createContactPipeline(@"mr_world_predict_scene");
+        createPipeline(@"mr_world_predict_scene");
     colliderProjection =
-        createContactPipeline(@"mr_world_project_colliders");
-    sweptProjection = createContactPipeline(
+        createPipeline(@"mr_world_project_colliders");
+    sweptProjection = createPipeline(
         @"mr_world_project_swept_colliders"
     );
-    ccd = createContactPipeline(@"mr_world_resolve_ccd");
-    ccdEventInitialize = createContactPipeline(
+    ccd = createPipeline(@"mr_world_resolve_ccd");
+    ccdEventInitialize = createPipeline(
         @"mr_world_initialize_ccd_event_state"
     );
-    ccdEventPrepare = createContactPipeline(
+    ccdEventPrepare = createPipeline(
         @"mr_world_prepare_ccd_event_pass"
     );
     ccdEventSelect =
-        createContactPipeline(@"mr_world_select_ccd_event_state");
+        createPipeline(@"mr_world_select_ccd_event_state");
     ccdEventFinalize =
-        createContactPipeline(@"mr_world_finalize_ccd_event_state");
-    eventArticulation = createContactPipeline(
+        createPipeline(@"mr_world_finalize_ccd_event_state");
+    eventArticulation = createPipeline(
         @"mr_world_materialize_event_articulation"
     );
-    eventScenePrediction = createContactPipeline(
+    eventScenePrediction = createPipeline(
         @"mr_world_predict_scene_event"
     );
-    eventBodyOverlay = createContactPipeline(
+    eventBodyOverlay = createPipeline(
         @"mr_world_overlay_event_articulation_bodies"
     );
-    jointLimits = createContactPipeline(
+    jointLimits = createPipeline(
         @"mr_world_project_joint_limits"
     );
-    eventColliderProjection = createContactPipeline(
+    eventColliderProjection = createPipeline(
         @"mr_world_project_event_colliders"
     );
-    inactiveEventRestore = createContactPipeline(
+    inactiveEventRestore = createPipeline(
         @"mr_world_restore_inactive_event_candidate"
     );
-    eventSegmentPublish = createContactPipeline(
+    eventSegmentPublish = createPipeline(
         @"mr_world_publish_event_segment"
     );
-    rodEventInitialize = createContactPipeline(
+    rodEventInitialize = createPipeline(
         @"mr_world_initialize_rod_event_state"
     );
-    inactiveRodEventRestore = createContactPipeline(
+    inactiveRodEventRestore = createPipeline(
         @"mr_world_restore_inactive_rod_event_candidate"
     );
-    rodEventSegmentPublish = createContactPipeline(
+    rodEventSegmentPublish = createPipeline(
         @"mr_world_publish_rod_event_segment"
     );
-    rodSweptProjection = createContactPipeline(
+    rodSweptProjection = createPipeline(
         @"mr_world_project_swept_rod_colliders"
     );
-    rodCCD = createContactPipeline(
+    rodCCD = createPipeline(
         @"mr_world_resolve_rod_ccd"
     );
-    rodCCDWitnessTag = createContactPipeline(
+    rodCCDWitnessTag = createPipeline(
         @"mr_world_tag_rod_ccd_witnesses"
     );
     pairFlags =
-        createContactPipeline(@"mr_world_flag_eligible_pairs");
+        createPipeline(@"mr_world_flag_eligible_pairs");
     scanBlocks =
-        createContactPipeline(@"mr_world_scan_blocks");
+        createPipeline(@"mr_world_scan_blocks");
     scanAdd =
-        createContactPipeline(@"mr_world_scan_add_block_offsets");
+        createPipeline(@"mr_world_scan_add_block_offsets");
     pairClassFlags =
-        createContactPipeline(@"mr_world_flag_pair_work_class");
+        createPipeline(@"mr_world_flag_pair_work_class");
     pairQueueScatter =
-        createContactPipeline(@"mr_world_scatter_pair_queue");
+        createPipeline(@"mr_world_scatter_pair_queue");
     pairNarrowphase =
-        createContactPipeline(@"mr_world_narrowphase_pair_queue");
+        createPipeline(@"mr_world_narrowphase_pair_queue");
     convexNarrowphase =
-        createContactPipeline(@"mr_world_narrowphase_convex_queue");
+        createPipeline(@"mr_world_narrowphase_convex_queue");
     hullNarrowphase =
-        createContactPipeline(@"mr_world_narrowphase_hull_queue");
+        createPipeline(@"mr_world_narrowphase_hull_queue");
     meshNarrowphase =
-        createContactPipeline(@"mr_world_narrowphase_mesh_queue");
+        createPipeline(@"mr_world_narrowphase_mesh_queue");
     collisionCompile =
-        createContactPipeline(@"mr_world_collide_compile");
-    manifoldFinalize = createContactPipeline(
+        createPipeline(@"mr_world_collide_compile");
+    manifoldFinalize = createPipeline(
         @"mr_world_finalize_pair_manifold"
     );
-    manifoldScan = createContactPipeline(
+    manifoldScan = createPipeline(
         @"mr_world_scan_manifold_ir"
     );
-    manifoldRecordScatter = createContactPipeline(
+    manifoldRecordScatter = createPipeline(
         @"mr_world_scatter_manifold_records"
     );
-    manifoldIRScatter = createContactPipeline(
+    manifoldIRScatter = createPipeline(
         @"mr_world_scatter_manifold_ir"
     );
-    multiQueryInitialize = createContactPipeline(
+    multiQueryInitialize = createPipeline(
         @"mr_world_initialize_multi_articulation_queries"
     );
-    multiOperatorCompose = createContactPipeline(
+    multiOperatorCompose = createPipeline(
         @"mr_world_compose_multi_articulation_operator"
     );
-    factorDispatch = createContactPipeline(
+    factorDispatch = createPipeline(
         @"mr_world_finalize_factor_dispatch"
     );
-    pointQueryTail = createContactPipeline(
+    pointQueryTail = createPipeline(
         @"mr_world_fill_point_query_tail"
     );
-    streamedInverse = createContactPipeline(
+    streamedInverse = createPipeline(
         @"mr_world_parallel_streaming_articulated_inverse_mass"
     );
     evaluateIR =
-        createContactPipeline(@"mr_world_evaluate_constraint_ir");
+        createPipeline(@"mr_world_evaluate_constraint_ir");
     islands =
-        createContactPipeline(@"mr_world_build_contact_islands");
+        createPipeline(@"mr_world_build_contact_islands");
     buildTiles =
-        createContactPipeline(@"mr_world_build_contact_tiles");
+        createPipeline(@"mr_world_build_contact_tiles");
     islandQueueScatter =
-        createContactPipeline(@"mr_world_scatter_island_queue");
+        createPipeline(@"mr_world_scatter_island_queue");
     solverCohort =
-        createContactPipeline(@"mr_world_select_solver_cohort");
-    distributedIslandFlags = createContactPipeline(
+        createPipeline(@"mr_world_select_solver_cohort");
+    distributedIslandFlags = createPipeline(
         @"mr_world_flag_distributed_islands"
     );
-    distributedIslandScatter = createContactPipeline(
+    distributedIslandScatter = createPipeline(
         @"mr_world_scatter_distributed_island_queue"
     );
-    distributedTileFlags = createContactPipeline(
+    distributedTileFlags = createPipeline(
         @"mr_world_flag_distributed_tiles"
     );
-    distributedTileScatter = createContactPipeline(
+    distributedTileScatter = createPipeline(
         @"mr_world_scatter_distributed_tile_queue"
     );
     contactSolve =
-        createContactPipeline(@"mr_world_solve_contact_islands");
+        createPipeline(@"mr_world_solve_contact_islands");
     wave32Solve =
-        createContactPipeline(@"mr_world_wave32_solve");
-    wave32DistributedPrepare = createContactPipeline(
+        createPipeline(@"mr_world_wave32_solve");
+    wave32DistributedPrepare = createPipeline(
         @"mr_world_wave32_distributed_prepare"
     );
-    wave32DistributedDelta = createContactPipeline(
+    wave32DistributedDelta = createPipeline(
         @"mr_world_wave32_distributed_delta"
     );
-    wave32DistributedReduce = createContactPipeline(
+    wave32DistributedReduce = createPipeline(
         @"mr_world_wave32_distributed_reduce"
     );
     wave32Reduce =
-        createContactPipeline(@"mr_world_reduce_wave32_status");
+        createPipeline(@"mr_world_reduce_wave32_status");
     contactIntegrate =
-        createContactPipeline(@"mr_world_integrate_contact_state");
+        createPipeline(@"mr_world_integrate_contact_state");
     contactLatch =
-        createContactPipeline(@"mr_world_latch_contact_status");
+        createPipeline(@"mr_world_latch_contact_status");
     contactCommit =
-        createContactPipeline(@"mr_world_commit_contact_state");
+        createPipeline(@"mr_world_commit_contact_state");
     convexCachePublish =
-        createContactPipeline(@"mr_world_publish_convex_cache");
+        createPipeline(@"mr_world_publish_convex_cache");
     contactCapture =
-        createContactPipeline(@"mr_world_capture_contact");
-    qualityPrepare = createContactPipeline(
+        createPipeline(@"mr_world_capture_contact");
+    qualityPrepare = createPipeline(
         @"mr_world_prepare_unified_quality"
     );
-    qualityWarmStart = createContactPipeline(
+    qualityWarmStart = createPipeline(
         @"mr_world_reconstruct_unified_quality_warm_start"
     );
-    qualityQueue = createContactPipeline(
+    qualityQueue = createPipeline(
         @"mr_world_build_unified_quality_queue"
     );
-    qualitySolve = createContactPipeline(
+    qualitySolve = createPipeline(
         @"mr_unified_quality_solve_queued"
     );
-    qualityApply = createContactPipeline(
+    qualityApply = createPipeline(
         @"mr_world_apply_unified_quality"
     );
-    qualityQueueStatus = createContactPipeline(
+    qualityQueueStatus = createPipeline(
         @"mr_world_publish_unified_quality_queue_status"
     );
-    rodPrepare = createContactPipeline(
+    rodPrepare = createPipeline(
         @"mr_world_prepare_rod_state"
     );
-    rodContactPrepare = createContactPipeline(
+    rodContactPrepare = createPipeline(
         @"mr_world_prepare_rod_contact_cache"
     );
-    rodPack = createContactPipeline(
+    rodPack = createPipeline(
         @"mr_world_pack_rod_state"
     );
-    rodStep = createContactPipeline(
+    rodStep = createPipeline(
         @"mr_discrete_elastic_rod_step"
     );
-    rodFactor = createContactPipeline(
+    rodFactor = createPipeline(
         @"mr_world_factor_rod_operator"
     );
-    rodUnpack = createContactPipeline(
+    rodUnpack = createPipeline(
         @"mr_world_unpack_rod_state"
     );
-    rodLatch = createContactPipeline(
+    rodLatch = createPipeline(
         @"mr_world_latch_rod_status"
     );
-    rodContactLatch = createContactPipeline(
+    rodContactLatch = createPipeline(
         @"mr_world_latch_rod_contact_status"
     );
-    rodToolNarrowphase = createContactPipeline(
+    rodToolNarrowphase = createPipeline(
         @"mr_rod_tool_narrowphase"
     );
-    rodContactScan = createContactPipeline(
+    rodContactScan = createPipeline(
         @"mr_world_scan_rod_contact_ir"
     );
-    rodContactScatter = createContactPipeline(
+    rodContactScatter = createPipeline(
         @"mr_world_scatter_rod_contact_ir"
     );
-    rodContactSolve = createContactPipeline(
+    rodContactSolve = createPipeline(
         @"mr_world_solve_rod_contact_constraints"
     );
-    rodCommit = createContactPipeline(
+    rodCommit = createPipeline(
         @"mr_world_commit_rod_state"
     );
-    rodContactCommit = createContactPipeline(
+    rodContactCommit = createPipeline(
         @"mr_world_commit_rod_contact_cache"
     );
-    authoredIRSeed = createContactPipeline(
+    authoredIRSeed = createPipeline(
         @"mr_world_seed_authored_constraint_ir"
     );
-    generalizedConstraintSolve = createContactPipeline(
+    generalizedConstraintSolve = createPipeline(
         @"mr_world_solve_generalized_constraints"
     );
     if (operatorPipeline == nil ||
@@ -5660,6 +5635,9 @@ MetalWorldDiagnostics initializeContext(
         static_cast<std::uint32_t>(
             pairNarrowphase.threadExecutionWidth
         );
+    if (archive != nil && NSProcessInfo.processInfo.environment[@"NUMI_MAC_PROFILE_PIPELINES"] != nil) {
+        fprintf(stderr, "MetalWorld archive hits: %u\n", archiveHits);
+    }
     context.initialized = true;
     context.stats.pipelineCreationCount += 85u;
     return diagnostics;

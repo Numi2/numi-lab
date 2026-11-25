@@ -37,7 +37,8 @@ The first executable with the requested name wins. A custom capability only
 needs to implement normal command-line behavior and may optionally answer
 `--numi-describe` with a one-line description for `numi context`.
 
-Run the native viewer from a Numi Lab source checkout:
+Use the [Numi Lab Mac app](MACOS.md) for a standalone preview, or run the
+native viewer from a Numi Lab source checkout:
 
 ```sh
 ./tools/numi window

@@ -1600,7 +1600,8 @@ private enum TaskRolloutMain {
     private static func run(
         options: Options,
         window: NumiWindowBridge?,
-        onFirstPresented: ((NumiWindowPolicyContract) -> Void)? = nil
+        onFirstPresented: ((NumiWindowPolicyContract) -> Void)? = nil,
+        onRestartPresented: (() -> Void)? = nil
     ) throws {
             guard window?.isClosed != true else {
                 throw NumiWindowError.closed
@@ -2101,6 +2102,7 @@ private enum TaskRolloutMain {
                 options.captureDirectory == nil &&
                 !options.verbose
             var firstPreviewFrameHeld = false
+            var restartAwaitingPresentation = false
             var consecutivePreviewRecoveries = 0
 
             for repeatIndex in 0..<options.repeats {
@@ -2118,6 +2120,26 @@ private enum TaskRolloutMain {
                             return installedPolicyRevision
                         }
                     )
+                    if let window, window.takeRestartRequest() {
+                        guard interactivePreview, streamedActions == nil else {
+                            window.reportPolicyStatus("Restart is unavailable during this run")
+                            continue
+                        }
+                        guard window.waitForDeliveryDrain(timeout: 5) else {
+                            if window.isClosed { throw NumiWindowError.closed }
+                            throw MetalRoboTaskRolloutError.native(
+                                "The previous frame did not finish before restart."
+                            )
+                        }
+                        try context.reset(seed: options.seed)
+                        generator = SplitMix64(seed: options.seed)
+                        pending = [Bool](repeating: options.scheduledResets,
+                                         count: options.environments)
+                        globalStep = 0
+                        completed = 0
+                        consecutivePreviewRecoveries = 0
+                        restartAwaitingPresentation = onRestartPresented != nil
+                    }
                     if window?.isSimulationPaused == true {
                         window?.waitWhileSimulationPaused()
                         continue
@@ -2221,6 +2243,19 @@ private enum TaskRolloutMain {
                         }
                         firstPreviewFrameHeld = true
                         onFirstPresented?(activeContract)
+                    }
+                    if restartAwaitingPresentation {
+                        guard advance.firstGPUStatusCode == 0,
+                              advance.failedEnvironmentSteps == 0,
+                              window?.waitForPresentation(
+                                after: presentationBeforeAdvance, timeout: 5
+                              ) == true else {
+                            throw MetalRoboTaskRolloutError.native(
+                                "The restarted simulation did not present an accepted frame."
+                            )
+                        }
+                        restartAwaitingPresentation = false
+                        onRestartPresented?()
                     }
                     if interactivePreview {
                         if advance.firstGPUStatusCode != 0 ||
@@ -3413,16 +3448,28 @@ private enum TaskRolloutMain {
 
     static func main() {
         _ = signal(SIGPIPE, SIG_IGN)
+        let startedAt = ProcessInfo.processInfo.systemUptime
+        let resources = numiWindowAppResources()
+        var rawArguments = CommandLine.arguments
+        if resources != nil {
+            rawArguments.removeAll { $0.hasPrefix("-psn_") }
+        }
+        let bundleCheck = resources != nil && Array(rawArguments.dropFirst()) == ["--check"]
+        let bundleDefault = resources != nil && (rawArguments.count == 1 || bundleCheck)
         do {
+            if bundleDefault, let resources {
+                rawArguments = [rawArguments[0], "--window-default",
+                                "--metallib", resources.appending(path: "MetalRobo.metallib").path,
+                                "--envs", "1", "--steps", "1000000", "--chunk", "4",
+                                "--repeats", "1", "--window-width", "960", "--window-height", "540"]
+            }
             let sceneChoices = numiWindowSceneCatalog()
-            var rawArguments = CommandLine.arguments
             let useCatalogDefault = rawArguments.contains("--window-default")
             rawArguments.removeAll(where: { $0 == "--window-default" })
             var initialSceneID: String?
             if useCatalogDefault {
-                guard let choice = numiWindowPreferredSceneChoice(
-                    sceneChoices
-                ) else {
+                let starter = bundleDefault ? sceneChoices.first { $0.id == "px4-x500-hover" } : nil
+                guard let choice = starter ?? numiWindowPreferredSceneChoice(sceneChoices) else {
                     throw MetalRoboTaskRolloutError.invalidShape(
                         "numi window has no robot/scene catalog. Import a robot or pass a visual scene."
                     )
@@ -3452,7 +3499,7 @@ private enum TaskRolloutMain {
             let policyChoices = numiWindowPolicyCatalog(
                 sceneChoices: sceneChoices
             )
-            let runtimeCheckEnabled =
+            let runtimeCheckEnabled = bundleCheck ||
                 ProcessInfo.processInfo.environment[
                     "NUMI_WINDOW_RUNTIME_CHECK"
                 ] == "1"
@@ -3468,6 +3515,7 @@ private enum TaskRolloutMain {
                 URL(fileURLWithPath: $0)
             }
             let window = try NumiWindowBridge.launch(
+                canRestart: bundleDefault,
                 canReloadLatestPolicy:
                     initialPolicyURL != nil || !policyChoices.isEmpty,
                 policyChoices: policyChoices,
@@ -3490,12 +3538,19 @@ private enum TaskRolloutMain {
                 var restorationSummary = "restored last working setup"
                 var runtimeCheckSceneIndex = 0
                 var runtimeCheckAttemptedPolicies: Set<URL> = []
+                var firstFrameReported = false
+                var restartVerified = !bundleCheck
                 while !window.isClosed {
                     do {
                         try run(
                             options: activeOptions,
                             window: window,
                             onFirstPresented: { contract in
+                                if !firstFrameReported {
+                                    firstFrameReported = true
+                                    let elapsed = ProcessInfo.processInfo.systemUptime - startedAt
+                                    writeDiagnostic(String(format: "numi window first frame in %.2f s", elapsed))
+                                }
                                 confirmedOptions = activeOptions
                                 confirmedSelection = requestedSelection
                                 confirmedContract = contract
@@ -3521,6 +3576,10 @@ private enum TaskRolloutMain {
                                     )
                                 }
                                 restoringConfirmedConfiguration = false
+                                if !restartVerified {
+                                    window.requestRestartForRuntimeCheck()
+                                    return
+                                }
                                 if runtimeCheckEnabled {
                                     let compatible =
                                         numiWindowCompatiblePolicyChoices(
@@ -3573,7 +3632,15 @@ private enum TaskRolloutMain {
                                     )
                                     window.closeAfterRuntimeCheck()
                                 }
-                            }
+                            },
+                            onRestartPresented: bundleCheck ? {
+                                restartVerified = true
+                                writeDiagnostic("numi window check restarted simulation")
+                                window.requestSceneSelectionForRuntimeCheck(
+                                    "__numi_window_missing_scene_check__"
+                                )
+                                runtimeCheckSceneIndex = 1
+                            } : nil
                         )
                         break
                     } catch NumiWindowError.train(let request) {
@@ -3672,6 +3739,7 @@ private enum TaskRolloutMain {
                             window.reportPolicyStatus(
                                 "preview unavailable · check the selected robot setup"
                             )
+                            if bundleDefault && !bundleCheck { window.reportFailure(detail) }
                             break
                         }
                         if let confirmedOptions,
@@ -3704,8 +3772,17 @@ private enum TaskRolloutMain {
                 }
             }
             NSApplication.shared.run()
+            if runtimeCheckEnabled && !window.didPassRuntimeCheck {
+                writeDiagnostic("numi window runtime check failed")
+                Darwin.exit(1)
+            }
         } catch {
             writeDiagnostic("task_rollout failed: \(error)")
+            if bundleDefault && !bundleCheck {
+                NSApplication.shared.setActivationPolicy(.regular)
+                NSApplication.shared.activate(ignoringOtherApps: true)
+                NSAlert(error: error).runModal()
+            }
             Darwin.exit(1)
         }
     }

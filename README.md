@@ -30,6 +30,10 @@ same compiled native physics path.
 
 ## Run your first simulation on Mac
 
+The Numi Lab Mac preview opens directly into a live X500 hover simulation
+on Apple silicon with macOS 26 or later. It bundles the simulator, Metal
+shaders, and starter scene. [Mac app controls and packaging](docs/MACOS.md)
+
 From an Apple Silicon Mac with Xcode and the build prerequisites, run this
 from the Numi Lab source checkout:
 

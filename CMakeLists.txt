@@ -1064,7 +1064,7 @@ if(METALROBO_HAS_SWIFT)
             Swift_COMPILATION_MODE singlefile
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
             BUILD_RPATH "@loader_path/../lib"
-            INSTALL_RPATH "@loader_path/../lib"
+            INSTALL_RPATH "@loader_path/../lib;@loader_path/../Frameworks"
     )
 
     add_executable(
@@ -2493,3 +2493,7 @@ install(
         licenses/CISST_LICENSE.txt
     DESTINATION share/metalrobo
 )
+
+if(METALROBO_HAS_SWIFT)
+    include(cmake/NumiLabMac.cmake)
+endif()
