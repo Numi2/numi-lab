@@ -1497,9 +1497,17 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         else { throw MetalRoboTaskRolloutError.native(Self.lastError()) }
     }
 
-    public func contactSample() throws -> MetalRoboTaskContactSample {
+    public func contactSample(body: String? = nil) throws -> MetalRoboTaskContactSample {
         var sample = MRTaskContactSampleC()
-        guard mr_task_rollout_contact_sample(handle, &sample) == 0
+        let status: Int32
+        if let body {
+            status = body.withCString {
+                mr_task_rollout_contact_sample_for_body(handle, $0, &sample)
+            }
+        } else {
+            status = mr_task_rollout_contact_sample(handle, &sample)
+        }
+        guard status == 0
         else { throw MetalRoboTaskRolloutError.native(Self.lastError()) }
         return MetalRoboTaskContactSample(
             active: sample.active_contacts,

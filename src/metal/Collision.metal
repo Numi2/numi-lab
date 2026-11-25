@@ -279,7 +279,8 @@ bool validWorldShapeRecord(
          ~(
              MR_SHAPE_FLAG_SIMULATION_DISABLED |
              MR_SHAPE_FLAG_ENABLE_CCD |
-             MR_SHAPE_FLAG_MESH_TWO_SIDED
+             MR_SHAPE_FLAG_MESH_TWO_SIDED |
+             MR_SHAPE_FLAG_AUTHORED_COLLISION_FILTER
          )) != 0u ||
         !collisionInputDomainXyz(shape.localPosition) ||
         !finiteFloat4(shape.localRotation) ||
@@ -333,7 +334,8 @@ bool makeWorldShape(
          ~(
              MR_SHAPE_FLAG_SIMULATION_DISABLED |
              MR_SHAPE_FLAG_ENABLE_CCD |
-             MR_SHAPE_FLAG_MESH_TWO_SIDED
+             MR_SHAPE_FLAG_MESH_TWO_SIDED |
+             MR_SHAPE_FLAG_AUTHORED_COLLISION_FILTER
          )) != 0u ||
         !collisionInputDomainXyz(shape.localPosition) ||
         !finiteFloat4(shape.localRotation) ||

@@ -1,6 +1,7 @@
 import Foundation
 import Darwin
 import AppKit
+import CryptoKit
 
 // Diagnostics must never own process lifetime. FileHandle.write raises an
 // Objective-C exception when an inherited stderr pipe closes; POSIX write with
@@ -181,6 +182,7 @@ private struct Options {
     var repeats = 20
     var chunk = 8
     var physicsSubsteps = defaultPhysicsSubsteps
+    private(set) var hasAuthoredPhysicsSubsteps = false
     var velocityIterations = 4
     var finalVelocityIterations = 2
     var surface = MetalRoboLocomotionSurface.terrain
@@ -227,6 +229,7 @@ private struct Options {
     var interactionPushIntervalSeconds: Float?
     var stateTrace: String?
     var contactTrace: String?
+    var contactBody: String?
     var stateTraceEnvironment = 0
     var motionFeatureTrace: String?
     var motionFeatureTraceEnvironment = 0
@@ -245,7 +248,7 @@ private struct Options {
     var captureStride = 1
     var capturePolicyCamera = false
 
-    init(arguments: [String]) throws {
+    init(arguments: [String], validateAtEnd: Bool = true) throws {
         var index = 1
         while index < arguments.count {
             let option = arguments[index]
@@ -272,6 +275,7 @@ private struct Options {
                 index += 1
             case "--physics-substeps":
                 physicsSubsteps = try Self.integer(value(), option)
+                hasAuthoredPhysicsSubsteps = true
                 index += 1
             case "--velocity-iterations":
                 velocityIterations = try Self.integer(value(), option)
@@ -536,6 +540,9 @@ private struct Options {
             case "--contact-trace":
                 contactTrace = try value()
                 index += 1
+            case "--contact-body":
+                contactBody = try value()
+                index += 1
             case "--state-trace-environment":
                 stateTraceEnvironment = try Self.integer(value(), option)
                 index += 1
@@ -595,6 +602,16 @@ private struct Options {
             }
             index += 1
         }
+        if validateAtEnd { try validate() }
+    }
+
+    mutating func configurePresentation(for scene: NumiWindowSceneChoice) {
+        inspectionScene = scene.visualObservationURL.path
+        windowRobotID = scene.robotID
+        windowChoiceID = scene.id
+    }
+
+    func validate() throws {
         guard environments > 0,
               steps > 0,
               repeats > 0,
@@ -762,6 +779,9 @@ private struct Options {
                 "--contact-trace requires --envs 1 --repeats 1 --chunk 1."
             )
         }
+        if let contactBody, contactBody.isEmpty || contactTrace == nil {
+            throw MetalRoboTaskRolloutError.invalidShape("--contact-body requires a name and --contact-trace.")
+        }
         if stateTrace != nil && (repeats != 1 || chunk != 1) {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "--state-trace requires --repeats 1 --chunk 1."
@@ -922,6 +942,11 @@ private func makeInspectionVisual(
     )
     inspection.width = UInt32(options.inspectionWidth)
     inspection.height = UInt32(options.inspectionHeight)
+    if inspection.maximumRetainedBytes == 0,
+       UInt64(inspection.width) * UInt64(inspection.height) > 1280 * 720 {
+        // Leave room for the larger tile and image buffers alongside scene geometry.
+        inspection.maximumRetainedBytes = 384 * 1024 * 1024
+    }
     // Inspection is a presentation path, never a media-export configuration.
     inspection.captureWidth = 0
     inspection.captureHeight = 0
@@ -1400,56 +1425,35 @@ private enum TaskRolloutMain {
         defaultPhysicsSubsteps: Int,
         policyOverride: URL? = nil
     ) throws -> Options {
-        var arguments = [CommandLine.arguments[0]]
-        var index = 0
-        while index < choice.launchArguments.count {
-            let option = choice.launchArguments[index]
-            if option == "--loop-action-clip" && policyOverride != nil {
-                index += 1
-                continue
-            }
-            if option == "--policy-pack" || option == "--action-stream" ||
-                (option == "--action-clip" && policyOverride != nil) {
-                index += 2
-                continue
-            }
-            if option == "--native-policy" || option == "--zero-actions" {
-                index += 1
-                continue
-            }
-            arguments.append(option)
-            index += 1
+        var options = try Options(
+            arguments: [CommandLine.arguments[0]] + choice.launchArguments,
+            validateAtEnd: false
+        )
+        options.configurePresentation(for: choice)
+        options.nativePolicy = false
+        options.actionStream = nil
+        options.policyPack = policyOverride?.path
+        if policyOverride != nil {
+            options.actionClip = nil
+            options.loopActionClip = false
         }
-        if let policyOverride {
-            arguments.append(contentsOf: [
-                "--policy-pack", policyOverride.path,
-            ])
-        } else if !arguments.contains("--action-clip") {
-            // A scene change has a new world/task contract until proven
-            // otherwise. Never smuggle the previous controller or action
-            // stream into the replacement world based only on a robot label.
-            arguments.append("--zero-actions")
+        // The new world owns its authored clip or an explicitly selected policy.
+        options.zeroActions = options.actionClip == nil && options.policyPack == nil
+        options.inspectionWidth = baseline.inspectionWidth
+        options.inspectionHeight = baseline.inspectionHeight
+        options.metallib = baseline.metallib
+        options.environments = baseline.environments
+        options.steps = baseline.steps
+        options.repeats = baseline.repeats
+        options.chunk = baseline.chunk
+        options.velocityIterations = baseline.velocityIterations
+        options.finalVelocityIterations = baseline.finalVelocityIterations
+        options.seed = baseline.seed
+        if !options.hasAuthoredPhysicsSubsteps {
+            options.physicsSubsteps = defaultPhysicsSubsteps
         }
-        arguments.append(contentsOf: [
-            "--window-scene", choice.visualObservationURL.path,
-            "--window-robot-id", choice.robotID,
-            "--window-choice-id", choice.id,
-            "--window-width", String(baseline.inspectionWidth),
-            "--window-height", String(baseline.inspectionHeight),
-            "--metallib", baseline.metallib,
-            "--envs", String(baseline.environments),
-            "--steps", String(baseline.steps),
-            "--repeats", String(baseline.repeats),
-            "--chunk", String(baseline.chunk),
-            "--velocity-iterations", String(baseline.velocityIterations),
-            "--final-velocity-iterations",
-            String(baseline.finalVelocityIterations),
-            "--seed", String(baseline.seed),
-        ])
-        if !arguments.contains("--physics-substeps") {
-            arguments += ["--physics-substeps", String(defaultPhysicsSubsteps)]
-        }
-        return try Options(arguments: arguments)
+        try options.validate()
+        return options
     }
 
     private struct WindowTrainingResult {
@@ -2177,7 +2181,7 @@ private enum TaskRolloutMain {
                 !options.verbose
             var firstPreviewFrameHeld = false
             var restartAwaitingPresentation = false
-            var consecutivePreviewRecoveries = 0
+            var previewRecovery = NumiPreviewRecovery()
             var nextStateSample = 0.0
             var contactReadbackEnabled = false
             let profilePlayback = interactivePreview &&
@@ -2201,7 +2205,8 @@ private enum TaskRolloutMain {
                         }
                     )
                     if let window, window.takeRestartRequest() ||
-                        (interactivePreview && options.loopActionClip && !usesCompiledPolicy &&
+                        (interactivePreview && previewRecovery.consecutiveFailures == 0 &&
+                         options.loopActionClip && !usesCompiledPolicy &&
                          !window.isSimulationPaused && globalStep >= (clipStepCount ?? Int.max)) {
                         guard interactivePreview, streamedActions == nil else {
                             window.reportPolicyStatus("Restart is unavailable during this run")
@@ -2219,7 +2224,7 @@ private enum TaskRolloutMain {
                                          count: options.environments)
                         globalStep = 0
                         completed = 0
-                        consecutivePreviewRecoveries = 0
+                        previewRecovery = NumiPreviewRecovery()
                         restartAwaitingPresentation = onRestartPresented != nil
                     }
                     let singleStep = window?.takeStepRequest() == true
@@ -2328,10 +2333,11 @@ private enum TaskRolloutMain {
                             policyRevision: 1
                         )
                     }
+                    let accepted = advance.firstGPUStatusCode == 0 && advance.failedEnvironmentSteps == 0
                     let contactSample: MetalRoboTaskContactSample?
-                    if sampleContacts && advance.failedEnvironmentSteps == 0 {
+                    if sampleContacts && accepted {
                         if options.contactTrace != nil {
-                            contactSample = try context.contactSample()
+                            contactSample = try context.contactSample(body: options.contactBody)
                         } else {
                             contactSample = try? context.contactSample()
                         }
@@ -2345,7 +2351,7 @@ private enum TaskRolloutMain {
                         ]
                         contactTraceLines.append(fields.joined(separator: "\t"))
                     }
-                    if sampleState, advance.failedEnvironmentSteps == 0, let window {
+                    if sampleState, accepted, let window {
                         let q = Array(try context.finalConfiguration().prefix(context.layout.configurationCount))
                         let scene = Array(try context.finalSceneStates().prefix(3))
                         window.reportStateSample(
@@ -2354,20 +2360,20 @@ private enum TaskRolloutMain {
                         )
                         nextStateSample = now + 0.2
                     }
-                    try publishInspectionFrame(
-                        from: context,
-                        to: window,
-                        loadPolicy: { url in
-                            try context.loadPolicy(
-                                at: url
-                            )
-                            usesCompiledPolicy = true
-                            installedPolicyRevision =
-                                context.installedPolicyRevision
+                    let failedPreview = interactivePreview && !accepted
+                    if !failedPreview {
+                        try publishInspectionFrame(
+                            from: context,
+                            to: window,
+                            loadPolicy: { url in
+                                try context.loadPolicy(at: url)
+                                usesCompiledPolicy = true
+                                installedPolicyRevision = context.installedPolicyRevision
                                 return installedPolicyRevision
                             }
-                    )
-                    if interactivePreview && !firstPreviewFrameHeld {
+                        )
+                    }
+                    if interactivePreview && !firstPreviewFrameHeld && !failedPreview {
                         // A configuration becomes current only after the
                         // drawable command buffer for its authored reset frame
                         // completes. Queue submission or an arbitrary sleep is
@@ -2397,37 +2403,26 @@ private enum TaskRolloutMain {
                         onRestartPresented?()
                     }
                     if interactivePreview {
-                        if advance.firstGPUStatusCode != 0 ||
-                            advance.failedEnvironmentSteps != 0 {
-                            // A failed environment step is transactional: its
-                            // last accepted state is still intact. In the live
-                            // viewer, schedule a clean reset instead of tearing
-                            // down the entire app. Strict rollout/training paths
-                            // below continue to reject the same GPU status.
-                            if advance.firstFailingEnvironment <
-                                UInt32(pending.count) {
-                                pending[Int(
-                                    advance.firstFailingEnvironment
-                                )] = true
-                            } else {
-                                pending = [Bool](
-                                    repeating: true,
-                                    count: pending.count
-                                )
-                            }
-                            consecutivePreviewRecoveries += 1
+                        if failedPreview {
                             failedSteps += advance.failedEnvironmentSteps
-                            let status = advance.firstGPUStatusCode
-                            window?.reportPolicyStatus(
-                                "preview recovered physics status \(status)"
-                            )
-                        } else {
-                            if consecutivePreviewRecoveries > 0 {
-                                window?.reportPolicyStatus(
-                                    "preview running"
-                                )
+                            let failedTick = advance.firstFailingControlStep < UInt32(stepCount)
+                                ? globalStep + Int(advance.firstFailingControlStep) + 1 : globalStep + 1
+                            let detail = "Physics status \(advance.firstGPUStatusCode) at tick \(failedTick)"
+                            if previewRecovery.canRetryFailure() {
+                                if advance.firstFailingEnvironment < UInt32(pending.count) {
+                                    pending[Int(advance.firstFailingEnvironment)] = true
+                                } else {
+                                    pending = [Bool](repeating: true, count: pending.count)
+                                }
+                                window?.reportPolicyStatus("\(detail) · retrying")
+                            } else {
+                                guard firstPreviewFrameHeld else {
+                                    throw MetalRoboTaskRolloutError.native(detail)
+                                }
+                                window?.pauseAfterPhysicsFailure("\(detail) · paused")
                             }
-                            consecutivePreviewRecoveries = 0
+                        } else if previewRecovery.didAcceptStep() {
+                            window?.reportPolicyStatus("Physics recovered")
                         }
                         totalResets += advance.hostRequestedResets
                         maximumContacts = max(
@@ -2440,7 +2435,7 @@ private enum TaskRolloutMain {
                         )
                         completed += stepCount
                         globalStep += stepCount
-                        if endsClip && !options.loopActionClip && advance.failedEnvironmentSteps == 0 {
+                        if endsClip && !options.loopActionClip && accepted {
                             window?.pauseAfterReplay()
                         }
 
@@ -3324,6 +3319,12 @@ private enum TaskRolloutMain {
                     : "host_stream",
                 "action_stream": options.actionStream ?? "",
                 "action_clip": options.actionClip ?? "",
+                "action_clip_sha256": actionClip.map { values in
+                    values.withUnsafeBufferPointer { buffer in
+                        SHA256.hash(data: Data(buffer: buffer))
+                            .map { String(format: "%02x", $0) }.joined()
+                    }
+                } ?? "",
                 "device": context.deviceName,
                 "solver_mode": "temporal_cone",
                 "articulated_contact_responses":
@@ -3354,6 +3355,7 @@ private enum TaskRolloutMain {
                 "visual_observation_config":
                     options.visualObservationConfig ?? "",
                 "state_trace": options.stateTrace ?? "",
+                "contact_body": options.contactBody ?? "",
                 "motion_feature_trace":
                     options.motionFeatureTrace ?? "",
                 "environments": options.environments,
@@ -3661,12 +3663,6 @@ private enum TaskRolloutMain {
                     "--steps", headlessScene ? "400" : "1000000",
                     "--chunk", headlessScene ? "1" : "4",
                 ] + choice.launchArguments, at: 1)
-                if !headlessScene {
-                    rawArguments += [
-                        "--window-scene", choice.visualObservationURL.path,
-                        "--window-robot-id", choice.robotID, "--window-choice-id", choice.id,
-                    ]
-                }
             } else if headlessScene {
                 throw MetalRoboTaskRolloutError.invalidShape("--headless requires --scene-file.")
             }
@@ -3680,15 +3676,16 @@ private enum TaskRolloutMain {
                         "numi window has no robot/scene catalog. Import a robot or pass a visual scene."
                     )
                 }
-                rawArguments.append(contentsOf: choice.launchArguments)
-                rawArguments.append(contentsOf: [
-                    "--window-scene", choice.visualObservationURL.path,
-                    "--window-robot-id", choice.robotID,
-                    "--window-choice-id", choice.id,
-                ])
+                rawArguments.insert(contentsOf: choice.launchArguments, at: 1)
+                openedScene = choice
                 initialSceneID = choice.id
             }
-            let options = try Options(arguments: rawArguments)
+            var parsedOptions = try Options(arguments: rawArguments, validateAtEnd: false)
+            if let openedScene, !headlessScene || useCatalogDefault {
+                parsedOptions.configurePresentation(for: openedScene)
+            }
+            try parsedOptions.validate()
+            let options = parsedOptions
             guard options.inspectionScene != nil else {
                 try run(options: options, window: nil)
                 return

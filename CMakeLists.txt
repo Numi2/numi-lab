@@ -8,7 +8,7 @@ endif()
 
 project(
     MetalRobo
-    VERSION 0.5.1
+    VERSION 0.5.2
     DESCRIPTION "Metal-native robotics simulation and reinforcement learning"
     LANGUAGES C CXX OBJCXX
 )

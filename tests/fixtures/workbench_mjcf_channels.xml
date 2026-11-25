@@ -1,0 +1,19 @@
+<mujoco model="Reversed motor order">
+  <option gravity="0 0 0" timestep="0.002"/>
+  <worldbody>
+    <body name="body_alpha">
+      <inertial pos="0 0 0" mass="1" diaginertia="0.01 0.01 0.01"/>
+      <joint name="alpha"/>
+      <geom size="0.10" contype="0" conaffinity="0"/>
+    </body>
+    <body name="body_beta" pos="2 0 0">
+      <inertial pos="0 0 0" mass="1" diaginertia="0.01 0.01 0.01"/>
+      <joint name="beta"/>
+      <geom size="0.10" contype="0" conaffinity="0"/>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name="motor_beta" joint="beta" ctrlrange="-1 1"/>
+    <motor name="motor_alpha" joint="alpha" ctrlrange="-1 1"/>
+  </actuator>
+</mujoco>

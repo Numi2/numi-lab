@@ -46,6 +46,11 @@ set to zero for visual-only geometry. An optional horizontal world plane at
 Z = 0 uses Numi's ground contact. The viewer still shows its stage grid for
 models without a colliding ground.
 
+Normalized action rows follow the MJCF motor declaration order. The project's
+`project.json` lists each channel's joint, effort limit, and authored motor
+name when present. When recooking an older project, use the regenerated
+channel map to align existing action clips.
+
 Models with defaults, includes, meshes, floating joints, custom contact
 parameters, or other unsupported MJCF features report an error with the XML
 line that needs attention. Numi Lab runs imported projects with its own Metal
@@ -55,8 +60,10 @@ is a small example you can open directly in the app.
 
 **View → Export State Samples** writes up to the latest 300 samples, taken
 about five times a second while the inspector is open. Headless
-`--state-trace` and `--contact-trace` sample at the end of each submission.
-Use `--chunk 1` to capture every control tick. The
+`--state-trace` and `--contact-trace` require `--chunk 1` and sample every
+control tick. Contact readback reports the active contact count and strongest
+normal force from the last accepted physics substep. Add `--contact-body NAME`
+to restrict both values to a body. The
 [Python experiment API](#script-a-run) can compile and run the same project.
 
 **File → Open Panda Model** imports the pinned stock Panda from MuJoCo
@@ -83,7 +90,8 @@ and Ninja:
 ./tools/package_macos.sh /path/to/output
 ```
 
-The command writes a signed local-preview ZIP and a SHA-256 checksum.
+The command checks the packaged app on Metal before writing a signed
+local-preview ZIP and a SHA-256 checksum.
 The default package includes precompiled Metal pipelines for the base M1
 through M5 GPUs and a shader library for runtime compilation. To build a
 smaller local preview that compiles pipelines on first use, configure CMake
@@ -125,7 +133,11 @@ print(result.stats["environment_control_steps_per_second"])
 
 Supply `actions=[(0.1,), (0.2,)]` to drive a one-actuator project directly.
 The native runner broadcasts each row across environments and holds the
-last row when the sequence ends. Pass an MJCF XML path to the same
+last row when the sequence ends. A result from explicit action rows retains
+the packed bytes in `result.action_clip` and records their SHA-256 under
+`result.stats["action_clip_sha256"]`. Save the bytes with
+`Path("actions.f32").write_bytes(result.action_clip)` and pass that path as
+`action_clip` to replay them. Pass an MJCF XML path to the same
 `Experiment.compile` call to run an imported MJCF model. The authored
 gravity and timestep apply unless you pass `gravity` to `compile` or
 `physics_substeps` to `run`. See the [matched MuJoCo fixture](../examples/bench_pendulum/README.md)

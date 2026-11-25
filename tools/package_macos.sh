@@ -46,6 +46,7 @@ else
     codesign --force --sign - "$app"
 fi
 codesign --verify --deep --strict "$app"
+"$repo/tests/numi_mac_workbench_test.sh" "$app"
 archive="$stage/$name.zip"
 ditto -c -k --sequesterRsrc --keepParent "$app" "$archive"
 

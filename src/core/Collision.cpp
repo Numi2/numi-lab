@@ -493,7 +493,8 @@ bool validShapeRecord(
     constexpr std::uint32_t knownShapeFlags =
         MR_SHAPE_FLAG_SIMULATION_DISABLED |
         MR_SHAPE_FLAG_ENABLE_CCD |
-        MR_SHAPE_FLAG_MESH_TWO_SIDED;
+        MR_SHAPE_FLAG_MESH_TWO_SIDED |
+        MR_SHAPE_FLAG_AUTHORED_COLLISION_FILTER;
     if ((shape.flags & ~knownShapeFlags) != 0u ||
         !collisionInputDomainXyz(shape.localPosition) ||
         !finite(shape.localRotation) ||

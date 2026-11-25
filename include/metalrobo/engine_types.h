@@ -209,6 +209,9 @@ enum MRShapeFlags : mr_u32 {
     MR_SHAPE_FLAG_ENABLE_CCD = 1u << 1u,
     // Triangle meshes are one-sided unless this bit is authored.
     MR_SHAPE_FLAG_MESH_TWO_SIDED = 1u << 2u,
+    // Pairs of shapes with this bit use the model's collision exclusions
+    // in place of the default filter for directly connected links.
+    MR_SHAPE_FLAG_AUTHORED_COLLISION_FILTER = 1u << 3u,
 };
 
 enum MRRawContactFlags : mr_u32 {
