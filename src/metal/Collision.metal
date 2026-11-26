@@ -1493,19 +1493,6 @@ float3 boxAxis(
     return quaternionRotate(box.rotation, local);
 }
 
-float boxProjectionRadius(
-    const thread WorldShape& box,
-    const float3 axis
-) {
-    return
-        abs(dot(axis, boxAxis(box, 0u))) *
-            box.halfExtents.x +
-        abs(dot(axis, boxAxis(box, 1u))) *
-            box.halfExtents.y +
-        abs(dot(axis, boxAxis(box, 2u))) *
-            box.halfExtents.z;
-}
-
 float3 boxVertex(
     const thread WorldShape& box,
     const uint vertexIndex
@@ -1576,6 +1563,50 @@ void appendBoxBoxContact(
     );
 }
 
+float boxBasisProjectionRadius(
+    const float3x3 basis,
+    const float3 halfExtents,
+    const float3 axis
+) {
+    return halfExtents.x * abs(dot(axis, basis[0])) +
+        halfExtents.y * abs(dot(axis, basis[1])) +
+        halfExtents.z * abs(dot(axis, basis[2]));
+}
+
+struct BoxSatState {
+    float separation;
+    float3 normal;
+    uint axis;
+};
+
+bool selectBoxSatAxis(
+    float3 axis,
+    const uint index,
+    const float3 centerDelta,
+    const float3x3 basisA,
+    const float3x3 basisB,
+    const float3 halfA,
+    const float3 halfB,
+    const float maximumSeparation,
+    thread BoxSatState& best
+) {
+    const float projection = dot(centerDelta, axis);
+    const float separation = abs(projection) -
+        boxBasisProjectionRadius(basisA, halfA, axis) -
+        boxBasisProjectionRadius(basisB, halfB, axis);
+    if (separation > maximumSeparation) return false;
+    const float tieTolerance =
+        1.0e-7f * (1.0f + max(abs(best.separation), abs(separation)));
+    if (index == 0u || separation > best.separation + tieTolerance) {
+        if (projection < 0.0f ||
+            (projection == 0.0f && dot(axis, best.normal) < 0.0f)) {
+            axis = -axis;
+        }
+        best = {separation, axis, index};
+    }
+    return true;
+}
+
 ContactBatch boxBoxContacts(
     const uint colliderA,
     const uint colliderB,
@@ -1584,66 +1615,45 @@ ContactBatch boxBoxContacts(
     const float acceptedContactDistance
 ) {
     ContactBatch result{};
-    float3 axes[15];
-    uint axisCount = 0u;
-    for (uint axis = 0u; axis < 3u; ++axis) {
-        axes[axisCount++] = boxAxis(boxA, axis);
-    }
-    for (uint axis = 0u; axis < 3u; ++axis) {
-        axes[axisCount++] = boxAxis(boxB, axis);
-    }
-    for (uint axisA = 0u; axisA < 3u; ++axisA) {
-        for (uint axisB = 0u; axisB < 3u; ++axisB) {
-            const float3 crossed = cross(
-                boxAxis(boxA, axisA),
-                boxAxis(boxB, axisB)
-            );
-            const float squared = dot(crossed, crossed);
-            if (squared > 1.0e-12f) {
-                axes[axisCount++] = crossed * rsqrt(squared);
-            }
-        }
-    }
-
+    const float3x3 basisA = float3x3(
+        boxAxis(boxA, 0u), boxAxis(boxA, 1u), boxAxis(boxA, 2u)
+    );
+    const float3x3 basisB = float3x3(
+        boxAxis(boxB, 0u), boxAxis(boxB, 1u), boxAxis(boxB, 2u)
+    );
     const float3 centerDelta = boxB.center - boxA.center;
-    float bestSeparation = -INFINITY;
-    float3 bestNormal =
-        coincidentNormal(colliderA, colliderB);
-    uint bestAxis = 0u;
-    for (uint axisIndex = 0u;
-         axisIndex < axisCount;
-         ++axisIndex) {
-        float3 axis = axes[axisIndex];
-        const float projection = dot(centerDelta, axis);
-        if (projection < 0.0f ||
-            (projection == 0.0f &&
-             dot(axis, bestNormal) < 0.0f)) {
-            axis = -axis;
-        }
-        const float separation =
-            abs(projection) -
-            boxProjectionRadius(boxA, axis) -
-            boxProjectionRadius(boxB, axis);
-        if (separation > acceptedContactDistance) {
-            return result;
-        }
-        const float tieTolerance =
-            1.0e-7f *
-            (1.0f + max(abs(bestSeparation), abs(separation)));
-        if (!isfinite(bestSeparation) ||
-            separation > bestSeparation + tieTolerance ||
-            (abs(separation - bestSeparation) <= tieTolerance &&
-             axisIndex < bestAxis)) {
-            bestSeparation = separation;
-            bestNormal = axis;
-            bestAxis = axisIndex;
+    BoxSatState best = {-INFINITY, coincidentNormal(colliderA, colliderB), 0u};
+    #pragma clang loop unroll(full)
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        if (!selectBoxSatAxis(basisA[axis], axis, centerDelta,
+                basisA, basisB, boxA.halfExtents, boxB.halfExtents,
+                acceptedContactDistance, best)) return result;
+    }
+    #pragma clang loop unroll(full)
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        if (!selectBoxSatAxis(basisB[axis], axis + 3u, centerDelta,
+                basisA, basisB, boxA.halfExtents, boxB.halfExtents,
+                acceptedContactDistance, best)) return result;
+    }
+    uint edgeIndex = 6u;
+    #pragma clang loop unroll(full)
+    for (uint axisA = 0u; axisA < 3u; ++axisA) {
+        #pragma clang loop unroll(full)
+        for (uint axisB = 0u; axisB < 3u; ++axisB) {
+            const float3 crossed = cross(basisA[axisA], basisB[axisB]);
+            const float squared = dot(crossed, crossed);
+            if (squared > 1.0e-12f &&
+                !selectBoxSatAxis(crossed * rsqrt(squared), edgeIndex++, centerDelta,
+                    basisA, basisB, boxA.halfExtents, boxB.halfExtents,
+                    acceptedContactDistance, best)) return result;
         }
     }
-
+    const float3 bestNormal = best.normal;
+    const uint bestAxis = best.axis;
     const float radiusA =
-        boxProjectionRadius(boxA, bestNormal);
+        boxBasisProjectionRadius(basisA, boxA.halfExtents, bestNormal);
     const float radiusB =
-        boxProjectionRadius(boxB, bestNormal);
+        boxBasisProjectionRadius(basisB, boxB.halfExtents, bestNormal);
     const float nearPlaneB =
         dot(boxB.center, bestNormal) - radiusB;
     const float farPlaneA =
@@ -4830,6 +4840,10 @@ ContactBatch generateContacts(
     }
     return result;
 }
+
+#if defined(MR_COLLISION_RESIDENT_ONLY)
+} // namespace
+#else
 
 bool finiteContact(const thread MRRawContactGPU& contact) {
     const float normalLength =
@@ -11675,3 +11689,5 @@ kernel void mr_world_scatter_rod_contact_ir(
         pointQueries[ownerQuery] = query;
     }
 }
+
+#endif // MR_COLLISION_RESIDENT_ONLY

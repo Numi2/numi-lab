@@ -1,0 +1,942 @@
+#include "metalrobo/resident_articulated_world_types.h"
+
+namespace {
+
+constant uint kResidentDofs = MR_RESIDENT_DOF_CAPACITY;
+constant uint kResidentBodies = MR_RESIDENT_BODY_CAPACITY;
+constant uint kResidentFree = MR_RESIDENT_FREE_CAPACITY;
+constant uint kResidentContacts = MR_RESIDENT_CONTACT_CAPACITY;
+constant uint kResidentVelocity = MR_RESIDENT_VELOCITY_CAPACITY;
+constant uint kResidentWidth = 32u;
+
+struct ResidentPose {
+    float3 position;
+    float4 rotation;
+};
+
+struct ResidentMotion {
+    float3 angular;
+    float3 linear;
+};
+
+struct ResidentBodyMass {
+    float4 firstMomentAndMass;
+    float3 diagonal;
+    // Off-diagonal entries xy, xz, yz of inertia about the world origin.
+    float3 offDiagonal;
+};
+
+struct ResidentHit {
+    MRRawContactGPU raw;
+    uint pair;
+};
+
+struct ResidentWarmPoint {
+    uint4 key;
+    float4 position;
+    float3 impulse;
+};
+
+struct ResidentContact {
+    float3x3 basis;
+    float3 point;
+    float3 inverseDiagonal;
+    float tangentCoupling;
+    float2 normalCoupling;
+    float friction;
+    float dynamicFriction;
+    float bias;
+    float compliance;
+};
+
+struct ResidentScratch {
+    ResidentPose pose[kResidentBodies];
+    ResidentBodyMass mass[kResidentBodies];
+    ResidentMotion screw[kResidentDofs];
+    ResidentMotion wrench[kResidentBodies];
+    float3x3 freeInverseInertia[kResidentFree];
+    ResidentPose freePose[kResidentFree];
+    float q[kResidentDofs];
+    float filtered[kResidentDofs];
+    float targets[kResidentDofs];
+    float velocity[kResidentVelocity];
+    float rhs[kResidentDofs];
+    float inverse[kResidentDofs][kResidentDofs];
+    ResidentHit hits[kResidentContacts];
+    packed_float3 jacobian[kResidentContacts][kResidentVelocity];
+    packed_float3 response[kResidentContacts][kResidentVelocity];
+    ResidentContact contact[kResidentContacts];
+    ResidentWarmPoint warm[2][kResidentContacts];
+    float3 lambda[kResidentContacts];
+};
+
+ResidentPose residentCompose(ResidentPose parent, ResidentPose local) {
+    return {
+        parent.position + quaternionRotate(parent.rotation, local.position),
+        quaternionMultiply(parent.rotation, local.rotation)
+    };
+}
+
+ResidentMotion residentShuffle(ResidentMotion value, uint index) {
+    return {
+        simd_shuffle(value.angular, ushort(index)),
+        simd_shuffle(value.linear, ushort(index))
+    };
+}
+
+ResidentMotion residentAdd(ResidentMotion a, ResidentMotion b) {
+    return {a.angular + b.angular, a.linear + b.linear};
+}
+
+ResidentMotion residentCross(ResidentMotion a, ResidentMotion b) {
+    return {
+        cross(a.angular, b.angular),
+        cross(a.angular, b.linear) + cross(a.linear, b.angular)
+    };
+}
+
+float3x3 residentRotation(float4 q) {
+    return float3x3(
+        quaternionRotate(q, float3(1, 0, 0)),
+        quaternionRotate(q, float3(0, 1, 0)),
+        quaternionRotate(q, float3(0, 0, 1))
+    );
+}
+
+float3x3 residentWorldInertia(float4 pose, constant float4* inertia) {
+    const float3x3 rotation = residentRotation(pose);
+    const float3x3 local = float3x3(inertia[0].xyz, inertia[1].xyz, inertia[2].xyz);
+    return rotation * local * transpose(rotation);
+}
+
+void residentKinematics(
+    constant MRResidentProgramGPU& program,
+    threadgroup ResidentScratch& scratch,
+    uint lane
+) {
+    const bool bodyLane = lane < program.sizes.x;
+    const uint index = min(lane, kResidentBodies - 1u);
+    constant MRResidentBodyGPU& body = program.bodies[index];
+    constant MRResidentJointGPU& joint = program.joints[index];
+    const bool articulated = bodyLane && body.topology.x != 0u;
+    const uint parent = articulated ? joint.topology.x : index;
+    const uint dof = articulated ? joint.topology.y : MR_INVALID_INDEX;
+    const uint slot = body.topology.y;
+    ResidentPose pose = {body.initialPosition.xyz, body.initialRotation};
+    if (bodyLane && slot < kResidentFree) {
+        pose = scratch.freePose[slot];
+    }
+    if (articulated && parent != index) {
+        const float q = dof < kResidentDofs ? scratch.q[dof] : 0.0f;
+        float3 anchor = joint.parentAnchor.xyz;
+        float4 jointRotation = joint.parentRotation;
+        if (joint.topology.z == MR_JOINT_REVOLUTE) {
+            float cosine = 0.0f;
+            const float sine = sincos(0.5f * q, cosine);
+            const float4 turn = float4(joint.axis.xyz * sine, cosine);
+            jointRotation = quaternionMultiply(jointRotation, turn);
+        } else if (joint.topology.z == MR_JOINT_PRISMATIC) {
+            anchor += quaternionRotate(jointRotation, q * joint.axis.xyz);
+        }
+        pose.rotation = quaternionMultiply(jointRotation, joint.inverseChildRotation);
+        pose.position = anchor - quaternionRotate(pose.rotation, joint.childAnchor.xyz);
+    }
+
+    // One parallel tree scan resolves every body pose, including fixed links.
+    uint cursor = articulated && parent != index ? parent : lane;
+    #pragma clang loop unroll(full)
+    for (uint level = 0; level < 4; ++level) {
+        const ResidentPose ancestor = {
+            simd_shuffle(pose.position, ushort(cursor)),
+            simd_shuffle(pose.rotation, ushort(cursor))
+        };
+        const uint next = simd_shuffle(cursor, ushort(cursor));
+        if (cursor != lane) {
+            // Once the root transform has been included there are no more
+            // ancestors to compose, even if extra scan rounds remain.
+            pose = residentCompose(ancestor, pose);
+        }
+        cursor = next == cursor ? lane : next;
+    }
+
+    const ResidentPose parentPose = {
+        simd_shuffle(pose.position, ushort(parent)),
+        simd_shuffle(pose.rotation, ushort(parent))
+    };
+    ResidentMotion screw = {};
+    ResidentMotion contribution = {};
+    if (dof < kResidentDofs) {
+        const float4 frame = quaternionMultiply(parentPose.rotation, joint.parentRotation);
+        const float3 axis = quaternionRotate(frame, joint.axis.xyz);
+        if (joint.topology.z == MR_JOINT_REVOLUTE) {
+            const float3 anchor = parentPose.position +
+                quaternionRotate(parentPose.rotation, joint.parentAnchor.xyz);
+            screw = {axis, cross(anchor, axis)};
+        } else {
+            screw.linear = axis;
+        }
+        const float speed = scratch.velocity[dof];
+        contribution = {screw.angular * speed, screw.linear * speed};
+        scratch.screw[dof] = screw;
+    }
+
+    // World-origin screws can be added along a path without re-expression.
+    ResidentMotion twist = contribution;
+    cursor = articulated && parent != index ? parent : lane;
+    #pragma clang loop unroll(full)
+    for (uint level = 0; level < 4; ++level) {
+        const ResidentMotion ancestor = residentShuffle(twist, cursor);
+        const uint next = simd_shuffle(cursor, ushort(cursor));
+        if (cursor != lane) twist = residentAdd(twist, ancestor);
+        cursor = next == cursor ? lane : next;
+    }
+    const ResidentMotion parentTwist = residentShuffle(twist, parent);
+    ResidentMotion bias = residentCross(parentTwist, contribution);
+    cursor = articulated && parent != index ? parent : lane;
+    #pragma clang loop unroll(full)
+    for (uint level = 0; level < 4; ++level) {
+        const ResidentMotion ancestor = residentShuffle(bias, cursor);
+        const uint next = simd_shuffle(cursor, ushort(cursor));
+        if (cursor != lane) bias = residentAdd(bias, ancestor);
+        cursor = next == cursor ? lane : next;
+    }
+
+    if (bodyLane) {
+        scratch.pose[lane] = pose;
+        if (articulated) {
+            const float mass = body.massAndDamping.x;
+            const float3x3 inertia = residentWorldInertia(pose.rotation, body.inertia);
+            const float3 centerSpeed = twist.linear + cross(twist.angular, pose.position);
+            const float3 centerAcceleration = bias.linear +
+                cross(bias.angular, pose.position) + cross(twist.angular, centerSpeed);
+            const float3 force = mass * (centerAcceleration - program.gravityAndTimestep.xyz) +
+                body.massAndDamping.z * centerSpeed;
+            const float3 torque = inertia * bias.angular + cross(twist.angular, inertia * twist.angular) +
+                cross(pose.position, force) + body.massAndDamping.w * twist.angular;
+            const float3 firstMoment = mass * pose.position;
+            const float3 diagonal = float3(inertia[0].x, inertia[1].y, inertia[2].z) +
+                dot(firstMoment, pose.position) - firstMoment * pose.position;
+            const float3 offDiagonal = float3(inertia[0].y, inertia[0].z, inertia[1].z) -
+                firstMoment.xxy * pose.position.yzz;
+            scratch.mass[lane] = {float4(firstMoment, mass), diagonal, offDiagonal};
+            scratch.wrench[lane] = {torque, force};
+        } else if (slot < kResidentFree) {
+            scratch.freeInverseInertia[slot] = residentWorldInertia(pose.rotation, body.inverseInertia);
+        }
+    }
+}
+
+float residentImplicitEffort(constant MRResidentDofGPU& dof, float target, float q, float v, float dt) {
+    if ((dof.topology.z & MR_DOF_FLAG_DRIVE) == 0u) return 0.0f;
+    if ((dof.topology.z & MR_DOF_FLAG_POSITION_LIMIT) != 0u) {
+        target = clamp(target, dof.limits.x, dof.limits.y);
+    }
+    float effort = dof.drive.x * (target - q - dt * v) - dof.drive.y * v;
+    effort -= abs(v) > 1.0e-4f
+        ? copysign(dof.drive.w, v)
+        : clamp(effort, -dof.drive.w, dof.drive.w);
+    if ((dof.topology.z & MR_DOF_FLAG_EFFORT_LIMIT) != 0u) {
+        float limit = dof.limits.w;
+        if (dof.initial.z != 0.0f) {
+            const float fraction = clamp(abs(v) / dof.motorAndSpeed.z, 0.0f, 1.0f);
+            limit = min(limit, dof.transmissionAndEnvelope.z * dof.motorAndSpeed.w * (1.0f - fraction));
+        }
+        effort = clamp(effort, -limit, limit);
+    }
+    return effort;
+}
+
+void residentMassRow(
+    constant MRResidentProgramGPU& program,
+    threadgroup ResidentScratch& scratch,
+    uint lane,
+    thread float (&row)[kResidentDofs]
+) {
+    const bool active = lane < program.sizes.y;
+    const float dt = program.gravityAndTimestep.w;
+    #pragma clang loop unroll(full)
+    for (uint j = 0; j < kResidentDofs; ++j) row[j] = 0.0f;
+    if (active) {
+        constant MRResidentDofGPU& dof = program.dofs[lane];
+        const ResidentMotion screw = scratch.screw[lane];
+        ResidentBodyMass composite = {};
+        ResidentMotion wrench = {};
+        // Each symmetric spatial inertia is translated to the same world
+        // origin. Form the composite with ten additions per descendant,
+        // then apply it to this joint's screw once.
+        for (uint remaining = dof.topology.y; remaining != 0u; remaining &= remaining - 1u) {
+            const uint child = ctz(remaining);
+            const ResidentBodyMass body = scratch.mass[child];
+            composite.firstMomentAndMass += body.firstMomentAndMass;
+            composite.diagonal += body.diagonal;
+            composite.offDiagonal += body.offDiagonal;
+            wrench = residentAdd(wrench, scratch.wrench[child]);
+        }
+        const float3 moment = composite.firstMomentAndMass.xyz;
+        const float xy = composite.offDiagonal.x;
+        const float xz = composite.offDiagonal.y;
+        const float yz = composite.offDiagonal.z;
+        const float3x3 rotational = float3x3(
+            float3(composite.diagonal.x, xy, xz),
+            float3(xy, composite.diagonal.y, yz),
+            float3(xz, yz, composite.diagonal.z)
+        );
+        const ResidentMotion inertia = {
+            rotational * screw.angular + cross(moment, screw.linear),
+            composite.firstMomentAndMass.w * screw.linear + cross(screw.angular, moment)
+        };
+        const uint ancestors = program.joints[dof.topology.x].topology.w;
+        #pragma clang loop unroll(full)
+        for (uint j = 0; j < kResidentDofs; ++j) {
+            if ((ancestors & (1u << j)) != 0u) {
+                const ResidentMotion other = scratch.screw[j];
+                row[j] = dot(other.angular, inertia.angular) + dot(other.linear, inertia.linear);
+            }
+        }
+        row[lane] += dof.drive.z;
+        if ((dof.topology.z & MR_DOF_FLAG_DRIVE) != 0u) {
+            row[lane] += dt * (dof.drive.y + dt * dof.drive.x);
+        }
+        const float bias = dot(screw.angular, wrench.angular) + dot(screw.linear, wrench.linear);
+        scratch.rhs[lane] = dt * (residentImplicitEffort(
+            dof, scratch.targets[lane], scratch.q[lane], scratch.velocity[lane], dt
+        ) - bias);
+    } else if (lane < kResidentDofs) {
+        row[lane] = 1.0f;
+        scratch.rhs[lane] = 0.0f;
+    }
+}
+
+bool residentFactor(thread float (&row)[kResidentDofs], uint lane) {
+    bool valid = true;
+    #pragma clang loop unroll(full)
+    for (uint pivot = 0; pivot < kResidentDofs; ++pivot) {
+        const float diagonal = simd_shuffle(row[pivot], ushort(pivot));
+        valid = valid && diagonal > 1.0e-10f && isfinite(diagonal);
+        const bool belowPivot = lane > pivot && lane < kResidentDofs;
+        const float lower = belowPivot ? row[pivot] / diagonal : 0.0f;
+        const float projection = lower * diagonal;
+        #pragma clang loop unroll(full)
+        for (uint column = pivot + 1; column < kResidentDofs; ++column) {
+            const float other = simd_shuffle(lower, ushort(column));
+            row[column] = fma(-projection, other, row[column]);
+        }
+        if (belowPivot) row[pivot] = lower;
+    }
+    return valid;
+}
+
+void residentSolve(
+    thread const float (&factor)[kResidentDofs],
+    thread float (&x)[kResidentDofs]
+) {
+    #pragma clang loop unroll(full)
+    for (uint i = 0; i < kResidentDofs; ++i) {
+        #pragma clang loop unroll(full)
+        for (uint j = 0; j < i; ++j) {
+            x[i] = fma(-simd_shuffle(factor[j], ushort(i)), x[j], x[i]);
+        }
+    }
+    #pragma clang loop unroll(full)
+    for (uint i = 0; i < kResidentDofs; ++i) {
+        x[i] *= 1.0f / simd_shuffle(factor[i], ushort(i));
+    }
+    #pragma clang loop unroll(full)
+    for (int i = int(kResidentDofs) - 1; i >= 0; --i) {
+        #pragma clang loop unroll(full)
+        for (uint j = uint(i) + 1; j < kResidentDofs; ++j) {
+            x[i] = fma(-simd_shuffle(factor[i], ushort(j)), x[j], x[i]);
+        }
+    }
+}
+
+void residentInertiaAction(
+    threadgroup ResidentScratch& scratch,
+    thread const float (&factor)[kResidentDofs],
+    float initialVelocity,
+    uint lane
+) {
+    float x[kResidentDofs];
+    #pragma clang loop unroll(full)
+    for (uint j = 0; j < kResidentDofs; ++j) x[j] = float(lane == j);
+    residentSolve(factor, x);
+    simdgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane < kResidentDofs) {
+        float accelerationImpulse = 0.0f;
+        #pragma clang loop unroll(full)
+        for (uint j = 0; j < kResidentDofs; ++j) {
+            scratch.inverse[lane][j] = x[j];
+            accelerationImpulse = fma(x[j], scratch.rhs[j], accelerationImpulse);
+        }
+        initialVelocity += accelerationImpulse;
+    }
+    if (lane < kResidentVelocity) scratch.velocity[lane] = initialVelocity;
+}
+
+WorldShape residentShape(
+    constant MRResidentProgramGPU& program,
+    uint index,
+    ResidentPose body,
+    float3 center
+) {
+    constant MRShapeGPU& shape = program.shapes[index];
+    WorldShape out = {};
+    out.index = index;
+    out.type = shape.shapeType;
+    out.body = shape.bodyIndex;
+    out.contactOffset = shape.contactRestAndBoundingRadius.x;
+    out.center = center;
+    out.rotation = quaternionMultiply(body.rotation, shape.localRotation);
+    float3 extent = 0.0f;
+    if (out.type == MR_SHAPE_BOX) {
+        out.halfExtents = shape.dimensions.xyz;
+        const float3x3 rotation = residentRotation(out.rotation);
+        extent = abs(rotation[0]) * out.halfExtents.x +
+            abs(rotation[1]) * out.halfExtents.y +
+            abs(rotation[2]) * out.halfExtents.z;
+    } else if (out.type == MR_SHAPE_PLANE) {
+        out.planeNormal = normalize(quaternionRotate(out.rotation, float3(0, 1, 0)));
+    } else {
+        out.radius = shape.dimensions.x;
+        extent = float3(out.radius);
+        if (out.type == MR_SHAPE_CAPSULE) {
+            out.halfLength = shape.dimensions.y;
+            const float3 axis = quaternionRotate(out.rotation, float3(0, out.halfLength, 0));
+            out.capsuleEndpoint0 = out.center - axis;
+            out.capsuleEndpoint1 = out.center + axis;
+            extent += abs(axis);
+        }
+    }
+    if (out.type != MR_SHAPE_PLANE) {
+        extent += out.contactOffset;
+        out.lower = out.center - extent;
+        out.upper = out.center + extent;
+        inflateFiniteBounds(out);
+    }
+    return out;
+}
+
+__attribute__((noinline))
+uint residentFindStripe(
+    constant MRResidentProgramGPU& program,
+    threadgroup const ResidentScratch& scratch,
+    threadgroup ResidentHit* hits,
+    uint index
+) {
+    ContactBatch batch;
+    batch.count = 0;
+    if (index < program.sizes.z) {
+        constant MRResidentPairGPU& pair = program.pairs[index];
+        constant MRShapeGPU& aSource = program.shapes[pair.geometry.x];
+        constant MRShapeGPU& bSource = program.shapes[pair.geometry.y];
+        const ResidentPose poseA = scratch.pose[aSource.bodyIndex];
+        const ResidentPose poseB = scratch.pose[bSource.bodyIndex];
+        const float3 centerA = poseA.position +
+            quaternionRotate(poseA.rotation, aSource.localPosition.xyz);
+        const float3 centerB = poseB.position +
+            quaternionRotate(poseB.rotation, bSource.localPosition.xyz);
+        const float range = aSource.contactRestAndBoundingRadius.z +
+            bSource.contactRestAndBoundingRadius.z +
+            aSource.contactRestAndBoundingRadius.x +
+            bSource.contactRestAndBoundingRadius.x +
+            (max(maximumAbsoluteComponent(centerA), maximumAbsoluteComponent(centerB)) + 1.0f) *
+                (4.0f * MR_COLLISION_QUERY_RELATIVE_PAD);
+        if (aSource.shapeType == MR_SHAPE_PLANE || bSource.shapeType == MR_SHAPE_PLANE ||
+            all(abs(centerA - centerB) <= range)) {
+            const WorldShape a = residentShape(program, pair.geometry.x, poseA, centerA);
+            const WorldShape b = residentShape(program, pair.geometry.y, poseB, centerB);
+            if (a.type == MR_SHAPE_PLANE || b.type == MR_SHAPE_PLANE ||
+                (all(a.lower <= b.upper) && all(b.lower <= a.upper))) {
+                batch = generateContacts(a.index, b.index, pair.geometry.z, a, b);
+            }
+        }
+    }
+    const uint offset = simd_prefix_exclusive_sum(batch.count);
+    const uint count = simd_sum(batch.count);
+    if (count <= kResidentContacts) {
+        for (uint i = 0; i < batch.count; ++i) {
+            hits[offset + i] = {batch.contacts[i], index};
+        }
+    }
+    return count;
+}
+
+float3 residentPointVelocity(ResidentMotion screw, float3 point) {
+    return screw.linear + cross(screw.angular, point);
+}
+
+float3 residentRow(
+    threadgroup const ResidentScratch& scratch,
+    uint coordinate,
+    uint ancestorsA,
+    uint ancestorsB,
+    float3 pointA,
+    float3 pointB
+) {
+    const ResidentMotion screw = scratch.screw[coordinate];
+    float3 velocity = 0.0f;
+    if ((ancestorsA & (1u << coordinate)) != 0u) {
+        velocity -= residentPointVelocity(screw, pointA);
+    }
+    if ((ancestorsB & (1u << coordinate)) != 0u) {
+        velocity += residentPointVelocity(screw, pointB);
+    }
+    return velocity;
+}
+
+float3x3 residentBasis(float3 normal) {
+    const float3 axis = abs(normal.x) < 0.6f ? float3(1, 0, 0) : float3(0, 1, 0);
+    const float3 tangent = normalize(cross(normal, axis));
+    return float3x3(normal, tangent, cross(normal, tangent));
+}
+
+float3 residentSum(float3 x) {
+    return float3(simd_sum(x.x), simd_sum(x.y), simd_sum(x.z));
+}
+
+float residentInitialVelocity(
+    constant MRResidentProgramGPU& program,
+    threadgroup const ResidentScratch& scratch,
+    uint lane
+) {
+    if (lane < kResidentDofs || lane >= kResidentVelocity) {
+        return lane < kResidentDofs ? scratch.velocity[lane] : 0.0f;
+    }
+    const uint local = lane - kResidentDofs;
+    const uint slot = local / 6u;
+    if (slot >= program.sizes.w) return 0.0f;
+    const uint axis = local % 6u;
+    constant MRResidentBodyGPU& body = program.bodies[program.freeBody[slot]];
+    const float dt = program.gravityAndTimestep.w;
+    const float old = scratch.velocity[lane];
+    if (axis < 3u) {
+        return (old + dt * program.gravityAndTimestep[axis]) *
+            max(0.0f, 1.0f - dt * body.massAndDamping.z);
+    }
+    const uint base = kResidentDofs + 6u * slot + 3u;
+    const float3 omega = float3(scratch.velocity[base], scratch.velocity[base + 1], scratch.velocity[base + 2]);
+    const float3x3 inertia = residentWorldInertia(scratch.freePose[slot].rotation, body.inertia);
+    const float3 impulse = dt *
+        (scratch.freeInverseInertia[slot] * cross(inertia * omega, omega));
+    return (old + impulse[axis - 3u]) * max(0.0f, 1.0f - dt * body.massAndDamping.w);
+}
+
+ResidentHit residentReadHit(
+    threadgroup const ResidentScratch& scratch,
+    threadgroup const ResidentHit* upper,
+    uint lowerCount,
+    uint index
+) {
+    return index < lowerCount ? scratch.hits[index] : upper[index - lowerCount];
+}
+
+uint residentBodyNode(constant MRResidentBodyGPU& body) {
+    if (body.topology.x != 0u) return 1u;
+    return body.topology.y < kResidentFree ? 2u << body.topology.y : 0u;
+}
+
+uint residentContactNodes(constant MRResidentProgramGPU& program, ResidentHit hit) {
+    const uint2 shapes = program.pairs[hit.pair].geometry.xy;
+    return residentBodyNode(program.bodies[program.shapes[shapes.x].bodyIndex]) |
+        residentBodyNode(program.bodies[program.shapes[shapes.y].bodyIndex]);
+}
+
+uint residentIslandNodes(uint wave, uint contactNodes) {
+    // Each point couples at most two dynamic nodes. A single reduction
+    // collects the three possible edges of the component graph.
+    const uint edge = contactNodes == 3u ? 1u :
+        contactNodes == 5u ? 2u : contactNodes == 6u ? 4u : 0u;
+    const uint edges = simd_or(edge);
+    if (popcount(edges) >= 2u) return 7u;
+    const uint linked = edges == 1u ? 3u : edges == 2u ? 5u : edges == 4u ? 6u : 0u;
+    const uint root = 1u << wave;
+    return (linked & root) != 0u ? linked : root;
+}
+
+void residentBuildContactOperator(
+    constant MRResidentProgramGPU& program,
+    threadgroup ResidentScratch& scratch,
+    ResidentHit hit,
+    uint previousCount,
+    uint warmRead,
+    uint component,
+    uint lane
+) {
+    constant MRResidentPairGPU& pair = program.pairs[hit.pair];
+    const uint shapeA = pair.geometry.x;
+    const uint shapeB = pair.geometry.y;
+    const uint bodyA = program.shapes[shapeA].bodyIndex;
+    const uint bodyB = program.shapes[shapeB].bodyIndex;
+    const uint ancestorsA = program.joints[bodyA].topology.w;
+    const uint ancestorsB = program.joints[bodyB].topology.w;
+    const float3 pointA = hit.raw.pointAWorld.xyz;
+    const float3 pointB = hit.raw.pointBWorld.xyz;
+    const float3 normal = hit.raw.normalAndSeparation.xyz;
+    const float3x3 basis = residentBasis(normal);
+    const float3x3 toBasis = transpose(basis);
+    float3 jacobian[kResidentDofs];
+    float3 diagonal = 0.0f;
+    float tangentCoupling = 0.0f;
+    float2 normalCoupling = 0.0f;
+    float vPre = 0.0f;
+    // The inverse action comes from one LDLT and a packet of coordinate RHS.
+    // Rows are immutable for this pose, and each point uses all three axes.
+    if (ancestorsA != 0u || ancestorsB != 0u) {
+        #pragma clang loop unroll(full)
+        for (uint j = 0; j < kResidentDofs; ++j) {
+            jacobian[j] = toBasis * residentRow(scratch, j, ancestorsA, ancestorsB, pointA, pointB);
+            scratch.jacobian[lane][j] = packed_float3(jacobian[j]);
+        }
+        #pragma clang loop unroll(full)
+        for (uint j = 0; j < kResidentDofs; ++j) {
+            float3 inverseAction = 0.0f;
+            #pragma clang loop unroll(full)
+            for (uint k = 0; k < kResidentDofs; ++k) {
+                inverseAction = fma(scratch.inverse[j][k], jacobian[k], inverseAction);
+            }
+            scratch.response[lane][j] = packed_float3(inverseAction);
+            diagonal += jacobian[j] * inverseAction;
+            tangentCoupling += jacobian[j].y * inverseAction.z;
+            normalCoupling += jacobian[j].yz * inverseAction.x;
+            vPre += jacobian[j].x * scratch.velocity[j];
+        }
+    } else if ((component & 1u) != 0u) {
+        #pragma clang loop unroll(full)
+        for (uint j = 0; j < kResidentDofs; ++j) {
+            scratch.jacobian[lane][j] = packed_float3(0.0f);
+            scratch.response[lane][j] = packed_float3(0.0f);
+        }
+    }
+    {
+        const uint freeA = program.bodies[bodyA].topology.y;
+        const uint freeB = program.bodies[bodyB].topology.y;
+        #pragma clang loop unroll(full)
+        for (uint slot = 0; slot < kResidentFree; ++slot) {
+            if ((component & (2u << slot)) == 0u) continue;
+            float3x3 jacLinear = float3x3(0.0f);
+            float3x3 jacAngular = float3x3(0.0f);
+            float3x3 responseLinear = float3x3(0.0f);
+            float3x3 responseAngular = float3x3(0.0f);
+            if (slot == freeA || slot == freeB) {
+                const bool isB = slot == freeB;
+                const float sign = isB ? 1.0f : -1.0f;
+                const float3 offset = (isB ? pointB : pointA) - scratch.freePose[slot].position;
+                const float inverseMass = program.bodies[program.freeBody[slot]].massAndDamping.y;
+                const float3x3 inverseInertia = scratch.freeInverseInertia[slot];
+                jacLinear = sign * basis;
+                jacAngular = float3x3(
+                    cross(offset, jacLinear[0]), cross(offset, jacLinear[1]), cross(offset, jacLinear[2])
+                );
+                responseLinear = inverseMass * jacLinear;
+                responseAngular = inverseInertia * jacAngular;
+                #pragma clang loop unroll(full)
+                for (uint k = 0; k < 3; ++k) {
+                    diagonal[k] += dot(jacLinear[k], responseLinear[k]) +
+                        dot(jacAngular[k], responseAngular[k]);
+                }
+                tangentCoupling += dot(jacLinear[1], responseLinear[2]) +
+                    dot(jacAngular[1], responseAngular[2]);
+                normalCoupling += float2(
+                    dot(jacLinear[1], responseLinear[0]) + dot(jacAngular[1], responseAngular[0]),
+                    dot(jacLinear[2], responseLinear[0]) + dot(jacAngular[2], responseAngular[0])
+                );
+            }
+            const float3x3 jt = transpose(jacLinear);
+            const float3x3 jr = transpose(jacAngular);
+            const float3x3 wt = transpose(responseLinear);
+            const float3x3 wr = transpose(responseAngular);
+            const uint base = kResidentDofs + slot * 6u;
+            #pragma clang loop unroll(full)
+            for (uint coordinate = 0; coordinate < 3; ++coordinate) {
+                scratch.jacobian[lane][base + coordinate] = packed_float3(jt[coordinate]);
+                scratch.jacobian[lane][base + 3u + coordinate] = packed_float3(jr[coordinate]);
+                scratch.response[lane][base + coordinate] = packed_float3(wt[coordinate]);
+                scratch.response[lane][base + 3u + coordinate] = packed_float3(wr[coordinate]);
+                if (slot == freeA || slot == freeB) {
+                    vPre += jt[coordinate].x * scratch.velocity[base + coordinate] +
+                        jr[coordinate].x * scratch.velocity[base + 3u + coordinate];
+                }
+            }
+        }
+    }
+    const float dt = program.gravityAndTimestep.w;
+    const float compliance = pair.response.x / (dt * dt) + pair.response.y / dt;
+    const float sep = hit.raw.normalAndSeparation.w - pair.response.z;
+    float bias = max(sep, 0.0f) / dt * -1.0f;
+    const float penetration = min(sep + program.stabilization.x, 0.0f);
+    bias += min(-penetration / (9.0f * dt), program.stabilization.y);
+    const float3 point = 0.5f * (pointA + pointB);
+    const uint4 key = uint4(hit.pair, hit.raw.featureAndFlags[0],
+                            hit.raw.featureAndFlags[1], hit.raw.featureAndFlags[2]);
+    float bestDistance = 2.5e-5f;
+    float3 impulse = 0.0f;
+    if (lane < previousCount) {
+        const ResidentWarmPoint candidate = scratch.warm[warmRead][lane];
+        const float3 difference = candidate.position.xyz - point;
+        const float distance = dot(difference, difference);
+        if (all(candidate.key == key) && distance < bestDistance) {
+            bestDistance = distance;
+            impulse = toBasis * candidate.impulse;
+        }
+    }
+    for (uint i = 0; i < previousCount && bestDistance > 1.0e-12f; ++i) {
+        const ResidentWarmPoint previous = scratch.warm[warmRead][i];
+        if (all(previous.key == key)) {
+            const float3 difference = previous.position.xyz - point;
+            const float distance = dot(difference, difference);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                impulse = toBasis * previous.impulse;
+            }
+        }
+    }
+    if (bestDistance == 2.5e-5f && vPre < -pair.frictionAndRestitution.w) {
+        bias = max(bias, -pair.frictionAndRestitution.z * vPre);
+    }
+    const float staticFriction = pair.frictionAndRestitution.x;
+    const float dynamicFriction = pair.frictionAndRestitution.y;
+    impulse.x = max(impulse.x, 0.0f);
+    impulse.yz *= min(1.0f, staticFriction * impulse.x /
+        max(length(impulse.yz), 1.0e-12f));
+    scratch.lambda[lane] = impulse;
+    const float determinant = diagonal.y * diagonal.z - tangentCoupling * tangentCoupling;
+    const float inverseDeterminant = 1.0f / max(determinant, 1.0e-12f);
+    scratch.contact[lane] = {
+        basis, point,
+        float3(1.0f / max(diagonal.x + compliance, 1.0e-12f),
+               diagonal.z * inverseDeterminant, diagonal.y * inverseDeterminant),
+        -tangentCoupling * inverseDeterminant, normalCoupling,
+        staticFriction, dynamicFriction, bias, compliance
+    };
+}
+
+uint residentSweepContacts(
+    constant MRResidentProgramGPU& program,
+    threadgroup ResidentScratch& scratch,
+    ResidentHit hit,
+    uint contacts,
+    uint component,
+    uint warmWrite,
+    uint lane
+) {
+    const uint node = lane < kResidentDofs ? 1u : 2u << ((lane - kResidentDofs) / 6u);
+    const bool coordinate = lane < kResidentVelocity && (node & component) != 0u;
+    const bool ownsContact = (contacts & (1u << lane)) != 0u;
+    float velocity = coordinate ? scratch.velocity[lane] : 0.0f;
+    float3 ownedImpulse = ownsContact ? scratch.lambda[lane] : float3(0.0f);
+    // Apply cached impulses and iterate in the stable cooked order in this
+    // component. Independent components update disjoint generalized state.
+    for (uint remaining = contacts; remaining != 0u; remaining &= remaining - 1u) {
+        const uint i = ctz(remaining);
+        const float3 impulse = simd_shuffle(ownedImpulse, ushort(i));
+        if (coordinate) velocity += dot(float3(scratch.response[i][lane]), impulse);
+    }
+    for (uint sweep = 0; sweep < program.schedule.z; ++sweep) {
+        for (uint remaining = contacts; remaining != 0u; remaining &= remaining - 1u) {
+            const uint i = ctz(remaining);
+            const float3 jac = coordinate ? float3(scratch.jacobian[i][lane]) : float3(0.0f);
+            const float3 relative = residentSum(jac * velocity);
+            threadgroup const ResidentContact& contact = scratch.contact[i];
+            const float3 original = simd_shuffle(ownedImpulse, ushort(i));
+            float3 next = original;
+            next.x = max(0.0f, original.x + contact.inverseDiagonal.x *
+                (contact.bias - relative.x - contact.compliance * original.x));
+            const float2 tangentSpeed = relative.yz + (next.x - original.x) * contact.normalCoupling;
+            next.yz -= contact.inverseDiagonal.yz * tangentSpeed +
+                contact.tangentCoupling * tangentSpeed.yx;
+            const float lengthSquared = dot(next.yz, next.yz);
+            const float staticCap = contact.friction * next.x;
+            if (lengthSquared > staticCap * staticCap) {
+                next.yz *= contact.dynamicFriction * next.x * rsqrt(max(lengthSquared, 1.0e-24f));
+            }
+            const float3 delta = next - original;
+            if (coordinate) velocity += dot(float3(scratch.response[i][lane]), delta);
+            if (ownsContact && lane == i) ownedImpulse = next;
+        }
+    }
+    if (!simd_all(isfinite(velocity))) return MR_STEP_NONFINITE_RESULT;
+    if (coordinate) scratch.velocity[lane] = velocity;
+    if (ownsContact) {
+        const ResidentContact contact = scratch.contact[lane];
+        scratch.warm[warmWrite][lane] = {
+            uint4(hit.pair, hit.raw.featureAndFlags[0], hit.raw.featureAndFlags[1], hit.raw.featureAndFlags[2]),
+            float4(contact.point, 0.0f), contact.basis * ownedImpulse
+        };
+        scratch.lambda[lane] = ownedImpulse;
+    }
+    return MR_STEP_SUCCESS;
+}
+
+uint residentIntegrate(
+    constant MRResidentProgramGPU& program,
+    threadgroup ResidentScratch& scratch,
+    uint component,
+    uint lane
+) {
+    const float dt = program.gravityAndTimestep.w;
+    uint status = MR_STEP_SUCCESS;
+    if ((component & 1u) != 0u && lane < program.sizes.y) {
+        const float next = fma(dt, scratch.velocity[lane], scratch.q[lane]);
+        constant MRResidentDofGPU& dof = program.dofs[lane];
+        if (!isfinite(next)) {
+            status = MR_STEP_NONFINITE_RESULT;
+        } else if ((dof.topology.z & MR_DOF_FLAG_POSITION_LIMIT) != 0u &&
+                   (next < dof.limits.x || next > dof.limits.y)) {
+            // The generalized backend owns active joint-limit contacts.
+            status = MR_STEP_UNSUPPORTED;
+        }
+        scratch.q[lane] = next;
+    }
+    if (lane < program.sizes.w && (component & (2u << lane)) != 0u) {
+        const uint base = kResidentDofs + 6u * lane;
+        const float3 linear = float3(scratch.velocity[base], scratch.velocity[base + 1u], scratch.velocity[base + 2u]);
+        const float3 angular = float3(scratch.velocity[base + 3u], scratch.velocity[base + 4u], scratch.velocity[base + 5u]);
+        ResidentPose pose = scratch.freePose[lane];
+        pose.position += dt * linear;
+        const float4 rotationRate = quaternionMultiply(float4(angular, 0.0f), pose.rotation);
+        pose.rotation = normalize(pose.rotation + (0.5f * dt) * rotationRate);
+        scratch.freePose[lane] = pose;
+        if (!collisionDomain(pose.position) || !all(isfinite(pose.rotation))) {
+            status = MR_STEP_NONFINITE_RESULT;
+        }
+    }
+    return simd_max(status);
+}
+
+void residentStoreFrame(
+    constant MRResidentProgramGPU& program,
+    threadgroup const ResidentScratch& scratch,
+    device MRResidentFrameGPU& frame,
+    ResidentHit hit,
+    uint tick,
+    uint count,
+    uint warm,
+    uint lane
+) {
+    if (lane == 0u) frame.result = uint4(MR_STEP_SUCCESS, count, program.schedule.y, tick + 1u);
+    if (lane < program.sizes.y) {
+        frame.q[lane] = scratch.q[lane];
+        frame.v[lane] = scratch.velocity[lane];
+        frame.targets[lane] = scratch.targets[lane];
+    }
+    if (lane < program.sizes.w) {
+        const ResidentPose pose = scratch.freePose[lane];
+        const uint i = kResidentDofs + 6u * lane;
+        frame.freeBodies[lane] = {
+            float4(pose.position, 1.0f), pose.rotation,
+            float4(scratch.velocity[i], scratch.velocity[i+1u], scratch.velocity[i+2u], 0.0f),
+            float4(scratch.velocity[i+3u], scratch.velocity[i+4u], scratch.velocity[i+5u], 0.0f)
+        };
+    }
+    if (lane < count) {
+        const ResidentContact contact = scratch.contact[lane];
+        const uint2 pair = program.pairs[hit.pair].geometry.xy;
+        frame.contacts[lane] = {
+            uint4(pair, program.shapes[pair.x].bodyIndex, program.shapes[pair.y].bodyIndex),
+            float4(contact.point, hit.raw.normalAndSeparation.w),
+            float4(contact.basis[0], scratch.lambda[lane].x),
+            float4(scratch.warm[warm][lane].impulse, 0.0f)
+        };
+    }
+}
+
+} // namespace
+
+kernel void mr_resident_articulated_rollout(
+    constant MRResidentProgramGPU& program [[buffer(0)]],
+    device const float* input [[buffer(1)]],
+    device MRResidentFrameGPU* frames [[buffer(2)]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint wave [[simdgroup_index_in_threadgroup]]
+) {
+    threadgroup ResidentScratch scratch;
+    threadgroup ResidentHit upperHits[kResidentContacts];
+    threadgroup uint stripeCounts[2];
+    threadgroup uint stepStatus;
+    threadgroup uint islandStatus[3];
+    if (wave == 0u && lane < kResidentDofs) {
+        scratch.q[lane] = program.dofs[lane].initial.x;
+        scratch.filtered[lane] = 0.0f;
+        scratch.velocity[lane] = program.dofs[lane].initial.y;
+    }
+    if (wave == 0u && lane < kResidentFree) {
+        const uint slot = lane;
+        const uint velocity = kResidentDofs + slot * 6u;
+        const bool active = slot < program.sizes.w;
+        constant MRResidentBodyGPU& body = program.bodies[active ? program.freeBody[slot] : 0u];
+        scratch.freePose[slot] = {body.initialPosition.xyz, body.initialRotation};
+        for (uint axis = 0; axis < 3u; ++axis) {
+            scratch.velocity[velocity + axis] = active ? body.initialLinear[axis] : 0.0f;
+            scratch.velocity[velocity + axis + 3u] = active ? body.initialAngular[axis] : 0.0f;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    uint count = 0u;
+    uint warm = 0u;
+    for (uint tick = 0; tick < program.schedule.x; ++tick) {
+        if (wave == 0u && lane < program.sizes.y) {
+            constant MRResidentDofGPU& dof = program.dofs[lane];
+            const float requested = input[tick * program.controls.x + dof.topology.w];
+            const float action = mix(scratch.filtered[lane], requested, dof.action.w);
+            scratch.filtered[lane] = action;
+            scratch.targets[lane] = clamp(
+                dof.initial.x + dof.action.x * action, dof.action.y, dof.action.z
+            );
+        }
+        for (uint substep = 0; substep < program.schedule.y; ++substep) {
+            if (wave == 0u) residentKinematics(program, scratch, lane);
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            float factor[kResidentDofs];
+            if (wave == 0u) {
+                residentMassRow(program, scratch, lane, factor);
+                const bool valid = residentFactor(factor, lane);
+                const float freeVelocity = residentInitialVelocity(program, scratch, lane);
+                if (valid) residentInertiaAction(scratch, factor, freeVelocity, lane);
+                if (lane == 0u) stepStatus = valid ? MR_STEP_SUCCESS : MR_STEP_FACTORIZATION_FAILED;
+            } else {
+                threadgroup ResidentHit* hits = wave == 1u ? scratch.hits : upperHits;
+                const uint pairCount = residentFindStripe(program, scratch, hits, (wave - 1u) * kResidentWidth + lane);
+                if (lane == 0u) stripeCounts[wave - 1u] = pairCount;
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+
+            const uint lower = stripeCounts[0];
+            const uint previousCount = count;
+            count = lower + stripeCounts[1];
+            const uint initialStatus = count > program.controls.y
+                ? MR_STEP_CONTACT_CAPACITY_OVERFLOW : stepStatus;
+            if (initialStatus != MR_STEP_SUCCESS) {
+                if (wave == 0u && lane == 0u) frames[tick].result = uint4(initialStatus, count, substep, tick);
+                return;
+            }
+            const ResidentHit hit = lane < count
+                ? residentReadHit(scratch, upperHits, lower, lane) : ResidentHit{};
+            const uint contactNodes = lane < count ? residentContactNodes(program, hit) : 0u;
+            const uint component = residentIslandNodes(wave, contactNodes);
+            const bool ownsIsland = ctz(component) == wave;
+            const bool ownsContact = ownsIsland && (contactNodes & component) != 0u;
+            const uint contacts = simd_or(ownsContact ? 1u << lane : 0u);
+            uint status = MR_STEP_SUCCESS;
+            if (ownsIsland) {
+                if (ownsContact) residentBuildContactOperator(program, scratch, hit, previousCount, warm, component, lane);
+                simdgroup_barrier(mem_flags::mem_threadgroup);
+                status = residentSweepContacts(program, scratch, hit, contacts, component, 1u - warm, lane);
+                simdgroup_barrier(mem_flags::mem_threadgroup);
+                if (status == MR_STEP_SUCCESS) {
+                    status = residentIntegrate(program, scratch, component, lane);
+                }
+            }
+            if (lane == 0u) islandStatus[wave] = status;
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            const uint solved = max(islandStatus[0], max(islandStatus[1], islandStatus[2]));
+            if (solved != MR_STEP_SUCCESS) {
+                if (wave == 0u && lane == 0u) frames[tick].result = uint4(solved, count, substep, tick);
+                return;
+            }
+            warm = 1u - warm;
+            if (wave == 0u && substep + 1u == program.schedule.y) {
+                residentStoreFrame(program, scratch, frames[tick], hit, tick, count, warm, lane);
+            }
+        }
+    }
+}

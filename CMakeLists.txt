@@ -775,6 +775,41 @@ if(BUILD_TESTING)
     )
 endif()
 
+# The compact clip runner has its own library so the general runtime keeps
+# the existing collision math mode and packaged pipelines.
+set(METALROBO_RESIDENT_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ResidentArticulatedWorld.metal")
+set(METALROBO_RESIDENT_AIR "${METALROBO_SHADER_DIR}/resident_articulated_world.air")
+set(METALROBO_RESIDENT_METALLIB "${METALROBO_SHADER_DIR}/resident_articulated_world.metallib")
+add_custom_command(
+    OUTPUT "${METALROBO_RESIDENT_METALLIB}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
+    COMMAND xcrun -sdk macosx metal
+        -std=metal4.0 -O3 -fmetal-math-mode=relaxed -fmetal-math-fp32-functions=fast
+        -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        -c "${METALROBO_RESIDENT_SOURCE}" -o "${METALROBO_RESIDENT_AIR}"
+    COMMAND xcrun -sdk macosx metallib
+        "${METALROBO_RESIDENT_AIR}" -o "${METALROBO_RESIDENT_METALLIB}"
+    DEPENDS "${METALROBO_RESIDENT_SOURCE}"
+        "${METALROBO_COLLISION_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/ResidentArticulatedWorld.metalinc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/resident_articulated_world_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/rod_gpu_shared.h"
+    VERBATIM
+)
+add_custom_target(metalrobo_resident_shaders DEPENDS "${METALROBO_RESIDENT_METALLIB}")
+add_executable(metalrobo_resident_rollout EXCLUDE_FROM_ALL apps/resident_articulated_rollout.mm)
+add_dependencies(metalrobo_resident_rollout metalrobo_resident_shaders)
+target_compile_options(metalrobo_resident_rollout PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_resident_rollout PRIVATE
+    metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}"
+)
+set_target_properties(metalrobo_resident_rollout PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 add_executable(metalrobo_bench apps/benchmark.cpp)
 target_link_libraries(metalrobo_bench PRIVATE metalrobo)
 set_target_properties(
