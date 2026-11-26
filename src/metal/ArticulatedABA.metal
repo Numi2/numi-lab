@@ -170,6 +170,16 @@ constant uint3 kMotionTransformRows[6] = {
     uint3(3u), uint3(4u), uint3(5u)
 };
 
+// Row and column of each entry in the packed lower triangle.
+constant uchar2 kPackedInertiaEntries[21] = {
+    uchar2(0, 0),
+    uchar2(1, 0), uchar2(1, 1),
+    uchar2(2, 0), uchar2(2, 1), uchar2(2, 2),
+    uchar2(3, 0), uchar2(3, 1), uchar2(3, 2), uchar2(3, 3),
+    uchar2(4, 0), uchar2(4, 1), uchar2(4, 2), uchar2(4, 3), uchar2(4, 4),
+    uchar2(5, 0), uchar2(5, 1), uchar2(5, 2), uchar2(5, 3), uchar2(5, 4), uchar2(5, 5)
+};
+
 inline uint symmetric6Index(const uint row, const uint column) {
     const uint major = max(row, column);
     const uint minor = min(row, column);
@@ -353,7 +363,12 @@ kernel void MR_ABA_KERNEL_NAME(
 #else
     uint environment [[threadgroup_position_in_grid]],
 #endif
-    uint lane [[thread_index_in_threadgroup]]
+    uint lane [[thread_index_in_threadgroup]],
+#ifdef MR_ABA_MULTI_ARTICULATION
+    uint2 groupSize [[threads_per_threadgroup]]
+#else
+    uint groupSize [[threads_per_threadgroup]]
+#endif
 ) {
 #ifdef MR_ABA_MULTI_ARTICULATION
     const uint environment = workPosition.x;
@@ -388,7 +403,7 @@ kernel void MR_ABA_KERNEL_NAME(
     device float* nextQOutput = nextQOutputBase;
     device MRABAStatusGPU* statuses = statusOutput;
 #endif
-    if (lane != 0u || environment >= dispatch.environmentCount) {
+    if (environment >= dispatch.environmentCount) {
         return;
     }
 
@@ -436,463 +451,481 @@ kernel void MR_ABA_KERNEL_NAME(
     status.failingIndex = MR_INVALID_INDEX;
     status.flags = dispatch.flags;
 
-    device const MRWorldGPU& world = worlds[0];
-    if (!validDispatch(world, dispatch, status)) {
-        statuses[environment] = status;
+    threadgroup bool prepared[1];
+    if (lane == 0u) {
+        const auto prepare = [&]() -> bool {
+            device const MRWorldGPU& world = worlds[0];
+            if (!validDispatch(world, dispatch, status)) {
+                statuses[environment] = status;
+                return false;
+            }
+
+            device const MRArticulationGPU& articulation =
+                articulations[dispatch.articulationIndex];
+            status.bodyCount = articulation.bodyCount;
+            status.nq = articulation.nq;
+            status.nv = articulation.nv;
+            if ((articulation.rootType != MR_ROOT_FIXED &&
+                 articulation.rootType != MR_ROOT_FLOATING) ||
+                articulation.bodyCount == 0u ||
+                articulation.bodyCount > kABAMaxBodies ||
+                articulation.nv == 0u ||
+                articulation.nv > kABAMaxDofs ||
+                articulation.nq > kABAMaxQ ||
+                articulation.firstBody > world.bodyCount ||
+                articulation.bodyCount >
+                    world.bodyCount - articulation.firstBody ||
+                articulation.firstJoint > world.jointCount ||
+                articulation.jointCount >
+                    world.jointCount - articulation.firstJoint ||
+                articulation.qOffset > world.nq ||
+                articulation.nq > world.nq - articulation.qOffset ||
+                articulation.vOffset > world.nv ||
+                articulation.nv > world.nv - articulation.vOffset ||
+                articulation.rootBody < articulation.firstBody ||
+                articulation.rootBody >=
+                    articulation.firstBody + articulation.bodyCount ||
+                articulation.jointCount + 1u != articulation.bodyCount ||
+                dispatch.qStride < articulation.nq ||
+                dispatch.vStride < articulation.nv ||
+                dispatch.effortStride < articulation.nv ||
+                dispatch.accelerationStride < articulation.nv ||
+                dispatch.nextVStride < articulation.nv ||
+                dispatch.nextQStride < articulation.nq ||
+                ((dispatch.flags & MR_ABA_HAS_BODY_WRENCHES) != 0u &&
+                 dispatch.wrenchStride < articulation.bodyCount)) {
+                setFailure(
+                    status,
+                    articulation.bodyCount >
+                            kABAMaxBodies ||
+                        articulation.nv > kABAMaxDofs ||
+                        articulation.nq > kABAMaxQ
+                        ? MR_ABA_UNSUPPORTED_TOPOLOGY
+                        : MR_ABA_INVALID_MODEL,
+                    MR_INVALID_INDEX
+                );
+                statuses[environment] = status;
+                return false;
+            }
+
+            const uint rootLocal =
+                articulation.rootBody - articulation.firstBody;
+            for (uint localBody = 0u;
+                 localBody < articulation.bodyCount;
+                 ++localBody) {
+                inboundJoint[localBody] = MR_INVALID_INDEX;
+                parentLocal[localBody] = MR_INVALID_INDEX;
+                known[localBody] = 0u;
+                jointDenominator[localBody] = 0.0f;
+                jointResidual[localBody] = 0.0f;
+            }
+
+            uint expectedNq =
+                articulation.rootType == MR_ROOT_FLOATING ? 7u : 0u;
+            uint expectedNv =
+                articulation.rootType == MR_ROOT_FLOATING ? 6u : 0u;
+            for (uint localJoint = 0u;
+                 localJoint < articulation.jointCount;
+                 ++localJoint) {
+                const uint globalJoint =
+                    articulation.firstJoint + localJoint;
+                device const MRJointDescriptorGPU& joint =
+                    joints[globalJoint];
+                if (joint.parentBody < articulation.firstBody ||
+                    joint.parentBody >=
+                        articulation.firstBody + articulation.bodyCount ||
+                    joint.childBody < articulation.firstBody ||
+                    joint.childBody >=
+                        articulation.firstBody + articulation.bodyCount ||
+                    joint.childBody == articulation.rootBody ||
+                    joint.parentBody == joint.childBody ||
+                    joint.flags != 0u ||
+                    !finite4(joint.parentAnchor) ||
+                    !finite4(joint.childAnchor) ||
+                    !finite4(joint.parentRotation) ||
+                    !finite4(joint.childRotation)) {
+                    setFailure(status, MR_ABA_INVALID_MODEL, globalJoint);
+                    statuses[environment] = status;
+                    return false;
+                }
+                const bool scalarJoint =
+                    joint.jointType == MR_JOINT_REVOLUTE ||
+                    joint.jointType == MR_JOINT_CONTINUOUS ||
+                    joint.jointType == MR_JOINT_PRISMATIC;
+                const bool fixedJoint =
+                    joint.jointType == MR_JOINT_FIXED;
+                if ((!scalarJoint && !fixedJoint) ||
+                    joint.nq != (scalarJoint ? 1u : 0u) ||
+                    joint.nv != (scalarJoint ? 1u : 0u) ||
+                    joint.qOffset != articulation.qOffset + expectedNq ||
+                    joint.vOffset != articulation.vOffset + expectedNv) {
+                    setFailure(
+                        status,
+                        !scalarJoint && !fixedJoint
+                            ? MR_ABA_UNSUPPORTED_TOPOLOGY
+                            : MR_ABA_INVALID_MODEL,
+                        globalJoint
+                    );
+                    statuses[environment] = status;
+                    return false;
+                }
+                if (scalarJoint) {
+                    const float axisNormSquared =
+                        dot(joint.axis0.xyz, joint.axis0.xyz);
+                    if (!finite4(joint.axis0) ||
+                        !(axisNormSquared > kQuaternionMinimum)) {
+                        setFailure(status, MR_ABA_INVALID_MODEL, globalJoint);
+                        statuses[environment] = status;
+                        return false;
+                    }
+                }
+                const uint localChild =
+                    joint.childBody - articulation.firstBody;
+                if (inboundJoint[localChild] != MR_INVALID_INDEX) {
+                    setFailure(
+                        status,
+                        MR_ABA_UNSUPPORTED_TOPOLOGY,
+                        joint.childBody
+                    );
+                    statuses[environment] = status;
+                    return false;
+                }
+                inboundJoint[localChild] = globalJoint;
+                parentLocal[localChild] =
+                    joint.parentBody - articulation.firstBody;
+                expectedNq += scalarJoint ? 1u : 0u;
+                expectedNv += scalarJoint ? 1u : 0u;
+            }
+            if (expectedNq != articulation.nq ||
+                expectedNv != articulation.nv ||
+                inboundJoint[rootLocal] != MR_INVALID_INDEX) {
+                setFailure(
+                    status,
+                    MR_ABA_INVALID_MODEL,
+                    MR_INVALID_INDEX
+                );
+                statuses[environment] = status;
+                return false;
+            }
+
+            known[rootLocal] = 1u;
+            traversal[0] = rootLocal;
+            uint discovered = 1u;
+            for (uint pass = 0u;
+                 pass < articulation.bodyCount &&
+                     discovered < articulation.bodyCount;
+                 ++pass) {
+                bool progressed = false;
+                for (uint localJoint = 0u;
+                     localJoint < articulation.jointCount;
+                     ++localJoint) {
+                    const uint globalJoint =
+                        articulation.firstJoint + localJoint;
+                    device const MRJointDescriptorGPU& joint =
+                        joints[globalJoint];
+                    const uint localParent =
+                        joint.parentBody - articulation.firstBody;
+                    const uint localChild =
+                        joint.childBody - articulation.firstBody;
+                    if (known[localParent] != 0u &&
+                        known[localChild] == 0u) {
+                        known[localChild] = 1u;
+                        traversal[discovered++] = localChild;
+                        progressed = true;
+                    }
+                }
+                if (!progressed) {
+                    break;
+                }
+            }
+            if (discovered != articulation.bodyCount) {
+                setFailure(
+                    status,
+                    MR_ABA_UNSUPPORTED_TOPOLOGY,
+                    MR_INVALID_INDEX
+                );
+                statuses[environment] = status;
+                return false;
+            }
+
+            const uint qBase = environment * dispatch.qStride;
+            const uint vBase = environment * dispatch.vStride;
+            const uint effortBase = environment * dispatch.effortStride;
+            device const float* environmentQ = q + qBase;
+            device const float* environmentV = v + vBase;
+            device const float* environmentEffort = effort + effortBase;
+            for (uint localQ = 0u; localQ < articulation.nq; ++localQ) {
+                if (!isfinite(environmentQ[localQ])) {
+                    setFailure(status, MR_ABA_NONFINITE_INPUT, localQ);
+                    statuses[environment] = status;
+                    return false;
+                }
+                candidateNextQ[localQ] = environmentQ[localQ];
+            }
+            for (uint localV = 0u; localV < articulation.nv; ++localV) {
+                device const MRDofPropertiesGPU& dof =
+                    dofs[articulation.vOffset + localV];
+                if (!isfinite(environmentV[localV]) ||
+                    !isfinite(environmentEffort[localV]) ||
+                    !finite4(dof.drive) ||
+                    dof.drive.z < 0.0f) {
+                    setFailure(status, MR_ABA_NONFINITE_INPUT, localV);
+                    statuses[environment] = status;
+                    return false;
+                }
+            }
+
+            if (articulation.rootType == MR_ROOT_FLOATING) {
+                float4 checkedRootRotation;
+                if (!finite3(float3(
+                        environmentQ[0],
+                        environmentQ[1],
+                        environmentQ[2]
+                    )) ||
+                    !normalizedQuaternion(
+                        float4(
+                            environmentQ[3],
+                            environmentQ[4],
+                            environmentQ[5],
+                            environmentQ[6]
+                        ),
+                        checkedRootRotation,
+                        true
+                    )) {
+                    setFailure(status, MR_ABA_INVALID_QUATERNION, 0u);
+                    statuses[environment] = status;
+                    return false;
+                }
+                bodyPosition[rootLocal] = float3(
+                    environmentQ[0],
+                    environmentQ[1],
+                    environmentQ[2]
+                );
+                bodyRotation[rootLocal] = checkedRootRotation;
+                linearVelocity[rootLocal] = float3(
+                    environmentV[0],
+                    environmentV[1],
+                    environmentV[2]
+                );
+                angularVelocity[rootLocal] = float3(
+                    environmentV[3],
+                    environmentV[4],
+                    environmentV[5]
+                );
+            } else {
+                bodyPosition[rootLocal] = float3(0.0f);
+                bodyRotation[rootLocal] =
+                    float4(0.0f, 0.0f, 0.0f, 1.0f);
+                linearVelocity[rootLocal] = float3(0.0f);
+                angularVelocity[rootLocal] = float3(0.0f);
+            }
+            parentToBody[rootLocal] = float3(0.0f);
+            motionAngular[rootLocal] = float3(0.0f);
+            motionLinear[rootLocal] = float3(0.0f);
+            biasAngular[rootLocal] = float3(0.0f);
+            biasLinear[rootLocal] = float3(0.0f);
+
+            for (uint traversalIndex = 1u;
+                 traversalIndex < articulation.bodyCount;
+                 ++traversalIndex) {
+                const uint localChild = traversal[traversalIndex];
+                const uint globalJoint = inboundJoint[localChild];
+                device const MRJointDescriptorGPU& joint =
+                    joints[globalJoint];
+                const uint localParent = parentLocal[localChild];
+                float4 parentJointRotation;
+                float4 childJointRotation;
+                if (!normalizedQuaternion(
+                        joint.parentRotation,
+                        parentJointRotation,
+                        true
+                    ) ||
+                    !normalizedQuaternion(
+                        joint.childRotation,
+                        childJointRotation,
+                        true
+                    )) {
+                    setFailure(status, MR_ABA_INVALID_MODEL, globalJoint);
+                    statuses[environment] = status;
+                    return false;
+                }
+                const float4 parentToJointRotation =
+                    quaternionMultiply(
+                        bodyRotation[localParent],
+                        parentJointRotation
+                    );
+                float3 axisInJoint = float3(1.0f, 0.0f, 0.0f);
+                float4 motionRotation =
+                    float4(0.0f, 0.0f, 0.0f, 1.0f);
+                float jointCoordinate = 0.0f;
+                float jointRate = 0.0f;
+                if (joint.nv == 1u) {
+                    axisInJoint = normalize(joint.axis0.xyz);
+                    const uint localQ =
+                        joint.qOffset - articulation.qOffset;
+                    const uint localV =
+                        joint.vOffset - articulation.vOffset;
+                    jointCoordinate = environmentQ[localQ];
+                    if (joint.jointType == MR_JOINT_REVOLUTE ||
+                        joint.jointType == MR_JOINT_CONTINUOUS) {
+                        motionRotation = axisAngleQuaternion(
+                            axisInJoint,
+                            jointCoordinate
+                        );
+                    }
+                    jointRate = environmentV[localV];
+                }
+                float4 checkedChildRotation;
+                if (!normalizedQuaternion(
+                        quaternionMultiply(
+                            quaternionMultiply(
+                                parentToJointRotation,
+                                motionRotation
+                            ),
+                            quaternionConjugate(childJointRotation)
+                        ),
+                        checkedChildRotation,
+                        false
+                    )) {
+                    setFailure(
+                        status,
+                        MR_ABA_NONFINITE_RESULT,
+                        articulation.firstBody + localChild
+                    );
+                    statuses[environment] = status;
+                    return false;
+                }
+                bodyRotation[localChild] = checkedChildRotation;
+                const float3 jointAxis = quaternionRotate(
+                    parentToJointRotation,
+                    axisInJoint
+                );
+                const bool prismatic =
+                    joint.jointType == MR_JOINT_PRISMATIC;
+                const float3 jointPosition =
+                    bodyPosition[localParent] +
+                    quaternionRotate(
+                        bodyRotation[localParent],
+                        joint.parentAnchor.xyz
+                    ) +
+                    (prismatic
+                        ? jointAxis * jointCoordinate
+                        : float3(0.0f));
+                const float3 childAnchor = quaternionRotate(
+                    bodyRotation[localChild],
+                    joint.childAnchor.xyz
+                );
+                bodyPosition[localChild] =
+                    jointPosition - childAnchor;
+                parentToBody[localChild] =
+                    bodyPosition[localChild] -
+                    bodyPosition[localParent];
+                const float3 parentToJoint =
+                    jointPosition - bodyPosition[localParent];
+                angularVelocity[localChild] =
+                    angularVelocity[localParent] +
+                    (!prismatic && joint.nv == 1u
+                        ? jointAxis * jointRate
+                        : float3(0.0f));
+                linearVelocity[localChild] =
+                    linearVelocity[localParent] +
+                    cross(
+                        angularVelocity[localParent],
+                        parentToJoint
+                    ) +
+                    (prismatic
+                        ? jointAxis * jointRate
+                        : float3(0.0f)) -
+                    cross(
+                        angularVelocity[localChild],
+                        childAnchor
+                    );
+                motionAngular[localChild] =
+                    joint.nv == 1u && !prismatic
+                        ? jointAxis
+                        : float3(0.0f);
+                motionLinear[localChild] =
+                    prismatic
+                        ? jointAxis
+                        : (joint.nv == 1u
+                            ? -cross(jointAxis, childAnchor)
+                            : float3(0.0f));
+                biasAngular[localChild] =
+                    joint.nv == 1u && !prismatic
+                        ? cross(
+                            angularVelocity[localParent],
+                            jointAxis
+                        ) * jointRate
+                        : float3(0.0f);
+                const float3 prismaticCoriolis =
+                    prismatic
+                        ? 2.0f * cross(
+                            angularVelocity[localParent],
+                            jointAxis
+                        ) * jointRate
+                        : float3(0.0f);
+                biasLinear[localChild] =
+                    cross(
+                        angularVelocity[localParent],
+                        cross(
+                            angularVelocity[localParent],
+                            parentToJoint
+                        )
+                    ) +
+                    prismaticCoriolis -
+                    cross(biasAngular[localChild], childAnchor) -
+                    cross(
+                        angularVelocity[localChild],
+                        cross(
+                            angularVelocity[localChild],
+                            childAnchor
+                        )
+                    );
+                if (!finite3(bodyPosition[localChild]) ||
+                    !finite4(bodyRotation[localChild]) ||
+                    !finite3(angularVelocity[localChild]) ||
+                    !finite3(linearVelocity[localChild]) ||
+                    !finite3(motionAngular[localChild]) ||
+                    !finite3(motionLinear[localChild]) ||
+                    !finite3(biasAngular[localChild]) ||
+                    !finite3(biasLinear[localChild])) {
+                    setFailure(
+                        status,
+                        MR_ABA_NONFINITE_RESULT,
+                        articulation.firstBody + localChild
+                    );
+                    statuses[environment] = status;
+                    return false;
+                }
+            }
+            return true;
+        };
+        prepared[0] = prepare();
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (!prepared[0]) {
         return;
     }
 
+    device const MRWorldGPU& world = worlds[0];
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
-    status.bodyCount = articulation.bodyCount;
-    status.nq = articulation.nq;
-    status.nv = articulation.nv;
-    if ((articulation.rootType != MR_ROOT_FIXED &&
-         articulation.rootType != MR_ROOT_FLOATING) ||
-        articulation.bodyCount == 0u ||
-        articulation.bodyCount > kABAMaxBodies ||
-        articulation.nv == 0u ||
-        articulation.nv > kABAMaxDofs ||
-        articulation.nq > kABAMaxQ ||
-        articulation.firstBody > world.bodyCount ||
-        articulation.bodyCount >
-            world.bodyCount - articulation.firstBody ||
-        articulation.firstJoint > world.jointCount ||
-        articulation.jointCount >
-            world.jointCount - articulation.firstJoint ||
-        articulation.qOffset > world.nq ||
-        articulation.nq > world.nq - articulation.qOffset ||
-        articulation.vOffset > world.nv ||
-        articulation.nv > world.nv - articulation.vOffset ||
-        articulation.rootBody < articulation.firstBody ||
-        articulation.rootBody >=
-            articulation.firstBody + articulation.bodyCount ||
-        articulation.jointCount + 1u != articulation.bodyCount ||
-        dispatch.qStride < articulation.nq ||
-        dispatch.vStride < articulation.nv ||
-        dispatch.effortStride < articulation.nv ||
-        dispatch.accelerationStride < articulation.nv ||
-        dispatch.nextVStride < articulation.nv ||
-        dispatch.nextQStride < articulation.nq ||
-        ((dispatch.flags & MR_ABA_HAS_BODY_WRENCHES) != 0u &&
-         dispatch.wrenchStride < articulation.bodyCount)) {
-        setFailure(
-            status,
-            articulation.bodyCount >
-                    kABAMaxBodies ||
-                articulation.nv > kABAMaxDofs ||
-                articulation.nq > kABAMaxQ
-                ? MR_ABA_UNSUPPORTED_TOPOLOGY
-                : MR_ABA_INVALID_MODEL,
-            MR_INVALID_INDEX
-        );
-        statuses[environment] = status;
-        return;
-    }
-
-    const uint rootLocal =
-        articulation.rootBody - articulation.firstBody;
-    for (uint localBody = 0u;
-         localBody < articulation.bodyCount;
-         ++localBody) {
-        inboundJoint[localBody] = MR_INVALID_INDEX;
-        parentLocal[localBody] = MR_INVALID_INDEX;
-        known[localBody] = 0u;
-        jointDenominator[localBody] = 0.0f;
-        jointResidual[localBody] = 0.0f;
-    }
-
-    uint expectedNq =
-        articulation.rootType == MR_ROOT_FLOATING ? 7u : 0u;
-    uint expectedNv =
-        articulation.rootType == MR_ROOT_FLOATING ? 6u : 0u;
-    for (uint localJoint = 0u;
-         localJoint < articulation.jointCount;
-         ++localJoint) {
-        const uint globalJoint =
-            articulation.firstJoint + localJoint;
-        device const MRJointDescriptorGPU& joint =
-            joints[globalJoint];
-        if (joint.parentBody < articulation.firstBody ||
-            joint.parentBody >=
-                articulation.firstBody + articulation.bodyCount ||
-            joint.childBody < articulation.firstBody ||
-            joint.childBody >=
-                articulation.firstBody + articulation.bodyCount ||
-            joint.childBody == articulation.rootBody ||
-            joint.parentBody == joint.childBody ||
-            joint.flags != 0u ||
-            !finite4(joint.parentAnchor) ||
-            !finite4(joint.childAnchor) ||
-            !finite4(joint.parentRotation) ||
-            !finite4(joint.childRotation)) {
-            setFailure(status, MR_ABA_INVALID_MODEL, globalJoint);
-            statuses[environment] = status;
-            return;
-        }
-        const bool scalarJoint =
-            joint.jointType == MR_JOINT_REVOLUTE ||
-            joint.jointType == MR_JOINT_CONTINUOUS ||
-            joint.jointType == MR_JOINT_PRISMATIC;
-        const bool fixedJoint =
-            joint.jointType == MR_JOINT_FIXED;
-        if ((!scalarJoint && !fixedJoint) ||
-            joint.nq != (scalarJoint ? 1u : 0u) ||
-            joint.nv != (scalarJoint ? 1u : 0u) ||
-            joint.qOffset != articulation.qOffset + expectedNq ||
-            joint.vOffset != articulation.vOffset + expectedNv) {
-            setFailure(
-                status,
-                !scalarJoint && !fixedJoint
-                    ? MR_ABA_UNSUPPORTED_TOPOLOGY
-                    : MR_ABA_INVALID_MODEL,
-                globalJoint
-            );
-            statuses[environment] = status;
-            return;
-        }
-        if (scalarJoint) {
-            const float axisNormSquared =
-                dot(joint.axis0.xyz, joint.axis0.xyz);
-            if (!finite4(joint.axis0) ||
-                !(axisNormSquared > kQuaternionMinimum)) {
-                setFailure(status, MR_ABA_INVALID_MODEL, globalJoint);
-                statuses[environment] = status;
-                return;
-            }
-        }
-        const uint localChild =
-            joint.childBody - articulation.firstBody;
-        if (inboundJoint[localChild] != MR_INVALID_INDEX) {
-            setFailure(
-                status,
-                MR_ABA_UNSUPPORTED_TOPOLOGY,
-                joint.childBody
-            );
-            statuses[environment] = status;
-            return;
-        }
-        inboundJoint[localChild] = globalJoint;
-        parentLocal[localChild] =
-            joint.parentBody - articulation.firstBody;
-        expectedNq += scalarJoint ? 1u : 0u;
-        expectedNv += scalarJoint ? 1u : 0u;
-    }
-    if (expectedNq != articulation.nq ||
-        expectedNv != articulation.nv ||
-        inboundJoint[rootLocal] != MR_INVALID_INDEX) {
-        setFailure(
-            status,
-            MR_ABA_INVALID_MODEL,
-            MR_INVALID_INDEX
-        );
-        statuses[environment] = status;
-        return;
-    }
-
-    known[rootLocal] = 1u;
-    traversal[0] = rootLocal;
-    uint discovered = 1u;
-    for (uint pass = 0u;
-         pass < articulation.bodyCount &&
-             discovered < articulation.bodyCount;
-         ++pass) {
-        bool progressed = false;
-        for (uint localJoint = 0u;
-             localJoint < articulation.jointCount;
-             ++localJoint) {
-            const uint globalJoint =
-                articulation.firstJoint + localJoint;
-            device const MRJointDescriptorGPU& joint =
-                joints[globalJoint];
-            const uint localParent =
-                joint.parentBody - articulation.firstBody;
-            const uint localChild =
-                joint.childBody - articulation.firstBody;
-            if (known[localParent] != 0u &&
-                known[localChild] == 0u) {
-                known[localChild] = 1u;
-                traversal[discovered++] = localChild;
-                progressed = true;
-            }
-        }
-        if (!progressed) {
-            break;
-        }
-    }
-    if (discovered != articulation.bodyCount) {
-        setFailure(
-            status,
-            MR_ABA_UNSUPPORTED_TOPOLOGY,
-            MR_INVALID_INDEX
-        );
-        statuses[environment] = status;
-        return;
-    }
-
-    const uint qBase = environment * dispatch.qStride;
-    const uint vBase = environment * dispatch.vStride;
-    const uint effortBase = environment * dispatch.effortStride;
-#if MR_ABA_BODY_PARAMETERS
-    const float4 controller = controllerParameters[environment];
-    const float gainScale = max(controller.x, 0.0f);
-    const float driveDampingScale = max(controller.y, 0.0f);
-#else
-    constexpr float gainScale = 1.0f;
-    constexpr float driveDampingScale = 1.0f;
-#endif
-    device const float* environmentQ = q + qBase;
-    device const float* environmentV = v + vBase;
-    device const float* environmentEffort = effort + effortBase;
-    for (uint localQ = 0u; localQ < articulation.nq; ++localQ) {
-        if (!isfinite(environmentQ[localQ])) {
-            setFailure(status, MR_ABA_NONFINITE_INPUT, localQ);
-            statuses[environment] = status;
-            return;
-        }
-        candidateNextQ[localQ] = environmentQ[localQ];
-    }
-    for (uint localV = 0u; localV < articulation.nv; ++localV) {
-        device const MRDofPropertiesGPU& dof =
-            dofs[articulation.vOffset + localV];
-        if (!isfinite(environmentV[localV]) ||
-            !isfinite(environmentEffort[localV]) ||
-            !finite4(dof.drive) ||
-            dof.drive.z < 0.0f) {
-            setFailure(status, MR_ABA_NONFINITE_INPUT, localV);
-            statuses[environment] = status;
-            return;
-        }
-    }
-
-    if (articulation.rootType == MR_ROOT_FLOATING) {
-        float4 checkedRootRotation;
-        if (!finite3(float3(
-                environmentQ[0],
-                environmentQ[1],
-                environmentQ[2]
-            )) ||
-            !normalizedQuaternion(
-                float4(
-                    environmentQ[3],
-                    environmentQ[4],
-                    environmentQ[5],
-                    environmentQ[6]
-                ),
-                checkedRootRotation,
-                true
-            )) {
-            setFailure(status, MR_ABA_INVALID_QUATERNION, 0u);
-            statuses[environment] = status;
-            return;
-        }
-        bodyPosition[rootLocal] = float3(
-            environmentQ[0],
-            environmentQ[1],
-            environmentQ[2]
-        );
-        bodyRotation[rootLocal] = checkedRootRotation;
-        linearVelocity[rootLocal] = float3(
-            environmentV[0],
-            environmentV[1],
-            environmentV[2]
-        );
-        angularVelocity[rootLocal] = float3(
-            environmentV[3],
-            environmentV[4],
-            environmentV[5]
-        );
-    } else {
-        bodyPosition[rootLocal] = float3(0.0f);
-        bodyRotation[rootLocal] =
-            float4(0.0f, 0.0f, 0.0f, 1.0f);
-        linearVelocity[rootLocal] = float3(0.0f);
-        angularVelocity[rootLocal] = float3(0.0f);
-    }
-    parentToBody[rootLocal] = float3(0.0f);
-    motionAngular[rootLocal] = float3(0.0f);
-    motionLinear[rootLocal] = float3(0.0f);
-    biasAngular[rootLocal] = float3(0.0f);
-    biasLinear[rootLocal] = float3(0.0f);
-
-    for (uint traversalIndex = 1u;
-         traversalIndex < articulation.bodyCount;
-         ++traversalIndex) {
-        const uint localChild = traversal[traversalIndex];
-        const uint globalJoint = inboundJoint[localChild];
-        device const MRJointDescriptorGPU& joint =
-            joints[globalJoint];
-        const uint localParent = parentLocal[localChild];
-        float4 parentJointRotation;
-        float4 childJointRotation;
-        if (!normalizedQuaternion(
-                joint.parentRotation,
-                parentJointRotation,
-                true
-            ) ||
-            !normalizedQuaternion(
-                joint.childRotation,
-                childJointRotation,
-                true
-            )) {
-            setFailure(status, MR_ABA_INVALID_MODEL, globalJoint);
-            statuses[environment] = status;
-            return;
-        }
-        const float4 parentToJointRotation =
-            quaternionMultiply(
-                bodyRotation[localParent],
-                parentJointRotation
-            );
-        float3 axisInJoint = float3(1.0f, 0.0f, 0.0f);
-        float4 motionRotation =
-            float4(0.0f, 0.0f, 0.0f, 1.0f);
-        float jointCoordinate = 0.0f;
-        float jointRate = 0.0f;
-        if (joint.nv == 1u) {
-            axisInJoint = normalize(joint.axis0.xyz);
-            const uint localQ =
-                joint.qOffset - articulation.qOffset;
-            const uint localV =
-                joint.vOffset - articulation.vOffset;
-            jointCoordinate = environmentQ[localQ];
-            if (joint.jointType == MR_JOINT_REVOLUTE ||
-                joint.jointType == MR_JOINT_CONTINUOUS) {
-                motionRotation = axisAngleQuaternion(
-                    axisInJoint,
-                    jointCoordinate
-                );
-            }
-            jointRate = environmentV[localV];
-        }
-        float4 checkedChildRotation;
-        if (!normalizedQuaternion(
-                quaternionMultiply(
-                    quaternionMultiply(
-                        parentToJointRotation,
-                        motionRotation
-                    ),
-                    quaternionConjugate(childJointRotation)
-                ),
-                checkedChildRotation,
-                false
-            )) {
-            setFailure(
-                status,
-                MR_ABA_NONFINITE_RESULT,
-                articulation.firstBody + localChild
-            );
-            statuses[environment] = status;
-            return;
-        }
-        bodyRotation[localChild] = checkedChildRotation;
-        const float3 jointAxis = quaternionRotate(
-            parentToJointRotation,
-            axisInJoint
-        );
-        const bool prismatic =
-            joint.jointType == MR_JOINT_PRISMATIC;
-        const float3 jointPosition =
-            bodyPosition[localParent] +
-            quaternionRotate(
-                bodyRotation[localParent],
-                joint.parentAnchor.xyz
-            ) +
-            (prismatic
-                ? jointAxis * jointCoordinate
-                : float3(0.0f));
-        const float3 childAnchor = quaternionRotate(
-            bodyRotation[localChild],
-            joint.childAnchor.xyz
-        );
-        bodyPosition[localChild] =
-            jointPosition - childAnchor;
-        parentToBody[localChild] =
-            bodyPosition[localChild] -
-            bodyPosition[localParent];
-        const float3 parentToJoint =
-            jointPosition - bodyPosition[localParent];
-        angularVelocity[localChild] =
-            angularVelocity[localParent] +
-            (!prismatic && joint.nv == 1u
-                ? jointAxis * jointRate
-                : float3(0.0f));
-        linearVelocity[localChild] =
-            linearVelocity[localParent] +
-            cross(
-                angularVelocity[localParent],
-                parentToJoint
-            ) +
-            (prismatic
-                ? jointAxis * jointRate
-                : float3(0.0f)) -
-            cross(
-                angularVelocity[localChild],
-                childAnchor
-            );
-        motionAngular[localChild] =
-            joint.nv == 1u && !prismatic
-                ? jointAxis
-                : float3(0.0f);
-        motionLinear[localChild] =
-            prismatic
-                ? jointAxis
-                : (joint.nv == 1u
-                    ? -cross(jointAxis, childAnchor)
-                    : float3(0.0f));
-        biasAngular[localChild] =
-            joint.nv == 1u && !prismatic
-                ? cross(
-                    angularVelocity[localParent],
-                    jointAxis
-                ) * jointRate
-                : float3(0.0f);
-        const float3 prismaticCoriolis =
-            prismatic
-                ? 2.0f * cross(
-                    angularVelocity[localParent],
-                    jointAxis
-                ) * jointRate
-                : float3(0.0f);
-        biasLinear[localChild] =
-            cross(
-                angularVelocity[localParent],
-                cross(
-                    angularVelocity[localParent],
-                    parentToJoint
-                )
-            ) +
-            prismaticCoriolis -
-            cross(biasAngular[localChild], childAnchor) -
-            cross(
-                angularVelocity[localChild],
-                cross(
-                    angularVelocity[localChild],
-                    childAnchor
-                )
-            );
-        if (!finite3(bodyPosition[localChild]) ||
-            !finite4(bodyRotation[localChild]) ||
-            !finite3(angularVelocity[localChild]) ||
-            !finite3(linearVelocity[localChild]) ||
-            !finite3(motionAngular[localChild]) ||
-            !finite3(motionLinear[localChild]) ||
-            !finite3(biasAngular[localChild]) ||
-            !finite3(biasLinear[localChild])) {
-            setFailure(
-                status,
-                MR_ABA_NONFINITE_RESULT,
-                articulation.firstBody + localChild
-            );
-            statuses[environment] = status;
-            return;
-        }
-    }
-
+    const uint rootLocal = articulation.rootBody - articulation.firstBody;
+    device const float* environmentQ = q + environment * dispatch.qStride;
+    device const float* environmentV = v + environment * dispatch.vStride;
+    device const float* environmentEffort = effort + environment * dispatch.effortStride;
     const uint wrenchBase = environment * dispatch.wrenchStride;
-    for (uint localBody = 0u;
+#ifdef MR_ABA_MULTI_ARTICULATION
+    const uint groupWidth = groupSize.x * groupSize.y;
+#else
+    const uint groupWidth = groupSize;
+#endif
+    // Traversal no longer needs the discovery flags. Use those bytes to
+    // preserve the original first-failing-body order across lanes.
+    for (uint localBody = lane;
          localBody < articulation.bodyCount;
-         ++localBody) {
+         localBody += groupWidth) {
+        known[localBody] = MR_ABA_SUCCESS;
         const uint globalBody =
             articulation.firstBody + localBody;
         device const MRBodyPropertiesGPU& body =
@@ -921,9 +954,8 @@ kernel void MR_ABA_KERNEL_NAME(
             !finite4(body.inertiaRow1) ||
             !finite4(body.inertiaRow2) ||
             !finite4(body.dampingAndSpeedLimits)) {
-            setFailure(status, MR_ABA_INVALID_MODEL, globalBody);
-            statuses[environment] = status;
-            return;
+            known[localBody] = MR_ABA_INVALID_MODEL;
+            continue;
         }
         const uint matrixBase =
             localBody * kABASymmetricInertiaEntries;
@@ -975,9 +1007,8 @@ kernel void MR_ABA_KERNEL_NAME(
                 !finite4(wrench.torque) ||
                 wrench.force.w != 0.0f ||
                 wrench.torque.w != 0.0f) {
-                setFailure(status, MR_ABA_NONFINITE_INPUT, globalBody);
-                statuses[environment] = status;
-                return;
+                known[localBody] = MR_ABA_NONFINITE_INPUT;
+                continue;
             }
             externalForce += wrench.force.xyz;
             externalTorque += wrench.torque.xyz;
@@ -1009,197 +1040,196 @@ kernel void MR_ABA_KERNEL_NAME(
         }
     }
 
-    if (articulation.rootType == MR_ROOT_FLOATING) {
-        const uint rootMatrixBase =
-            rootLocal * kABASymmetricInertiaEntries;
-        for (uint axis = 0u; axis < 3u; ++axis) {
-            articulatedInertia[
-                rootMatrixBase + symmetric6Index(
-                    3u + axis,
-                    3u + axis
-                )
-            ] += effectiveArmature(
-                dofs[articulation.vOffset + axis],
-                dispatch.flags,
-                world.gravityAndTimestep.w,
-                gainScale,
-                driveDampingScale
-            );
-            articulatedInertia[
-                rootMatrixBase + symmetric6Index(axis, axis)
-            ] += effectiveArmature(
-                dofs[articulation.vOffset + 3u + axis],
-                dispatch.flags,
-                world.gravityAndTimestep.w,
-                gainScale,
-                driveDampingScale
-            );
-            articulatedBias[rootLocal * 6u + axis] -=
-                environmentEffort[3u + axis];
-            articulatedBias[
-                rootLocal * 6u + 3u + axis
-            ] -= environmentEffort[axis];
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        for (uint localBody = 0u; localBody < articulation.bodyCount; ++localBody) {
+            if (known[localBody] != MR_ABA_SUCCESS) {
+                setFailure(status, known[localBody], articulation.firstBody + localBody);
+                statuses[environment] = status;
+                prepared[0] = false;
+                break;
+            }
         }
     }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (!prepared[0]) {
+        return;
+    }
 
-    float minimumPivot = INFINITY;
-    float maximumPivot = 0.0f;
-    for (uint reverse = 0u;
-         reverse + 1u < articulation.bodyCount;
-         ++reverse) {
-        const uint traversalIndex =
-            articulation.bodyCount - 1u - reverse;
-        const uint localBody = traversal[traversalIndex];
-        const uint localParent = parentLocal[localBody];
-        const uint globalJoint = inboundJoint[localBody];
-        device const MRJointDescriptorGPU& joint =
-            joints[globalJoint];
-        const uint matrixBase =
-            localBody * kABASymmetricInertiaEntries;
-
-        float3 inertiaTimesBiasAngular = float3(0.0f);
-        float3 inertiaTimesBiasLinear = float3(0.0f);
-        for (uint row = 0u; row < 6u; ++row) {
-            float value = 0.0f;
-            for (uint column = 0u; column < 6u; ++column) {
-                value +=
-                    symmetric6Value(
-                        articulatedInertia,
-                        matrixBase,
-                        row,
-                        column
-                    ) *
-                    spatialComponent(
-                        biasAngular[localBody],
-                        biasLinear[localBody],
-                        column
-                    );
-            }
-            setSpatialComponent(
-                inertiaTimesBiasAngular,
-                inertiaTimesBiasLinear,
-                row,
-                value
-            );
-        }
-        float3 propagatedTorque =
-            float3(
-                articulatedBias[localBody * 6u + 0u],
-                articulatedBias[localBody * 6u + 1u],
-                articulatedBias[localBody * 6u + 2u]
-            ) + inertiaTimesBiasAngular;
-        float3 propagatedForce =
-            float3(
-                articulatedBias[localBody * 6u + 3u],
-                articulatedBias[localBody * 6u + 4u],
-                articulatedBias[localBody * 6u + 5u]
-            ) + inertiaTimesBiasLinear;
-
-        if (joint.nv == 1u) {
-            float3 projectedAngular = float3(0.0f);
-            float3 projectedLinear = float3(0.0f);
-            for (uint row = 0u; row < 6u; ++row) {
-                float value = 0.0f;
-                for (uint column = 0u;
-                     column < 6u;
-                     ++column) {
-                    value +=
-                        symmetric6Value(
-                            articulatedInertia,
-                            matrixBase,
-                            row,
-                            column
-                        ) *
-                        spatialComponent(
-                            motionAngular[localBody],
-                            motionLinear[localBody],
-                            column
-                        );
-                }
-                projectedInertia[localBody * 6u + row] = value;
-                setSpatialComponent(
-                    projectedAngular,
-                    projectedLinear,
-                    row,
-                    value
-                );
-            }
-            const uint localV =
-                joint.vOffset - articulation.vOffset;
-            const float denominator =
-                dot(
-                    motionAngular[localBody],
-                    projectedAngular
-                ) +
-                dot(
-                    motionLinear[localBody],
-                    projectedLinear
-                ) +
-                effectiveArmature(
-                    dofs[articulation.vOffset + localV],
+#if MR_ABA_BODY_PARAMETERS
+    const float4 controller = controllerParameters[environment];
+    const float gainScale = max(controller.x, 0.0f);
+    const float driveDampingScale = max(controller.y, 0.0f);
+#else
+    constexpr float gainScale = 1.0f;
+    constexpr float driveDampingScale = 1.0f;
+#endif
+    if (articulation.rootType == MR_ROOT_FLOATING) {
+        if (lane == 0u) {
+            const uint rootMatrixBase =
+                rootLocal * kABASymmetricInertiaEntries;
+            for (uint axis = 0u; axis < 3u; ++axis) {
+                articulatedInertia[
+                    rootMatrixBase + symmetric6Index(
+                        3u + axis,
+                        3u + axis
+                    )
+                ] += effectiveArmature(
+                    dofs[articulation.vOffset + axis],
                     dispatch.flags,
                     world.gravityAndTimestep.w,
                     gainScale,
                     driveDampingScale
                 );
-            float maximumInertia = 0.0f;
-            for (uint entry = 0u;
-                 entry < kABASymmetricInertiaEntries;
-                 ++entry) {
-                maximumInertia = max(
-                    maximumInertia,
-                    abs(articulatedInertia[matrixBase + entry])
+                articulatedInertia[
+                    rootMatrixBase + symmetric6Index(axis, axis)
+                ] += effectiveArmature(
+                    dofs[articulation.vOffset + 3u + axis],
+                    dispatch.flags,
+                    world.gravityAndTimestep.w,
+                    gainScale,
+                    driveDampingScale
                 );
+                articulatedBias[rootLocal * 6u + axis] -=
+                    environmentEffort[3u + axis];
+                articulatedBias[
+                    rootLocal * 6u + 3u + axis
+                ] -= environmentEffort[axis];
             }
-            const float pivotFloor = max(
-                kAbsolutePivotFloor,
-                maximumInertia * 6.0f * kFloatEpsilon
-            );
-            if (!(denominator > pivotFloor) ||
-                !isfinite(denominator)) {
-                setFailure(
-                    status,
-                    MR_ABA_FACTORIZATION_FAILED,
-                    localV
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+
+    threadgroup float inertiaTimesBias[6];
+    threadgroup float3 propagatedTorque[1];
+    threadgroup float3 propagatedForce[1];
+    float minimumPivot = INFINITY;
+    float maximumPivot = 0.0f;
+    // Each child's contributions are finalized before moving to its parent.
+    // Within one body, spatial rows and packed inertia entries are independent.
+    for (uint reverse = 0u;
+         reverse + 1u < articulation.bodyCount;
+         ++reverse) {
+        const uint traversalIndex = articulation.bodyCount - 1u - reverse;
+        const uint localBody = traversal[traversalIndex];
+        const uint localParent = parentLocal[localBody];
+        device const MRJointDescriptorGPU& joint = joints[inboundJoint[localBody]];
+        const bool movable = joint.nv == 1u;
+        const bool parentIsFixedRoot =
+            localParent == rootLocal && articulation.rootType == MR_ROOT_FIXED;
+        if (parentIsFixedRoot && !movable) {
+            continue;
+        }
+        const uint rowBase = localBody * 6u;
+        const uint matrixBase = localBody * kABASymmetricInertiaEntries;
+
+        for (uint row = lane; row < 6u; row += groupWidth) {
+            float bias = 0.0f;
+            float projection = 0.0f;
+            for (uint column = 0u; column < 6u; ++column) {
+                const float inertia =
+                    symmetric6Value(articulatedInertia, matrixBase, row, column);
+                bias += inertia * spatialComponent(
+                    biasAngular[localBody], biasLinear[localBody], column
                 );
-                status.diagnostics = float4(
-                    minimumPivot,
-                    maximumPivot,
-                    denominator,
-                    maximumInertia
-                );
-                statuses[environment] = status;
-                return;
-            }
-            jointDenominator[localBody] = denominator;
-            const float residual =
-                environmentEffort[localV] -
-                dot(motionAngular[localBody], propagatedTorque) -
-                dot(motionLinear[localBody], propagatedForce);
-            jointResidual[localBody] = residual;
-            const float pivot = sqrt(denominator);
-            minimumPivot = min(minimumPivot, pivot);
-            maximumPivot = max(maximumPivot, pivot);
-            propagatedTorque +=
-                projectedAngular * (residual / denominator);
-            propagatedForce +=
-                projectedLinear * (residual / denominator);
-            for (uint row = 0u; row < 6u; ++row) {
-                for (uint column = 0u;
-                     column <= row;
-                     ++column) {
-                    articulatedInertia[
-                        matrixBase + symmetric6Index(row, column)
-                    ] -=
-                        projectedInertia[
-                            localBody * 6u + row
-                        ] *
-                        projectedInertia[
-                            localBody * 6u + column
-                        ] /
-                        denominator;
+                if (movable) {
+                    projection += inertia * spatialComponent(
+                        motionAngular[localBody], motionLinear[localBody], column
+                    );
                 }
             }
+            inertiaTimesBias[row] = bias;
+            if (movable) {
+                projectedInertia[rowBase + row] = projection;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+
+        if (lane == 0u) {
+            float3 torque = float3(
+                articulatedBias[rowBase + 0u],
+                articulatedBias[rowBase + 1u],
+                articulatedBias[rowBase + 2u]
+            ) + float3(inertiaTimesBias[0], inertiaTimesBias[1], inertiaTimesBias[2]);
+            float3 force = float3(
+                articulatedBias[rowBase + 3u],
+                articulatedBias[rowBase + 4u],
+                articulatedBias[rowBase + 5u]
+            ) + float3(inertiaTimesBias[3], inertiaTimesBias[4], inertiaTimesBias[5]);
+            if (movable) {
+                const float3 projectedAngular = float3(
+                    projectedInertia[rowBase + 0u],
+                    projectedInertia[rowBase + 1u],
+                    projectedInertia[rowBase + 2u]
+                );
+                const float3 projectedLinear = float3(
+                    projectedInertia[rowBase + 3u],
+                    projectedInertia[rowBase + 4u],
+                    projectedInertia[rowBase + 5u]
+                );
+                const uint localV = joint.vOffset - articulation.vOffset;
+                const float denominator =
+                    dot(motionAngular[localBody], projectedAngular) +
+                    dot(motionLinear[localBody], projectedLinear) +
+                    effectiveArmature(
+                        dofs[articulation.vOffset + localV],
+                        dispatch.flags,
+                        world.gravityAndTimestep.w,
+                        gainScale,
+                        driveDampingScale
+                    );
+                float maximumInertia = 0.0f;
+                for (uint entry = 0u; entry < kABASymmetricInertiaEntries; ++entry) {
+                    maximumInertia = max(
+                        maximumInertia, abs(articulatedInertia[matrixBase + entry])
+                    );
+                }
+                const float pivotFloor = max(
+                    kAbsolutePivotFloor, maximumInertia * 6.0f * kFloatEpsilon
+                );
+                if (!(denominator > pivotFloor) || !isfinite(denominator)) {
+                    setFailure(status, MR_ABA_FACTORIZATION_FAILED, localV);
+                    status.diagnostics = float4(
+                        minimumPivot, maximumPivot, denominator, maximumInertia
+                    );
+                    statuses[environment] = status;
+                    prepared[0] = false;
+                } else {
+                    jointDenominator[localBody] = denominator;
+                    const float residual =
+                        environmentEffort[localV] -
+                        dot(motionAngular[localBody], torque) -
+                        dot(motionLinear[localBody], force);
+                    jointResidual[localBody] = residual;
+                    const float pivot = sqrt(denominator);
+                    minimumPivot = min(minimumPivot, pivot);
+                    maximumPivot = max(maximumPivot, pivot);
+                    if (!parentIsFixedRoot) {
+                        torque += projectedAngular * (residual / denominator);
+                        force += projectedLinear * (residual / denominator);
+                    }
+                }
+            }
+            propagatedTorque[0] = torque;
+            propagatedForce[0] = force;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (!prepared[0]) {
+            return;
+        }
+        if (parentIsFixedRoot) {
+            continue;
+        }
+
+        if (movable) {
+            for (uint entry = lane; entry < kABASymmetricInertiaEntries; entry += groupWidth) {
+                const uint2 index = uint2(kPackedInertiaEntries[entry]);
+                articulatedInertia[matrixBase + entry] -=
+                    projectedInertia[rowBase + index.x] *
+                    projectedInertia[rowBase + index.y] /
+                    jointDenominator[localBody];
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
         }
 
         const float3 offset = parentToBody[localBody];
@@ -1209,50 +1239,43 @@ kernel void MR_ABA_KERNEL_NAME(
             float3(1.0f, -offset.y, offset.x),
             float3(1.0f), float3(1.0f), float3(1.0f)
         };
-        const uint parentMatrixBase =
-            localParent * kABASymmetricInertiaEntries;
-        for (uint row = 0u; row < 6u; ++row) {
+        const uint parentMatrixBase = localParent * kABASymmetricInertiaEntries;
+        for (uint entry = lane; entry < kABASymmetricInertiaEntries; entry += groupWidth) {
+            const uint2 index = uint2(kPackedInertiaEntries[entry]);
+            const uint row = index.x;
+            const uint column = index.y;
             const uint leftCount = row < 3u ? 3u : 1u;
-            for (uint column = 0u; column <= row; ++column) {
-                const uint rightCount = column < 3u ? 3u : 1u;
-                float transformed = 0.0f;
-                for (uint left = 0u; left < leftCount; ++left) {
-                    const float leftTransform =
-                        transformColumns[row][left];
-                    if (leftTransform == 0.0f) {
-                        continue;
-                    }
-                    for (uint right = 0u;
-                         right < rightCount;
-                         ++right) {
-                        transformed +=
-                            leftTransform *
-                            symmetric6Value(
-                                articulatedInertia,
-                                matrixBase,
-                                kMotionTransformRows[row][left],
-                                kMotionTransformRows[column][right]
-                            ) * transformColumns[column][right];
-                    }
+            const uint rightCount = column < 3u ? 3u : 1u;
+            float transformed = 0.0f;
+            for (uint left = 0u; left < leftCount; ++left) {
+                const float leftTransform = transformColumns[row][left];
+                if (leftTransform == 0.0f) {
+                    continue;
                 }
-                articulatedInertia[
-                    parentMatrixBase +
-                    symmetric6Index(row, column)
-                ] += transformed;
+                for (uint right = 0u; right < rightCount; ++right) {
+                    transformed += leftTransform * symmetric6Value(
+                        articulatedInertia, matrixBase,
+                        kMotionTransformRows[row][left],
+                        kMotionTransformRows[column][right]
+                    ) * transformColumns[column][right];
+                }
+            }
+            articulatedInertia[parentMatrixBase + entry] += transformed;
+        }
+        if (lane < 6u) {
+            const float3 force = propagatedForce[0];
+            const float3 torque = propagatedTorque[0] + cross(offset, force);
+            for (uint component = lane; component < 6u; component += groupWidth) {
+                articulatedBias[localParent * 6u + component] +=
+                    spatialComponent(torque, force, component);
             }
         }
-        propagatedTorque += cross(offset, propagatedForce);
-        for (uint component = 0u; component < 6u; ++component) {
-            articulatedBias[
-                localParent * 6u + component
-            ] += spatialComponent(
-                propagatedTorque,
-                propagatedForce,
-                component
-            );
-        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
     }
 
+    if (lane != 0u) {
+        return;
+    }
     if (articulation.rootType == MR_ROOT_FLOATING) {
         const uint rootMatrixBase =
             rootLocal * kABASymmetricInertiaEntries;

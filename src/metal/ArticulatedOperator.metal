@@ -1162,10 +1162,9 @@ inline bool validatePoints(
 } // namespace
 
 // Generic batched articulated operator. One threadgroup owns one environment.
-// Model/kinematic validation, Cholesky, and publication remain lane-zero
-// ordered so their status and transactional semantics stay exact. Dense mass
-// assembly is independent per symmetric matrix entry and is distributed over
-// the group; every entry retains the same deterministic body-order reduction.
+// Model validation and Cholesky stay lane-zero ordered. Mass matrix entries,
+// point audits, and output publication use independent lanes. Reductions and
+// reported failure order support deterministic replay and rollback.
 kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     device const MRWorldGPU* worlds [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
@@ -1537,321 +1536,343 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         ] = value;
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    if (lane != 0u) {
-        return;
-    }
-
-    // Lane zero performs the deterministic validation/max reduction before
-    // mutating the assembled matrix into its Cholesky factor.
-    float maximumMass = 0.0f;
-    for (uint row = 0u; row < articulation.nv; ++row) {
-        for (uint column = 0u; column <= row; ++column) {
-            const float value = factor[
-                row * factorStride + column
-            ];
-            if (!isfinite(value)) {
-                setFailure(
-                    status,
-                    MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                    row
-                );
-                statuses[environment] = status;
-                return;
-            }
-            maximumMass = max(maximumMass, abs(value));
-        }
-    }
-    // Armature is generalized-coordinate inertia, independent of whether a
-    // drive is enabled. Implicit-drive mode adds h D + h^2 K so contact
-    // response uses the same effective operator as ABA.
-    for (uint dof = 0u; dof < articulation.nv; ++dof) {
-        device const MRDofPropertiesGPU& properties =
-            dofs[articulation.vOffset + dof];
-        float armature = properties.drive.z;
-        if ((dispatch.flags &
-             MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES) != 0u &&
-            (properties.flags & MR_DOF_FLAG_DRIVE) != 0u) {
-            const float timestep =
-                world.gravityAndTimestep.w;
-#if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
-            const float4 controller =
-                controllerParameters[environment];
-            const float gainScale = max(controller.x, 0.0f);
-            const float dampingScale = max(controller.y, 0.0f);
-#else
-            constexpr float gainScale = 1.0f;
-            constexpr float dampingScale = 1.0f;
-#endif
-            armature +=
-                timestep * dampingScale * properties.drive.y +
-                timestep * timestep * gainScale *
-                    properties.drive.x;
-        }
-        const uint diagonal =
-            dof * factorStride + dof;
-        const float value = factor[diagonal] + armature;
-        if (!isfinite(value)) {
-            setFailure(
-                status,
-                MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                articulation.vOffset + dof
-            );
-            statuses[environment] = status;
-            return;
-        }
-        factor[diagonal] = value;
-        maximumMass = max(maximumMass, abs(value));
-    }
-
-    float minimumPivot = INFINITY;
-    float maximumPivot = 0.0f;
-    // A pivot is rejected relative to the matrix magnitude, dimension, and
-    // FP32 resolution, with an absolute floor only for the all-small regime.
-    // This reports ill-conditioned input instead of silently regularizing M.
-    const float pivotFloor = max(
-        kFactorAbsolutePivotFloor,
-        maximumMass * float(articulation.nv) * kFloatEpsilon
-    );
-    for (uint row = 0u; row < articulation.nv; ++row) {
-        for (uint column = 0u;
-             column <= row;
-             ++column) {
-            float value = factor[
-                row * factorStride + column
-            ];
-            for (uint inner = 0u; inner < column; ++inner) {
-                value -=
-                    factor[
-                        row * factorStride +
-                        inner
-                    ] *
-                    factor[
-                        column * factorStride +
-                        inner
+    const uint pointBase = environment * dispatch.pointStride;
+    threadgroup atomic_uint firstInvalidPoint;
+    float4 successDiagnostics = float4(0.0f);
+    if (lane == 0u) {
+        const auto factorAndValidateBodies = [&]() -> bool {
+            // Lane zero performs the deterministic validation/max reduction before
+            // mutating the assembled matrix into its Cholesky factor.
+            float maximumMass = 0.0f;
+            for (uint row = 0u; row < articulation.nv; ++row) {
+                for (uint column = 0u; column <= row; ++column) {
+                    const float value = factor[
+                        row * factorStride + column
                     ];
+                    if (!isfinite(value)) {
+                        setFailure(
+                            status,
+                            MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
+                            row
+                        );
+                        statuses[environment] = status;
+                        return false;
+                    }
+                    maximumMass = max(maximumMass, abs(value));
+                }
             }
-            if (row == column) {
-                if (!(value > pivotFloor) ||
-                    !isfinite(value)) {
+            // Armature is generalized-coordinate inertia, independent of whether a
+            // drive is enabled. Implicit-drive mode adds h D + h^2 K so contact
+            // response uses the same effective operator as ABA.
+            for (uint dof = 0u; dof < articulation.nv; ++dof) {
+                device const MRDofPropertiesGPU& properties =
+                    dofs[articulation.vOffset + dof];
+                float armature = properties.drive.z;
+                if ((dispatch.flags &
+                     MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES) != 0u &&
+                    (properties.flags & MR_DOF_FLAG_DRIVE) != 0u) {
+                    const float timestep =
+                        world.gravityAndTimestep.w;
+        #if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
+                    const float4 controller =
+                        controllerParameters[environment];
+                    const float gainScale = max(controller.x, 0.0f);
+                    const float dampingScale = max(controller.y, 0.0f);
+        #else
+                    constexpr float gainScale = 1.0f;
+                    constexpr float dampingScale = 1.0f;
+        #endif
+                    armature +=
+                        timestep * dampingScale * properties.drive.y +
+                        timestep * timestep * gainScale *
+                            properties.drive.x;
+                }
+                const uint diagonal =
+                    dof * factorStride + dof;
+                const float value = factor[diagonal] + armature;
+                if (!isfinite(value)) {
                     setFailure(
                         status,
-                        MR_ARTICULATED_OPERATOR_FACTORIZATION_FAILED,
-                        row
+                        MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
+                        articulation.vOffset + dof
+                    );
+                    statuses[environment] = status;
+                    return false;
+                }
+                factor[diagonal] = value;
+                maximumMass = max(maximumMass, abs(value));
+            }
+
+            float minimumPivot = INFINITY;
+            float maximumPivot = 0.0f;
+            // A pivot is rejected relative to the matrix magnitude, dimension, and
+            // FP32 resolution, with an absolute floor only for the all-small regime.
+            // This reports ill-conditioned input instead of silently regularizing M.
+            const float pivotFloor = max(
+                kFactorAbsolutePivotFloor,
+                maximumMass * float(articulation.nv) * kFloatEpsilon
+            );
+            for (uint row = 0u; row < articulation.nv; ++row) {
+                for (uint column = 0u;
+                     column <= row;
+                     ++column) {
+                    float value = factor[
+                        row * factorStride + column
+                    ];
+                    for (uint inner = 0u; inner < column; ++inner) {
+                        value -=
+                            factor[
+                                row * factorStride +
+                                inner
+                            ] *
+                            factor[
+                                column * factorStride +
+                                inner
+                            ];
+                    }
+                    if (row == column) {
+                        if (!(value > pivotFloor) ||
+                            !isfinite(value)) {
+                            setFailure(
+                                status,
+                                MR_ARTICULATED_OPERATOR_FACTORIZATION_FAILED,
+                                row
+                            );
+                            status.diagnostics = float4(
+                                minimumPivot,
+                                maximumPivot,
+                                0.0f,
+                                maximumMass
+                            );
+                            statuses[environment] = status;
+                            return false;
+                        }
+                        const float pivot = sqrt(value);
+                        factor[
+                            row * factorStride + row
+                        ] = pivot;
+                        minimumPivot = min(minimumPivot, pivot);
+                        maximumPivot = max(maximumPivot, pivot);
+                    } else {
+                        value /= factor[
+                            column * factorStride +
+                            column
+                        ];
+                        if (!isfinite(value)) {
+                            setFailure(
+                                status,
+                                MR_ARTICULATED_OPERATOR_FACTORIZATION_FAILED,
+                                row
+                            );
+                            statuses[environment] = status;
+                            return false;
+                        }
+                        factor[
+                            row * factorStride +
+                            column
+                        ] = value;
+                    }
+                }
+            }
+
+            for (uint dof = 0u; dof < articulation.nv; ++dof) {
+                rightHandSide[dof] = 0.0f;
+                solution[dof] = 0.0f;
+            }
+            bool hasImpulse = false;
+            for (uint point = 0u;
+                 point < dispatch.pointCount;
+                 ++point) {
+                device const MRArticulatedPointImpulseGPU& query =
+                    points[pointBase + point];
+                if ((query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u ||
+                    all(query.worldImpulse.xyz == float3(0.0f))) {
+                    continue;
+                }
+                hasImpulse = true;
+                const uint localBody =
+                    query.bodyIndex - articulation.firstBody;
+                const float3 pointOffset = quaternionRotate(
+                    bodyRotation[localBody],
+                    query.localPoint.xyz
+                );
+                for (uint dof = 0u; dof < articulation.nv; ++dof) {
+                    const MotionColumn bodyMotion = bodyMotionForDof(
+                        localBody,
+                        dof,
+                        articulation,
+                        joints,
+                        bodyPosition,
+                        jointPosition,
+                        jointAxis,
+                        inboundJoint,
+                        parentLocal,
+                        motionColumns
+                    );
+                    const float3 pointLinear =
+                        bodyMotion.linear +
+                        cross(bodyMotion.angular, pointOffset);
+                    rightHandSide[dof] +=
+                        dot(pointLinear, query.worldImpulse.xyz);
+                }
+            }
+
+            // Generated contact point queries have zero external impulse. A
+            // validated factor maps the zero RHS to zero with zero residual.
+            float relativeResidual = 0.0f;
+            if (hasImpulse) {
+                for (uint row = 0u; row < articulation.nv; ++row) {
+                    float value = rightHandSide[row];
+                    for (uint column = 0u; column < row; ++column) {
+                        value -=
+                            factor[
+                                row * factorStride +
+                                column
+                            ] *
+                            intermediate[column];
+                    }
+                    intermediate[row] =
+                        value /
+                        factor[
+                            row * factorStride + row
+                        ];
+                }
+                for (uint reverse = 0u;
+                     reverse < articulation.nv;
+                     ++reverse) {
+                    const uint row = articulation.nv - 1u - reverse;
+                    float value = intermediate[row];
+                    for (uint column = row + 1u;
+                         column < articulation.nv;
+                         ++column) {
+                        value -=
+                            factor[
+                                column * factorStride +
+                                row
+                            ] *
+                            solution[column];
+                    }
+                    solution[row] =
+                        value /
+                        factor[
+                            row * factorStride + row
+                        ];
+                    if (!isfinite(solution[row])) {
+                        setFailure(
+                            status,
+                            MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
+                            row
+                        );
+                        statuses[environment] = status;
+                        return false;
+                    }
+                }
+
+                // Reuse the checked Cholesky factor for the residual. This is both the
+                // production operation being audited and substantially cheaper than
+                // reassembling dense body Jacobians after the solve.
+                for (uint row = 0u; row < articulation.nv; ++row) {
+                    float value = 0.0f;
+                    for (uint column = row;
+                         column < articulation.nv;
+                         ++column) {
+                        value +=
+                            factor[
+                                column * factorStride + row
+                            ] *
+                            solution[column];
+                    }
+                    intermediate[row] = value;
+                }
+                float maximumResidual = 0.0f;
+                float maximumRightHandSide = 0.0f;
+                float maximumSolution = 0.0f;
+                for (uint row = 0u; row < articulation.nv; ++row) {
+                    float action = 0.0f;
+                    for (uint column = 0u;
+                         column <= row;
+                         ++column) {
+                        action +=
+                            factor[
+                                row * factorStride + column
+                            ] *
+                            intermediate[column];
+                    }
+                    maximumResidual = max(
+                        maximumResidual,
+                        abs(action - rightHandSide[row])
+                    );
+                    maximumRightHandSide = max(
+                        maximumRightHandSide,
+                        abs(rightHandSide[row])
+                    );
+                    maximumSolution = max(
+                        maximumSolution,
+                        abs(solution[row])
+                    );
+                }
+                const float residualDenominator =
+                    maximumRightHandSide +
+                    maximumMass * float(articulation.nv) * maximumSolution +
+                    1.0e-30f;
+                relativeResidual =
+                    maximumResidual / residualDenominator;
+                if (!isfinite(relativeResidual) ||
+                    relativeResidual >
+                        MR_ARTICULATED_OPERATOR_MAX_RELATIVE_RESIDUAL) {
+                    setFailure(
+                        status,
+                        isfinite(relativeResidual)
+                            ? MR_ARTICULATED_OPERATOR_ACCURACY_FAILED
+                            : MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
+                        MR_INVALID_INDEX
                     );
                     status.diagnostics = float4(
                         minimumPivot,
                         maximumPivot,
-                        0.0f,
+                        relativeResidual,
                         maximumMass
                     );
                     statuses[environment] = status;
-                    return;
+                    return false;
                 }
-                const float pivot = sqrt(value);
-                factor[
-                    row * factorStride + row
-                ] = pivot;
-                minimumPivot = min(minimumPivot, pivot);
-                maximumPivot = max(maximumPivot, pivot);
-            } else {
-                value /= factor[
-                    column * factorStride +
-                    column
-                ];
-                if (!isfinite(value)) {
+            }
+
+            for (uint localBody = 0u;
+                 localBody < articulation.bodyCount;
+                 ++localBody) {
+                if (!finite3(bodyPosition[localBody]) ||
+                    !finite4(bodyRotation[localBody])) {
                     setFailure(
                         status,
-                        MR_ARTICULATED_OPERATOR_FACTORIZATION_FAILED,
-                        row
+                        MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
+                        articulation.firstBody + localBody
                     );
                     statuses[environment] = status;
-                    return;
+                    return false;
                 }
-                factor[
-                    row * factorStride +
-                    column
-                ] = value;
             }
-        }
-    }
-
-    for (uint dof = 0u; dof < articulation.nv; ++dof) {
-        rightHandSide[dof] = 0.0f;
-    }
-    const uint pointBase = environment * dispatch.pointStride;
-    for (uint point = 0u;
-         point < dispatch.pointCount;
-         ++point) {
-        device const MRArticulatedPointImpulseGPU& query =
-            points[pointBase + point];
-        if ((query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u ||
-            all(query.worldImpulse.xyz == float3(0.0f))) {
-            continue;
-        }
-        const uint localBody =
-            query.bodyIndex - articulation.firstBody;
-        const float3 pointOffset = quaternionRotate(
-            bodyRotation[localBody],
-            query.localPoint.xyz
-        );
-        for (uint dof = 0u; dof < articulation.nv; ++dof) {
-            const MotionColumn bodyMotion = bodyMotionForDof(
-                localBody,
-                dof,
-                articulation,
-                joints,
-                bodyPosition,
-                jointPosition,
-                jointAxis,
-                inboundJoint,
-                parentLocal,
-                motionColumns
+            successDiagnostics = float4(
+                minimumPivot,
+                maximumPivot,
+                relativeResidual,
+                maximumMass
             );
-            const float3 pointLinear =
-                bodyMotion.linear +
-                cross(bodyMotion.angular, pointOffset);
-            rightHandSide[dof] +=
-                dot(pointLinear, query.worldImpulse.xyz);
-        }
+            return true;
+        };
+        initializationSucceeded = factorAndValidateBodies() ? 1u : 0u;
+        atomic_store_explicit(&firstInvalidPoint, MR_INVALID_INDEX, memory_order_relaxed);
     }
-
-    for (uint row = 0u; row < articulation.nv; ++row) {
-        float value = rightHandSide[row];
-        for (uint column = 0u; column < row; ++column) {
-            value -=
-                factor[
-                    row * factorStride +
-                    column
-                ] *
-                intermediate[column];
-        }
-        intermediate[row] =
-            value /
-            factor[
-                row * factorStride + row
-            ];
-    }
-    for (uint reverse = 0u;
-         reverse < articulation.nv;
-         ++reverse) {
-        const uint row = articulation.nv - 1u - reverse;
-        float value = intermediate[row];
-        for (uint column = row + 1u;
-             column < articulation.nv;
-             ++column) {
-            value -=
-                factor[
-                    column * factorStride +
-                    row
-                ] *
-                solution[column];
-        }
-        solution[row] =
-            value /
-            factor[
-                row * factorStride + row
-            ];
-        if (!isfinite(solution[row])) {
-            setFailure(
-                status,
-                MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                row
-            );
-            statuses[environment] = status;
-            return;
-        }
-    }
-
-    // Reuse the checked Cholesky factor for the residual. This is both the
-    // production operation being audited and substantially cheaper than
-    // reassembling dense body Jacobians after the solve.
-    for (uint row = 0u; row < articulation.nv; ++row) {
-        float value = 0.0f;
-        for (uint column = row;
-             column < articulation.nv;
-             ++column) {
-            value +=
-                factor[
-                    column * factorStride + row
-                ] *
-                solution[column];
-        }
-        intermediate[row] = value;
-    }
-    float maximumResidual = 0.0f;
-    float maximumRightHandSide = 0.0f;
-    float maximumSolution = 0.0f;
-    for (uint row = 0u; row < articulation.nv; ++row) {
-        float action = 0.0f;
-        for (uint column = 0u;
-             column <= row;
-             ++column) {
-            action +=
-                factor[
-                    row * factorStride + column
-                ] *
-                intermediate[column];
-        }
-        maximumResidual = max(
-            maximumResidual,
-            abs(action - rightHandSide[row])
-        );
-        maximumRightHandSide = max(
-            maximumRightHandSide,
-            abs(rightHandSide[row])
-        );
-        maximumSolution = max(
-            maximumSolution,
-            abs(solution[row])
-        );
-    }
-    const float residualDenominator =
-        maximumRightHandSide +
-        maximumMass * float(articulation.nv) * maximumSolution +
-        1.0e-30f;
-    const float relativeResidual =
-        maximumResidual / residualDenominator;
-    if (!isfinite(relativeResidual) ||
-        relativeResidual >
-            MR_ARTICULATED_OPERATOR_MAX_RELATIVE_RESIDUAL) {
-        setFailure(
-            status,
-            isfinite(relativeResidual)
-                ? MR_ARTICULATED_OPERATOR_ACCURACY_FAILED
-                : MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-            MR_INVALID_INDEX
-        );
-        status.diagnostics = float4(
-            minimumPivot,
-            maximumPivot,
-            relativeResidual,
-            maximumMass
-        );
-        statuses[environment] = status;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (initializationSucceeded == 0u) {
         return;
     }
 
-    // Audit every value that publication will materialize. These expressions
-    // are intentionally evaluated again during commit: lane-zero validation
-    // keeps the payload transactional without a second full output scratch
-    // allocation.
-    for (uint localBody = 0u;
-         localBody < articulation.bodyCount;
-         ++localBody) {
-        if (!finite3(bodyPosition[localBody]) ||
-            !finite4(bodyRotation[localBody])) {
-            setFailure(
-                status,
-                MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                articulation.firstBody + localBody
-            );
-            statuses[environment] = status;
-            return;
-        }
-    }
-    for (uint point = 0u;
+    // Audit points in parallel and retain the original lowest failing index.
+    // No lane publishes a payload until all audits pass.
+    for (uint point = lane;
          point < dispatch.pointCount;
-         ++point) {
+         point += threadsPerThreadgroup) {
         device const MRArticulatedPointImpulseGPU& query =
             points[pointBase + point];
         if ((query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u) {
@@ -1866,13 +1887,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         const float3 candidateWorld =
             bodyPosition[localBody] + pointOffset;
         if (!finite3(pointOffset) || !finite3(candidateWorld)) {
-            setFailure(
-                status,
-                MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                point
-            );
-            statuses[environment] = status;
-            return;
+            atomic_fetch_min_explicit(&firstInvalidPoint, point, memory_order_relaxed);
+            continue;
         }
         for (uint dof = 0u; dof < articulation.nv; ++dof) {
             const MotionColumn bodyMotion = bodyMotionForDof(
@@ -1891,60 +1907,77 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 bodyMotion.linear +
                 cross(bodyMotion.angular, pointOffset);
             if (!finite3(pointLinear)) {
-                setFailure(
-                    status,
-                    MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                    point
-                );
-                statuses[environment] = status;
-                return;
+                atomic_fetch_min_explicit(&firstInvalidPoint, point, memory_order_relaxed);
+                break;
             }
         }
     }
-    for (uint dof = 0u; dof < articulation.nv; ++dof) {
-        if (!isfinite(rightHandSide[dof]) ||
-            !isfinite(solution[dof])) {
-            setFailure(
-                status,
-                MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                dof
-            );
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    const uint failingPoint =
+        atomic_load_explicit(&firstInvalidPoint, memory_order_relaxed);
+    if (failingPoint != MR_INVALID_INDEX) {
+        if (lane == 0u) {
+            setFailure(status, MR_ARTICULATED_OPERATOR_NONFINITE_RESULT, failingPoint);
             statuses[environment] = status;
-            return;
         }
+        return;
     }
-    if ((dispatch.flags &
-         MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u) {
-        for (uint row = 0u; row < articulation.nv; ++row) {
-            for (uint column = 0u;
-                 column < articulation.nv;
-                 ++column) {
-                float value = 0.0f;
-                const uint innerCount = min(row, column) + 1u;
-                for (uint inner = 0u;
-                     inner < innerCount;
-                     ++inner) {
-                    value +=
-                        factor[
-                            row * factorStride +
-                            inner
-                        ] *
-                        factor[
-                            column * factorStride +
-                            inner
-                        ];
-                }
-                if (!isfinite(value)) {
+
+    if (lane == 0u) {
+        const auto validateOutputs = [&]() -> bool {
+            for (uint dof = 0u; dof < articulation.nv; ++dof) {
+                if (!isfinite(rightHandSide[dof]) ||
+                    !isfinite(solution[dof])) {
                     setFailure(
                         status,
                         MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                        row
+                        dof
                     );
                     statuses[environment] = status;
-                    return;
+                    return false;
                 }
             }
-        }
+            if ((dispatch.flags &
+                 MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u) {
+                for (uint row = 0u; row < articulation.nv; ++row) {
+                    for (uint column = 0u;
+                         column < articulation.nv;
+                         ++column) {
+                        float value = 0.0f;
+                        const uint innerCount = min(row, column) + 1u;
+                        for (uint inner = 0u;
+                             inner < innerCount;
+                             ++inner) {
+                            value +=
+                                factor[
+                                    row * factorStride +
+                                    inner
+                                ] *
+                                factor[
+                                    column * factorStride +
+                                    inner
+                                ];
+                        }
+                        if (!isfinite(value)) {
+                            setFailure(
+                                status,
+                                MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
+                                row
+                            );
+                            statuses[environment] = status;
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        };
+        initializationSucceeded = validateOutputs() ? 1u : 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (initializationSucceeded == 0u) {
+        return;
     }
 
     // Publish only after validation, kinematics, factorization, solve, and
@@ -1952,9 +1985,9 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     // untouched and write only the per-environment status.
     const uint poseBase =
         environment * dispatch.bodyPoseStride;
-    for (uint localBody = 0u;
+    for (uint localBody = lane;
          localBody < articulation.bodyCount;
-         ++localBody) {
+         localBody += threadsPerThreadgroup) {
         MRArticulatedBodyPoseGPU pose;
         pose.position =
             float4(bodyPosition[localBody], 1.0f);
@@ -1966,9 +1999,9 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         environment * dispatch.pointWorldStride;
     const uint jacobianBase =
         environment * dispatch.pointJacobianStride;
-    for (uint point = 0u;
+    for (uint point = lane;
          point < dispatch.pointCount;
-         ++point) {
+         point += threadsPerThreadgroup) {
         device const MRArticulatedPointImpulseGPU& query =
             points[pointBase + point];
         const uint localBody =
@@ -2033,7 +2066,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 
     const uint generalizedBase =
         environment * dispatch.generalizedStride;
-    for (uint dof = 0u; dof < articulation.nv; ++dof) {
+    for (uint dof = lane; dof < articulation.nv; dof += threadsPerThreadgroup) {
         generalizedImpulse[generalizedBase + dof] =
             rightHandSide[dof];
         deltaVelocity[generalizedBase + dof] =
@@ -2044,7 +2077,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
          MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u) {
         const uint massBase =
             environment * dispatch.massMatrixStride;
-        for (uint row = 0u; row < articulation.nv; ++row) {
+        for (uint row = lane; row < articulation.nv; row += threadsPerThreadgroup) {
             for (uint column = 0u;
                  column < articulation.nv;
                  ++column) {
@@ -2072,7 +2105,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR) != 0u) {
         const uint factorBase =
             environment * dispatch.massMatrixStride;
-        for (uint row = 0u; row < articulation.nv; ++row) {
+        for (uint row = lane; row < articulation.nv; row += threadsPerThreadgroup) {
             for (uint column = 0u;
                  column < articulation.nv;
                  ++column) {
@@ -2088,13 +2121,11 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         }
     }
 
-    status.diagnostics = float4(
-        minimumPivot,
-        maximumPivot,
-        relativeResidual,
-        maximumMass
-    );
-    statuses[environment] = status;
+    threadgroup_barrier(mem_flags::mem_device);
+    if (lane == 0u) {
+        status.diagnostics = successDiagnostics;
+        statuses[environment] = status;
+    }
 }
 
 #if !MR_ARTICULATED_OPERATOR_BODY_PARAMETERS

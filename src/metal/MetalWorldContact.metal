@@ -6681,6 +6681,104 @@ inline void mrWorldWave32SolvePacket(
         (pass.reserved0 != 0u
              ? dispatch.finalVelocityIterations
              : 0u);
+    // The response columns, contact geometry, inertia and row regularization
+    // are fixed for this solve. Only velocities and impulses change.
+    for (uint localTile = 0u;
+         localTile < work.tileCount && solverIterations != 0u;
+         ++localTile) {
+        const MRContactTileGPU tile =
+            tiles[tileBase + work.firstTile + localTile];
+        if (localLane >= tile.constraintCount) {
+            continue;
+        }
+        const uint localConstraint =
+            tileConstraintIndices[
+                constraintBase +
+                tile.partialOffset +
+                localLane
+            ];
+        device const MRContactConstraintGPU& contact =
+            contacts[constraintBase + localConstraint];
+        device const MREvaluatedConstraintIRRowGPU*
+            localRows =
+                evaluatedRows +
+                rowBase + 3u * localConstraint;
+        float absoluteNormalRowSum = 0.0f;
+        float diagonalNormalResponse = 0.0f;
+        for (uint sourceTile = 0u;
+             sourceTile < work.tileCount;
+             ++sourceTile) {
+            const MRContactTileGPU source =
+                tiles[
+                    tileBase + work.firstTile + sourceTile
+                ];
+            for (uint sourceSlot = 0u;
+                 sourceSlot < source.constraintCount;
+                 ++sourceSlot) {
+                const uint sourceConstraint =
+                    tileConstraintIndices[
+                        constraintBase +
+                        source.partialOffset +
+                        sourceSlot
+                    ];
+                device const MRContactConstraintGPU&
+                    sourceContact =
+                        contacts[
+                            constraintBase +
+                            sourceConstraint
+                        ];
+                const float3 sourceNormal =
+                    evaluatedRows[
+                        rowBase +
+                        3u * sourceConstraint
+                    ].direction.xyz;
+                const float crossResponse =
+                    typedNormalCrossContactResponse(
+                        localConstraint,
+                        sourceConstraint,
+                        0u,
+                        contact,
+                        sourceContact,
+                        localRows[0].direction.xyz,
+                        sourceNormal,
+                        bodies,
+                        pointJacobians,
+                        pointJacobianBase,
+                        responseColumns,
+                        responseBase,
+                        dispatch.nv,
+                        dispatch.articulationIndex,
+                        rodNodes,
+                        inverseRodMasses,
+                        inverseRodTwistInertias,
+                        rodColliders,
+                        rodWitnesses,
+                        constraintWitnessIndices,
+                        constraintBase,
+                        hasArticulatedResponse
+                    );
+                absoluteNormalRowSum += abs(crossResponse);
+                if (sourceConstraint == localConstraint) {
+                    diagonalNormalResponse =
+                        abs(crossResponse) +
+                        localRows[0].regularization;
+                }
+            }
+        }
+        const float relaxation =
+            absoluteNormalRowSum >
+                max(diagonalNormalResponse, kMatrixFloor)
+            ? clamp(
+                  diagonalNormalResponse /
+                      absoluteNormalRowSum,
+                  1.0f / 32.0f,
+                  1.0f
+              )
+            : 1.0f;
+        preconditioners[constraintBase + localConstraint].row0.w =
+            relaxation;
+    }
+
     for (uint iteration = 0u;
          iteration < solverIterations;
          ++iteration) {
@@ -6747,78 +6845,7 @@ inline void mrWorldWave32SolvePacket(
                     constraintBase + localConstraint
                 ]
             );
-            float absoluteNormalRowSum = 0.0f;
-            float diagonalNormalResponse = 0.0f;
-            for (uint sourceTile = 0u;
-                 sourceTile < work.tileCount;
-                 ++sourceTile) {
-                const MRContactTileGPU source =
-                    tiles[
-                        tileBase + work.firstTile + sourceTile
-                    ];
-                for (uint sourceSlot = 0u;
-                     sourceSlot < source.constraintCount;
-                     ++sourceSlot) {
-                    const uint sourceConstraint =
-                        tileConstraintIndices[
-                            constraintBase +
-                            source.partialOffset +
-                            sourceSlot
-                        ];
-                    device const MRContactConstraintGPU&
-                        sourceContact =
-                            contacts[
-                                constraintBase +
-                                sourceConstraint
-                            ];
-                    const float3 sourceNormal =
-                        evaluatedRows[
-                            rowBase +
-                            3u * sourceConstraint
-                        ].direction.xyz;
-                    const float crossResponse =
-                        typedNormalCrossContactResponse(
-                            localConstraint,
-                            sourceConstraint,
-                            0u,
-                            contact,
-                            sourceContact,
-                            localRows[0].direction.xyz,
-                            sourceNormal,
-                            bodies,
-                            pointJacobians,
-                            pointJacobianBase,
-                            responseColumns,
-                            responseBase,
-                            dispatch.nv,
-                            dispatch.articulationIndex,
-                            rodNodes,
-                            inverseRodMasses,
-                            inverseRodTwistInertias,
-                            rodColliders,
-                            rodWitnesses,
-                            constraintWitnessIndices,
-                            constraintBase,
-                            hasArticulatedResponse
-                        );
-                    absoluteNormalRowSum += abs(crossResponse);
-                    if (sourceConstraint == localConstraint) {
-                        diagonalNormalResponse =
-                            abs(crossResponse) +
-                            localRows[0].regularization;
-                    }
-                }
-            }
-            const float relaxation =
-                absoluteNormalRowSum >
-                    max(diagonalNormalResponse, kMatrixFloor)
-                ? clamp(
-                      diagonalNormalResponse /
-                          absoluteNormalRowSum,
-                      1.0f / 32.0f,
-                      1.0f
-                  )
-                : 1.0f;
+            const float relaxation = preconditioner.row0.w;
             const float3 delta =
                 relaxation * (proposed - previous);
             const float3 candidate = previous + delta;
