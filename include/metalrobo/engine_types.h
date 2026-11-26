@@ -24,6 +24,7 @@
 // threadgroup memory.
 #define MR_ARTICULATED_OPERATOR_MAX_BODIES 64u
 #define MR_ARTICULATED_OPERATOR_MAX_DOFS 64u
+#define MR_ARTICULATED_OPERATOR_MAX_CACHED_MOTION_COLUMNS 192u
 // Retained as the legacy standalone operator's recommended allocation class.
 // It is not a runtime limit: checked GPU strides and caller-provided storage
 // now determine the point/contact capacity.
@@ -495,6 +496,12 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // spatial-row frontend for multi-articulation contact graphs whose shared
     // inverse-ABA stage owns mass response.
     MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY = 1u << 4u,
+    // Cache body motion columns in additional caller-sized threadgroup
+    // memory while assembling the factor and point Jacobians.
+    MR_ARTICULATED_OPERATOR_CACHE_MOTION_COLUMNS = 1u << 5u,
+    // The world contact solver has no consumer for a factor when every
+    // articulated point query is inactive.
+    MR_ARTICULATED_OPERATOR_SKIP_INACTIVE_FACTOR = 1u << 6u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.

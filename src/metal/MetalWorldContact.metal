@@ -444,6 +444,38 @@ inline bool solveCholesky(
     return true;
 }
 
+// Solve the three contact axes against the same factor in one traversal.
+inline bool solveContactAxes(
+    device const float* factor,
+    const uint factorBase,
+    const uint nv,
+    thread float3* axes
+) {
+    for (uint row = 0u; row < nv; ++row) {
+        float3 value = axes[row];
+        for (uint column = 0u; column < row; ++column) {
+            value -= factor[factorBase + row * nv + column] * axes[column];
+        }
+        const float diagonal = factor[factorBase + row * nv + row];
+        if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
+            return false;
+        }
+        axes[row] = value / diagonal;
+    }
+    for (uint reverse = 0u; reverse < nv; ++reverse) {
+        const uint row = nv - 1u - reverse;
+        float3 value = axes[row];
+        for (uint column = row + 1u; column < nv; ++column) {
+            value -= factor[factorBase + column * nv + row] * axes[column];
+        }
+        axes[row] = value / factor[factorBase + row * nv + row];
+        if (!finite3(axes[row])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 inline float3 scenePointResponse(
     device const MRBodyStateGPU& body,
     const float3 point,
@@ -5665,10 +5697,11 @@ inline float typedNormalCrossContactResponse(
     device const MRRodColliderGPU* rodColliders,
     device const MRRodToolWitnessGPU* rodWitnesses,
     device const uint* constraintWitnessIndices,
-    const uint constraintBase
+    const uint constraintBase,
+    const bool hasArticulatedResponse = true
 ) {
     float response = 0.0f;
-    for (uint dof = 0u; dof < nv; ++dof) {
+    for (uint dof = 0u; hasArticulatedResponse && dof < nv; ++dof) {
         response += dot(
             targetNormal,
             typedArticulationJacobianColumn(
@@ -6240,6 +6273,8 @@ inline void mrWorldWave32SolvePacket(
         MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
     const uint tileBase =
         environment * dispatch.solverTileCapacity;
+    const bool hasArticulatedResponse =
+        (work.flags & MR_ISLAND_WORK_HAS_ARTICULATION) != 0u;
     device float* articulationVelocity =
         candidateV + velocityBase;
     device MRBodyStateGPU* bodies =
@@ -6278,59 +6313,48 @@ inline void mrWorldWave32SolvePacket(
             ];
         device MRContactConstraintGPU& contact =
             contacts[constraintBase + localConstraint];
-        float rightHandSide[MR_ARTICULATED_ABA_MAX_DOFS];
-        float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
-        float solution[MR_ARTICULATED_ABA_MAX_DOFS];
+        device const MREvaluatedConstraintIRRowGPU* localRows =
+            evaluatedRows + rowBase + 3u * localConstraint;
         if ((dispatch.flags &
              MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) == 0u) {
-            for (uint axis = 0u; axis < 3u; ++axis) {
-                const float3 direction =
-                    evaluatedRows[
-                        rowBase + 3u * localConstraint + axis
-                    ].direction.xyz;
+            float3 axes[MR_ARTICULATED_ABA_MAX_DOFS];
+            if (hasArticulatedResponse) {
                 for (uint dof = 0u; dof < dispatch.nv; ++dof) {
-                    rightHandSide[dof] = dot(
-                        direction,
-                        typedArticulationJacobianColumn(
-                            localConstraint,
-                            contact,
-                            bodies,
-                            pointJacobians,
-                            pointJacobianBase,
-                            dof,
-                            dispatch.nv,
-                            rodWitnesses,
-                            constraintWitnessIndices,
-                            constraintBase
-                        )
-                    );
-                    intermediate[dof] = 0.0f;
-                    solution[dof] = 0.0f;
-                }
-                if (!solveCholesky(
-                        factors,
-                        factorBase,
+                    const float3 jacobian = typedArticulationJacobianColumn(
+                        localConstraint,
+                        contact,
+                        bodies,
+                        pointJacobians,
+                        pointJacobianBase,
+                        dof,
                         dispatch.nv,
-                        rightHandSide,
-                        intermediate,
-                        solution
-                    )) {
+                        rodWitnesses,
+                        constraintWitnessIndices,
+                        constraintBase
+                    );
+                    axes[dof] = float3(
+                        dot(localRows[0].direction.xyz, jacobian),
+                        dot(localRows[1].direction.xyz, jacobian),
+                        dot(localRows[2].direction.xyz, jacobian)
+                    );
+                }
+                if (!solveContactAxes(factors, factorBase, dispatch.nv, axes)) {
                     localFailure = MR_STEP_FACTORIZATION_FAILED;
                     localFailureConstraint = min(
                         localFailureConstraint,
                         localConstraint
                     );
-                    break;
+                    continue;
                 }
-                for (uint dof = 0u;
-                     dof < dispatch.nv;
-                     ++dof) {
+            }
+            for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+                const float3 response = hasArticulatedResponse
+                    ? axes[dof] : float3(0.0f);
+                for (uint axis = 0u; axis < 3u; ++axis) {
                     responseColumns[
                         responseBase +
-                        (localConstraint * 3u + axis) *
-                            dispatch.nv +
-                        dof
-                    ] = solution[dof];
+                        (localConstraint * 3u + axis) * dispatch.nv + dof
+                    ] = response[axis];
                 }
             }
         }
@@ -6338,8 +6362,6 @@ inline void mrWorldWave32SolvePacket(
             continue;
         }
 
-        device const MREvaluatedConstraintIRRowGPU* localRows =
-            evaluatedRows + rowBase + 3u * localConstraint;
         const float3 directions[3] = {
             localRows[0].direction.xyz,
             localRows[1].direction.xyz,
@@ -6369,7 +6391,8 @@ inline void mrWorldWave32SolvePacket(
                     rodColliders,
                     rodWitnesses,
                     constraintWitnessIndices,
-                    constraintBase
+                    constraintBase,
+                    hasArticulatedResponse
                 );
                 if (row == column) {
                     value += localRows[row].regularization;
@@ -6775,7 +6798,8 @@ inline void mrWorldWave32SolvePacket(
                             rodColliders,
                             rodWitnesses,
                             constraintWitnessIndices,
-                            constraintBase
+                            constraintBase,
+                            hasArticulatedResponse
                         );
                     absoluteNormalRowSum += abs(crossResponse);
                     if (sourceConstraint == localConstraint) {
@@ -7963,7 +7987,7 @@ kernel void mr_world_solve_contact_islands(
                 intermediate[dof] = 0.0f;
                 solution[dof] = 0.0f;
             }
-            if (!solveCholesky(
+            if ((articulatedA || articulatedB) && !solveCholesky(
                     factors,
                     factorBase,
                     dispatch.nv,

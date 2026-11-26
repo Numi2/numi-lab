@@ -3761,6 +3761,23 @@ MetalWorldDiagnostics validateAndBuildLayout(
         factor.pointJacobianStride =
             contact.pointQueryStride * 3u * owned.nv;
         factor.generalizedStride = dispatch.vStride;
+        if (dispatch.environmentCount == 1u &&
+            world.articulationCount() == 1u &&
+            (factor.flags &
+             MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR) != 0u &&
+            owned.bodyCount * owned.nv <=
+                MR_ARTICULATED_OPERATOR_MAX_CACHED_MOTION_COLUMNS) {
+            factor.flags |=
+                MR_ARTICULATED_OPERATOR_CACHE_MOTION_COLUMNS;
+            if (config.solverMode == MetalWorldSolverMode::temporalCone &&
+                config.ccdMode != MetalWorldCCDMode::hybrid &&
+                contact.authoredConstraintCount == 0u &&
+                contact.rodNodeCount == 0u &&
+                contact.constraintCapacity <= 256u) {
+                factor.flags |=
+                    MR_ARTICULATED_OPERATOR_SKIP_INACTIVE_FACTOR;
+            }
+        }
         layout.factorDispatches.push_back(factor);
     }
 
@@ -8942,11 +8959,17 @@ bool encodeArticulatedOperator(
     }
     const MRArticulationGPU& articulation =
         context.boundArticulations.front();
+    const bool cacheMotionColumns =
+        dispatchBuffer == kOperatorFactorDispatch &&
+        !context.boundFactorDispatches.empty() &&
+        (context.boundFactorDispatches.front().flags &
+         MR_ARTICULATED_OPERATOR_CACHE_MOTION_COLUMNS) != 0u;
     [encoder
         setThreadgroupMemoryLength:
             detail::articulatedOperatorThreadgroupBytes(
                 articulation.bodyCount,
-                articulation.nv
+                articulation.nv,
+                cacheMotionColumns
             )
         atIndex:0u];
     if (indirectDispatch) {

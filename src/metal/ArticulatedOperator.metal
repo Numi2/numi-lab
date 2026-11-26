@@ -25,6 +25,7 @@ struct MotionColumn {
     float3 linear;
     float3 angular;
 };
+static_assert(sizeof(MotionColumn) == 32u, "MotionColumn scratch layout");
 
 inline bool finite3(const float3 value) {
     return all(isfinite(value));
@@ -314,8 +315,12 @@ inline MotionColumn bodyMotionForDof(
     threadgroup const float3* jointPosition,
     threadgroup const float3* jointAxis,
     threadgroup const uint* inboundJoint,
-    threadgroup const uint* parentLocal
+    threadgroup const uint* parentLocal,
+    threadgroup const MotionColumn* motionColumns = nullptr
 ) {
+    if (motionColumns != nullptr) {
+        return motionColumns[localBody * articulation.nv + dof];
+    }
     MotionColumn result;
     result.linear = float3(0.0f);
     result.angular = float3(0.0f);
@@ -381,7 +386,8 @@ inline float massElement(
     threadgroup const float3* jointPosition,
     threadgroup const float3* jointAxis,
     threadgroup const uint* inboundJoint,
-    threadgroup const uint* parentLocal
+    threadgroup const uint* parentLocal,
+    threadgroup const MotionColumn* motionColumns
 ) {
     float value = 0.0f;
     for (uint localBody = 0u;
@@ -396,7 +402,8 @@ inline float massElement(
             jointPosition,
             jointAxis,
             inboundJoint,
-            parentLocal
+            parentLocal,
+            motionColumns
         );
         const MotionColumn right = bodyMotionForDof(
             localBody,
@@ -407,7 +414,8 @@ inline float massElement(
             jointPosition,
             jointAxis,
             inboundJoint,
-            parentLocal
+            parentLocal,
+            motionColumns
         );
         device const MRBodyPropertiesGPU& body =
             bodies[articulation.firstBody + localBody];
@@ -459,8 +467,15 @@ inline bool validDispatch(
              MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
              MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY |
              MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES |
-             MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY
+             MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
+             MR_ARTICULATED_OPERATOR_CACHE_MOTION_COLUMNS |
+             MR_ARTICULATED_OPERATOR_SKIP_INACTIVE_FACTOR
          )) != 0u ||
+        ((dispatch.flags &
+          (MR_ARTICULATED_OPERATOR_CACHE_MOTION_COLUMNS |
+           MR_ARTICULATED_OPERATOR_SKIP_INACTIVE_FACTOR)) != 0u &&
+         (dispatch.flags &
+          MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR) == 0u) ||
         ((dispatch.flags &
           MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u &&
          (dispatch.flags &
@@ -540,6 +555,18 @@ inline bool validModelAndLayout(
                     MR_ARTICULATED_OPERATOR_MAX_DOFS
                 ? MR_ARTICULATED_OPERATOR_CAPACITY_OVERFLOW
                 : MR_ARTICULATED_OPERATOR_INVALID_MODEL,
+            MR_INVALID_INDEX
+        );
+        return false;
+    }
+
+    if ((dispatch.flags &
+         MR_ARTICULATED_OPERATOR_CACHE_MOTION_COLUMNS) != 0u &&
+        articulation.bodyCount * articulation.nv >
+            MR_ARTICULATED_OPERATOR_MAX_CACHED_MOTION_COLUMNS) {
+        setFailure(
+            status,
+            MR_ARTICULATED_OPERATOR_CAPACITY_OVERFLOW,
             MR_INVALID_INDEX
         );
         return false;
@@ -1102,7 +1129,8 @@ inline bool validatePoints(
     device const MRArticulationGPU& articulation,
     device const MRArticulatedOperatorDispatchGPU& dispatch,
     device const MRArticulatedPointImpulseGPU* points,
-    thread MRArticulatedOperatorStatusGPU& status
+    thread MRArticulatedOperatorStatusGPU& status,
+    thread bool& hasActivePoint
 ) {
     const uint base = environment * dispatch.pointStride;
     for (uint point = 0u; point < dispatch.pointCount; ++point) {
@@ -1125,6 +1153,8 @@ inline bool validatePoints(
             );
             return false;
         }
+        hasActivePoint |=
+            (query.flags & MR_ARTICULATED_POINT_INACTIVE) == 0u;
     }
     return true;
 }
@@ -1272,6 +1302,9 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         reinterpret_cast<threadgroup float*>(
             scratch + scratchOffset
         );
+    scratchOffset = alignedThreadgroupOffset(
+        scratchOffset + articulation.nv * sizeof(float)
+    );
     const uint factorStride = articulation.nv;
     device const float* environmentQ =
         q + environment * dispatch.qStride;
@@ -1280,6 +1313,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         status.nq = articulation.nq;
         status.nv = articulation.nv;
         status.pointCount = dispatch.pointCount;
+        bool hasActivePoint = false;
         initializationSucceeded =
             validModelAndLayout(
                 world,
@@ -1309,10 +1343,19 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 articulation,
                 dispatch,
                 points,
-                status
+                status,
+                hasActivePoint
             )
             ? 1u
             : 0u;
+        if (initializationSucceeded != 0u && !hasActivePoint &&
+            (dispatch.flags &
+             MR_ARTICULATED_OPERATOR_SKIP_INACTIVE_FACTOR) != 0u) {
+            // The earlier kinematics pass already published the poses.
+            // The zero-response contact path consumes neither J nor L.
+            status.diagnostics = float4(0.0f);
+            initializationSucceeded = 0u;
+        }
         if (initializationSucceeded == 0u) {
             statuses[environment] = status;
         }
@@ -1431,6 +1474,31 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     // A lower-triangular entry owns both symmetric destinations, so there are
     // no write races. The reduction inside massElement intentionally remains
     // serial and body ordered, preserving the previous bit pattern.
+    threadgroup MotionColumn* motionColumns = nullptr;
+    if ((dispatch.flags &
+         MR_ARTICULATED_OPERATOR_CACHE_MOTION_COLUMNS) != 0u) {
+        motionColumns = reinterpret_cast<threadgroup MotionColumn*>(
+            scratch + scratchOffset
+        );
+        const uint motionCount = articulation.bodyCount * articulation.nv;
+        for (uint index = lane; index < motionCount;
+             index += threadsPerThreadgroup) {
+            const uint localBody = index / articulation.nv;
+            const uint dof = index - localBody * articulation.nv;
+            motionColumns[index] = bodyMotionForDof(
+                localBody,
+                dof,
+                articulation,
+                joints,
+                bodyPosition,
+                jointPosition,
+                jointAxis,
+                inboundJoint,
+                parentLocal
+            );
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
     const uint packedEntryCount =
         articulation.nv * (articulation.nv + 1u) / 2u;
     for (uint packedEntry = lane;
@@ -1458,7 +1526,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             jointPosition,
             jointAxis,
             inboundJoint,
-            parentLocal
+            parentLocal,
+            motionColumns
         );
         factor[
             row * factorStride + column
@@ -1615,7 +1684,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
          ++point) {
         device const MRArticulatedPointImpulseGPU& query =
             points[pointBase + point];
-        if ((query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u) {
+        if ((query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u ||
+            all(query.worldImpulse.xyz == float3(0.0f))) {
             continue;
         }
         const uint localBody =
@@ -1634,7 +1704,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 jointPosition,
                 jointAxis,
                 inboundJoint,
-                parentLocal
+                parentLocal,
+                motionColumns
             );
             const float3 pointLinear =
                 bodyMotion.linear +
@@ -1813,7 +1884,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 jointPosition,
                 jointAxis,
                 inboundJoint,
-                parentLocal
+                parentLocal,
+                motionColumns
             );
             const float3 pointLinear =
                 bodyMotion.linear +
@@ -1938,7 +2010,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 jointPosition,
                 jointAxis,
                 inboundJoint,
-                parentLocal
+                parentLocal,
+                motionColumns
             );
             const float3 pointLinear =
                 bodyMotion.linear +

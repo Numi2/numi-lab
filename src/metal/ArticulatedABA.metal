@@ -161,38 +161,14 @@ inline void setSpatialComponent(
     }
 }
 
-inline float motionTransformElement(
-    const float3 parentToChild,
-    const uint row,
-    const uint column
-) {
-    if (row == column) {
-        return 1.0f;
-    }
-    if (row < 3u || column >= 3u) {
-        return 0.0f;
-    }
-    const uint linearRow = row - 3u;
-    if (linearRow == 0u && column == 1u) {
-        return parentToChild.z;
-    }
-    if (linearRow == 0u && column == 2u) {
-        return -parentToChild.y;
-    }
-    if (linearRow == 1u && column == 0u) {
-        return -parentToChild.z;
-    }
-    if (linearRow == 1u && column == 2u) {
-        return parentToChild.x;
-    }
-    if (linearRow == 2u && column == 0u) {
-        return parentToChild.y;
-    }
-    if (linearRow == 2u && column == 1u) {
-        return -parentToChild.x;
-    }
-    return 0.0f;
-}
+// World-aligned spatial frames differ by a translation. The angular
+// columns contain an identity entry and two cross-product entries; the
+// linear columns contain only their identity entry. Keep rows ascending
+// within each column so the inertia reduction keeps its term order.
+constant uint3 kMotionTransformRows[6] = {
+    uint3(0u, 4u, 5u), uint3(1u, 3u, 5u), uint3(2u, 3u, 4u),
+    uint3(3u), uint3(4u), uint3(5u)
+};
 
 inline uint symmetric6Index(const uint row, const uint column) {
     const uint major = max(row, column);
@@ -1227,33 +1203,36 @@ kernel void MR_ABA_KERNEL_NAME(
         }
 
         const float3 offset = parentToBody[localBody];
+        const float3 transformColumns[6] = {
+            float3(1.0f, -offset.z, offset.y),
+            float3(1.0f, offset.z, -offset.x),
+            float3(1.0f, -offset.y, offset.x),
+            float3(1.0f), float3(1.0f), float3(1.0f)
+        };
         const uint parentMatrixBase =
             localParent * kABASymmetricInertiaEntries;
         for (uint row = 0u; row < 6u; ++row) {
+            const uint leftCount = row < 3u ? 3u : 1u;
             for (uint column = 0u; column <= row; ++column) {
+                const uint rightCount = column < 3u ? 3u : 1u;
                 float transformed = 0.0f;
-                for (uint left = 0u; left < 6u; ++left) {
+                for (uint left = 0u; left < leftCount; ++left) {
                     const float leftTransform =
-                        motionTransformElement(offset, left, row);
+                        transformColumns[row][left];
                     if (leftTransform == 0.0f) {
                         continue;
                     }
                     for (uint right = 0u;
-                         right < 6u;
+                         right < rightCount;
                          ++right) {
                         transformed +=
                             leftTransform *
                             symmetric6Value(
                                 articulatedInertia,
                                 matrixBase,
-                                left,
-                                right
-                            ) *
-                            motionTransformElement(
-                                offset,
-                                right,
-                                column
-                            );
+                                kMotionTransformRows[row][left],
+                                kMotionTransformRows[column][right]
+                            ) * transformColumns[column][right];
                     }
                 }
                 articulatedInertia[
