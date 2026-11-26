@@ -19,6 +19,7 @@ class ExperimentResult:
     state_trace: Path | None
     contact_trace: Path | None
     action_clip: bytes | None = None
+    contact_force_trace: Path | None = None
 
 
 class Experiment:
@@ -61,6 +62,7 @@ class Experiment:
         actions: Iterable[Sequence[float]] | None = None,
         action_clip: Path | None = None,
         state_trace: Path | None = None, contact_trace: Path | None = None,
+        contact_force_trace: Path | None = None, contact_body: str | None = None,
     ) -> ExperimentResult:
         """Run the stored controller or broadcast explicit normalized actions.
 
@@ -82,6 +84,10 @@ class Experiment:
             arguments += ["--state-trace", str(state_trace)]
         if contact_trace is not None:
             arguments += ["--contact-trace", str(contact_trace)]
+        if contact_force_trace is not None:
+            arguments += ["--contact-force-trace", str(contact_force_trace)]
+        if contact_body is not None:
+            arguments += ["--contact-body", contact_body]
         if action_clip is not None:
             arguments += ["--action-clip", str(Path(action_clip).resolve())]
         submitted_clip = None
@@ -112,4 +118,4 @@ class Experiment:
                 raise ValueError("The native runner reported different action bytes")
             stats["action_clip_sha256"] = digest
             stats.pop("action_clip", None)
-        return ExperimentResult(stats, state_trace, contact_trace, submitted_clip)
+        return ExperimentResult(stats, state_trace, contact_trace, submitted_clip, contact_force_trace)

@@ -4195,6 +4195,52 @@ int mr_task_rollout_contact_sample_for_body(
     return 0;
 }
 
+int mr_task_rollout_copy_contact_forces(
+    const MRTaskRolloutHandle* handle, const char* body,
+    MRTaskContactForceC* forces, const size_t capacity, size_t* count
+) {
+    if (count == nullptr || body == nullptr || (forces == nullptr && capacity != 0)) {
+        gLastError = "Contact forces require a body, count, and valid output buffer.";
+        return -1;
+    }
+    *count = 0;
+    MRTaskContactSampleC sample{};
+    if (mr_task_rollout_contact_sample_for_body(handle, body, &sample) != 0) return -1;
+    *count = sample.active_contacts;
+    if (forces == nullptr) return 0;
+    if (capacity < *count) {
+        gLastError = "Contact force output buffer is too small.";
+        return -1;
+    }
+    const auto& names = handle->model.bodyNames;
+    const auto selected = static_cast<std::uint32_t>(std::ranges::find(names, body) - names.begin());
+    const auto active = handle->result.contactStatuses.back().activeContacts;
+    const float dt = handle->stepConfig.timestepSeconds /
+        static_cast<float>(handle->stepConfig.physicsSubsteps);
+    std::size_t output = 0;
+    for (std::size_t i = 0; i < active; ++i) {
+        const auto& contact = handle->result.contactEvidence.contacts[i];
+        if (contact.bodyA != selected && contact.bodyB != selected) continue;
+        const bool onB = contact.bodyB == selected;
+        const auto other = onB ? contact.bodyA : contact.bodyB;
+        const auto& n = contact.normal;
+        const auto& t = contact.tangent;
+        const auto& impulse = contact.impulses;
+        const float scale = (onB ? 1.0f : -1.0f) / dt;
+        const float x = scale * (impulse.x * n.x + impulse.y * t.x + impulse.z * (n.y * t.z - n.z * t.y));
+        const float y = scale * (impulse.x * n.y + impulse.y * t.y + impulse.z * (n.z * t.x - n.x * t.z));
+        const float z = scale * (impulse.x * n.z + impulse.y * t.z + impulse.z * (n.x * t.y - n.y * t.x));
+        const float normal = impulse.x / dt;
+        if (other >= names.size() ||
+            !std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z) || !std::isfinite(normal)) {
+            gLastError = "Accepted contact has an invalid body or force.";
+            return -1;
+        }
+        forces[output++] = {names[other].c_str(), x, y, z, normal};
+    }
+    return 0;
+}
+
 int mr_task_rollout_advance(
     MRTaskRolloutHandle* handle,
     const float* normalized_actions,

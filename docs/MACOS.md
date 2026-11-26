@@ -63,7 +63,11 @@ about five times a second while the inspector is open. Headless
 `--state-trace` and `--contact-trace` require `--chunk 1` and sample every
 control tick. Contact readback reports the active contact count and strongest
 normal force from the last accepted physics substep. Add `--contact-body NAME`
-to restrict both values to a body. The
+to restrict both values to a body. Use `--contact-force-trace forces.tsv`
+with `--contact-body NAME` to export each contact's signed world-space force
+and normal force in newtons. The forces act on the selected body and include
+the tangential components. Sum the rows for each tick and opposing body to
+measure its net contribution. The
 [Python experiment API](#script-a-run) can compile and run the same project.
 
 **File → Open Panda Model** imports the pinned stock Panda from MuJoCo
@@ -174,3 +178,6 @@ the packed bytes in `result.action_clip` and records their SHA-256 under
 gravity and timestep apply unless you pass `gravity` to `compile` or
 `physics_substeps` to `run`. See the [matched MuJoCo fixture](../examples/bench_pendulum/README.md)
 and [iOS target](IOS.md).
+
+Export forces from a single environment with
+`experiment.run(contact_body="mover", contact_force_trace=Path("forces.tsv"))`.

@@ -696,6 +696,22 @@ MR_API int mr_task_rollout_contact_sample(
 MR_API int mr_task_rollout_contact_sample_for_body(
     const MRTaskRolloutHandle* handle, const char* body, MRTaskContactSampleC* sample
 );
+typedef struct MRTaskContactForceC {
+    const char* other_body;
+    float world_force_x_newtons;
+    float world_force_y_newtons;
+    float world_force_z_newtons;
+    float normal_force_newtons;
+} MRTaskContactForceC;
+
+// Last accepted physics substep. World forces act ON the named body and
+// include normal and tangential impulse divided by substep duration.
+// Query the required count with forces=NULL and capacity=0. Other-body
+// names are borrowed from the rollout handle.
+MR_API int mr_task_rollout_copy_contact_forces(
+    const MRTaskRolloutHandle* handle, const char* body,
+    MRTaskContactForceC* forces, size_t capacity, size_t* count
+);
 MR_API int mr_task_rollout_advance(
     MRTaskRolloutHandle* handle,
     const float* normalized_actions,

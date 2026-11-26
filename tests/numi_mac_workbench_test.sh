@@ -128,5 +128,22 @@ with (work / "selected.tsv").open() as stream:
 assert row["active_contacts"] == "0" and float(row["peak_normal_force_n"]) == 0, row
 unknown = subprocess.run([*command, "unknown"], capture_output=True, text=True)
 assert unknown.returncode != 0 and "not present in the model" in unknown.stderr, unknown
+
+vectors = {}
+for body, other in (("mover", "pedestal"), ("pedestal", "mover"), ("numi_mjcf_world", "")):
+    path = work / f"{body}.forces.tsv"
+    result = open_experiment("contact").run(steps=20, contact_body=body, contact_force_trace=path)
+    assert result.contact_force_trace == path and result.stats["failed_environment_steps"] == 0
+    with path.open() as stream:
+        samples = list(csv.DictReader(stream, delimiter="\t"))
+    assert {int(row["tick"]) for row in samples} == set(range(1, 21))
+    sample = samples[-1]
+    assert sample["selected_body"] == body and sample["other_body"] == other, sample
+    vectors[body] = [float(sample[f"world_force_{axis}_n"]) for axis in "xyz"]
+    assert abs(float(sample["normal_force_n"]) - (9.81 if other else 0)) < 0.2, sample
+assert all(abs(force) < 1e-6 for force in vectors["mover"][:2])
+assert abs(vectors["mover"][2] - 9.81) < 0.2, vectors
+assert vectors["mover"] == [-force for force in vectors["pedestal"]], vectors
+assert vectors["numi_mjcf_world"] == [0, 0, 0], vectors
 PY
 printf '%s\n' 'Numi Mac workbench passed relocation, motor routing, contact force, and exact replay.'

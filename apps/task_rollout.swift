@@ -229,6 +229,7 @@ private struct Options {
     var interactionPushIntervalSeconds: Float?
     var stateTrace: String?
     var contactTrace: String?
+    var contactForceTrace: String?
     var contactBody: String?
     var stateTraceEnvironment = 0
     var motionFeatureTrace: String?
@@ -540,6 +541,9 @@ private struct Options {
             case "--contact-trace":
                 contactTrace = try value()
                 index += 1
+            case "--contact-force-trace":
+                contactForceTrace = try value()
+                index += 1
             case "--contact-body":
                 contactBody = try value()
                 index += 1
@@ -774,13 +778,18 @@ private struct Options {
                 "--srdf requires --urdf."
             )
         }
-        if contactTrace != nil && (environments != 1 || repeats != 1 || chunk != 1) {
+        if (contactTrace != nil || contactForceTrace != nil) &&
+            (environments != 1 || repeats != 1 || chunk != 1)
+        {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--contact-trace requires --envs 1 --repeats 1 --chunk 1."
+                "Contact traces require --envs 1 --repeats 1 --chunk 1."
             )
         }
-        if let contactBody, contactBody.isEmpty || contactTrace == nil {
-            throw MetalRoboTaskRolloutError.invalidShape("--contact-body requires a name and --contact-trace.")
+        if let contactBody, contactBody.isEmpty || (contactTrace == nil && contactForceTrace == nil) {
+            throw MetalRoboTaskRolloutError.invalidShape("--contact-body requires a name and a contact trace.")
+        }
+        if contactForceTrace != nil && contactBody == nil {
+            throw MetalRoboTaskRolloutError.invalidShape("--contact-force-trace requires --contact-body.")
         }
         if stateTrace != nil && (repeats != 1 || chunk != 1) {
             throw MetalRoboTaskRolloutError.invalidShape(
@@ -2147,6 +2156,9 @@ private enum TaskRolloutMain {
             var contactTraceLines = [
                 "tick\tactive_contacts\tpeak_normal_force_n\tbody_a\tbody_b",
             ]
+            var contactForceTraceLines = [
+                "tick\tselected_body\tother_body\tworld_force_x_n\tworld_force_y_n\tworld_force_z_n\tnormal_force_n",
+            ]
             var motionFeatureTraceLines: [String] = []
             if options.motionFeatureTrace != nil {
                 let traceLayout = context.layout
@@ -2176,6 +2188,7 @@ private enum TaskRolloutMain {
                 options.rolloutPack == nil &&
                 options.stateTrace == nil &&
                 options.contactTrace == nil &&
+                options.contactForceTrace == nil &&
                 options.motionFeatureTrace == nil &&
                 options.captureDirectory == nil &&
                 !options.verbose
@@ -2247,7 +2260,7 @@ private enum TaskRolloutMain {
                         stateReadbackEnabled = needsStateTrace || sampleState
                         try context.setStateReadback(stateReadbackEnabled)
                     }
-                    let sampleContacts = options.contactTrace != nil ||
+                    let sampleContacts = options.contactTrace != nil || options.contactForceTrace != nil ||
                         (sampleState && options.environments == 1)
                     if contactReadbackEnabled != sampleContacts {
                         try context.setContactReadback(sampleContacts)
@@ -2335,7 +2348,7 @@ private enum TaskRolloutMain {
                     }
                     let accepted = advance.firstGPUStatusCode == 0 && advance.failedEnvironmentSteps == 0
                     let contactSample: MetalRoboTaskContactSample?
-                    if sampleContacts && accepted {
+                    if accepted && (options.contactTrace != nil || (sampleState && options.environments == 1)) {
                         if options.contactTrace != nil {
                             contactSample = try context.contactSample(body: options.contactBody)
                         } else {
@@ -2350,6 +2363,21 @@ private enum TaskRolloutMain {
                             String(sample.peakNormalForce), sample.bodyA ?? "", sample.bodyB ?? "",
                         ]
                         contactTraceLines.append(fields.joined(separator: "\t"))
+                    }
+                    if accepted, options.contactForceTrace != nil, let body = options.contactBody {
+                        let tick = String(globalStep + stepCount)
+                        let forces = try context.contactForces(on: body)
+                        if forces.isEmpty {
+                            contactForceTraceLines.append([tick, body, "", "0", "0", "0", "0"].joined(separator: "\t"))
+                        }
+                        for contact in forces {
+                            let force = contact.worldForceNewtons
+                            let fields = [
+                                tick, body, contact.otherBody,
+                                String(force.x), String(force.y), String(force.z), String(contact.normalForceNewtons),
+                            ]
+                            contactForceTraceLines.append(fields.joined(separator: "\t"))
+                        }
                     }
                     if sampleState, accepted, let window {
                         let q = Array(try context.finalConfiguration().prefix(context.layout.configurationCount))
@@ -2996,6 +3024,10 @@ private enum TaskRolloutMain {
             if let contactTrace = options.contactTrace {
                 try (contactTraceLines.joined(separator: "\n") + "\n")
                     .write(to: URL(fileURLWithPath: contactTrace), atomically: true, encoding: .utf8)
+            }
+            if let path = options.contactForceTrace {
+                try (contactForceTraceLines.joined(separator: "\n") + "\n")
+                    .write(to: URL(fileURLWithPath: path), atomically: true, encoding: .utf8)
             }
             if let motionFeatureTrace = options.motionFeatureTrace {
                 try (motionFeatureTraceLines.joined(separator: "\n") + "\n")

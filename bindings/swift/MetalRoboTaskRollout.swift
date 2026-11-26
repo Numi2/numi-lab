@@ -778,6 +778,12 @@ public struct MetalRoboTaskContactSample: Sendable {
     public let bodyB: String?
 }
 
+public struct MetalRoboTaskContactForce: Sendable {
+    public let otherBody: String
+    public let worldForceNewtons: SIMD3<Float>
+    public let normalForceNewtons: Float
+}
+
 public struct MetalRoboTaskRolloutAdvance: Sendable {
     public let controlStepCount: Int
     public let successfulEnvironmentSteps: Int
@@ -1515,6 +1521,29 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             bodyA: sample.body_a.map { String(cString: $0) },
             bodyB: sample.body_b.map { String(cString: $0) }
         )
+    }
+
+    public func contactForces(on body: String) throws -> [MetalRoboTaskContactForce] {
+        try body.withCString { name in
+            var count = 0
+            guard mr_task_rollout_copy_contact_forces(handle, name, nil, 0, &count) == 0
+            else { throw MetalRoboTaskRolloutError.native(Self.lastError()) }
+            if count == 0 { return [] }
+            var forces = Array(repeating: MRTaskContactForceC(), count: count)
+            let status = forces.withUnsafeMutableBufferPointer { buffer in
+                mr_task_rollout_copy_contact_forces(handle, name, buffer.baseAddress, buffer.count, &count)
+            }
+            guard status == 0 else { throw MetalRoboTaskRolloutError.native(Self.lastError()) }
+            return forces.prefix(count).map { force in
+                MetalRoboTaskContactForce(
+                    otherBody: String(cString: force.other_body),
+                    worldForceNewtons: SIMD3(
+                        force.world_force_x_newtons, force.world_force_y_newtons, force.world_force_z_newtons
+                    ),
+                    normalForceNewtons: force.normal_force_newtons
+                )
+            }
+        }
     }
 
     public func setStateReadback(_ enabled: Bool) throws {

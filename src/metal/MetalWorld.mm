@@ -389,6 +389,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> scanBlocksPipeline = nil;
     __strong id<MTLComputePipelineState> scanAddPipeline = nil;
     __strong id<MTLComputePipelineState> pairClassFlagPipeline = nil;
+    __strong id<MTLComputePipelineState> smallPairQueuePipeline = nil;
     __strong id<MTLComputePipelineState> pairQueueScatterPipeline = nil;
     __strong id<MTLComputePipelineState> pairNarrowphasePipeline = nil;
     __strong id<MTLComputePipelineState> convexNarrowphasePipeline = nil;
@@ -5054,6 +5055,7 @@ MetalWorldDiagnostics initializeContext(
         createPipeline(@"mr_world_scan_add_block_offsets");
     pairClassFlags =
         createPipeline(@"mr_world_flag_pair_work_class");
+    const auto smallPairQueue = createPipeline(@"mr_world_compact_small_pair_queue");
     pairQueueScatter =
         createPipeline(@"mr_world_scatter_pair_queue");
     pairNarrowphase =
@@ -5567,6 +5569,7 @@ MetalWorldDiagnostics initializeContext(
     context.scanBlocksPipeline = scanBlocks;
     context.scanAddPipeline = scanAdd;
     context.pairClassFlagPipeline = pairClassFlags;
+    context.smallPairQueuePipeline = smallPairQueue;
     context.pairQueueScatterPipeline = pairQueueScatter;
     context.pairNarrowphasePipeline = pairNarrowphase;
     context.convexNarrowphasePipeline = convexNarrowphase;
@@ -8403,8 +8406,27 @@ bool encodeClassCompactedPairNarrowphase(
         MR_WORLD_WORK_ANALYTIC;
     constexpr mr_u32 kLastPairClass =
         MR_WORLD_WORK_MESH;
+    if (activeClassMask == 0u) return true;
+    const bool smallQueue = pairElementCount <= kWorldThreadsPerThreadgroup &&
+        context.smallPairQueuePipeline.maxTotalThreadsPerThreadgroup >= kWorldThreadsPerThreadgroup;
+    if (smallQueue && !encodeContactThreadKernel(
+            context, commandBuffer, context.smallPairQueuePipeline,
+            @"MetalWorld small stable pair queue",
+            {
+                {0u, kContactDispatch},
+                {1u, kShapes},
+                {2u, kEligiblePairs},
+                {3u, kPairOverlapFlags},
+                {4u, kPairWorkQueue},
+                {5u, kWorkQueueHeaders},
+            },
+            nullptr, 0u, kWorldThreadsPerThreadgroup, false, 0u,
+            &activeClassMask, sizeof(activeClassMask), 6u
+        )) {
+        return false;
+    }
     for (mr_u32 workClass = kFirstPairClass;
-         workClass <= kLastPairClass;
+         !smallQueue && workClass <= kLastPairClass;
          ++workClass) {
         if ((activeClassMask & (1u << workClass)) == 0u) {
             continue;
@@ -12770,6 +12792,7 @@ bool encodeContactSubstep(
 ) {
     MRMetalWorldPassGPU solverPass = pass;
     solverPass.reserved0 = finalPhysicsSubstep ? 1u : 0u;
+    const bool hasAuthoredConstraints = !world.model().constraintProgram.blocks.empty();
     const mr_u32 eventPass = 0u;
     const mr_u32 stateNotIntegrated = 0u;
     if ((useHybridCCD &&
@@ -13068,7 +13091,7 @@ bool encodeContactSubstep(
             sizeof(MRIndirectDispatchArgumentsGPU)
         ) ||
         (
-            !useQuality &&
+            !useQuality && hasAuthoredConstraints &&
             !encodeContactThreadKernel(
                 context,
                 commandBuffer,
@@ -13152,7 +13175,7 @@ bool encodeContactSubstep(
             )
         ) ||
         (
-            !useQuality &&
+            !useQuality && hasAuthoredConstraints &&
             !encodeContactThreadKernel(
                 context,
                 commandBuffer,

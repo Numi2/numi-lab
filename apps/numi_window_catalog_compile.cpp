@@ -1656,7 +1656,7 @@ void writePandaTabletop(const Arguments& options) {
             ? 0.04f : 2.5f;
         if (index < armStiffness.size()) {
             const float stiffness = armStiffness[index];
-            actuator.parameters = {stiffness, stiffness / 10.0f, 0, 0};
+            actuator.parameters = {stiffness, stiffness / 20.0f, 0, 0};
         }
     }
     writePandaClip(output, mechanics.defaultQ, robot.actuators);
@@ -1753,7 +1753,7 @@ void writePandaTabletop(const Arguments& options) {
          "--robot-actuator-pack", "tabletop.actuators",
          "--sensor-program-pack", "tabletop.sensors",
          "--reality-program-pack", "tabletop.reality", "--no-scheduled-resets",
-         "--action-clip", "tabletop.actions.f32"});
+         "--materialize-articulated-contact-responses", "--action-clip", "tabletop.actions.f32"});
 }
 
 } // namespace

@@ -51,6 +51,21 @@ hold sample, and at most 5 mm of lift in the open-gripper control. If
 requested, the MuJoCo run uses the same 60 mm hold threshold. Each control
 tick has four 5 ms physics substeps. The recorded runtime includes tracing.
 
+To measure fingertip loads, record the world-space force acting on the cube.
+
+```sh
+"$app/Contents/MacOS/metalrobo_task_rollout" --scene-file "$scene" \
+  --headless --steps 370 --physics-substeps 4 --chunk 1 \
+  --contact-body pick_object --contact-force-trace cube-forces.tsv
+```
+
+Group by `tick` and `other_body` and sum `world_force_z_n` for each finger
+to measure vertical support. Sum `normal_force_n` per finger to measure grip
+compression. Each tick samples its last 5 ms physics substep. A row with an
+empty `other_body` marks an accepted step with zero contacts on the cube.
+Reimport the Panda XML to apply the current tabletop drive calibration to an
+existing scene.
+
 You can also compile without opening the app. Use an empty output directory.
 
 ```sh

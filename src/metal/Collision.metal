@@ -8045,6 +8045,77 @@ inline uint worldPairWorkClass(
     return MR_WORLD_WORK_ANALYTIC;
 }
 
+// The small domain fits in a threadgroup. Classify in parallel and assign
+// queue positions in stable pair order before any lanes write the queue.
+kernel void mr_world_compact_small_pair_queue(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRShapeGPU* shapes [[buffer(1)]],
+    device const MRCompiledCollisionPairGPU* pairs [[buffer(2)]],
+    device const uint* overlapFlags [[buffer(3)]],
+    device MRPairWorkGPU* queue [[buffer(4)]],
+    device MRWorkQueueHeaderGPU* headers [[buffer(5)]],
+    constant uint& activeClassMask [[buffer(6)]],
+    const uint lane [[thread_index_in_threadgroup]]
+) {
+    threadgroup uint classes[MR_WORLD_QUEUE_THREADS_PER_THREADGROUP];
+    threadgroup uint destinations[MR_WORLD_QUEUE_THREADS_PER_THREADGROUP];
+    const uint pairCount = dispatch.eligiblePairCount;
+    const uint total = dispatch.environmentCount * pairCount;
+    classes[lane] = lane < total && overlapFlags[lane] == 1u
+        ? worldPairWorkClass(pairs[lane % pairCount], shapes)
+        : MR_INVALID_INDEX;
+    destinations[lane] = MR_INVALID_INDEX;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    if (lane == 0u) {
+        const uint capacity = dispatch.environmentCount * dispatch.pairCapacity;
+        uint base = 0u;
+        for (uint workClass = MR_WORLD_WORK_ANALYTIC; workClass <= MR_WORLD_WORK_MESH; ++workClass) {
+            if ((activeClassMask & (1u << workClass)) == 0u) continue;
+            MRWorkQueueHeaderGPU header = {};
+            header.capacity = capacity - base;
+            header.workClass = workClass;
+            header.reserved0 = base;
+            for (uint index = 0u; index < total; ++index) {
+                if (classes[index] != workClass) continue;
+                if (header.count < header.capacity) {
+                    destinations[index] = base + header.count;
+                    ++header.count;
+                } else if (header.required == header.capacity) {
+                    header.firstStableKeyLow = index % pairCount;
+                    header.firstStableKeyHigh = index / pairCount;
+                }
+                ++header.required;
+            }
+            header.overflow = header.required > header.capacity ? 1u : 0u;
+            header.indirect.threadgroupsX = (header.count + MR_WORLD_QUEUE_THREADS_PER_THREADGROUP - 1u)
+                / MR_WORLD_QUEUE_THREADS_PER_THREADGROUP;
+            header.indirect.threadgroupsY = 1u;
+            header.indirect.threadgroupsZ = 1u;
+            header.indirect.activeCount = header.count;
+            headers[workClass] = header;
+            base += header.count;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const uint destination = destinations[lane];
+    if (destination == MR_INVALID_INDEX) return;
+    const uint environment = lane / pairCount;
+    const uint pair = lane % pairCount;
+    const uint localCacheSlot = pairs[pair].convexCacheSlot;
+    MRPairWorkGPU work = {};
+    work.environment = environment;
+    work.compiledPair = pair;
+    work.cacheSlot = localCacheSlot == MR_INVALID_INDEX
+        ? MR_INVALID_INDEX : environment * dispatch.convexCacheStride + localCacheSlot;
+    work.workClass = classes[lane];
+    work.stableKeyLow = pair;
+    work.stableKeyHigh = environment;
+    work.reserved = destination;
+    queue[destination] = work;
+}
+
 // Builds one class-specific boolean stream from the broadphase result.
 // Running this only for classes present in immutable compiled topology keeps
 // homogeneous RL scenes cheap while preventing algorithm-divergent lanes.
