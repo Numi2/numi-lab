@@ -113,6 +113,38 @@ simulation and presentation.
 The check waits for the first frame, restarts the simulation, verifies recovery
 from an invalid scene selection, and renders each available bundled scene.
 
+### Precompile pipelines for the base M6 GPU
+
+For a build toolchain that supports `applegpu_g18g`, append that architecture to
+`NUMI_MAC_GPU_ARCHITECTURES` at CMake configure time. With an older toolchain,
+build the bake executable and inputs on the build Mac:
+
+```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=26.0
+cmake --build build --target numi_lab_macos_pipeline_inputs
+```
+
+Copy `build/metalrobo_numi_mac_bake_pipelines`, `build/shaders/MetalRobo.metallib`
+and `build/shaders/NumiLab.mtlp-json` into one directory on a base M6 Mac. Run
+the following there:
+
+```sh
+./metalrobo_numi_mac_bake_pipelines MetalRobo.metallib NumiLab.mtlp-json \
+    MetalRobo-G18G.binary.metallib
+shasum -a 256 MetalRobo.metallib NumiLab.mtlp-json > inputs.sha256
+```
+
+Copy the resulting archive and `inputs.sha256` back into one directory on the
+build Mac. Package from the original build directory with
+`NUMI_MAC_BUILD_DIR=build NUMI_MAC_G18G_ARCHIVE_DIR=/absolute/path/to/capture`
+in the packaging command's environment. CMake checks both input hashes and
+the GPU architecture before adding the capture to the offline archive.
+
+Verify a fresh launch on the M6 with `NUMI_MAC_PROFILE_PIPELINES=1`. With the
+app's cache absent and its user catalogs isolated, the viewer should report an
+archive hit for every pipeline and promptly present its first frame.
+
 
 ## Script a run
 

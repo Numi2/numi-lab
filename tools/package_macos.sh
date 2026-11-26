@@ -22,8 +22,12 @@ stage=$(mktemp -d "${TMPDIR:-/tmp}/numi-macos.XXXXXX")
 trap 'rm -rf "$stage"' EXIT
 trap 'exit 1' HUP INT TERM
 
-cmake -S "$repo" -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
+set -- -S "$repo" -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=26.0
+if [ "${NUMI_MAC_G18G_ARCHIVE_DIR+x}" ]; then
+    set -- "$@" "-DNUMI_MAC_G18G_ARCHIVE_DIR=$NUMI_MAC_G18G_ARCHIVE_DIR"
+fi
+cmake "$@"
 cmake --build "$build" --target numi_lab_macos --parallel 4
 cmake --install "$build" --prefix "$stage" --component NumiLabMac
 
