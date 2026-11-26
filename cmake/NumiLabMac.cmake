@@ -1,15 +1,31 @@
 set(numi_mac_resources "${CMAKE_CURRENT_BINARY_DIR}/generated/numi-mac")
 set(numi_mac_contents "Numi Lab.app/Contents")
-set(NUMI_MAC_BUILD_NUMBER "6" CACHE STRING "Numi Lab Mac app build number")
+set(NUMI_MAC_BUILD_NUMBER "7" CACHE STRING "Numi Lab Mac app build number")
 configure_file(packaging/macos/Info.plist.in "${numi_mac_resources}/Info.plist" @ONLY)
 
 option(NUMI_MAC_AOT_PIPELINES "Include precompiled Metal pipelines in Numi Lab.app" ON)
+set(NUMI_MAC_G18G_ARCHIVE_DIR "" CACHE PATH "Directory containing a captured G18G archive and inputs.sha256")
 if(NUMI_MAC_AOT_PIPELINES)
     set(numi_mac_world_source "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalWorld.mm")
     set(numi_mac_pipeline_script "${METALROBO_SHADER_DIR}/NumiLab.mtlp-json")
 
     set(numi_mac_pipeline_script_generator
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake/NumiLabMacPipelineScript.cmake")
+    add_custom_command(
+        OUTPUT "${numi_mac_pipeline_script}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
+        COMMAND "${CMAKE_COMMAND}" "-DMETAL_WORLD_SOURCE=${numi_mac_world_source}"
+                "-DPIPELINE_SCRIPT=${numi_mac_pipeline_script}"
+                -P "${numi_mac_pipeline_script_generator}"
+        DEPENDS "${numi_mac_world_source}" "${numi_mac_pipeline_script_generator}"
+        VERBATIM
+    )
+    add_executable(metalrobo_numi_mac_bake_pipelines EXCLUDE_FROM_ALL tools/bake_macos_pipelines.mm)
+    target_compile_options(metalrobo_numi_mac_bake_pipelines PRIVATE -fobjc-arc)
+    target_link_libraries(metalrobo_numi_mac_bake_pipelines PRIVATE "-framework Foundation" "-framework Metal")
+    add_custom_target(numi_lab_macos_pipeline_inputs DEPENDS
+        metalrobo_numi_mac_bake_pipelines "${METALROBO_METALLIB}" "${numi_mac_pipeline_script}")
+
     # Precompile the base GPU architecture in each generation. The retained IR
     # covers GPU models that need a different slice or an updated OS compiler.
     set(NUMI_MAC_GPU_ARCHITECTURES
@@ -25,19 +41,37 @@ if(NUMI_MAC_AOT_PIPELINES)
     add_custom_command(
         OUTPUT "${numi_mac_pipeline_archive}"
         COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}/${numi_mac_gpu_key}"
-        COMMAND "${CMAKE_COMMAND}" "-DMETAL_WORLD_SOURCE=${numi_mac_world_source}"
-                "-DPIPELINE_SCRIPT=${numi_mac_pipeline_script}"
-                -P "${numi_mac_pipeline_script_generator}"
         COMMAND xcrun -sdk macosx metal-tt "${numi_mac_pipeline_script}"
                 -target air64-apple-macos26.0 ${numi_mac_gpu_flags}
                 -compress-resources -no-pack-sources -o "${numi_mac_pipeline_archive}"
-        DEPENDS "${METALROBO_METALLIB}" "${numi_mac_world_source}"
-                "${numi_mac_pipeline_script_generator}"
+        DEPENDS "${METALROBO_METALLIB}" "${numi_mac_pipeline_script}"
         WORKING_DIRECTORY "${METALROBO_SHADER_DIR}"
         VERBATIM
     )
 
     set(numi_mac_optional_pipeline "${numi_mac_pipeline_archive}")
+    if(NUMI_MAC_G18G_ARCHIVE_DIR)
+        if("applegpu_g18g" IN_LIST NUMI_MAC_GPU_ARCHITECTURES)
+            message(FATAL_ERROR "Select one G18G source: an offline GPU target or a captured archive")
+        endif()
+        set(numi_mac_device_archive "${NUMI_MAC_G18G_ARCHIVE_DIR}/MetalRobo-G18G.binary.metallib")
+        set(numi_mac_device_receipt "${NUMI_MAC_G18G_ARCHIVE_DIR}/inputs.sha256")
+        set(numi_mac_archive_merge "${CMAKE_CURRENT_SOURCE_DIR}/cmake/NumiLabMacMergeG18GArchive.cmake")
+        set(numi_mac_optional_pipeline
+            "${METALROBO_SHADER_DIR}/${numi_mac_gpu_key}/g18g/MetalRobo.binary.metallib")
+        add_custom_command(
+            OUTPUT "${numi_mac_optional_pipeline}"
+            COMMAND "${CMAKE_COMMAND}"
+                    "-DSHADER_LIBRARY=${METALROBO_METALLIB}" "-DPIPELINE_SCRIPT=${numi_mac_pipeline_script}"
+                    "-DDEVICE_ARCHIVE=${numi_mac_device_archive}" "-DRECEIPT=${numi_mac_device_receipt}"
+                    "-DBASE_ARCHIVE=${numi_mac_pipeline_archive}" "-DOUTPUT=${numi_mac_optional_pipeline}"
+                    -P "${numi_mac_archive_merge}"
+            DEPENDS "${numi_mac_pipeline_archive}" "${METALROBO_METALLIB}"
+                    "${numi_mac_pipeline_script}" "${numi_mac_device_archive}"
+                    "${numi_mac_device_receipt}" "${numi_mac_archive_merge}"
+            VERBATIM
+        )
+    endif()
 endif()
 
 set(numi_mac_scene "${numi_mac_resources}/Scenes")
