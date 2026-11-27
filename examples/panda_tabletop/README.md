@@ -51,6 +51,13 @@ hold sample, and at most 5 mm of lift in the open-gripper control. If
 requested, the MuJoCo run uses the same 60 mm hold threshold. Each control
 tick has four 5 ms physics substeps. The recorded runtime includes tracing.
 
+Add `--return-to-table` to the comparison command to generate and replay a
+678-control native placement clip. The clip preserves the original lift
+and hold, lowers the cube, opens the gripper and retreats. The example
+checks settled cube position, upward support, zero jaw force after release
+and exact replay. It writes `return-to-table.actions.f32` for reuse with
+the app's `--action-clip` option.
+
 To measure fingertip loads, record the world-space force acting on the cube.
 
 ```sh

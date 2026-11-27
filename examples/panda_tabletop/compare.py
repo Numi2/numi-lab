@@ -44,7 +44,7 @@ def load_trace(path: Path) -> list[list[float]]:
 
 def native_run(
     rollout: Path, metallib: Path, scene: Path, clip: Path,
-    directory: Path, ticks: int,
+    directory: Path, ticks: int, *, record_contact_forces: bool = False,
 ) -> tuple[dict, list[list[float]]]:
     directory.mkdir()
     trace = directory / "state.tsv"
@@ -54,6 +54,8 @@ def native_run(
         str(clip), "--physics-substeps", str(SUBSTEPS), "--state-trace", str(trace),
         "--contact-trace", str(directory / "contacts.tsv"), "--contact-body", "pick_object",
     ]
+    if record_contact_forces:
+        command += ["--contact-force-trace", str(directory / "forces.tsv")]
     (directory / "command.json").write_text(json.dumps(command, indent=2) + "\n")
     with (directory / "runtime.json").open("w") as stdout, (
         directory / "runtime.log"
@@ -75,6 +77,54 @@ def measure(rows: list[list[float]]) -> dict[str, float]:
         "minimum_hold_lift_m": min(row[12] - start[2] for row in hold),
         "maximum_hold_drift_m": max(math.dist(first_hold, row[10:13]) for row in hold),
         "final_cube_height_m": rows[-1][12],
+    }
+
+
+def return_to_table_clip(raw: bytes) -> bytes:
+    frames = list(struct.iter_unpack("<9f", raw))
+    # Reverse the lift, wait at the table, release over 30 controls, then
+    # retrace the approach. Keeping the original first 370 controls gives
+    # both clips the same grasp and hold.
+    lower = [frame[:7] + frames[-1][7:] for frame in reversed(frames[224:310])]
+    closed = lower[-1]
+    opened = frames[149]
+    release = []
+    for tick in range(1, 31):
+        t = tick / 30
+        blend = t * t * t * (10 + t * (-15 + t * 6))
+        fingers = tuple(a + blend * (b - a) for a, b in zip(closed[7:], opened[7:]))
+        release.append(closed[:7] + fingers)
+    retreat = list(reversed(frames[:150]))
+    controls = frames + lower + [closed] * 20 + release + retreat + [retreat[-1]] * 22
+    return b"".join(struct.pack("<9f", *frame) for frame in controls)
+
+
+def measure_return_to_table(rows: list[list[float]], forces: Path) -> dict:
+    settled = rows[-25:]
+    support = {int(row[0]): 0.0 for row in settled}
+    jaw_peak = 0.0
+    fingers = {"panda_leftfinger", "panda_rightfinger"}
+    with forces.open() as source:
+        for contact in csv.DictReader(source, delimiter="\t"):
+            tick = int(contact["tick"])
+            if tick not in support:
+                continue
+            normal = float(contact["normal_force_n"])
+            vertical = float(contact["world_force_z_n"])
+            if not math.isfinite(normal) or not math.isfinite(vertical):
+                raise ValueError("Return-to-table force trace became non-finite")
+            if contact["other_body"] in fingers:
+                jaw_peak = max(jaw_peak, normal)
+            else:
+                support[tick] += vertical
+    return {
+        "control_steps": len(rows),
+        "peak_lift_m": max(row[12] for row in rows) - rows[0][12],
+        "final_height_change_m": rows[-1][12] - rows[0][12],
+        "final_horizontal_displacement_m": math.dist(rows[-1][10:12], rows[0][10:12]),
+        "settled_height_range_m": max(row[12] for row in settled) - min(row[12] for row in settled),
+        "peak_jaw_force_after_release_n": jaw_peak,
+        "mean_support_after_release_n": sum(support.values()) / len(support),
     }
 
 
@@ -144,6 +194,10 @@ def main() -> None:
     parser.add_argument("--metallib", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--mujoco-panda", type=Path, help="original stock panda.xml")
+    parser.add_argument(
+        "--return-to-table", action="store_true",
+        help="Also verify a native lift, placement, release and retreat",
+    )
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
@@ -226,6 +280,40 @@ def main() -> None:
         "numi": runs,
         "checks": checks,
     }
+    if args.return_to_table:
+        placement_clip = output / "return-to-table.actions.f32"
+        placement_actions = return_to_table_clip(raw)
+        placement_clip.write_bytes(placement_actions)
+        placements = []
+        placement_ticks = len(placement_actions) // struct.calcsize("<9f")
+        for name in ("return-to-table", "return-to-table-replay"):
+            directory = output / name
+            runtime, rows = native_run(
+                args.rollout.resolve(), args.metallib.resolve(), scene, placement_clip,
+                directory, placement_ticks, record_contact_forces=True,
+            )
+            placements.append({
+                **measure_return_to_table(rows, directory / "forces.tsv"),
+                "failed_environment_steps": runtime["failed_environment_steps"],
+                "state_sha256": sha256(directory / "state.tsv"),
+                "force_sha256": sha256(directory / "forces.tsv"),
+            })
+        placement, replay = placements
+        summary["return_to_table"] = placement
+        weight = 9.81 * fixture["cube_mass_kg"]
+        checks.update({
+            "return_to_table_replay": placement == replay and placement["failed_environment_steps"] == 0,
+            "return_to_table_settled": (
+                placement["peak_lift_m"] >= MIN_LIFT
+                and abs(placement["final_height_change_m"]) < 0.005
+                and placement["final_horizontal_displacement_m"] < 0.025
+                and placement["settled_height_range_m"] < 0.001
+            ),
+            "return_to_table_released": (
+                placement["peak_jaw_force_after_release_n"] == 0
+                and abs(placement["mean_support_after_release_n"] - weight) <= 0.03 * weight
+            ),
+        })
     if args.mujoco_panda is not None:
         reference = mujoco_reference(
             args.mujoco_panda.resolve(), targets, output / "mujoco-state.csv",

@@ -55,6 +55,7 @@ struct ResidentScratch {
     ResidentMotion screw[kResidentDofs];
     ResidentMotion wrench[kResidentBodies];
     float3x3 freeInverseInertia[kResidentFree];
+    float3 freeAngularImpulse[kResidentFree];
     ResidentPose freePose[kResidentFree];
     float q[kResidentDofs];
     float filtered[kResidentDofs];
@@ -109,8 +110,7 @@ float3x3 residentRotation(float4 q) {
     );
 }
 
-float3x3 residentWorldInertia(float4 pose, constant float4* inertia) {
-    const float3x3 rotation = residentRotation(pose);
+float3x3 residentWorldInertia(float3x3 rotation, constant float4* inertia) {
     const float3x3 local = float3x3(inertia[0].xyz, inertia[1].xyz, inertia[2].xyz);
     return rotation * local * transpose(rotation);
 }
@@ -168,9 +168,10 @@ ResidentPose residentBodyPose(
     return pose;
 }
 
-void residentKinematics(
+void residentArticulationDynamics(
     constant MRResidentProgramGPU& program,
     threadgroup ResidentScratch& scratch,
+    ResidentPose pose,
     uint lane
 ) {
     const bool bodyLane = lane < program.sizes.x;
@@ -181,7 +182,6 @@ void residentKinematics(
     const uint parent = articulated ? joint.topology.x : index;
     const uint dof = articulated ? joint.topology.y : MR_INVALID_INDEX;
     const uint slot = body.topology.y;
-    const ResidentPose pose = residentBodyPose(program, scratch, lane);
     const ResidentPose parentPose = {
         simd_shuffle(pose.position, ushort(parent)),
         simd_shuffle(pose.rotation, ushort(parent))
@@ -221,10 +221,9 @@ void residentKinematics(
     }
 
     if (bodyLane) {
-        scratch.pose[lane] = pose;
         if (articulated) {
             const float mass = body.massAndDamping.x;
-            const float3x3 inertia = residentWorldInertia(pose.rotation, body.inertia);
+            const float3x3 inertia = residentWorldInertia(residentRotation(pose.rotation), body.inertia);
             const float3 centerSpeed = twist.linear + cross(twist.angular, pose.position);
             const float3 centerAcceleration = bias.linear +
                 cross(bias.angular, pose.position) + cross(twist.angular, centerSpeed);
@@ -240,7 +239,20 @@ void residentKinematics(
             scratch.mass[lane] = {float4(firstMoment, mass), diagonal, offDiagonal};
             scratch.wrench[lane] = {torque, force};
         } else if (slot < kResidentFree) {
-            scratch.freeInverseInertia[slot] = residentWorldInertia(pose.rotation, body.inverseInertia);
+            const float3x3 rotation = residentRotation(pose.rotation);
+            const float3x3 inverse = residentWorldInertia(rotation, body.inverseInertia);
+            scratch.freeInverseInertia[slot] = inverse;
+            // A free body's angular impulse is shared by its three angular lanes.
+            const uint base = kResidentDofs + 6u * slot + 3u;
+            const float3 omega = float3(
+                scratch.velocity[base], scratch.velocity[base + 1u], scratch.velocity[base + 2u]
+            );
+            float3 impulse = float3(0.0f);
+            if (any(omega != 0.0f)) {
+                const float3x3 inertia = residentWorldInertia(rotation, body.inertia);
+                impulse = program.gravityAndTimestep.w * (inverse * cross(inertia * omega, omega));
+            }
+            scratch.freeAngularImpulse[slot] = impulse;
         }
     }
 }
@@ -568,12 +580,8 @@ float residentInitialVelocity(
         return (old + dt * program.gravityAndTimestep[axis]) *
             max(0.0f, 1.0f - dt * body.massAndDamping.z);
     }
-    const uint base = kResidentDofs + 6u * slot + 3u;
-    const float3 omega = float3(scratch.velocity[base], scratch.velocity[base + 1], scratch.velocity[base + 2]);
-    const float3x3 inertia = residentWorldInertia(scratch.freePose[slot].rotation, body.inertia);
-    const float3 impulse = dt *
-        (scratch.freeInverseInertia[slot] * cross(inertia * omega, omega));
-    return (old + impulse[axis - 3u]) * max(0.0f, 1.0f - dt * body.massAndDamping.w);
+    return (old + scratch.freeAngularImpulse[slot][axis - 3u]) *
+        max(0.0f, 1.0f - dt * body.massAndDamping.w);
 }
 
 ResidentHit residentReadHit(
@@ -731,8 +739,20 @@ void residentBuildContactOperator(
             impulse = toBasis * candidate.impulse;
         }
     }
-    for (uint i = 0; i < previousCount && bestDistance > 1.0e-12f; ++i) {
+    // Stripe compaction emits pairs in their cooked order and the solver
+    // keeps those indices when writing warm points for the next substep.
+    uint first = 0u;
+    if (previousCount > 4u && bestDistance > 1.0e-12f) {
+        uint last = previousCount;
+        while (first < last) {
+            const uint middle = first + (last - first) / 2u;
+            if (scratch.warm[warmRead][middle].key.x < key.x) first = middle + 1u;
+            else last = middle;
+        }
+    }
+    for (uint i = first; i < previousCount && bestDistance > 1.0e-12f; ++i) {
         const ResidentWarmPoint previous = scratch.warm[warmRead][i];
+        if (previous.key.x > key.x) break;
         if (all(previous.key == key)) {
             const float3 difference = previous.position.xyz - point;
             const float distance = dot(difference, difference);
@@ -985,11 +1005,19 @@ uint residentSubstep(
     uint lane,
     uint wave
 ) {
-    if (wave == 0u) residentKinematics(program, scratch, lane);
+    // Collision needs the poses only. Release its waves before wave zero
+    // builds twists, inertial terms and the shared articulation factor.
+    ResidentPose pose;
+    if (wave == 0u) {
+        pose = residentBodyPose(program, scratch, lane);
+        if (lane < program.sizes.x) scratch.pose[lane] = pose;
+    }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     float factor[kResidentDofs];
     float freeVelocity = 0.0f;
     if (wave == 0u) {
+        residentArticulationDynamics(program, scratch, pose, lane);
+        simdgroup_barrier(mem_flags::mem_threadgroup);
         residentMassRow(program, scratch, lane, factor);
         const bool valid = residentFactor(factor, lane);
         freeVelocity = residentInitialVelocity(program, scratch, lane);
