@@ -23,7 +23,7 @@ typedef struct MR_ALIGN16 MRResidentJointGPU {
 } MRResidentJointGPU;
 
 typedef struct MR_ALIGN16 MRResidentBodyGPU {
-    // Articulated, free slot or MR_INVALID_INDEX, scene slot or MR_INVALID_INDEX, reserved.
+    // Articulated, free slot or MR_INVALID_INDEX, scene slot or MR_INVALID_INDEX, motion type.
     mr_uint4 topology;
     // Mass, inverse mass, linear damping, angular damping.
     mr_float4 massAndDamping;
@@ -49,7 +49,7 @@ typedef struct MR_ALIGN16 MRResidentDofGPU {
 } MRResidentDofGPU;
 
 typedef struct MR_ALIGN16 MRResidentPairGPU {
-    // Colliders A/B and compiled analytic pair class.
+    // Colliders A/B, analytic pair class, and dynamic node mask.
     mr_uint4 geometry;
     // Static friction, dynamic friction, restitution, restitution threshold.
     mr_float4 frictionAndRestitution;
@@ -113,3 +113,30 @@ typedef struct MR_ALIGN16 MRResidentWarmStateGPU {
     mr_uint4 counts;
     MRResidentWarmPointGPU points[MR_RESIDENT_CONTACT_CAPACITY];
 } MRResidentWarmStateGPU;
+
+#define MR_RESIDENT_TASK_OBSERVATION_CAPACITY 64u
+typedef struct MR_ALIGN16 MRResidentNormalImpulseGPU {
+    mr_u32 bodyA;
+    mr_u32 bodyB;
+    float normalImpulse;
+    mr_u32 reserved;
+} MRResidentNormalImpulseGPU;
+
+typedef struct MR_ALIGN16 MRResidentTaskFrameGPU {
+    // Episode step after physics, last reset index plus one, reset flag, episode index.
+    mr_uint4 task;
+    float filtered[MR_RESIDENT_DOF_CAPACITY];
+    // Step code, number of contacts, completed substeps, active pairs.
+    mr_uint4 result;
+    float q[MR_RESIDENT_DOF_CAPACITY];
+    float v[MR_RESIDENT_DOF_CAPACITY];
+    float effort[MR_RESIDENT_DOF_CAPACITY];
+    float acceleration[MR_RESIDENT_DOF_CAPACITY];
+    MRResidentBodySampleGPU freeBodies[MR_RESIDENT_FREE_CAPACITY];
+    MRResidentNormalImpulseGPU contacts[MR_RESIDENT_CONTACT_CAPACITY];
+} MRResidentTaskFrameGPU;
+
+typedef struct MR_ALIGN16 MRResidentTaskObservationGPU {
+    float actor[MR_RESIDENT_TASK_OBSERVATION_CAPACITY];
+    float critic[MR_RESIDENT_TASK_OBSERVATION_CAPACITY];
+} MRResidentTaskObservationGPU;

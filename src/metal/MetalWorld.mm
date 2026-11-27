@@ -4,6 +4,7 @@
 
 #include "metalrobo/MetalWorld.hpp"
 #include "ResidentArticulatedWorld.hpp"
+#include "ResidentTaskBindings.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/ParallelABASchedule.hpp"
 #include "metalrobo/unified_quality_shared.h"
@@ -480,6 +481,14 @@ struct MetalWorldContextState {
     std::uint64_t boundMulticopterFingerprint = 0u;
     std::uint64_t stateArenaGeneration = 0u;
     __strong id<MTLComputePipelineState> compactArticulationPipeline = nil;
+    __strong id<MTLComputePipelineState> compactTaskRecordPipeline = nil;
+    __strong id<MTLBuffer> compactTaskFrames = nil;
+    __strong id<MTLComputePipelineState> compactTaskEvaluatePipeline = nil;
+    __strong id<MTLComputePipelineState> compactTaskAssemblePipeline = nil;
+    __strong id<MTLComputePipelineState> compactTaskCommitPipeline = nil;
+    __strong id<MTLBuffer> compactTaskObservations = nil;
+    __strong id<MTLArgumentEncoder> compactTaskArgumentEncoder = nil;
+    __strong id<MTLBuffer> compactTaskArguments = nil;
     bool triedCompactArticulationPipeline = false;
     std::weak_ptr<MetalWorldResidentStateData> residentOwner;
     MetalWorldContextStats stats{};
@@ -541,6 +550,7 @@ struct MetalWorldResidentStateData {
     bool pending = false;
     __strong id<MTLBuffer> compactProgram = nil;
     __strong id<MTLBuffer> compactWarmState = nil;
+    bool compactTaskCompatible = false;
 };
 
 struct MetalWorldResidentReservation {
@@ -9091,8 +9101,71 @@ bool requestsCompactArticulation(
         config.physicsSubsteps != 0u;
 }
 
-// Compact selection is fixed for this resident token. General task passes
-// still own target generation, resets, observations, rewards and presentation.
+id<MTLComputePipelineState> makeCompactPipeline(
+    id<MTLDevice> device, id<MTLFunction> function
+) {
+    if (function == nil) return nil;
+    MTLComputePipelineDescriptor* descriptor = [MTLComputePipelineDescriptor new];
+    descriptor.computeFunction = function;
+    descriptor.threadGroupSizeIsMultipleOfThreadExecutionWidth = YES;
+    id<MTLComputePipelineState> pipeline = [device
+        newComputePipelineStateWithDescriptor:descriptor
+        options:MTLPipelineOptionNone reflection:nil error:nil];
+    return pipeline.threadExecutionWidth == 32u &&
+        pipeline.maxTotalThreadsPerThreadgroup >= 96u &&
+        pipeline.staticThreadgroupMemoryLength <= device.maxThreadgroupMemoryLength
+        ? pipeline : nil;
+}
+
+bool supportsParallelResidentTask(const CompiledTaskProgram& task) {
+    const auto& header = task.header();
+    if ((header.schedule.w & MR_TASK_PROGRAM_FIXED_ROOT) == 0u ||
+        header.counts2.z != 0u || header.counts3.w != 0u ||
+        header.layout.x > MR_RESIDENT_TASK_OBSERVATION_CAPACITY ||
+        header.counts0.z > MR_RESIDENT_TASK_OBSERVATION_CAPACITY ||
+        header.layout.w < 3u || header.counts0.x == 0u ||
+        header.commandLower.x != 0.0f || header.commandLower.y != 0.0f ||
+        header.commandLower.z != 0.0f || header.commandUpper.x != 0.0f ||
+        header.commandUpper.y != 0.0f || header.commandUpper.z != 0.0f) {
+        return false;
+    }
+    std::array<mr_float4, 3u> commands{};
+    std::memcpy(commands.data(), task.arena().data() + header.offsets3.y, sizeof(commands));
+    if (std::any_of(commands.begin(), commands.end(), [](const mr_float4& value) {
+            return value.x != 0.0f || value.y != 0.0f || value.z != 0.0f;
+        })) {
+        return false;
+    }
+    const auto observation = [](const MRTaskObservationOperatorGPU& op) {
+        return op.transform.z == 0.0f && op.auxiliary.x == MR_INVALID_INDEX &&
+            (op.source.x == MR_TASK_OBSERVE_JOINT_POSITION_ERROR ||
+             op.source.x == MR_TASK_OBSERVE_JOINT_VELOCITY ||
+             op.source.x == MR_TASK_OBSERVE_PREVIOUS_ACTION ||
+             op.source.x == MR_TASK_OBSERVE_OBJECT_TRACK);
+    };
+    const auto reward = [](const MRTaskRewardOperatorGPU& op) {
+        switch (op.source.x) {
+        case MR_TASK_REWARD_CONSTANT:
+        case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
+        case MR_TASK_REWARD_ACTION_RATE_SQUARED:
+        case MR_TASK_REWARD_ACTION_SQUARED:
+        case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED:
+        case MR_TASK_REWARD_MECHANICAL_POWER:
+        case MR_TASK_REWARD_OBJECT_GRASP:
+        case MR_TASK_REWARD_OBJECT_LIFT:
+        case MR_TASK_REWARD_OBJECT_POSITION:
+        case MR_TASK_REWARD_OBJECT_PLACEMENT:
+            return true;
+        default:
+            return false;
+        }
+    };
+    return std::all_of(task.actorOperators().begin(), task.actorOperators().end(), observation) &&
+        std::all_of(task.criticOperators().begin(), task.criticOperators().end(), observation) &&
+        std::all_of(task.rewardOperators().begin(), task.rewardOperators().end(), reward);
+}
+
+// Compact selection is fixed for this resident token.
 void prepareCompactArticulation(
     detail::MetalWorldResidentStateData& resident,
     detail::MetalWorldContextState& context,
@@ -9128,18 +9201,30 @@ void prepareCompactArticulation(
         NSString* file = [NSString stringWithUTF8String:path.c_str()];
         id<MTLLibrary> library = [context.device newLibraryWithURL:
             [NSURL fileURLWithPath:file] error:nil];
-        id<MTLFunction> function = [library newFunctionWithName:@"mr_resident_articulated_control"];
-        if (function != nil) {
-            MTLComputePipelineDescriptor* descriptor = [MTLComputePipelineDescriptor new];
-            descriptor.computeFunction = function;
-            descriptor.threadGroupSizeIsMultipleOfThreadExecutionWidth = YES;
-            id<MTLComputePipelineState> pipeline = [context.device
-                newComputePipelineStateWithDescriptor:descriptor
-                options:MTLPipelineOptionNone reflection:nil error:nil];
-            if (pipeline.threadExecutionWidth == 32u &&
-                pipeline.maxTotalThreadsPerThreadgroup >= 96u &&
-                pipeline.staticThreadgroupMemoryLength <= context.device.maxThreadgroupMemoryLength) {
-                context.compactArticulationPipeline = pipeline;
+        context.compactArticulationPipeline = makeCompactPipeline(
+            context.device, [library newFunctionWithName:@"mr_resident_articulated_control"]
+        );
+        id<MTLFunction> recorder = [library newFunctionWithName:@"mr_resident_task_record_physics"];
+        context.compactTaskRecordPipeline = makeCompactPipeline(context.device, recorder);
+        context.compactTaskEvaluatePipeline = makeCompactPipeline(
+            context.device, [library newFunctionWithName:@"mr_resident_task_evaluate"]
+        );
+        context.compactTaskAssemblePipeline = makeCompactPipeline(
+            context.device, [library newFunctionWithName:@"mr_resident_task_assemble"]
+        );
+        context.compactTaskCommitPipeline = makeCompactPipeline(
+            context.device, [library newFunctionWithName:@"mr_resident_task_commit"]
+        );
+        if (context.compactTaskRecordPipeline != nil &&
+            context.compactTaskEvaluatePipeline != nil &&
+            context.compactTaskAssemblePipeline != nil &&
+            context.compactTaskCommitPipeline != nil) {
+            context.compactTaskArgumentEncoder = [recorder newArgumentEncoderWithBufferIndex:1u];
+            const NSUInteger length = context.compactTaskArgumentEncoder.encodedLength;
+            if (length != 0u) {
+                context.compactTaskArguments = [context.device newBufferWithLength:length
+                    options:MTLResourceStorageModeShared];
+                context.compactTaskArguments.label = @"Compact task graph arguments";
             }
         }
     }
@@ -9153,6 +9238,14 @@ void prepareCompactArticulation(
         warmBuffer.label = @"Accepted compact contact warm starts";
         resident.compactProgram = programBuffer;
         resident.compactWarmState = warmBuffer;
+        resident.compactTaskCompatible =
+            world.sceneBodyCount() <= MR_RESIDENT_BODY_CAPACITY &&
+            config.taskProgram.terminationOperators().empty() &&
+            supportsParallelResidentTask(config.taskProgram) &&
+            std::none_of(batch.initialSceneBodies.begin(), batch.initialSceneBodies.end(),
+                [](const MRBodyStateGPU& body) {
+                    return (body.flagsAndIndices[3] & MR_BODY_STATE_LAUNCH_STEP_MASK) != 0u;
+                });
     }
 }
 
@@ -9186,6 +9279,104 @@ bool encodeCompactArticulation(
     [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(96u, 1u, 1u)];
     [encoder endEncoding];
+    return true;
+}
+
+// These buffers are optional scratch owned by one idle arena slot. If
+// allocation cannot fit, that submission uses the per-control task graph.
+bool ensureCompactTaskScratch(
+    detail::MetalWorldContextState& context,
+    std::size_t controls
+) {
+    const std::size_t frameBytes = controls * sizeof(MRResidentTaskFrameGPU);
+    const std::size_t observationBytes = (controls + 1u) * sizeof(MRResidentTaskObservationGPU);
+    if (frameBytes > context.device.maxBufferLength ||
+        observationBytes > context.device.maxBufferLength) {
+        return false;
+    }
+    const std::size_t frames = std::max<std::size_t>(context.compactTaskFrames.length, frameBytes);
+    const std::size_t observations = std::max<std::size_t>(
+        context.compactTaskObservations.length, observationBytes
+    );
+    const std::uint64_t workingSet =
+        context.stats.retainedBufferBytes + context.compactTaskArguments.length + frames + observations;
+    if (context.device.recommendedMaxWorkingSetSize != 0u &&
+        workingSet > context.device.recommendedMaxWorkingSetSize) {
+        return false;
+    }
+    if (context.compactTaskFrames.length < frameBytes) {
+        id<MTLBuffer> buffer = [context.device newBufferWithLength:frameBytes
+            options:MTLResourceStorageModePrivate];
+        if (buffer == nil) return false;
+        buffer.label = @"Accepted resident task frames";
+        context.compactTaskFrames = buffer;
+    }
+    if (context.compactTaskObservations.length < observationBytes) {
+        id<MTLBuffer> buffer = [context.device newBufferWithLength:observationBytes
+            options:MTLResourceStorageModePrivate];
+        if (buffer == nil) return false;
+        buffer.label = @"Resident task observation frames";
+        context.compactTaskObservations = buffer;
+    }
+    return true;
+}
+
+bool encodeCompactTask(
+    const detail::MetalWorldResidentStateData& resident,
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    std::size_t qState,
+    std::size_t vState,
+    std::size_t sceneState,
+    bool initialize,
+    std::uint32_t controls
+) {
+    id<MTLArgumentEncoder> argumentEncoder = context.compactTaskArgumentEncoder;
+    [argumentEncoder setArgumentBuffer:context.compactTaskArguments offset:0u];
+    const std::pair<NSUInteger, std::size_t> bindings[] = {
+#define MR_TASK_BUFFER(Index, Type, Field, Buffer) {Index, Buffer},
+        MR_RESIDENT_TASK_ARGUMENTS(MR_TASK_BUFFER)
+#undef MR_TASK_BUFFER
+    };
+    __unsafe_unretained id<MTLResource> resources[std::size(bindings)];
+    NSUInteger resourceCount = 0u;
+    for (const auto& [slot, buffer] : bindings) {
+        id<MTLBuffer> argument = context.buffers[buffer];
+        [argumentEncoder setBuffer:argument offset:0u atIndex:slot];
+        if (argument != nil) resources[resourceCount++] = argument;
+    }
+    struct Pass {
+        id<MTLComputePipelineState> pipeline;
+        NSString* label;
+        std::uint32_t groups;
+        std::uint32_t threads;
+    };
+    const Pass passes[] = {
+        {context.compactTaskRecordPipeline, @"Record resident task physics", 1u, 96u},
+        {context.compactTaskEvaluatePipeline, @"Evaluate resident task frames", controls + 1u, 32u},
+        {context.compactTaskAssemblePipeline, @"Assemble resident task history", controls + 1u, 32u},
+        {context.compactTaskCommitPipeline, @"Commit resident task state", 1u, 32u},
+    };
+    for (const auto& pass : passes) {
+        id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+        if (encoder == nil) return false;
+        encoder.label = pass.label;
+        [encoder setComputePipelineState:pass.pipeline];
+        [encoder useResources:resources count:resourceCount usage:MTLResourceUsageRead | MTLResourceUsageWrite];
+        [encoder setBuffer:resident.compactProgram offset:0u atIndex:0u];
+        [encoder setBuffer:context.compactTaskArguments offset:0u atIndex:1u];
+        if (pass.pipeline == context.compactTaskRecordPipeline) {
+            const std::uint32_t firstControl = initialize ? 1u : 0u;
+            [encoder setBuffer:resident.compactWarmState offset:0u atIndex:2u];
+            [encoder setBytes:&firstControl length:sizeof(firstControl) atIndex:3u];
+        } else {
+            [encoder setBuffer:context.compactTaskObservations offset:0u atIndex:5u];
+        }
+        [encoder setBuffer:context.compactTaskFrames offset:0u atIndex:4u];
+        [encoder dispatchThreadgroups:MTLSizeMake(pass.groups, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(pass.threads, 1u, 1u)];
+        [encoder endEncoding];
+    }
     return true;
 }
 
@@ -16995,6 +17186,18 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 }
             }
             diagnostics.usedCompactArticulation = compactArticulation;
+            const bool compactTask = compactArticulation && residentData->compactTaskCompatible &&
+                selectedState->compactTaskArguments != nil &&
+                !config.policyProgram.valid() && !config.deviceObservationProgram.valid() &&
+                config.taskProgram.layout().motionFeatureCount == 0u &&
+                ensureCompactTaskScratch(*selectedState, diagnostics.layout.dispatch.controlStepCount);
+            const std::size_t taskScratch = selectedState->compactTaskFrames.length +
+                selectedState->compactTaskObservations.length;
+            selectedState->stats.retainedBufferBytes +=
+                taskScratch + selectedState->compactTaskArguments.length;
+            diagnostics.layout.memoryPlan.transientPrivateBytes += taskScratch;
+            diagnostics.layout.memoryPlan.sharedBoundaryBytes += selectedState->compactTaskArguments.length;
+            diagnostics.usedCompactTaskGraph = compactTask;
             const bool taskTracksImpactContacts =
                 nativeTask &&
                 !config.taskProgram.impactEvents().empty();
@@ -17159,9 +17362,19 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             const std::size_t rodWitnessCount =
                 requirements.entries[kRodWitnessesA]
                     .logicalElements;
+            if (compactTask && !encodeCompactTask(
+                    *residentData, *selectedState, commandBuffer, sourceQ, sourceV,
+                    sourceScene, uploadInitialState,
+                    diagnostics.layout.dispatch.controlStepCount
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::metalCommandFailure,
+                    "failed to encode compact resident task graph"
+                );
+            }
             for (std::uint32_t controlStep = 0u;
-                 controlStep <
-                     diagnostics.layout.dispatch.controlStepCount;
+                 !compactTask && controlStep < diagnostics.layout.dispatch.controlStepCount;
                  ++controlStep) {
                 MRMetalWorldPassGPU pass{};
                 pass.controlStep = controlStep;

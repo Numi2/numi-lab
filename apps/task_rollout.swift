@@ -182,6 +182,7 @@ private struct Options {
     var environments = 32
     var steps = 48
     var repeats = 20
+    var replayEachRepeat = false
     var chunk = 8
     var physicsSubsteps = defaultPhysicsSubsteps
     private(set) var hasAuthoredPhysicsSubsteps = false
@@ -273,6 +274,8 @@ private struct Options {
             case "--repeats":
                 repeats = try Self.integer(value(), option)
                 index += 1
+            case "--replay-each-repeat":
+                replayEachRepeat = true
             case "--chunk":
                 chunk = try Self.integer(value(), option)
                 index += 1
@@ -659,11 +662,16 @@ private struct Options {
         }
         if actionClip != nil &&
             (actionStream != nil || nativePolicy || policyPack != nil || zeroActions ||
-             repeats != 1 || scheduledResets)
+             (repeats != 1 && !replayEachRepeat) || scheduledResets)
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--action-clip requires one repeat and " +
-                "--no-scheduled-resets, with no other action source."
+                "--action-clip requires --no-scheduled-resets and no other action source. " +
+                "Use --replay-each-repeat to time the same clip repeatedly."
+            )
+        }
+        if replayEachRepeat && (actionClip == nil || loopActionClip) {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "--replay-each-repeat requires a fixed --action-clip."
             )
         }
         if loopActionClip && actionClip == nil {
@@ -2210,7 +2218,17 @@ private enum TaskRolloutMain {
             var playbackSteps: Int64 = 0
             var playbackStart: (wall: Double, presented: UInt64, steps: Int64)?
 
+            var repeatElapsedSeconds: [Double] = []
+            if options.replayEachRepeat && window != nil {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "--replay-each-repeat requires a headless rollout."
+                )
+            }
             for repeatIndex in 0..<options.repeats {
+                if options.replayEachRepeat && repeatIndex != 0 {
+                    try context.reset(seed: options.seed)
+                    globalStep = 0
+                }
                 let repeatStart = clock.now
                 var completed = 0
                 while completed < options.steps {
@@ -2317,17 +2335,23 @@ private enum TaskRolloutMain {
                             actionBatch = Array(streamedActions[start..<end])
                         } else if let actionClip {
                             let width = context.layout.actionCount
-                            let lastFrame = actionClip.count / width - 1
-                            var batch: [Float] = []
-                            batch.reserveCapacity(stepCount * options.environments * width)
-                            for step in 0..<stepCount {
-                                let start = min(globalStep + step, lastFrame) * width
-                                let row = actionClip[start..<(start + width)]
-                                for _ in 0..<options.environments {
-                                    batch.append(contentsOf: row)
+                            let frameCount = actionClip.count / width
+                            if options.environments == 1 && globalStep + stepCount <= frameCount {
+                                let start = globalStep * width
+                                let end = start + stepCount * width
+                                actionBatch = Array(actionClip[start..<end])
+                            } else {
+                                var batch: [Float] = []
+                                batch.reserveCapacity(stepCount * options.environments * width)
+                                for step in 0..<stepCount {
+                                    let start = min(globalStep + step, frameCount - 1) * width
+                                    let row = actionClip[start..<(start + width)]
+                                    for _ in 0..<options.environments {
+                                        batch.append(contentsOf: row)
+                                    }
                                 }
+                                actionBatch = batch
                             }
-                            actionBatch = batch
                         } else if options.zeroActions {
                             actionBatch = [Float](
                                 repeating: 0,
@@ -3005,6 +3029,12 @@ private enum TaskRolloutMain {
                     globalStep += stepCount
                     }
                 }
+                if options.replayEachRepeat {
+                    let elapsed = repeatStart.duration(to: clock.now).components
+                    repeatElapsedSeconds.append(
+                        Double(elapsed.seconds) + Double(elapsed.attoseconds) / 1e18
+                    )
+                }
                 if options.verbose {
                     let elapsed =
                         repeatStart.duration(to: clock.now)
@@ -3367,6 +3397,7 @@ private enum TaskRolloutMain {
                 } ?? "",
                 "device": context.deviceName,
                 "physics_backend": context.physicsBackend,
+                "task_graph": context.usedCompactTaskGraph ? "resident" : "per-control",
                 "solver_mode": context.physicsBackend == "metal-compact-articulation"
                     ? "compact_temporal_cone" : "temporal_cone",
                 "articulated_contact_responses":
@@ -3441,6 +3472,7 @@ private enum TaskRolloutMain {
                 "environment_control_steps_per_second":
                     Double(environmentSteps) / seconds,
                 "elapsed_seconds": seconds,
+                "repeat_elapsed_seconds": repeatElapsedSeconds,
                 "gpu_milliseconds":
                     layout.totalGPUMilliseconds -
                     baseline.totalGPUMilliseconds,

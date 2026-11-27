@@ -726,6 +726,7 @@ struct MetalWorldDiagnostics {
     bool dispatched = false;
     bool published = false;
     bool usedCompactArticulation = false;
+    bool usedCompactTaskGraph = false;
     std::uint32_t successfulStepCount = 0u;
     std::uint32_t failedStepCount = 0u;
     std::uint32_t firstFailingEnvironment = MR_INVALID_INDEX;

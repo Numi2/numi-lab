@@ -6,3 +6,5 @@
 #include "Collision.metal"
 #pragma clang diagnostic pop
 #include "ResidentArticulatedWorld.metalinc"
+
+#include "ResidentTaskRollout.metalinc"

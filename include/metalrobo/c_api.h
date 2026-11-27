@@ -676,6 +676,9 @@ MR_API int mr_task_rollout_prefer_compact_articulation(
 MR_API const char* mr_task_rollout_physics_backend(
     const MRTaskRolloutHandle* handle
 );
+MR_API uint32_t mr_task_rollout_used_compact_task_graph(
+    const MRTaskRolloutHandle* handle
+);
 
 // Opt-in inspection/export readback. Disabled by default so training keeps
 // simulator state device-resident. When enabled, final_q aliases the last

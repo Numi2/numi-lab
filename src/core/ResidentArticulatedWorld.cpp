@@ -54,6 +54,7 @@ MRResidentProgramGPU compileResidentArticulation(
         dst.topology.x = articulated;
         dst.topology.y = MR_INVALID_INDEX;
         dst.topology.z = MR_INVALID_INDEX;
+        dst.topology.w = src.motionType;
         dst.massAndDamping = {src.massAndInverseMass.x, src.massAndInverseMass.y,
                               src.dampingAndSpeedLimits.x, src.dampingAndSpeedLimits.y};
         dst.inertia[0] = src.inertiaRow0;
@@ -144,6 +145,12 @@ MRResidentProgramGPU compileResidentArticulation(
     }
 
     unsigned index = 0;
+    const auto contactNode = [&result](const unsigned collider) {
+        const auto& body = result.bodies[result.shapes[collider].bodyIndex];
+        if (body.topology.x != 0u) return 1u;
+        const auto slot = body.topology.y;
+        return slot < MR_RESIDENT_FREE_CAPACITY ? 2u << slot : 0u;
+    };
     for (const auto& src : world.eligiblePairs()) {
         const auto& a = model.shapes[src.colliderA];
         const auto& b = model.shapes[src.colliderB];
@@ -157,7 +164,10 @@ MRResidentProgramGPU compileResidentArticulation(
                 ma.friction.z == 0 && mb.friction.z == 0 &&
                 ma.friction.w == 0 && mb.friction.w == 0, "unsupported contact material");
         auto& dst = result.pairs[index++];
-        dst.geometry = {src.colliderA, src.colliderB, src.pairClass, 0};
+        dst.geometry = {
+            src.colliderA, src.colliderB, src.pairClass,
+            contactNode(src.colliderA) | contactNode(src.colliderB)
+        };
         dst.frictionAndRestitution = {
             std::sqrt(ma.friction.x * mb.friction.x), std::sqrt(ma.friction.y * mb.friction.y),
             std::max(ma.response.x, mb.response.x), std::max(ma.response.y, mb.response.y)

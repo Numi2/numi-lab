@@ -115,9 +115,9 @@ float3x3 residentWorldInertia(float4 pose, constant float4* inertia) {
     return rotation * local * transpose(rotation);
 }
 
-void residentKinematics(
+ResidentPose residentBodyPose(
     constant MRResidentProgramGPU& program,
-    threadgroup ResidentScratch& scratch,
+    threadgroup const ResidentScratch& scratch,
     uint lane
 ) {
     const bool bodyLane = lane < program.sizes.x;
@@ -165,6 +165,23 @@ void residentKinematics(
         cursor = next == cursor ? lane : next;
     }
 
+    return pose;
+}
+
+void residentKinematics(
+    constant MRResidentProgramGPU& program,
+    threadgroup ResidentScratch& scratch,
+    uint lane
+) {
+    const bool bodyLane = lane < program.sizes.x;
+    const uint index = min(lane, kResidentBodies - 1u);
+    constant MRResidentBodyGPU& body = program.bodies[index];
+    constant MRResidentJointGPU& joint = program.joints[index];
+    const bool articulated = bodyLane && body.topology.x != 0u;
+    const uint parent = articulated ? joint.topology.x : index;
+    const uint dof = articulated ? joint.topology.y : MR_INVALID_INDEX;
+    const uint slot = body.topology.y;
+    const ResidentPose pose = residentBodyPose(program, scratch, lane);
     const ResidentPose parentPose = {
         simd_shuffle(pose.position, ushort(parent)),
         simd_shuffle(pose.rotation, ushort(parent))
@@ -190,7 +207,7 @@ void residentKinematics(
     // adjacent path segments adds their twists and their cross term.
     ResidentMotion twist = contribution;
     ResidentMotion bias = {};
-    cursor = articulated && parent != index ? parent : lane;
+    uint cursor = articulated && parent != index ? parent : lane;
     #pragma clang loop unroll(full)
     for (uint level = 0; level < 4; ++level) {
         const ResidentMotion ancestor = residentShuffle(twist, cursor);
@@ -571,12 +588,6 @@ ResidentHit residentReadHit(
 uint residentBodyNode(constant MRResidentBodyGPU& body) {
     if (body.topology.x != 0u) return 1u;
     return body.topology.y < kResidentFree ? 2u << body.topology.y : 0u;
-}
-
-uint residentContactNodes(constant MRResidentProgramGPU& program, ResidentHit hit) {
-    const uint2 shapes = program.pairs[hit.pair].geometry.xy;
-    return residentBodyNode(program.bodies[program.shapes[shapes.x].bodyIndex]) |
-        residentBodyNode(program.bodies[program.shapes[shapes.y].bodyIndex]);
 }
 
 uint residentIslandNodes(uint wave, uint contactNodes) {
@@ -1002,7 +1013,7 @@ uint residentSubstep(
     if (initialStatus != MR_STEP_SUCCESS) return initialStatus;
     hit = lane < count
         ? residentReadHit(scratch, upperHits, lower, lane) : ResidentHit{};
-    const uint contactNodes = lane < count ? residentContactNodes(program, hit) : 0u;
+    const uint contactNodes = lane < count ? program.pairs[hit.pair].geometry.w : 0u;
     if (wave == 0u) {
         const bool touchesArm = simd_any((contactNodes & 1u) != 0u);
         if (touchesArm) {
@@ -1099,36 +1110,51 @@ kernel void mr_resident_articulated_rollout(
     }
 }
 
-// Compact physics within the normal task graph. The task owns action mapping,
-// reset and observations. Only a complete control interval publishes state.
-kernel void mr_resident_articulated_control(
-    constant MRResidentProgramGPU& program [[buffer(0)]],
-    device const float* targets [[buffer(1)]],
-    device float* q [[buffer(2)]],
-    device float* v [[buffer(3)]],
-    device MRBodyStateGPU* scene [[buffer(4)]],
-    device MRResidentWarmStateGPU& persistent [[buffer(5)]],
-    device const MRMetalWorldDispatchGPU& dispatch [[buffer(6)]],
-    device const uint* resetMasks [[buffer(7)]],
-    constant MRMetalWorldPassGPU& pass [[buffer(8)]],
-    device MRMetalWorldStatusGPU& status [[buffer(9)]],
-    device MRMetalWorldContactStatusGPU& contactStatus [[buffer(10)]],
-    device MRContactConstraintGPU* contacts [[buffer(11)]],
-    device float* appliedEffort [[buffer(12)]],
-    device float* acceleration [[buffer(13)]],
-    uint lane [[thread_index_in_simdgroup]],
-    uint wave [[simdgroup_index_in_threadgroup]]
-) {
-    threadgroup ResidentScratch scratch;
-    threadgroup ResidentHit upperHits[kResidentContacts];
-    threadgroup uint stripeCounts[2];
-    threadgroup uint factorStatus;
-    threadgroup uint islandStatus[3];
-    if (status.code != MR_STEP_SUCCESS || contactStatus.code != MR_STEP_SUCCESS) return;
 
-    const bool reset = pass.reserved0 != 0u ||
-        ((dispatch.flags & MR_METAL_WORLD_HAS_RESETS) != 0u &&
-         resetMasks[pass.controlStep * dispatch.resetMaskStepStride] != 0u);
+namespace {
+
+MRContactConstraintGPU residentConstraint(
+    constant MRResidentProgramGPU& program,
+    threadgroup const ResidentScratch& scratch,
+    ResidentHit hit,
+    uint lane
+) {
+    const ResidentContact contact = scratch.contact[lane];
+    const uint2 pair = program.pairs[hit.pair].geometry.xy;
+    MRContactConstraintGPU constraint{};
+    constraint.bodyA = program.shapes[pair.x].bodyIndex;
+    constraint.bodyB = program.shapes[pair.y].bodyIndex;
+    constraint.pairKey = (ulong(pair.x) << 32u) | ulong(pair.y);
+    constraint.featureKey = (ulong(hit.raw.featureAndFlags[0]) << 32u) | ulong(hit.raw.featureAndFlags[1]);
+    constraint.pointAndSeparation = float4(contact.point, hit.raw.normalAndSeparation.w);
+    constraint.normal = float4(contact.basis[0], 0.0f);
+    constraint.tangent = float4(contact.basis[1], 0.0f);
+    constraint.friction = float4(contact.friction, contact.dynamicFriction, 0.0f, 0.0f);
+    constraint.impulses = float4(scratch.lambda[lane], 0.0f);
+    return constraint;
+}
+
+void residentControl(
+    constant MRResidentProgramGPU& program,
+    device const float* targets,
+    device float* q,
+    device float* v,
+    device MRBodyStateGPU* scene,
+    device MRResidentWarmStateGPU& persistent,
+    device MRMetalWorldStatusGPU& status,
+    device MRMetalWorldContactStatusGPU& contactStatus,
+    device MRContactConstraintGPU* contacts,
+    device float* appliedEffort,
+    device float* acceleration,
+    bool reset,
+    threadgroup ResidentScratch& scratch,
+    threadgroup ResidentHit* upperHits,
+    threadgroup uint* stripeCounts,
+    threadgroup uint& factorStatus,
+    threadgroup uint* islandStatus,
+    uint lane,
+    uint wave
+) {
     uint count = reset ? 0u : persistent.counts.x;
     uint warm = 0u;
     if (wave == 0u) {
@@ -1136,7 +1162,7 @@ kernel void mr_resident_articulated_control(
             const bool active = lane < program.sizes.y;
             scratch.q[lane] = active ? q[lane] : 0.0f;
             scratch.velocity[lane] = active ? v[lane] : 0.0f;
-            scratch.targets[lane] = active ? targets[pass.controlStep * dispatch.effortStepStride + lane] : 0.0f;
+            scratch.targets[lane] = active ? targets[lane] : 0.0f;
         }
         if (lane < kResidentFree) {
             scratch.restingPair[lane] = MR_INVALID_INDEX;
@@ -1213,18 +1239,45 @@ kernel void mr_resident_articulated_control(
     if (lane < count) {
         const ResidentWarmPoint point = scratch.warm[warm][lane];
         persistent.points[lane] = {point.key, point.position, float4(point.impulse, 0.0f)};
-        const ResidentContact contact = scratch.contact[lane];
-        const uint2 pair = program.pairs[hit.pair].geometry.xy;
-        MRContactConstraintGPU constraint{};
-        constraint.bodyA = program.shapes[pair.x].bodyIndex;
-        constraint.bodyB = program.shapes[pair.y].bodyIndex;
-        constraint.pairKey = (ulong(pair.x) << 32u) | ulong(pair.y);
-        constraint.featureKey = (ulong(hit.raw.featureAndFlags[0]) << 32u) | ulong(hit.raw.featureAndFlags[1]);
-        constraint.pointAndSeparation = float4(contact.point, hit.raw.normalAndSeparation.w);
-        constraint.normal = float4(contact.basis[0], 0.0f);
-        constraint.tangent = float4(contact.basis[1], 0.0f);
-        constraint.friction = float4(contact.friction, contact.dynamicFriction, 0.0f, 0.0f);
-        constraint.impulses = float4(scratch.lambda[lane], 0.0f);
-        contacts[lane] = constraint;
+        contacts[lane] = residentConstraint(program, scratch, hit, lane);
     }
+}
+
+} // namespace
+
+// Compact physics within the normal task graph. The task owns action mapping,
+// reset and observations. Only a complete control interval publishes state.
+kernel void mr_resident_articulated_control(
+    constant MRResidentProgramGPU& program [[buffer(0)]],
+    device const float* targets [[buffer(1)]],
+    device float* q [[buffer(2)]],
+    device float* v [[buffer(3)]],
+    device MRBodyStateGPU* scene [[buffer(4)]],
+    device MRResidentWarmStateGPU& persistent [[buffer(5)]],
+    device const MRMetalWorldDispatchGPU& dispatch [[buffer(6)]],
+    device const uint* resetMasks [[buffer(7)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(8)]],
+    device MRMetalWorldStatusGPU& status [[buffer(9)]],
+    device MRMetalWorldContactStatusGPU& contactStatus [[buffer(10)]],
+    device MRContactConstraintGPU* contacts [[buffer(11)]],
+    device float* appliedEffort [[buffer(12)]],
+    device float* acceleration [[buffer(13)]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint wave [[simdgroup_index_in_threadgroup]]
+) {
+    threadgroup ResidentScratch scratch;
+    threadgroup ResidentHit upperHits[kResidentContacts];
+    threadgroup uint stripeCounts[2];
+    threadgroup uint factorStatus;
+    threadgroup uint islandStatus[3];
+    if (status.code != MR_STEP_SUCCESS || contactStatus.code != MR_STEP_SUCCESS) return;
+
+    const bool reset = pass.reserved0 != 0u ||
+        ((dispatch.flags & MR_METAL_WORLD_HAS_RESETS) != 0u &&
+         resetMasks[pass.controlStep * dispatch.resetMaskStepStride] != 0u);
+    residentControl(
+        program, targets + pass.controlStep * dispatch.effortStepStride, q, v, scene,
+        persistent, status, contactStatus, contacts, appliedEffort, acceleration, reset,
+        scratch, upperHits, stripeCounts, factorStatus, islandStatus, lane, wave
+    );
 }

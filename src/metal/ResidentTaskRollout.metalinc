@@ -1,0 +1,679 @@
+#include "metalrobo/task_program_types.h"
+#include "metalrobo/measured_surface_types.h"
+#include "../ResidentTaskBindings.hpp"
+
+#define MR_TASK_INLINE_ONLY
+namespace resident_task {
+#include "LocomotionTask.metal"
+} // namespace resident_task
+#undef MR_TASK_INLINE_ONLY
+
+struct ResidentTaskResources {
+#define MR_TASK_RESOURCE(Index, Type, Field, Buffer) device Type* Field [[id(Index)]];
+    MR_RESIDENT_TASK_ARGUMENTS(MR_TASK_RESOURCE)
+#undef MR_TASK_RESOURCE
+};
+
+namespace {
+
+void projectResidentTaskBodies(
+    constant MRResidentProgramGPU& program,
+    constant ResidentTaskResources& r,
+    threadgroup const ResidentScratch& scratch,
+    uint lane
+) {
+    const ResidentPose pose = residentBodyPose(program, scratch, lane);
+    if (lane >= program.sizes.x) return;
+    const uint scene = program.bodies[lane].topology.z;
+    if (scene == MR_INVALID_INDEX) {
+        MRBodyStateGPU body{};
+        body.position = float4(pose.position, 1.0f);
+        body.orientation = pose.rotation;
+        body.flagsAndIndices[0] = program.bodies[lane].topology.w;
+        body.flagsAndIndices[2] = lane;
+        r.bodies[lane] = body;
+    } else {
+        r.bodies[lane] = r.scene[scene];
+    }
+}
+
+MRBodyStateGPU residentResetSceneBody(MRBodyStateGPU body) {
+    if ((body.flagsAndIndices[3] & MR_BODY_STATE_PRESERVE_RESET_VELOCITY) == 0u) {
+        body.linearVelocityAndInverseMass.xyz = float3(0.0f);
+        body.angularVelocity = float4(0.0f);
+    }
+    return body;
+}
+
+void restoreRecordedPose(
+    threadgroup ResidentScratch& scratch,
+    MRResidentBodySampleGPU body,
+    uint lane
+) {
+    scratch.freePose[lane] = {body.position.xyz, body.rotation};
+    const uint velocity = kResidentDofs + lane * 6u;
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        scratch.velocity[velocity + axis] = body.linear[axis];
+        scratch.velocity[velocity + 3u + axis] = body.angular[axis];
+    }
+}
+
+MRResidentBodySampleGPU recordedBody(MRBodyStateGPU body) {
+    return {body.position, body.orientation, body.linearVelocityAndInverseMass, body.angularVelocity};
+}
+
+MRResidentBodySampleGPU recordedPose(
+    threadgroup const ResidentScratch& scratch, uint lane
+) {
+    const ResidentPose pose = scratch.freePose[lane];
+    const uint i = kResidentDofs + 6u * lane;
+    return {
+        float4(pose.position, 1.0f), pose.rotation,
+        float4(scratch.velocity[i], scratch.velocity[i+1u], scratch.velocity[i+2u], 0.0f),
+        float4(scratch.velocity[i+3u], scratch.velocity[i+4u], scratch.velocity[i+5u], 0.0f)
+    };
+}
+
+} // namespace
+
+// Only explicitly controlled, fixed-base tasks without state-dependent resets
+// can prepare physics ahead of the task publication pass.
+kernel void mr_resident_task_record_physics(
+    constant MRResidentProgramGPU& program [[buffer(0)]],
+    constant ResidentTaskResources& r [[buffer(1)]],
+    device MRResidentWarmStateGPU& persistent [[buffer(2)]],
+    constant uint& initialize [[buffer(3)]],
+    device MRResidentTaskFrameGPU* frames [[buffer(4)]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint wave [[simdgroup_index_in_threadgroup]]
+) {
+    threadgroup ResidentScratch scratch;
+    threadgroup ResidentHit upperHits[kResidentContacts];
+    threadgroup uint stripeCounts[2];
+    threadgroup uint factorStatus;
+    threadgroup uint islandStatus[3];
+
+    const uint actionCount = r.program->counts0.x;
+    const uint filterBase = (r.program->layout.w - 1u) * actionCount;
+    const uint episodeLimit = r.program->schedule.x;
+    const bool activeDof = wave == 0u && lane < program.sizes.y;
+    const bool activeFree = wave == 0u && lane < program.sizes.w;
+    const uint action = activeDof ? program.dofs[lane].topology.w : 0u;
+    const uint body = activeFree ? program.bodies[program.freeBody[lane]].topology.z : 0u;
+    device const MRTaskActionBindingGPU* bindings =
+        resident_task::taskTable<MRTaskActionBindingGPU>(r.arena, r.program->offsets0.x);
+    device const float* initialQ =
+        resident_task::taskTable<float>(r.arena, r.program->actuatorTerms.z);
+    const float resetPosition = activeDof
+        ? (r.program->actuatorTerms.w == actionCount ? initialQ[action] : r.defaultQ[lane])
+        : 0.0f;
+    float response = 1.0f;
+    if (activeDof && bindings[action].parameters.w > 0.0f) {
+        response = clamp(1.0f - exp(-r.dispatch->timing.x / bindings[action].parameters.w), 0.0f, 1.0f);
+    }
+    uint count = initialize != 0u ? 0u : persistent.counts.x;
+    uint warm = 0u;
+    if (wave == 0u) {
+        if (lane < kResidentDofs) {
+            // The padded inertia rows still read every joint velocity.
+            scratch.velocity[lane] = activeDof ? r.v[lane] : 0.0f;
+        }
+        if (activeDof) {
+            scratch.q[lane] = r.q[lane];
+            scratch.filtered[lane] = r.actionHistory[filterBase + action];
+        }
+        if (lane < kResidentFree) scratch.restingPair[lane] = MR_INVALID_INDEX;
+        if (activeFree) restoreRecordedPose(scratch, recordedBody(r.scene[body]), lane);
+        if (lane < count) {
+            const MRResidentWarmPointGPU point = persistent.points[lane];
+            scratch.warm[0][lane] = {point.key, point.position, point.impulse.xyz};
+        }
+    }
+    uint episodeStep = r.state->episode.x;
+    uint episode = r.state->episode.y;
+    uint resetIndex = 0u;
+    bool pendingReset = r.state->status.x == 0u || r.state->status.y != 0u;
+
+    const uint controls = r.world->controlStepCount;
+    for (uint control = 0u; control < controls; ++control) {
+        const bool reset = pendingReset || r.resetMasks[control * r.world->resetMaskStepStride] != 0u;
+        if (reset) {
+            episodeStep = 0u;
+            ++episode;
+            resetIndex = control + 1u;
+            count = 0u;
+            warm = 0u;
+            if (activeDof) {
+                scratch.q[lane] = resetPosition;
+                scratch.velocity[lane] = 0.0f;
+                scratch.filtered[lane] = 0.0f;
+            }
+            if (activeFree) {
+                scratch.restingPair[lane] = MR_INVALID_INDEX;
+                restoreRecordedPose(scratch, recordedBody(residentResetSceneBody(r.initialScene[body])), lane);
+            }
+        }
+        if (activeDof) {
+            constant MRResidentDofGPU& dof = program.dofs[lane];
+            scratch.filtered[lane] = mix(
+                scratch.filtered[lane], r.actions[control * r.dispatch->strides.x + action], response
+            );
+            scratch.targets[lane] = clamp(
+                r.defaultQ[lane] + dof.action.x * scratch.filtered[lane], dof.action.y, dof.action.z
+            );
+        }
+        if (control == 0u || reset) threadgroup_barrier(mem_flags::mem_threadgroup);
+
+        ResidentHit hit;
+        uint code = MR_STEP_SUCCESS;
+        uint substep = 0u;
+        for (; substep < program.schedule.y; ++substep) {
+            code = residentSubstep(
+                program, scratch, upperHits, stripeCounts, factorStatus, islandStatus,
+                count, warm, hit, lane, wave
+            );
+            if (code != MR_STEP_SUCCESS) break;
+        }
+        pendingReset = ++episodeStep >= episodeLimit || code != MR_STEP_SUCCESS;
+        if (wave != 0u) continue;
+
+        device MRResidentTaskFrameGPU& frame = frames[control];
+        if (lane == 0u) frame.task = uint4(episodeStep, resetIndex, uint(reset), episode);
+        const bool last = control + 1u == controls;
+        if (activeDof && last) {
+            frame.filtered[action] = scratch.filtered[lane];
+        }
+        if (code != MR_STEP_SUCCESS) {
+            if (lane == 0u) {
+                frame.result = uint4(code, count, substep, 0u);
+                persistent.counts = uint4(0u);
+            }
+            if (activeDof) {
+                frame.q[lane] = reset ? resetPosition : (control == 0u ? r.q[lane] : frames[control-1u].q[lane]);
+                frame.v[lane] = reset ? 0.0f : (control == 0u ? r.v[lane] : frames[control-1u].v[lane]);
+                frame.effort[lane] = control == 0u ? r.effort[lane] : frames[control-1u].effort[lane];
+                frame.acceleration[lane] = 0.0f;
+            }
+            if (activeFree) {
+                frame.freeBodies[lane] = reset
+                    ? recordedBody(residentResetSceneBody(r.initialScene[body]))
+                    : (control == 0u ? recordedBody(r.scene[body]) : frames[control-1u].freeBodies[lane]);
+            }
+            continue;
+        }
+
+        const uint pair = lane < count ? hit.pair : MR_INVALID_INDEX;
+        const uint lower = simd_or(pair < 32u ? (1u << pair) : 0u);
+        const uint upper = simd_or(pair >= 32u && pair < 64u ? (1u << (pair-32u)) : 0u);
+        if (lane == 0u) frame.result = uint4(code, count, substep, popcount(lower) + popcount(upper));
+        if (activeDof) {
+            frame.q[lane] = scratch.q[lane];
+            frame.v[lane] = scratch.velocity[lane];
+            frame.effort[lane] = scratch.driveEffort[lane];
+            frame.acceleration[lane] = (scratch.velocity[lane] - scratch.preSubstepVelocity[lane]) /
+                program.gravityAndTimestep.w;
+        }
+        if (activeFree) frame.freeBodies[lane] = recordedPose(scratch, lane);
+        if (lane < count) {
+            const uint2 pair = program.pairs[hit.pair].geometry.xy;
+            frame.contacts[lane] = {
+                program.shapes[pair.x].bodyIndex, program.shapes[pair.y].bodyIndex,
+                scratch.lambda[lane].x, 0u
+            };
+            // Reward evaluation needs only body identifiers and normal impulse.
+            // The public boundary retains the complete final contact witness.
+            if (last) {
+                const ResidentWarmPoint point = scratch.warm[warm][lane];
+                persistent.points[lane] = {point.key, point.position, float4(point.impulse, 0.0f)};
+                r.contacts[lane] = residentConstraint(program, scratch, hit, lane);
+            }
+        }
+        if (last && lane == 0u) persistent.counts = uint4(count, 0u, 0u, 0u);
+    }
+}
+
+namespace {
+
+MRBodyStateGPU taskFrameBody(
+    constant MRResidentProgramGPU& program,
+    constant ResidentTaskResources& r,
+    device const MRResidentTaskFrameGPU& frame,
+    uint index,
+    bool reset
+) {
+    MRBodyStateGPU body = frame.task.y != 0u || reset
+        ? residentResetSceneBody(r.initialScene[index]) : r.scene[index];
+    if (reset) return body;
+    for (uint slot = 0u; slot < program.sizes.w; ++slot) {
+        if (program.bodies[program.freeBody[slot]].topology.z == index) {
+            const MRResidentBodySampleGPU accepted = frame.freeBodies[slot];
+            body.position.xyz = accepted.position.xyz;
+            body.orientation = accepted.rotation;
+            body.linearVelocityAndInverseMass.xyz = accepted.linear.xyz;
+            body.angularVelocity.xyz = accepted.angular.xyz;
+            break;
+        }
+    }
+    return body;
+}
+
+float taskRawAction(
+    constant ResidentTaskResources& r,
+    uint resetIndex,
+    int tick,
+    uint action
+) {
+    if (resetIndex != 0u && tick < int(resetIndex - 1u)) return 0.0f;
+    if (tick >= 0) return r.actions[uint(tick) * r.dispatch->strides.x + action];
+    const int slot = int(r.program->layout.w) - 1 + tick;
+    return slot >= 0 ? r.actionHistory[uint(slot) * r.program->counts0.x + action] : 0.0f;
+}
+
+float evaluateResidentObservation(
+    constant MRResidentProgramGPU& program,
+    constant ResidentTaskResources& r,
+    device const MRResidentTaskFrameGPU& frame,
+    MRTaskObservationOperatorGPU operation,
+    device const MRTaskActionBindingGPU* actions,
+    uint control,
+    bool reset
+) {
+    float value = 0.0f;
+    switch (operation.source.x) {
+    case MR_TASK_OBSERVE_JOINT_POSITION_ERROR: {
+        const uint index = actions[operation.source.y].indices.z;
+        const float q = reset
+            ? (r.program->actuatorTerms.w == r.program->counts0.x
+                ? resident_task::taskTable<float>(r.arena, r.program->actuatorTerms.z)[operation.source.y]
+                : r.defaultQ[index])
+            : frame.q[index];
+        value = q - r.defaultQ[index];
+        break;
+    }
+    case MR_TASK_OBSERVE_JOINT_VELOCITY:
+        value = reset ? 0.0f : frame.v[actions[operation.source.y].indices.w];
+        break;
+    case MR_TASK_OBSERVE_PREVIOUS_ACTION:
+        value = reset ? 0.0f : r.actions[control * r.dispatch->strides.x + operation.source.y];
+        break;
+    case MR_TASK_OBSERVE_OBJECT_TRACK: {
+        const MRBodyStateGPU object = taskFrameBody(program, r, frame, operation.source.y, reset);
+        MRTaskStateGPU state{};
+        value = resident_task::observeTrackedObject(
+            *r.program, operation, object, resident_task::rootOrientation(*r.program, frame.q),
+            frame.q, frame.v, state
+        );
+        break;
+    }
+    }
+    return operation.transform.x * value + operation.transform.y;
+}
+
+MRTaskTransitionGPU evaluateResidentReward(
+    constant MRResidentProgramGPU& program,
+    constant ResidentTaskResources& r,
+    device const MRResidentTaskFrameGPU& frame,
+    device const MRTaskActionBindingGPU* actions,
+    uint control
+) {
+    const uint4 result = frame.result;
+    const bool failed = result.x != MR_STEP_SUCCESS;
+    const bool timeout = frame.task.x >= r.program->schedule.x;
+
+    float actionRate = 0.0f;
+    float actionMagnitude = 0.0f;
+    float limitViolation = 0.0f;
+    float mechanicalPower = 0.0f;
+    float velocity = 0.0f;
+    for (uint index = 0u; index < r.program->counts0.x; ++index) {
+        const MRTaskActionBindingGPU binding = actions[index];
+        const float action = r.actions[control * r.dispatch->strides.x + index];
+        const float previous = taskRawAction(r, frame.task.y, int(control) - 1, index);
+        const float delta = action - previous;
+        const float q = frame.q[binding.indices.z];
+        const float v = frame.v[binding.indices.w];
+        const float low = max(r.dofs[binding.indices.y].limits.x - q, 0.0f);
+        const float high = max(q - r.dofs[binding.indices.y].limits.y, 0.0f);
+        actionRate += delta * delta;
+        actionMagnitude += action * action;
+        limitViolation += low * low + high * high;
+        mechanicalPower += abs(frame.effort[binding.indices.w] * v);
+        velocity += v * v;
+    }
+
+    MRTaskTransitionGPU transition{};
+    const auto rewards = resident_task::taskTable<MRTaskRewardOperatorGPU>(r.arena, r.program->offsets1.w);
+    const auto groups = resident_task::taskTable<MRTaskContactGroupGPU>(r.arena, r.program->offsets0.w);
+    const auto members = resident_task::taskTable<uint>(r.arena, r.program->offsets1.x);
+    const auto outcomes = resident_task::taskTable<uint>(r.arena, r.program->interactionOffsets1.z);
+    float reward = 0.0f;
+    for (uint index = 0u; index < r.program->counts1.w; ++index) {
+        const MRTaskRewardOperatorGPU operation = rewards[index];
+        const float weight = operation.parameters.x;
+        float value = 0.0f;
+        switch (operation.source.x) {
+        case MR_TASK_REWARD_CONSTANT:
+            value = 1.0f;
+            transition.rewardBreakdown0.x += weight * value;
+            break;
+        case MR_TASK_REWARD_JOINT_VELOCITY_SQUARED:
+            value = velocity;
+            transition.rewardBreakdown0.z += weight * value;
+            break;
+        case MR_TASK_REWARD_ACTION_RATE_SQUARED:
+            value = actionRate;
+            transition.rewardBreakdown1.x += weight * value;
+            break;
+        case MR_TASK_REWARD_ACTION_SQUARED:
+            value = actionMagnitude;
+            transition.rewardBreakdown1.x += weight * value;
+            break;
+        case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED:
+            value = limitViolation;
+            transition.rewardBreakdown1.y += weight * value;
+            break;
+        case MR_TASK_REWARD_MECHANICAL_POWER:
+            value = mechanicalPower;
+            transition.rewardBreakdown1.z += weight * value;
+            break;
+        default:
+            value = resident_task::measureObjectReward(
+                operation, taskFrameBody(program, r, frame, operation.source.z, false),
+                operation.source.x == MR_TASK_REWARD_OBJECT_PLACEMENT
+                    ? taskFrameBody(program, r, frame, operation.source.y, false) : MRBodyStateGPU{},
+                groups, members, frame.contacts, failed ? 0u : result.y, r.dispatch->timing.y
+            );
+            transition.rewardBreakdown0.y += weight * value;
+            break;
+        }
+        const float contribution = weight * value;
+        reward += contribution;
+        for (uint channel = 0u; channel < r.program->interactionOffsets1.w; ++channel) {
+            if (outcomes[channel] != operation.source.x) continue;
+            if (channel < 4u) transition.outcomeChannels0[channel] += contribution;
+            else transition.outcomeChannels1[channel - 4u] += contribution;
+        }
+    }
+    const float dt = r.dispatch->timing.x;
+    transition.rewardAndState = float4(
+        reward * dt, 1.0f, resident_task::rootHeight(*r.program, frame.q), 0.0f
+    );
+    transition.rewardBreakdown0 *= dt;
+    transition.rewardBreakdown1 *= dt;
+    transition.outcomeChannels0 *= dt;
+    transition.outcomeChannels1 *= dt;
+    transition.termination = uint4(
+        uint(timeout || failed), uint(timeout), uint(failed),
+        failed ? MR_TASK_TERMINATION_PHYSICS_ERROR
+               : timeout ? MR_TASK_TERMINATION_TIMEOUT : MR_TASK_TERMINATION_CONTINUING
+    );
+    transition.episodeTrackingScore = timeout && !failed ? 1.0f : 0.0f;
+    transition.policyRevision = r.dispatch->policyRevision;
+    transition.taskProgress.x = frame.task.y == 0u
+        ? r.state[0].episode.z
+        : resident_task::sampledDifficultyBand(*r.dispatch, *r.program, 0u, frame.task.w);
+    return transition;
+}
+
+void publishRecordedPhysics(
+    constant MRResidentProgramGPU& program,
+    constant ResidentTaskResources& r,
+    device const MRResidentTaskFrameGPU& frame,
+    uint control,
+    uint lane
+) {
+    const uint4 result = frame.result;
+    const bool accepted = result.x == MR_STEP_SUCCESS;
+    const uint nq = r.world->nq;
+    device float* observation = r.observations + control * r.world->observationStepStride;
+    if (lane < nq) {
+        observation[lane] = frame.q[lane];
+        observation[nq + lane] = frame.v[lane];
+        r.accelerations[control * r.world->accelerationStepStride + lane] = frame.acceleration[lane];
+    }
+    if (lane < r.contactDispatch->sceneBodyCount) {
+        const MRBodyStateGPU body = taskFrameBody(program, r, frame, lane, false);
+        device float* packed = observation + 2u * nq + 13u * lane;
+        for (uint i = 0u; i < 3u; ++i) {
+            packed[i] = body.position[i];
+            packed[7u+i] = body.linearVelocityAndInverseMass[i];
+            packed[10u+i] = body.angularVelocity[i];
+        }
+        for (uint i = 0u; i < 4u; ++i) packed[3u+i] = body.orientation[i];
+    }
+    if (lane == 0u) {
+        MRMetalWorldStatusGPU world{};
+        world.flags = r.world->flags;
+        world.controlStep = control;
+        world.code = result.x;
+        world.failingSubstep = accepted ? MR_INVALID_INDEX : result.z;
+        world.failingIndex = MR_INVALID_INDEX;
+        world.successfulSubsteps = result.z;
+        world.diagnostics.x = result.z == 0u ? 0.0f : 3.402823466e38f;
+        r.statuses[control] = world;
+
+        MRMetalWorldContactStatusGPU contacts{};
+        contacts.controlStep = control;
+        contacts.code = result.x;
+        contacts.physicsSubstep = accepted ? result.z - 1u : result.z;
+        contacts.requiredPairs = accepted ? program.sizes.z : 0u;
+        contacts.activePairs = accepted ? result.w : 0u;
+        contacts.requiredRawContacts = result.y;
+        contacts.requiredConstraints = result.y;
+        contacts.activeContacts = accepted ? result.y : 0u;
+        contacts.solverIterations = accepted ? program.schedule.z : 0u;
+        contacts.firstFailingPair = MR_INVALID_INDEX;
+        contacts.firstFailingConstraint = MR_INVALID_INDEX;
+        contacts.firstFailingEventKeyLow = MR_INVALID_INDEX;
+        contacts.firstFailingEventKeyHigh = MR_INVALID_INDEX;
+        r.contactStatuses[control] = contacts;
+        r.resetMasks[control * r.world->resetMaskStepStride] = frame.task.z;
+    }
+}
+
+} // namespace
+
+kernel void mr_resident_task_evaluate(
+    constant MRResidentProgramGPU& program [[buffer(0)]],
+    constant ResidentTaskResources& r [[buffer(1)]],
+    device const MRResidentTaskFrameGPU* frames [[buffer(4)]],
+    device MRResidentTaskObservationGPU* observations [[buffer(5)]],
+    uint control [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint count = r.world->controlStepCount;
+    const bool resetFrame = control == count;
+    device const MRResidentTaskFrameGPU& frame = frames[resetFrame ? 0u : control];
+    const auto actions = resident_task::taskTable<MRTaskActionBindingGPU>(r.arena, r.program->offsets0.x);
+    const auto actor = resident_task::taskTable<MRTaskObservationOperatorGPU>(r.arena, r.program->offsets0.y);
+    const auto critic = resident_task::taskTable<MRTaskObservationOperatorGPU>(r.arena, r.program->offsets0.z);
+    for (uint i = lane; i < r.program->layout.x; i += 32u) {
+        observations[control].actor[i] = evaluateResidentObservation(
+            program, r, frame, actor[i], actions, control, resetFrame
+        );
+    }
+    for (uint i = lane; i < r.program->counts0.z; i += 32u) {
+        observations[control].critic[i] = evaluateResidentObservation(
+            program, r, frame, critic[i], actions, control, resetFrame
+        );
+    }
+    if (resetFrame) return;
+    publishRecordedPhysics(program, r, frame, control, lane);
+    if (lane == 0u) r.transitions[control] = evaluateResidentReward(program, r, frame, actions, control);
+}
+
+namespace {
+
+float historyValue(
+    constant ResidentTaskResources& r,
+    device const MRResidentTaskObservationGPU* records,
+    uint resetIndex,
+    uint slot,
+    int source,
+    bool critic
+) {
+    if (resetIndex != 0u && source < int(resetIndex - 1u)) {
+        const uint resetFrame = r.world->controlStepCount;
+        return critic ? records[resetFrame].critic[slot] : records[resetFrame].actor[slot];
+    }
+    if (source >= 0) return critic ? records[uint(source)].critic[slot] : records[uint(source)].actor[slot];
+    const uint width = critic ? r.program->counts0.z : r.program->layout.x;
+    const uint depth = critic ? r.program->articulation.w : r.program->layout.y;
+    device const float* initial = critic ? r.criticHistory : r.actorHistory;
+    return initial[(int(depth) + source) * width + slot];
+}
+
+void updateResidentTimeline(
+    constant ResidentTaskResources& r,
+    device const MRResidentTaskFrameGPU* frames
+) {
+    const float dt = r.dispatch->timing.x;
+    const float phaseDelta = resident_task::kTwoPi * dt / r.program->locomotion.y;
+    MRTaskStateGPU state = r.state[0];
+    MRTaskEvidenceStateGPU evidence = r.evidence[0];
+    const ulong episodeLimit = r.program->schedule.x;
+    ulong nextWindow = evidence.controlSteps + episodeLimit - evidence.controlSteps % episodeLimit;
+    for (uint control = 0u; control < r.world->controlStepCount; ++control) {
+        const uint4 task = frames[control].task;
+        const MRTaskTransitionGPU transition = r.transitions[control];
+        const float4 seconds = resident_task::scheduleSecondsForBand(*r.program, transition.taskProgress.x);
+        if (task.z != 0u) {
+            state = MRTaskStateGPU{};
+            state.episode.y = task.w;
+            state.episode.z = transition.taskProgress.x;
+            state.status.x = 1u;
+            state.threatMetadata = uint4(MR_INVALID_INDEX, MR_TASK_THREAT_NONE, 0u, MR_INVALID_INDEX);
+            state.schedule.x = resident_task::durationSteps(*r.dispatch, 0u, task.w, 0u, 32u, seconds.x, seconds.y);
+            state.schedule.y = resident_task::durationSteps(*r.dispatch, 0u, task.w, 0u, 33u, seconds.z, seconds.w);
+        }
+        state.episode.x = task.x;
+        state.status.y = transition.termination.x;
+        state.status.z = transition.termination.w;
+        state.airReturnTracking.y = transition.rewardAndState.z;
+        state.airReturnTracking.z = state.status.y != 0u ? 0.0f
+            : state.airReturnTracking.z + transition.rewardAndState.x;
+        state.airReturnTracking.w = state.status.y != 0u ? 0.0f : state.airReturnTracking.w + 1.0f;
+        const float phase = state.commandAndPhase.w + phaseDelta;
+        state.commandAndPhase.w = phase < resident_task::kTwoPi ? phase
+            : phase < 2.0f * resident_task::kTwoPi ? phase - resident_task::kTwoPi
+            : fmod(phase, resident_task::kTwoPi);
+        if (state.status.y == 0u) {
+            state.schedule.x = state.schedule.x <= 1u
+                ? resident_task::durationSteps(*r.dispatch, 0u, state.episode.y, task.x, 64u, seconds.x, seconds.y)
+                : state.schedule.x - 1u;
+        }
+        state.schedule.y = state.schedule.y == 0u || state.status.y != 0u
+            ? resident_task::durationSteps(*r.dispatch, 0u, state.episode.y, task.x, 65u, seconds.z, seconds.w)
+            : state.schedule.y - 1u;
+        resident_task::accumulateTaskEvidence(evidence, transition);
+        if (++evidence.controlSteps == nextWindow) {
+            resident_task::publishTaskEvidenceWindow(evidence, episodeLimit);
+            nextWindow += episodeLimit;
+        }
+    }
+    r.state[0] = state;
+    r.evidence[0] = evidence;
+}
+
+} // namespace
+
+kernel void mr_resident_task_assemble(
+    constant ResidentTaskResources& r [[buffer(1)]],
+    device const MRResidentTaskFrameGPU* frames [[buffer(4)]],
+    device const MRResidentTaskObservationGPU* records [[buffer(5)]],
+    uint control [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint count = r.world->controlStepCount;
+    const bool terminal = control >= count;
+    const uint index = min(control, count - 1u);
+    const uint4 meta = frames[index].task;
+    const bool failed = frames[index].result.x != MR_STEP_SUCCESS;
+    const uint actorWidth = r.program->layout.x;
+    const uint actorDepth = r.program->layout.y;
+    const uint criticWidth = r.program->counts0.z;
+    const uint criticDepth = r.program->articulation.w;
+    const uint actorSize = actorWidth * actorDepth;
+    const uint criticSize = criticWidth * criticDepth;
+    const bool cleanHistory = (r.program->schedule.w & MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY) != 0u;
+    const int sampleEnd = int(control) - int(terminal && failed);
+    const uint resetIndex = meta.y;
+    const uint cleanSize = cleanHistory ? actorSize : 0u;
+    for (uint i = lane; i < actorSize; i += 32u) {
+        const int source = sampleEnd - int(actorDepth) + int(i / actorWidth);
+        const float value = historyValue(r, records, resetIndex, i % actorWidth, source, false);
+        if (!terminal || r.dispatch->timing.z != 0.0f) {
+            r.actor[control * r.dispatch->outputs.x + i] = value;
+        }
+        if (cleanHistory && (!terminal || r.dispatch->timing.w != 0.0f)) {
+            r.critic[control * r.dispatch->outputs.y + i] = value;
+        }
+    }
+    if (!terminal || r.dispatch->timing.w != 0.0f) {
+        for (uint i = lane; i < criticSize; i += 32u) {
+            const int source = sampleEnd - int(criticDepth) + int(i / criticWidth);
+            r.critic[control * r.dispatch->outputs.y + cleanSize + i] =
+                historyValue(r, records, resetIndex, i % criticWidth, source, true);
+        }
+    }
+}
+
+kernel void mr_resident_task_commit(
+    constant MRResidentProgramGPU& program [[buffer(0)]],
+    constant ResidentTaskResources& r [[buffer(1)]],
+    device const MRResidentTaskFrameGPU* frames [[buffer(4)]],
+    device const MRResidentTaskObservationGPU* records [[buffer(5)]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint count = r.world->controlStepCount;
+    const uint last = count - 1u;
+    device const MRResidentTaskFrameGPU& frame = frames[last];
+    const uint resetIndex = frame.task.y;
+    const uint actorWidth = r.program->layout.x;
+    const uint criticWidth = r.program->counts0.z;
+    const bool accepted = frame.result.x == MR_STEP_SUCCESS;
+    const int sampleEnd = int(count) - int(!accepted);
+    // Read the incoming history before overwriting it. Each lane owns a
+    // feature across all slots and shifts toward the oldest slot.
+    for (uint i = lane; i < actorWidth; i += 32u) {
+        for (uint slot = 0u; slot < r.program->layout.y; ++slot) {
+            const int source = sampleEnd - int(r.program->layout.y) + int(slot);
+            const float value = historyValue(r, records, resetIndex, i, source, false);
+            r.actorHistory[slot * actorWidth + i] = value;
+            r.cleanHistory[slot * actorWidth + i] = value;
+        }
+    }
+    for (uint i = lane; i < criticWidth; i += 32u) {
+        for (uint slot = 0u; slot < r.program->articulation.w; ++slot) {
+            const int source = sampleEnd - int(r.program->articulation.w) + int(slot);
+            r.criticHistory[slot * criticWidth + i] = historyValue(r, records, resetIndex, i, source, true);
+        }
+    }
+
+    const uint actions = r.program->counts0.x;
+    if (lane < actions) {
+        const uint filter = r.program->layout.w - 1u;
+        for (uint slot = 0u; slot < filter; ++slot) {
+            r.actionHistory[slot * actions + lane] =
+                taskRawAction(r, resetIndex, int(count) - int(filter) + int(slot), lane);
+        }
+        r.actionHistory[filter * actions + lane] = frame.filtered[lane];
+        r.actionHistory[(filter + 1u) * actions + lane] = r.actions[last * r.dispatch->strides.x + lane];
+    }
+    threadgroup ResidentScratch scratch;
+    if (lane < r.world->nq) {
+        r.q[lane] = frame.q[lane];
+        r.v[lane] = frame.v[lane];
+        scratch.q[lane] = frame.q[lane];
+        r.effort[lane] = frame.effort[lane];
+        r.acceleration[lane] = frame.acceleration[lane];
+    }
+    if (lane < r.contactDispatch->sceneBodyCount) r.scene[lane] = taskFrameBody(program, r, frame, lane, false);
+    simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    projectResidentTaskBodies(program, r, scratch, lane);
+    if (lane == 0u) {
+        r.status[0] = r.statuses[last];
+        r.contactStatus[0] = r.contactStatuses[last];
+        updateResidentTimeline(r, frames);
+    }
+}

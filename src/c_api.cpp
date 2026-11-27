@@ -133,6 +133,7 @@ struct MRTaskRolloutHandle {
     std::string taskId;
     std::uint32_t environmentCount = 0u;
     const char* physicsBackend = "unselected";
+    bool usedCompactTaskGraph = false;
     std::uint64_t submittedControlSteps = 0u;
     std::uint64_t completedEnvironmentSteps = 0u;
     std::uint64_t submissionCount = 0u;
@@ -508,6 +509,7 @@ void resetTaskRolloutState(
 
     handle.stepConfig.taskSeed = seed;
     handle.physicsBackend = "unselected";
+    handle.usedCompactTaskGraph = false;
     handle.residentState =
         metalrobo::MetalWorldResidentState{};
     if (handle.visualRuntime != nullptr) {
@@ -4133,6 +4135,10 @@ const char* mr_task_rollout_physics_backend(const MRTaskRolloutHandle* handle) {
     return requireTaskRolloutHandle(handle) ? handle->physicsBackend : "unknown";
 }
 
+uint32_t mr_task_rollout_used_compact_task_graph(const MRTaskRolloutHandle* handle) {
+    return requireTaskRolloutHandle(handle) && handle->usedCompactTaskGraph ? 1u : 0u;
+}
+
 int mr_task_rollout_set_state_readback(
     MRTaskRolloutHandle* handle,
     const uint32_t enabled
@@ -4398,6 +4404,7 @@ int mr_task_rollout_advance(
         if (diagnostics.succeeded()) {
             diagnostics = submission.wait(published);
         }
+        handle->usedCompactTaskGraph = diagnostics.published && diagnostics.usedCompactTaskGraph;
         if (diagnostics.succeeded()) {
             handle->physicsBackend = diagnostics.usedCompactArticulation
                 ? "metal-compact-articulation" : "metal-general";

@@ -1,3 +1,4 @@
+#ifndef MR_TASK_INLINE_ONLY
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
@@ -5,6 +6,8 @@
 #include "metalrobo/measured_surface_types.h"
 
 using namespace metal;
+
+#endif
 
 namespace {
 
@@ -592,6 +595,43 @@ inline float supportPatchFeature(
     ] / max(cellArea, 1.0e-9f);
 }
 
+inline float observeTrackedObject(
+    device const MRTaskProgramHeaderGPU& program,
+    MRTaskObservationOperatorGPU operation,
+    MRBodyStateGPU object,
+    float4 orientation,
+    device const float* q,
+    device const float* v,
+    thread const MRTaskStateGPU& state
+) {
+    const uint launchStep =
+        (object.flagsAndIndices[3] &
+         MR_BODY_STATE_LAUNCH_STEP_MASK) >>
+        MR_BODY_STATE_LAUNCH_STEP_SHIFT;
+    const bool visible = impactSequenceEnabled(state)
+        ? impactScene(state) == operation.source.y + 1u
+        : launchStep == 0u || state.episode.x >= launchStep;
+    if (operation.source.z == 0u) {
+        return visible ? 1.0f : 0.0f;
+    }
+    if (!visible) {
+        return 0.0f;
+    }
+    const float3 relativePosition = rotateInverse(
+        orientation,
+        object.position.xyz - rootWorldPosition(program, q)
+    );
+    if (operation.source.z <= 3u) {
+        return relativePosition[operation.source.z - 1u];
+    }
+    const float3 relativeVelocity = rotateInverse(
+        orientation,
+        object.linearVelocityAndInverseMass.xyz -
+            rootWorldLinearVelocity(program, q, v)
+    );
+    return relativeVelocity[operation.source.z - 4u];
+}
+
 inline float cleanObservation(
     device const MRTaskProgramHeaderGPU& program,
     const MRTaskObservationOperatorGPU operation,
@@ -1146,40 +1186,11 @@ inline float cleanObservation(
             break;
         }
         break;
-    case MR_TASK_OBSERVE_OBJECT_TRACK: {
-        const MRBodyStateGPU object =
-            sceneBodies[operation.source.y];
-        const uint launchStep =
-            (object.flagsAndIndices[3] &
-             MR_BODY_STATE_LAUNCH_STEP_MASK) >>
-            MR_BODY_STATE_LAUNCH_STEP_SHIFT;
-        const bool visible = impactSequenceEnabled(state)
-            ? impactScene(state) == operation.source.y + 1u
-            : launchStep == 0u || state.episode.x >= launchStep;
-        if (operation.source.z == 0u) {
-            value = visible ? 1.0f : 0.0f;
-            break;
-        }
-        if (!visible) {
-            value = 0.0f;
-            break;
-        }
-        const float3 relativePosition = rotateInverse(
-            orientation,
-            object.position.xyz - rootWorldPosition(program, q)
+    case MR_TASK_OBSERVE_OBJECT_TRACK:
+        value = observeTrackedObject(
+            program, operation, sceneBodies[operation.source.y], orientation, q, v, state
         );
-        if (operation.source.z <= 3u) {
-            value = relativePosition[operation.source.z - 1u];
-            break;
-        }
-        const float3 relativeVelocity = rotateInverse(
-            orientation,
-            object.linearVelocityAndInverseMass.xyz -
-                rootWorldLinearVelocity(program, q, v)
-        );
-        value = relativeVelocity[operation.source.z - 4u];
         break;
-    }
     default:
         // Compilation rejects unknown sources. Device visual sources are a
         // separate direct suffix and never enter this physical-state reader.
@@ -1633,6 +1644,7 @@ inline bool desiredSupportContact(
 
 } // namespace
 
+#ifndef MR_TASK_INLINE_ONLY
 kernel void mr_locomotion_task_latch_impact_contact(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -1703,7 +1715,9 @@ kernel void mr_locomotion_task_latch_impact_contact(
         }
     }
 }
+#endif
 
+#ifndef MR_TASK_INLINE_ONLY
 kernel void mr_locomotion_task_select_threat_query(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -1873,7 +1887,9 @@ kernel void mr_locomotion_task_select_threat_query(
     );
     taskStates[environment] = state;
 }
+#endif
 
+#ifndef MR_TASK_INLINE_ONLY
 kernel void mr_locomotion_task_joint_cbf_teacher(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -2121,7 +2137,9 @@ kernel void mr_locomotion_task_joint_cbf_teacher(
     }
     taskStates[environment] = state;
 }
+#endif
 
+#ifndef MR_TASK_INLINE_ONLY
 kernel void mr_locomotion_task_motion_features(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -2185,7 +2203,9 @@ kernel void mr_locomotion_task_motion_features(
         features[base + 8u] = 2.0f * (y * z + x * w);
     }
 }
+#endif
 
+#ifndef MR_TASK_INLINE_ONLY
 kernel void mr_locomotion_task_observe(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -3484,7 +3504,9 @@ kernel void mr_locomotion_task_observe(
     }
 
 }
+#endif
 
+#ifndef MR_TASK_INLINE_ONLY
 kernel void mr_locomotion_task_apply_actions(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -3720,6 +3742,7 @@ kernel void mr_locomotion_task_apply_actions(
         }
     }
 }
+#endif
 
 inline float actuatorEffortEnvelope(
     device const MRDofPropertiesGPU& dof,
@@ -3764,6 +3787,7 @@ inline float actuatorDryFriction(
 // trajectory; rotor mixers remain in their robot-authored program. This pass
 // adds no integration or kinematic override: it only writes generalized
 // effort and world-frame body wrench consumed by the ordinary ABA solve.
+#ifndef MR_TASK_INLINE_ONLY
 kernel void mr_locomotion_task_apply_native_actuators(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -3909,7 +3933,9 @@ kernel void mr_locomotion_task_apply_native_actuators(
         }
     }
 }
+#endif
 
+#ifndef MR_TASK_INLINE_ONLY
 kernel void mr_locomotion_task_measure_effort(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -3954,7 +3980,123 @@ kernel void mr_locomotion_task_measure_effort(
     state.airReturnTracking.x = mechanicalPower;
     taskStates[environment] = state;
 }
+#endif
 
+inline float taskNormalImpulse(const MRContactConstraintGPU contact) {
+    return contact.impulses.x;
+}
+
+#ifdef MR_TASK_INLINE_ONLY
+inline float taskNormalImpulse(const MRResidentNormalImpulseGPU contact) {
+    return contact.normalImpulse;
+}
+#endif
+
+template<typename Contact>
+inline float measureObjectReward(
+    MRTaskRewardOperatorGPU operation,
+    MRBodyStateGPU object,
+    MRBodyStateGPU goal,
+    device const MRTaskContactGroupGPU* contactGroups,
+    device const uint* contactMembers,
+    device const Contact* contacts,
+    uint activeContacts,
+    float physicsStepSeconds
+) {
+    float value = 0.0f;
+    switch (operation.source.x) {
+    case MR_TASK_REWARD_OBJECT_GRASP: {
+        const MRTaskContactGroupGPU group =
+            contactGroups[operation.source.y];
+        const uint objectBody = object.flagsAndIndices[2];
+        uint distinctMembers = 0u;
+        float normalForce = 0.0f;
+        for (uint member = 0u;
+             member < group.members.y;
+             ++member) {
+            const uint memberBody =
+                contactMembers[group.members.x + member];
+            bool touching = false;
+            for (uint contact = 0u;
+                 contact < activeContacts;
+                 ++contact) {
+                const Contact constraint =
+                    contacts[contact];
+                const bool matched =
+                    (constraint.bodyA == memberBody &&
+                     constraint.bodyB == objectBody) ||
+                    (constraint.bodyB == memberBody &&
+                     constraint.bodyA == objectBody);
+                if (!matched) {
+                    continue;
+                }
+                touching = true;
+                normalForce += abs(taskNormalImpulse(constraint)) /
+                    physicsStepSeconds;
+            }
+            distinctMembers += uint(touching);
+        }
+        const float memberScore = smoothstep(
+            0.0f,
+            max(operation.parameters.y, 1.0f),
+            float(distinctMembers)
+        );
+        const float forceScore = 1.0f - exp(
+            -normalForce /
+            max(operation.parameters.z, 1.0e-6f)
+        );
+        value = memberScore * forceScore;
+        break;
+    }
+    case MR_TASK_REWARD_OBJECT_LIFT: {
+        value = smoothstep(
+            operation.parameters.y,
+            operation.parameters.z,
+            object.position.z
+        );
+        break;
+    }
+    case MR_TASK_REWARD_OBJECT_POSITION: {
+        const float3 delta = object.position.xyz - float3(
+            operation.parameters.y,
+            operation.parameters.z,
+            operation.parameters.w
+        );
+        value = exp(
+            -dot(delta, delta) /
+            max(operation.auxiliary.x, 1.0e-8f)
+        );
+        break;
+    }
+    case MR_TASK_REWARD_OBJECT_PLACEMENT: {
+        const float3 positionDelta =
+            object.position.xyz - goal.position.xyz;
+        const float positionScore = exp(
+            -dot(positionDelta, positionDelta) /
+            max(operation.parameters.y, 1.0e-8f)
+        );
+        const float quietScore = 0.5f * (
+            exp(
+                -dot(
+                    object.linearVelocityAndInverseMass.xyz,
+                    object.linearVelocityAndInverseMass.xyz
+                ) / max(operation.parameters.z, 1.0e-8f)
+            ) +
+            exp(
+                -dot(
+                    object.angularVelocity.xyz,
+                    object.angularVelocity.xyz
+                ) / max(operation.parameters.w, 1.0e-8f)
+            )
+        );
+        value = positionScore * quietScore;
+        break;
+    }
+    }
+    return value;
+}
+
+#ifndef MR_TASK_INLINE_ONLY
 kernel void mr_locomotion_task_complete(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -5830,103 +5972,17 @@ kernel void mr_locomotion_task_complete(
             value = sqrt(1.0f + scaledError * scaledError) - 1.0f;
             break;
         }
-        case MR_TASK_REWARD_OBJECT_GRASP: {
-            const MRTaskContactGroupGPU group =
-                contactGroups[operation.source.y];
-            const MRBodyStateGPU object =
-                sceneState[sceneBase + operation.source.z];
-            const uint objectBody = object.flagsAndIndices[2];
-            uint distinctMembers = 0u;
-            float normalForce = 0.0f;
-            for (uint member = 0u;
-                 member < group.members.y;
-                 ++member) {
-                const uint memberBody =
-                    contactMembers[group.members.x + member];
-                bool touching = false;
-                for (uint contact = 0u;
-                     contact < activeContacts;
-                     ++contact) {
-                    const MRContactConstraintGPU constraint =
-                        contacts[contactBase + contact];
-                    const bool matched =
-                        (constraint.bodyA == memberBody &&
-                         constraint.bodyB == objectBody) ||
-                        (constraint.bodyB == memberBody &&
-                         constraint.bodyA == objectBody);
-                    if (!matched) {
-                        continue;
-                    }
-                    touching = true;
-                    normalForce += abs(constraint.impulses.x) /
-                        dispatch.timing.y;
-                }
-                distinctMembers += uint(touching);
-            }
-            const float memberScore = smoothstep(
-                0.0f,
-                max(operation.parameters.y, 1.0f),
-                float(distinctMembers)
-            );
-            const float forceScore = 1.0f - exp(
-                -normalForce /
-                max(operation.parameters.z, 1.0e-6f)
-            );
-            value = memberScore * forceScore;
-            break;
-        }
-        case MR_TASK_REWARD_OBJECT_LIFT: {
-            const MRBodyStateGPU object =
-                sceneState[sceneBase + operation.source.z];
-            value = smoothstep(
-                operation.parameters.y,
-                operation.parameters.z,
-                object.position.z
+        case MR_TASK_REWARD_OBJECT_GRASP:
+        case MR_TASK_REWARD_OBJECT_LIFT:
+        case MR_TASK_REWARD_OBJECT_POSITION:
+        case MR_TASK_REWARD_OBJECT_PLACEMENT:
+            value = measureObjectReward(
+                operation, sceneState[sceneBase + operation.source.z],
+                operation.source.x == MR_TASK_REWARD_OBJECT_PLACEMENT
+                    ? sceneState[sceneBase + operation.source.y] : MRBodyStateGPU{},
+                contactGroups, contactMembers, contacts + contactBase, activeContacts, dispatch.timing.y
             );
             break;
-        }
-        case MR_TASK_REWARD_OBJECT_POSITION: {
-            const MRBodyStateGPU object =
-                sceneState[sceneBase + operation.source.z];
-            const float3 delta = object.position.xyz - float3(
-                operation.parameters.y,
-                operation.parameters.z,
-                operation.parameters.w
-            );
-            value = exp(
-                -dot(delta, delta) /
-                max(operation.auxiliary.x, 1.0e-8f)
-            );
-            break;
-        }
-        case MR_TASK_REWARD_OBJECT_PLACEMENT: {
-            const MRBodyStateGPU object =
-                sceneState[sceneBase + operation.source.z];
-            const MRBodyStateGPU goal =
-                sceneState[sceneBase + operation.source.y];
-            const float3 positionDelta =
-                object.position.xyz - goal.position.xyz;
-            const float positionScore = exp(
-                -dot(positionDelta, positionDelta) /
-                max(operation.parameters.y, 1.0e-8f)
-            );
-            const float quietScore = 0.5f * (
-                exp(
-                    -dot(
-                        object.linearVelocityAndInverseMass.xyz,
-                        object.linearVelocityAndInverseMass.xyz
-                    ) / max(operation.parameters.z, 1.0e-8f)
-                ) +
-                exp(
-                    -dot(
-                        object.angularVelocity.xyz,
-                        object.angularVelocity.xyz
-                    ) / max(operation.parameters.w, 1.0e-8f)
-                )
-            );
-            value = positionScore * quietScore;
-            break;
-        }
         case MR_TASK_REWARD_ROOT_OBJECT_PROGRESS:
         case MR_TASK_REWARD_ROOT_OBJECT_PROXIMITY: {
             const MRBodyStateGPU object =
@@ -6831,9 +6887,64 @@ kernel void mr_locomotion_task_complete(
     );
     transitions[transitionIndex] = transition;
 }
+#endif
+
+inline void accumulateTaskEvidence(
+    thread MRTaskEvidenceStateGPU& state,
+    const MRTaskTransitionGPU transition
+) {
+    const uint impact = transition.taskProgress.w;
+    state.impactContactCount +=
+        (impact & MR_TASK_IMPACT_CONTACT) != 0u ? 1u : 0u;
+    state.impactCleanMissCount +=
+        (impact & MR_TASK_IMPACT_MISSED) != 0u ? 1u : 0u;
+    state.balanceFailureCount +=
+        transition.termination.x != 0u &&
+        (transition.termination.w == MR_TASK_TERMINATION_HEIGHT ||
+         transition.termination.w == MR_TASK_TERMINATION_TILT)
+        ? 1u
+        : 0u;
+    if (transition.termination.x != 0u &&
+        transition.termination.z == 0u) {
+        state.trackingScoreSum +=
+            transition.episodeTrackingScore;
+        ++state.completedEpisodeCount;
+        if (transition.termination.y != 0u) {
+            ++state.timeoutEpisodeCount;
+        }
+    }
+}
+
+inline void publishTaskEvidenceWindow(
+    thread MRTaskEvidenceStateGPU& state,
+    const ulong exposure
+) {
+    const float completed =
+        float(state.completedEpisodeCount);
+    const float rateScale = 1000000.0f /
+        max(float(exposure), 1.0f);
+    state.lastCompletedEpisodeCount = state.completedEpisodeCount;
+    state.lastWindow = uint4(
+        uint(round(float(state.impactContactCount) * rateScale)),
+        uint(round(float(state.impactCleanMissCount) * rateScale)),
+        uint(round(float(state.balanceFailureCount) * rateScale)),
+        uint(round(
+            state.trackingScoreSum /
+            max(completed, 1.0f) * 1000000.0f
+        ))
+    );
+    ++state.evidenceWindows;
+    state.completedEpisodeCount = 0u;
+    state.timeoutEpisodeCount = 0u;
+    state.impactContactCount = 0u;
+    state.impactCleanMissCount = 0u;
+    state.balanceFailureCount = 0u;
+    state.trackingScoreSum = 0.0f;
+}
 
 // One native thread reduces task-wide physical evidence. It never changes the
 // episode sampling distribution or emits a pass/fail decision.
+#ifndef MR_TASK_INLINE_ONLY
 kernel void mr_locomotion_task_update_evidence(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -6861,52 +6972,14 @@ kernel void mr_locomotion_task_update_evidence(
          ++environment) {
         const MRTaskTransitionGPU transition =
             transitions[transitionBase + environment];
-        const uint impact = transition.taskProgress.w;
-        state.impactContactCount +=
-            (impact & MR_TASK_IMPACT_CONTACT) != 0u ? 1u : 0u;
-        state.impactCleanMissCount +=
-            (impact & MR_TASK_IMPACT_MISSED) != 0u ? 1u : 0u;
-        state.balanceFailureCount +=
-            transition.termination.x != 0u &&
-            (transition.termination.w == MR_TASK_TERMINATION_HEIGHT ||
-             transition.termination.w == MR_TASK_TERMINATION_TILT)
-            ? 1u
-            : 0u;
-        if (transition.termination.x != 0u &&
-            transition.termination.z == 0u) {
-            state.trackingScoreSum +=
-                transition.episodeTrackingScore;
-            ++state.completedEpisodeCount;
-            if (transition.termination.y != 0u) {
-                ++state.timeoutEpisodeCount;
-            }
-        }
+        accumulateTaskEvidence(state, transition);
     }
     if (completedSteps % ulong(program.schedule.x) == 0ul) {
-        const float completed =
-            float(state.completedEpisodeCount);
-        const ulong exposure =
-            ulong(program.schedule.x) * ulong(dispatch.counts.x);
-        const float rateScale = 1000000.0f /
-            max(float(exposure), 1.0f);
-        state.lastCompletedEpisodeCount = state.completedEpisodeCount;
-        state.lastWindow = uint4(
-            uint(round(float(state.impactContactCount) * rateScale)),
-            uint(round(float(state.impactCleanMissCount) * rateScale)),
-            uint(round(float(state.balanceFailureCount) * rateScale)),
-            uint(round(
-                state.trackingScoreSum /
-                max(completed, 1.0f) * 1000000.0f
-            ))
+        publishTaskEvidenceWindow(
+            state, ulong(program.schedule.x) * ulong(dispatch.counts.x)
         );
-        ++state.evidenceWindows;
-        state.completedEpisodeCount = 0u;
-        state.timeoutEpisodeCount = 0u;
-        state.impactContactCount = 0u;
-        state.impactCleanMissCount = 0u;
-        state.balanceFailureCount = 0u;
-        state.trackingScoreSum = 0.0f;
     }
     state.controlSteps = completedSteps;
     evidenceState[0] = state;
 }
+#endif

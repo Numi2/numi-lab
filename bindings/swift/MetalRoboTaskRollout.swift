@@ -1469,6 +1469,10 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         }
     }
 
+    public var usedCompactTaskGraph: Bool {
+        mr_task_rollout_used_compact_task_graph(handle) == 1
+    }
+
     public var physicsBackend: String {
         String(cString: mr_task_rollout_physics_backend(handle))
     }
