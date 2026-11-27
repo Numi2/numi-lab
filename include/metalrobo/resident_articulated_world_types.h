@@ -23,7 +23,7 @@ typedef struct MR_ALIGN16 MRResidentJointGPU {
 } MRResidentJointGPU;
 
 typedef struct MR_ALIGN16 MRResidentBodyGPU {
-    // Articulated, free slot or MR_INVALID_INDEX, reserved, reserved.
+    // Articulated, free slot or MR_INVALID_INDEX, scene slot or MR_INVALID_INDEX, reserved.
     mr_uint4 topology;
     // Mass, inverse mass, linear damping, angular damping.
     mr_float4 massAndDamping;
@@ -102,3 +102,14 @@ typedef struct MR_ALIGN16 MRResidentFrameGPU {
     MRResidentBodySampleGPU freeBodies[MR_RESIDENT_FREE_CAPACITY];
     MRResidentContactSampleGPU contacts[MR_RESIDENT_CONTACT_CAPACITY];
 } MRResidentFrameGPU;
+
+typedef struct MR_ALIGN16 MRResidentWarmPointGPU {
+    mr_uint4 key;
+    mr_float4 position;
+    mr_float4 impulse;
+} MRResidentWarmPointGPU;
+
+typedef struct MR_ALIGN16 MRResidentWarmStateGPU {
+    mr_uint4 counts;
+    MRResidentWarmPointGPU points[MR_RESIDENT_CONTACT_CAPACITY];
+} MRResidentWarmStateGPU;

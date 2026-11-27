@@ -107,6 +107,7 @@ add_custom_command(
 
 add_custom_target(numi_lab_macos DEPENDS
     metalrobo_task_rollout
+    "${METALROBO_RESIDENT_METALLIB}"
     ${numi_mac_optional_pipeline}
     "${numi_mac_scene}/catalog.version"
     "${numi_mac_resources}/NumiLab.icns"
@@ -123,7 +124,7 @@ install(TARGETS metalrobo
 install(FILES "${numi_mac_resources}/Info.plist"
     DESTINATION "${numi_mac_contents}"
     COMPONENT NumiLabMac EXCLUDE_FROM_ALL)
-install(FILES "${METALROBO_METALLIB}" ${numi_mac_optional_pipeline}
+install(FILES "${METALROBO_METALLIB}" "${METALROBO_RESIDENT_METALLIB}" ${numi_mac_optional_pipeline}
     "${numi_mac_resources}/NumiLab.icns" THIRD_PARTY_NOTICES.md
     licenses/CISST_LICENSE.txt
     licenses/PX4_X500_BSD_LICENSE.txt

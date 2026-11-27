@@ -172,6 +172,8 @@ private func fingerprint(
 
 private struct Options {
     static let defaultPhysicsSubsteps = 4
+    static let defaultVelocityIterations = 4
+    static let defaultFinalVelocityIterations = 2
     enum BundledRobotSource {
         case unitreeG1, numifly, numiflyForwardFlight, numiflyNoLegs, frankaPickPlace
         case px4X500, px4X500FlightDemo
@@ -183,8 +185,8 @@ private struct Options {
     var chunk = 8
     var physicsSubsteps = defaultPhysicsSubsteps
     private(set) var hasAuthoredPhysicsSubsteps = false
-    var velocityIterations = 4
-    var finalVelocityIterations = 2
+    var velocityIterations = defaultVelocityIterations
+    var finalVelocityIterations = defaultFinalVelocityIterations
     var surface = MetalRoboLocomotionSurface.terrain
     var unitreeG1Task = MetalRoboUnitreeG1Task.velocity
     var bundledRobotSource = BundledRobotSource.unitreeG1
@@ -1687,6 +1689,12 @@ private enum TaskRolloutMain {
             }
             let (context, worldSource) =
                 try makeContext(options: options)
+            if numiWindowAppResources() != nil &&
+                options.velocityIterations == Options.defaultVelocityIterations &&
+                options.finalVelocityIterations == Options.defaultFinalVelocityIterations &&
+                ProcessInfo.processInfo.environment["NUMI_MAC_GENERAL_ARTICULATION"] != "1" {
+                try context.preferCompactArticulation()
+            }
             guard window?.isClosed != true else {
                 throw NumiWindowError.closed
             }
@@ -3358,11 +3366,14 @@ private enum TaskRolloutMain {
                     }
                 } ?? "",
                 "device": context.deviceName,
-                "solver_mode": "temporal_cone",
+                "physics_backend": context.physicsBackend,
+                "solver_mode": context.physicsBackend == "metal-compact-articulation"
+                    ? "compact_temporal_cone" : "temporal_cone",
                 "articulated_contact_responses":
-                    options.materializeArticulatedContactResponses
-                    ? "materialized_inverse_aba"
-                    : "streamed_inverse_aba",
+                    context.physicsBackend == "metal-compact-articulation"
+                    ? "shared_ldlt"
+                    : (options.materializeArticulatedContactResponses
+                        ? "materialized_inverse_aba" : "streamed_inverse_aba"),
                 "scene":
                     options.surface == .terrain
                     ? "terrain"

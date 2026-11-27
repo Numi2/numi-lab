@@ -630,6 +630,7 @@ add_library(
     src/core/G1.cpp
     src/core/LocomotionWorld.cpp
     src/core/TaskProgram.cpp
+    src/core/ResidentArticulatedWorld.cpp
     src/core/PolicyProgram.cpp
     src/core/MeasuredSurfaceRobot.cpp
     src/core/LearningPacks.cpp
@@ -801,6 +802,7 @@ add_custom_command(
 add_custom_target(metalrobo_resident_shaders DEPENDS "${METALROBO_RESIDENT_METALLIB}")
 add_executable(metalrobo_resident_rollout EXCLUDE_FROM_ALL apps/resident_articulated_rollout.mm)
 add_dependencies(metalrobo_resident_rollout metalrobo_resident_shaders)
+target_include_directories(metalrobo_resident_rollout PRIVATE src)
 target_compile_options(metalrobo_resident_rollout PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_resident_rollout PRIVATE
     metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}"

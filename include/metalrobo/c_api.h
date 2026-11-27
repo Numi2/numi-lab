@@ -667,6 +667,16 @@ MR_API size_t mr_task_rollout_copy_visual_rgba(
     uint32_t* width,
     uint32_t* height
 );
+// Request compact physics before the first advance. Ineligible runs use
+// the general solver. The preference also applies after a reset.
+MR_API int mr_task_rollout_prefer_compact_articulation(
+    MRTaskRolloutHandle* handle
+);
+// Borrowed name of the backend that handled the last completed advance.
+MR_API const char* mr_task_rollout_physics_backend(
+    const MRTaskRolloutHandle* handle
+);
+
 // Opt-in inspection/export readback. Disabled by default so training keeps
 // simulator state device-resident. When enabled, final_q aliases the last
 // accepted post-step state until the next advance, reset, or destroy.

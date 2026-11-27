@@ -1,6 +1,21 @@
 # Resident articulated rollout on Apple silicon
 
-metalrobo_resident_rollout runs a recorded position-control clip in one Metal
+Numi Lab for Mac selects the compact Metal solver for compatible single-world
+scenes. Run summaries identify the selected backend as
+`metal-compact-articulation` or `metal-general`. The standard task graph
+still owns control targets, resets, observations, rewards and viewer frames.
+Scenes with unsupported mechanics, unavailable Metal resources or custom
+velocity iteration settings use the general backend. To select the general
+backend explicitly, launch the app with `NUMI_MAC_GENERAL_ARTICULATION=1`.
+
+The compact solver handles one fixed-base articulation with at most nine scalar
+position coordinates, up to two free bodies and bounded analytic collision.
+It supports position and gripper actions. CCD, authored constraint rows, task
+randomization and disturbance programs require the general solver. A control
+that exceeds the compact contact capacity or steps outside a joint's position
+limits returns a typed failure at the last accepted state.
+
+`metalrobo_resident_rollout` runs a recorded position-control clip in one Metal
 dispatch. Each 5 ms physics substep assembles one effective articulated inertia,
 factors it with LDLᵀ and applies the same inverse to free motion and the contact
 normal and tangent rows. Independent contact islands solve concurrently. The
@@ -35,52 +50,72 @@ trace. Timings include command submission, completion and GPU trace writes.
 Pack and pipeline creation, CSV export and file comparisons happen outside the
 timer.
 
-The executable supports one fixed-base articulation with at most nine scalar
-position coordinates, two free scene bodies and bounded analytic collision.
-It handles joint position and gripper position actions with the compiled task
-response. Active position limits, unsupported shapes, CCD, authored constraint
-rows and general task scheduling require the general solver. A failure returns
-a typed status and exposes only the accepted prefix. The opt-in executable
-uses Metal's relaxed floating-point mode with NaN and infinity handling.
-Interactive rendering, task observations, policy feedback and rewards are
-outside this clip runner's scope.
+The compact library uses Metal's relaxed floating-point mode with NaN and
+infinity handling. The clip runner times the physics and trace recording in
+one dispatch. The Mac app also runs the standard task passes and can present
+live frames.
 
-## Panda tabletop qualification on ssh numi
+## Panda tabletop qualification on the Apple M6
 
-Apple M6, native arm64 Release build. Each row measures 370 controls and
-1,480 physics substeps. Numbers are medians of seven interleaved warmed
-trials. The final MuJoCo column uses the gain-matched MuJoCo 4.0.1 model
-and receives the same applied position targets. The stock column preserves
-the earlier benchmark's authored-target comparison.
+The native Release benchmark on `numi` used 370 controls at 20 ms and
+1,480 physics substeps at 5 ms per scene. Wall times are medians of seven
+interleaved warmed trials. The gain-matched MuJoCo 4.0.1 comparison receives
+the same applied position targets as Numi. The stock column preserves the
+original authored-target comparison. Stock MuJoCo dropped the heavier cubes.
 
-| Case | Numi wall ms | Numi range ms | MuJoCo stock ms | MuJoCo matched controls ms |
+| Case | Numi clip ms | Numi range ms | MuJoCo matched ms | MuJoCo stock ms |
 | --- | ---: | ---: | ---: | ---: |
-| 100 g | 20.693 | 20.664–21.790 | 24.985 | 20.774 |
-| 200 g | 20.752 | 20.722–20.789 | 15.356 | 21.018 |
-| 400 g | 20.630 | 20.577–21.630 | 14.907 | 21.213 |
-| Open gripper | 17.051 | 17.016–18.175 | 9.928 | 9.935 |
+| 100 g | 19.178 | 19.146–20.081 | 20.849 | 24.996 |
+| 200 g | 19.113 | 19.030–20.438 | 21.090 | 15.338 |
+| 400 g | 19.071 | 19.004–19.137 | 21.184 | 14.836 |
+| Open gripper | 9.471 | 9.431–9.577 | 9.952 | 9.954 |
 
-The general Numi task rollout measured 557.547 ms for the nominal clip in
-this Release build. The resident rollout was 26.9 times faster. Stock MuJoCo
-dropped the heavier cubes. The gain-matched runs held all
-three masses. On the nominal applied targets, Numi's first-150-tick and
-final-51-tick arm tracking RMS was 0.925° and 0.164°. MuJoCo measured
-1.838° and 0.189°. Numi held the three cubes at least 129.37 mm above
-their starting height. The corresponding MuJoCo minima were 128.03,
-127.04 and 125.45 mm.
+Open-gripper physics took 17.051 ms before the free-motion solve and rest
+contact changes. In the packaged app, the default backend ran the headless
+task graph in 87.4 ms for the 100 g scene and 77.8 ms for the open-gripper
+scene. These timings include the normal task passes with rendering disabled.
+Selecting the general backend explicitly took 573.8 ms for the 100 g scene
+in a verification run.
 
-The Numi nominal jaw normals averaged 19.74 N and 19.73 N. MuJoCo measured
-22.15 N per jaw. Across the three masses, the Numi upward forces from both
-jaws were 0.981, 1.963 and 3.921 N, within 0.1% of weight. Both engines
-had zero finger force in the open-gripper control. Peak sampled geometric overlap
-on a nominal Numi cube contact was 2.89 mm. Different finger geometry and
-contact laws limit physical comparison.
+### Tracking and grip force
 
-Every Numi state and solved-impulse trace repeated bit-for-bit across the
-paired runs. Every MuJoCo native replay reproduced its FP64 state oracle
-exactly and both MuJoCo force replays matched. Injecting a contact capacity
-of eight returned overflow at control 168 with a byte-identical 167-control
-accepted prefix. A malformed clip with a NaN was rejected. On the 370
-recorded Panda poses, the inverse action's maximum absolute residual versus
-the FP64 effective inertia was 9.46e-7. The maximum COM position difference
-was 0.61 µm.
+Numi's first-150-control and final-51-control arm tracking RMS against the
+applied targets was 0.925° and 0.164° for 100 g. MuJoCo measured 1.838° and
+0.189°. Both engines held all three masses with both jaws for all 51 final
+controls. Minimum lift was 129.75, 129.60 and 129.39 mm in Numi and 128.03,
+127.04 and 125.45 mm in MuJoCo.
+
+| Case | Numi left / right jaw N | MuJoCo left / right jaw N | Numi upward support N |
+| --- | ---: | ---: | ---: |
+| 100 g | 21.94 / 21.93 | 22.15 / 22.15 | 0.981 |
+| 200 g | 21.97 / 21.95 | 22.32 / 22.32 | 1.962 |
+| 400 g | 21.97 / 21.96 | 22.43 / 22.43 | 3.920 |
+| Open gripper | 0 / 0 | 0 / 0 | 0 |
+
+The previous nominal normal loads were 19.74 and 19.73 N. With penetration
+recovery over two substeps at articulated contacts, the maximum nominal
+per-jaw difference fell to 1.01%. Nominal peak geometric overlap fell from
+2.89 mm to 0.93 mm. The two additional 100 g trials with 4 mm and 9 mm final
+jaw targets were within 1.12% per jaw. Vertical support from the two jaws in
+the three loaded scenes stayed within 0.1% of cube weight. The engines use
+different finger geometry and contact laws.
+
+### Replay and fallback
+
+Numi reproduced its accepted state and solved-impulse traces exactly, and
+MuJoCo reproduced its own FP64 state and contact force traces exactly.
+The packaged app reproduced all 370 state and contact-force samples for the
+four scenes. Its native task API agreed at shared boundaries with submission
+sizes of 1, 2, 19 and 370, including a seeded restart and a reset at control
+211 in the nominal scene. An eight-contact capacity stopped before control
+168 and preserved the first 167 controls byte for byte. A clip with a NaN
+was rejected.
+
+The signed local app rendered the Panda replay on the M6. The app's startup
+and workbench checks also exercised the general solver with bundled and
+imported scenes.
+
+The original operator qualification in revision a6ffc3f compared all 370
+Panda poses against the FP64 effective inertia. It measured a maximum
+inverse-action residual of 9.46e-7 and a maximum COM position difference
+of 0.61 µm.

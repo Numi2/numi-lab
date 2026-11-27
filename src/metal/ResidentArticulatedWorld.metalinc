@@ -61,8 +61,14 @@ struct ResidentScratch {
     float targets[kResidentDofs];
     float velocity[kResidentVelocity];
     float rhs[kResidentDofs];
+    float driveEffort[kResidentDofs];
+    float preSubstepVelocity[kResidentDofs];
     float inverse[kResidentDofs][kResidentDofs];
     ResidentHit hits[kResidentContacts];
+    // A resting support patch is reusable only while its free body's pose
+    // stays exactly unchanged and its plane is immovable.
+    uint restingPair[kResidentFree];
+    MRRawContactGPU restingHits[kResidentFree][4];
     packed_float3 jacobian[kResidentContacts][kResidentVelocity];
     packed_float3 response[kResidentContacts][kResidentVelocity];
     ResidentContact contact[kResidentContacts];
@@ -180,24 +186,20 @@ void residentKinematics(
         scratch.screw[dof] = screw;
     }
 
-    // World-origin screws can be added along a path without re-expression.
+    // Compose the twist and convective bias in one tree scan. Combining
+    // adjacent path segments adds their twists and their cross term.
     ResidentMotion twist = contribution;
+    ResidentMotion bias = {};
     cursor = articulated && parent != index ? parent : lane;
     #pragma clang loop unroll(full)
     for (uint level = 0; level < 4; ++level) {
         const ResidentMotion ancestor = residentShuffle(twist, cursor);
+        const ResidentMotion ancestorBias = residentShuffle(bias, cursor);
         const uint next = simd_shuffle(cursor, ushort(cursor));
-        if (cursor != lane) twist = residentAdd(twist, ancestor);
-        cursor = next == cursor ? lane : next;
-    }
-    const ResidentMotion parentTwist = residentShuffle(twist, parent);
-    ResidentMotion bias = residentCross(parentTwist, contribution);
-    cursor = articulated && parent != index ? parent : lane;
-    #pragma clang loop unroll(full)
-    for (uint level = 0; level < 4; ++level) {
-        const ResidentMotion ancestor = residentShuffle(bias, cursor);
-        const uint next = simd_shuffle(cursor, ushort(cursor));
-        if (cursor != lane) bias = residentAdd(bias, ancestor);
+        if (cursor != lane) {
+            bias = residentAdd(residentAdd(bias, ancestorBias), residentCross(ancestor, twist));
+            twist = residentAdd(twist, ancestor);
+        }
         cursor = next == cursor ? lane : next;
     }
 
@@ -298,9 +300,11 @@ void residentMassRow(
             row[lane] += dt * (dof.drive.y + dt * dof.drive.x);
         }
         const float bias = dot(screw.angular, wrench.angular) + dot(screw.linear, wrench.linear);
-        scratch.rhs[lane] = dt * (residentImplicitEffort(
-            dof, scratch.targets[lane], scratch.q[lane], scratch.velocity[lane], dt
-        ) - bias);
+        const float velocity = scratch.velocity[lane];
+        const float effort = residentImplicitEffort(dof, scratch.targets[lane], scratch.q[lane], velocity, dt);
+        scratch.rhs[lane] = dt * (effort - bias);
+        scratch.driveEffort[lane] = effort;
+        scratch.preSubstepVelocity[lane] = velocity;
     } else if (lane < kResidentDofs) {
         row[lane] = 1.0f;
         scratch.rhs[lane] = 0.0f;
@@ -319,7 +323,7 @@ bool residentFactor(thread float (&row)[kResidentDofs], uint lane) {
         #pragma clang loop unroll(full)
         for (uint column = pivot + 1; column < kResidentDofs; ++column) {
             const float other = simd_shuffle(lower, ushort(column));
-            row[column] = fma(-projection, other, row[column]);
+            row[column] = lane == pivot ? other : fma(-projection, other, row[column]);
         }
         if (belowPivot) row[pivot] = lower;
     }
@@ -350,6 +354,34 @@ void residentSolve(
     }
 }
 
+// When no contact row touches the arm, the only right-hand side is
+// the free impulse. One row per lane solves it without forming an inverse.
+void residentApplyFreeImpulse(
+    threadgroup ResidentScratch& scratch,
+    thread const float (&factor)[kResidentDofs],
+    float velocity,
+    uint lane
+) {
+    float x = lane < kResidentDofs ? scratch.rhs[lane] : 0.0f;
+    #pragma clang loop unroll(full)
+    for (uint pivot = 0; pivot < kResidentDofs - 1u; ++pivot) {
+        const float solved = simd_shuffle(x, ushort(pivot));
+        if (lane > pivot && lane < kResidentDofs) x = fma(-factor[pivot], solved, x);
+    }
+    float diagonal = 1.0f;
+    #pragma clang loop unroll(full)
+    for (uint j = 0; j < kResidentDofs; ++j) {
+        if (lane == j) diagonal = factor[j];
+    }
+    x /= diagonal;
+    #pragma clang loop unroll(full)
+    for (uint pivot = kResidentDofs - 1u; pivot > 0u; --pivot) {
+        const float solved = simd_shuffle(x, ushort(pivot));
+        if (lane < pivot) x = fma(-factor[pivot], solved, x);
+    }
+    if (lane < kResidentDofs) scratch.velocity[lane] = velocity + x;
+}
+
 void residentInertiaAction(
     threadgroup ResidentScratch& scratch,
     thread const float (&factor)[kResidentDofs],
@@ -370,7 +402,7 @@ void residentInertiaAction(
         }
         initialVelocity += accelerationImpulse;
     }
-    if (lane < kResidentVelocity) scratch.velocity[lane] = initialVelocity;
+    if (lane < kResidentDofs) scratch.velocity[lane] = initialVelocity;
 }
 
 WorldShape residentShape(
@@ -425,7 +457,13 @@ uint residentFindStripe(
 ) {
     ContactBatch batch;
     batch.count = 0;
-    if (index < program.sizes.z) {
+    const uint remembered = index == scratch.restingPair[0] ? 0u :
+        index == scratch.restingPair[1] ? 1u : kResidentFree;
+    if (remembered < kResidentFree) {
+        batch.count = 4u;
+        #pragma clang loop unroll(full)
+        for (uint i = 0u; i < 4u; ++i) batch.contacts[i] = scratch.restingHits[remembered][i];
+    } else if (index < program.sizes.z) {
         constant MRResidentPairGPU& pair = program.pairs[index];
         constant MRShapeGPU& aSource = program.shapes[pair.geometry.x];
         constant MRShapeGPU& bSource = program.shapes[pair.geometry.y];
@@ -664,7 +702,10 @@ void residentBuildContactOperator(
     const float sep = hit.raw.normalAndSeparation.w - pair.response.z;
     float bias = max(sep, 0.0f) / dt * -1.0f;
     const float penetration = min(sep + program.stabilization.x, 0.0f);
-    bias += min(-penetration / (9.0f * dt), program.stabilization.y);
+    // Stiff implicit drives otherwise work against a deeply overlapping
+    // bilateral grip. Restore articulated contact over two microsteps.
+    const float recoverySteps = (ancestorsA | ancestorsB) != 0u ? 2.0f : 9.0f;
+    bias += min(-penetration / (recoverySteps * dt), program.stabilization.y);
     const float3 point = 0.5f * (pointA + pointB);
     const uint4 key = uint4(hit.pair, hit.raw.featureAndFlags[0],
                             hit.raw.featureAndFlags[1], hit.raw.featureAndFlags[2]);
@@ -767,6 +808,86 @@ uint residentSweepContacts(
     return MR_STEP_SUCCESS;
 }
 
+// The normal reaction of a flat, centred box at rest has an exact
+// symmetric solution. Any other contact or lateral/angular motion keeps
+// the regular contact operator active for this island.
+bool residentRestingBoxSupport(
+    constant MRResidentProgramGPU& program,
+    threadgroup ResidentScratch& scratch,
+    ResidentHit hit,
+    uint contacts,
+    uint component,
+    uint warmWrite,
+    uint lane
+) {
+    if (component == 1u || popcount(component) != 1u || popcount(contacts) != 4u) return false;
+    const bool ownsContact = (contacts & (1u << lane)) != 0u;
+    const uint first = ctz(contacts);
+    const uint pairIndex = simd_shuffle(hit.pair, ushort(first));
+    constant MRResidentPairGPU& pair = program.pairs[pairIndex];
+    constant MRShapeGPU& a = program.shapes[pair.geometry.x];
+    constant MRShapeGPU& b = program.shapes[pair.geometry.y];
+    const bool boxIsA = a.shapeType == MR_SHAPE_BOX && b.shapeType == MR_SHAPE_PLANE;
+    if (!boxIsA && !(b.shapeType == MR_SHAPE_BOX && a.shapeType == MR_SHAPE_PLANE)) return false;
+
+    constant MRShapeGPU& box = boxIsA ? a : b;
+    constant MRShapeGPU& plane = boxIsA ? b : a;
+    const uint slot = ctz(component) - 1u;
+    if (box.bodyIndex != program.freeBody[slot] ||
+        residentBodyNode(program.bodies[plane.bodyIndex]) != 0u ||
+        any(box.localPosition.xyz != float3(0.0f)) ||
+        any(pair.response.xyz != float3(0.0f))) return false;
+
+    const uint base = kResidentDofs + 6u * slot;
+    const float3 velocity = float3(scratch.velocity[base], scratch.velocity[base+1u], scratch.velocity[base+2u]);
+    const float3 omega = float3(scratch.velocity[base+3u], scratch.velocity[base+4u], scratch.velocity[base+5u]);
+    constant MRResidentBodyGPU& body = program.bodies[box.bodyIndex];
+    const float dt = program.gravityAndTimestep.w;
+    const float3 restVelocity = (dt * program.gravityAndTimestep.xyz) *
+        max(0.0f, 1.0f - dt * body.massAndDamping.z);
+    if (any(velocity != restVelocity) || any(omega != float3(0.0f))) return false;
+
+    const float4 normalAndSeparation = hit.raw.normalAndSeparation;
+    const float3 normal = simd_shuffle(normalAndSeparation.xyz, ushort(first));
+    const float sign = boxIsA ? -1.0f : 1.0f;
+    const float3 outward = sign * normal;
+    const float closing = dot(outward, velocity);
+    const float3 lateral = velocity - outward * closing;
+    const float frictionLimit = -closing * pair.frictionAndRestitution.x;
+    const float3 point = 0.5f * (hit.raw.pointAWorld.xyz + hit.raw.pointBWorld.xyz);
+    if (!simd_all(!ownsContact || hit.pair == pairIndex)) return false;
+    if (scratch.restingPair[slot] != pairIndex) {
+        if (!(closing < 0.0f) || dot(lateral, lateral) > min(1.0e-14f, frictionLimit * frictionLimit) ||
+            !simd_all(!ownsContact || abs(normalAndSeparation.w) <= 1.0e-6f)) return false;
+        const float3 center = residentSum(ownsContact ? point : float3(0.0f)) * 0.25f;
+        const float3 offset = center - scratch.freePose[slot].position;
+        const float3 momentArm = offset - outward * dot(offset, outward);
+        if (dot(momentArm, momentArm) > 1.0e-12f) return false;
+        if (lane == first) scratch.restingPair[slot] = pairIndex;
+        if (ownsContact) {
+            const uint pointIndex = popcount(contacts & ((1u << lane) - 1u));
+            scratch.restingHits[slot][pointIndex] = hit.raw;
+        }
+    }
+
+    if (lane >= base && lane < base + 6u) scratch.velocity[lane] = 0.0f;
+    if (ownsContact) {
+        const float3x3 basis = residentBasis(normal);
+        const float3 impulse = -sign * (0.25f * body.massAndDamping.x) * velocity;
+        const float3 lambda = transpose(basis) * impulse;
+        scratch.contact[lane] = {
+            basis, point, {}, 0.0f, {}, pair.frictionAndRestitution.x,
+            pair.frictionAndRestitution.y, 0.0f, 0.0f
+        };
+        scratch.lambda[lane] = lambda;
+        scratch.warm[warmWrite][lane] = {
+            uint4(hit.pair, hit.raw.featureAndFlags[0], hit.raw.featureAndFlags[1], hit.raw.featureAndFlags[2]),
+            float4(point, 0.0f), impulse
+        };
+    }
+    return true;
+}
+
 uint residentIntegrate(
     constant MRResidentProgramGPU& program,
     threadgroup ResidentScratch& scratch,
@@ -840,6 +961,83 @@ void residentStoreFrame(
     }
 }
 
+uint residentSubstep(
+    constant MRResidentProgramGPU& program,
+    threadgroup ResidentScratch& scratch,
+    threadgroup ResidentHit* upperHits,
+    threadgroup uint* stripeCounts,
+    threadgroup uint& stepStatus,
+    threadgroup uint* islandStatus,
+    thread uint& count,
+    thread uint& warm,
+    thread ResidentHit& hit,
+    uint lane,
+    uint wave
+) {
+    if (wave == 0u) residentKinematics(program, scratch, lane);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    float factor[kResidentDofs];
+    float freeVelocity = 0.0f;
+    if (wave == 0u) {
+        residentMassRow(program, scratch, lane, factor);
+        const bool valid = residentFactor(factor, lane);
+        freeVelocity = residentInitialVelocity(program, scratch, lane);
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane >= kResidentDofs && lane < kResidentVelocity) {
+            scratch.velocity[lane] = freeVelocity;
+        }
+        if (lane == 0u) stepStatus = valid ? MR_STEP_SUCCESS : MR_STEP_FACTORIZATION_FAILED;
+    } else {
+        threadgroup ResidentHit* hits = wave == 1u ? scratch.hits : upperHits;
+        const uint pairCount = residentFindStripe(program, scratch, hits, (wave - 1u) * kResidentWidth + lane);
+        if (lane == 0u) stripeCounts[wave - 1u] = pairCount;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const uint lower = stripeCounts[0];
+    const uint previousCount = count;
+    count = lower + stripeCounts[1];
+    const uint initialStatus = count > program.controls.y
+        ? MR_STEP_CONTACT_CAPACITY_OVERFLOW : stepStatus;
+    if (initialStatus != MR_STEP_SUCCESS) return initialStatus;
+    hit = lane < count
+        ? residentReadHit(scratch, upperHits, lower, lane) : ResidentHit{};
+    const uint contactNodes = lane < count ? residentContactNodes(program, hit) : 0u;
+    if (wave == 0u) {
+        const bool touchesArm = simd_any((contactNodes & 1u) != 0u);
+        if (touchesArm) {
+            residentInertiaAction(scratch, factor, freeVelocity, lane);
+        } else {
+            residentApplyFreeImpulse(scratch, factor, freeVelocity, lane);
+        }
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    const uint component = residentIslandNodes(wave, contactNodes);
+    const bool ownsIsland = ctz(component) == wave;
+    const bool ownsContact = ownsIsland && (contactNodes & component) != 0u;
+    const uint contacts = simd_or(ownsContact ? 1u << lane : 0u);
+    uint status = MR_STEP_SUCCESS;
+    if (ownsIsland && !residentRestingBoxSupport(program, scratch, hit, contacts, component, 1u - warm, lane)) {
+        // Use the retained witnesses at the unchanged input pose, then
+        // expire them before integration if any new contact wakes the island.
+        if (lane < kResidentFree && (component & (2u << lane)) != 0u) {
+            scratch.restingPair[lane] = MR_INVALID_INDEX;
+        }
+        if (ownsContact) residentBuildContactOperator(program, scratch, hit, previousCount, warm, component, lane);
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+        status = residentSweepContacts(program, scratch, hit, contacts, component, 1u - warm, lane);
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+        if (status == MR_STEP_SUCCESS) {
+            status = residentIntegrate(program, scratch, component, lane);
+        }
+    }
+    if (lane == 0u) islandStatus[wave] = status;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    const uint solved = max(islandStatus[0], max(islandStatus[1], islandStatus[2]));
+    if (solved == MR_STEP_SUCCESS) warm = 1u - warm;
+    return solved;
+}
+
 } // namespace
 
 kernel void mr_resident_articulated_rollout(
@@ -861,6 +1059,7 @@ kernel void mr_resident_articulated_rollout(
     }
     if (wave == 0u && lane < kResidentFree) {
         const uint slot = lane;
+        scratch.restingPair[slot] = MR_INVALID_INDEX;
         const uint velocity = kResidentDofs + slot * 6u;
         const bool active = slot < program.sizes.w;
         constant MRResidentBodyGPU& body = program.bodies[active ? program.freeBody[slot] : 0u];
@@ -884,59 +1083,148 @@ kernel void mr_resident_articulated_rollout(
             );
         }
         for (uint substep = 0; substep < program.schedule.y; ++substep) {
-            if (wave == 0u) residentKinematics(program, scratch, lane);
-            threadgroup_barrier(mem_flags::mem_threadgroup);
-            float factor[kResidentDofs];
-            if (wave == 0u) {
-                residentMassRow(program, scratch, lane, factor);
-                const bool valid = residentFactor(factor, lane);
-                const float freeVelocity = residentInitialVelocity(program, scratch, lane);
-                if (valid) residentInertiaAction(scratch, factor, freeVelocity, lane);
-                if (lane == 0u) stepStatus = valid ? MR_STEP_SUCCESS : MR_STEP_FACTORIZATION_FAILED;
-            } else {
-                threadgroup ResidentHit* hits = wave == 1u ? scratch.hits : upperHits;
-                const uint pairCount = residentFindStripe(program, scratch, hits, (wave - 1u) * kResidentWidth + lane);
-                if (lane == 0u) stripeCounts[wave - 1u] = pairCount;
-            }
-            threadgroup_barrier(mem_flags::mem_threadgroup);
-
-            const uint lower = stripeCounts[0];
-            const uint previousCount = count;
-            count = lower + stripeCounts[1];
-            const uint initialStatus = count > program.controls.y
-                ? MR_STEP_CONTACT_CAPACITY_OVERFLOW : stepStatus;
-            if (initialStatus != MR_STEP_SUCCESS) {
-                if (wave == 0u && lane == 0u) frames[tick].result = uint4(initialStatus, count, substep, tick);
+            ResidentHit hit;
+            const uint status = residentSubstep(
+                program, scratch, upperHits, stripeCounts, stepStatus, islandStatus,
+                count, warm, hit, lane, wave
+            );
+            if (status != MR_STEP_SUCCESS) {
+                if (wave == 0u && lane == 0u) frames[tick].result = uint4(status, count, substep, tick);
                 return;
             }
-            const ResidentHit hit = lane < count
-                ? residentReadHit(scratch, upperHits, lower, lane) : ResidentHit{};
-            const uint contactNodes = lane < count ? residentContactNodes(program, hit) : 0u;
-            const uint component = residentIslandNodes(wave, contactNodes);
-            const bool ownsIsland = ctz(component) == wave;
-            const bool ownsContact = ownsIsland && (contactNodes & component) != 0u;
-            const uint contacts = simd_or(ownsContact ? 1u << lane : 0u);
-            uint status = MR_STEP_SUCCESS;
-            if (ownsIsland) {
-                if (ownsContact) residentBuildContactOperator(program, scratch, hit, previousCount, warm, component, lane);
-                simdgroup_barrier(mem_flags::mem_threadgroup);
-                status = residentSweepContacts(program, scratch, hit, contacts, component, 1u - warm, lane);
-                simdgroup_barrier(mem_flags::mem_threadgroup);
-                if (status == MR_STEP_SUCCESS) {
-                    status = residentIntegrate(program, scratch, component, lane);
-                }
-            }
-            if (lane == 0u) islandStatus[wave] = status;
-            threadgroup_barrier(mem_flags::mem_threadgroup);
-            const uint solved = max(islandStatus[0], max(islandStatus[1], islandStatus[2]));
-            if (solved != MR_STEP_SUCCESS) {
-                if (wave == 0u && lane == 0u) frames[tick].result = uint4(solved, count, substep, tick);
-                return;
-            }
-            warm = 1u - warm;
             if (wave == 0u && substep + 1u == program.schedule.y) {
                 residentStoreFrame(program, scratch, frames[tick], hit, tick, count, warm, lane);
             }
         }
+    }
+}
+
+// Compact physics within the normal task graph. The task owns action mapping,
+// reset and observations. Only a complete control interval publishes state.
+kernel void mr_resident_articulated_control(
+    constant MRResidentProgramGPU& program [[buffer(0)]],
+    device const float* targets [[buffer(1)]],
+    device float* q [[buffer(2)]],
+    device float* v [[buffer(3)]],
+    device MRBodyStateGPU* scene [[buffer(4)]],
+    device MRResidentWarmStateGPU& persistent [[buffer(5)]],
+    device const MRMetalWorldDispatchGPU& dispatch [[buffer(6)]],
+    device const uint* resetMasks [[buffer(7)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(8)]],
+    device MRMetalWorldStatusGPU& status [[buffer(9)]],
+    device MRMetalWorldContactStatusGPU& contactStatus [[buffer(10)]],
+    device MRContactConstraintGPU* contacts [[buffer(11)]],
+    device float* appliedEffort [[buffer(12)]],
+    device float* acceleration [[buffer(13)]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint wave [[simdgroup_index_in_threadgroup]]
+) {
+    threadgroup ResidentScratch scratch;
+    threadgroup ResidentHit upperHits[kResidentContacts];
+    threadgroup uint stripeCounts[2];
+    threadgroup uint factorStatus;
+    threadgroup uint islandStatus[3];
+    if (status.code != MR_STEP_SUCCESS || contactStatus.code != MR_STEP_SUCCESS) return;
+
+    const bool reset = pass.reserved0 != 0u ||
+        ((dispatch.flags & MR_METAL_WORLD_HAS_RESETS) != 0u &&
+         resetMasks[pass.controlStep * dispatch.resetMaskStepStride] != 0u);
+    uint count = reset ? 0u : persistent.counts.x;
+    uint warm = 0u;
+    if (wave == 0u) {
+        if (lane < kResidentDofs) {
+            const bool active = lane < program.sizes.y;
+            scratch.q[lane] = active ? q[lane] : 0.0f;
+            scratch.velocity[lane] = active ? v[lane] : 0.0f;
+            scratch.targets[lane] = active ? targets[pass.controlStep * dispatch.effortStepStride + lane] : 0.0f;
+        }
+        if (lane < kResidentFree) {
+            scratch.restingPair[lane] = MR_INVALID_INDEX;
+            const bool active = lane < program.sizes.w;
+            const uint index = program.bodies[active ? program.freeBody[lane] : 0u].topology.z;
+            const MRBodyStateGPU body = active ? scene[index] : MRBodyStateGPU{};
+            scratch.freePose[lane] = {body.position.xyz, body.orientation};
+            const uint velocity = kResidentDofs + lane * 6u;
+            for (uint axis = 0; axis < 3u; ++axis) {
+                scratch.velocity[velocity + axis] = active ? body.linearVelocityAndInverseMass[axis] : 0.0f;
+                scratch.velocity[velocity + axis + 3u] = active ? body.angularVelocity[axis] : 0.0f;
+            }
+        }
+        if (lane < count) {
+            const MRResidentWarmPointGPU point = persistent.points[lane];
+            scratch.warm[0][lane] = {point.key, point.position, point.impulse.xyz};
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    ResidentHit hit;
+    for (uint substep = 0; substep < program.schedule.y; ++substep) {
+        const uint code = residentSubstep(
+            program, scratch, upperHits, stripeCounts, factorStatus, islandStatus,
+            count, warm, hit, lane, wave
+        );
+        if (code != MR_STEP_SUCCESS) {
+            if (wave == 0u && lane == 0u) {
+                if (reset) persistent.counts = uint4(0u);
+                status.code = code;
+                status.failingSubstep = substep;
+                status.successfulSubsteps = substep;
+                contactStatus.code = code;
+                contactStatus.physicsSubstep = substep;
+                contactStatus.requiredRawContacts = count;
+                contactStatus.requiredConstraints = count;
+                contactStatus.activeContacts = 0u;
+            }
+            return;
+        }
+    }
+    if (wave != 0u) return;
+    const uint pairIndex = lane < count ? hit.pair : MR_INVALID_INDEX;
+    const uint pairsLower = simd_or(pairIndex < 32u ? (1u << pairIndex) : 0u);
+    const uint pairsUpper = simd_or(pairIndex >= 32u && pairIndex < 64u ? (1u << (pairIndex - 32u)) : 0u);
+    if (lane == 0u) {
+        persistent.counts = uint4(count, 0u, 0u, 0u);
+        status.successfulSubsteps = program.schedule.y;
+        contactStatus.physicsSubstep = program.schedule.y - 1u;
+        contactStatus.requiredPairs = program.sizes.z;
+        contactStatus.activePairs = popcount(pairsLower) + popcount(pairsUpper);
+        contactStatus.requiredRawContacts = count;
+        contactStatus.requiredConstraints = count;
+        contactStatus.activeContacts = count;
+        contactStatus.solverIterations = program.schedule.z;
+    }
+    if (lane < program.sizes.y) {
+        q[lane] = scratch.q[lane];
+        v[lane] = scratch.velocity[lane];
+        appliedEffort[lane] = scratch.driveEffort[lane];
+        acceleration[lane] = (scratch.velocity[lane] - scratch.preSubstepVelocity[lane]) /
+            program.gravityAndTimestep.w;
+    }
+    if (lane < program.sizes.w) {
+        const uint index = program.bodies[program.freeBody[lane]].topology.z;
+        const ResidentPose pose = scratch.freePose[lane];
+        const uint i = kResidentDofs + 6u * lane;
+        scene[index].position = float4(pose.position, scene[index].position.w);
+        scene[index].orientation = pose.rotation;
+        scene[index].linearVelocityAndInverseMass.xyz =
+            float3(scratch.velocity[i], scratch.velocity[i+1u], scratch.velocity[i+2u]);
+        scene[index].angularVelocity.xyz =
+            float3(scratch.velocity[i+3u], scratch.velocity[i+4u], scratch.velocity[i+5u]);
+    }
+    if (lane < count) {
+        const ResidentWarmPoint point = scratch.warm[warm][lane];
+        persistent.points[lane] = {point.key, point.position, float4(point.impulse, 0.0f)};
+        const ResidentContact contact = scratch.contact[lane];
+        const uint2 pair = program.pairs[hit.pair].geometry.xy;
+        MRContactConstraintGPU constraint{};
+        constraint.bodyA = program.shapes[pair.x].bodyIndex;
+        constraint.bodyB = program.shapes[pair.y].bodyIndex;
+        constraint.pairKey = (ulong(pair.x) << 32u) | ulong(pair.y);
+        constraint.featureKey = (ulong(hit.raw.featureAndFlags[0]) << 32u) | ulong(hit.raw.featureAndFlags[1]);
+        constraint.pointAndSeparation = float4(contact.point, hit.raw.normalAndSeparation.w);
+        constraint.normal = float4(contact.basis[0], 0.0f);
+        constraint.tangent = float4(contact.basis[1], 0.0f);
+        constraint.friction = float4(contact.friction, contact.dynamicFriction, 0.0f, 0.0f);
+        constraint.impulses = float4(scratch.lambda[lane], 0.0f);
+        contacts[lane] = constraint;
     }
 }

@@ -473,6 +473,8 @@ struct MetalWorldStepConfig {
     // Publish V(s_T) from the accepted post-rollout state in the same command
     // buffer. This does not apply the sampled action or advance physics.
     bool evaluateFinalPolicy = false;
+    // Request the bounded fixed-base operator where the compiled run permits it.
+    bool preferCompactArticulation = false;
     std::uint64_t taskSeed = 0u;
     // Invocation-scoped reset sampling. These select an overlapping region of
     // one compiled TaskPack; they never alter reward, success, or promotion.
@@ -723,6 +725,7 @@ struct MetalWorldDiagnostics {
     MetalWorldLayout layout{};
     bool dispatched = false;
     bool published = false;
+    bool usedCompactArticulation = false;
     std::uint32_t successfulStepCount = 0u;
     std::uint32_t failedStepCount = 0u;
     std::uint32_t firstFailingEnvironment = MR_INVALID_INDEX;

@@ -132,6 +132,7 @@ struct MRTaskRolloutHandle {
     std::string metallibPath;
     std::string taskId;
     std::uint32_t environmentCount = 0u;
+    const char* physicsBackend = "unselected";
     std::uint64_t submittedControlSteps = 0u;
     std::uint64_t completedEnvironmentSteps = 0u;
     std::uint64_t submissionCount = 0u;
@@ -506,6 +507,7 @@ void resetTaskRolloutState(
     }
 
     handle.stepConfig.taskSeed = seed;
+    handle.physicsBackend = "unselected";
     handle.residentState =
         metalrobo::MetalWorldResidentState{};
     if (handle.visualRuntime != nullptr) {
@@ -4116,6 +4118,21 @@ size_t mr_task_rollout_copy_visual_rgba(
     return required;
 }
 
+int mr_task_rollout_prefer_compact_articulation(MRTaskRolloutHandle* handle) {
+    if (!requireTaskRolloutHandle(handle)) return -1;
+    if (handle->residentState.valid()) {
+        gLastError = "Choose the articulated solver before advancing the rollout.";
+        return -1;
+    }
+    handle->stepConfig.preferCompactArticulation = true;
+    gLastError.clear();
+    return 0;
+}
+
+const char* mr_task_rollout_physics_backend(const MRTaskRolloutHandle* handle) {
+    return requireTaskRolloutHandle(handle) ? handle->physicsBackend : "unknown";
+}
+
 int mr_task_rollout_set_state_readback(
     MRTaskRolloutHandle* handle,
     const uint32_t enabled
@@ -4380,6 +4397,10 @@ int mr_task_rollout_advance(
             );
         if (diagnostics.succeeded()) {
             diagnostics = submission.wait(published);
+        }
+        if (diagnostics.succeeded()) {
+            handle->physicsBackend = diagnostics.usedCompactArticulation
+                ? "metal-compact-articulation" : "metal-general";
         }
         advance->control_step_count = control_step_count;
         advance->successful_environment_steps =

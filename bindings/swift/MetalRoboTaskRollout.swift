@@ -1463,6 +1463,16 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         return String(cString: value)
     }
 
+    public func preferCompactArticulation() throws {
+        guard mr_task_rollout_prefer_compact_articulation(handle) == 0 else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
+        }
+    }
+
+    public var physicsBackend: String {
+        String(cString: mr_task_rollout_physics_backend(handle))
+    }
+
     public var deviceName: String {
         String(cString: mr_task_rollout_device_name(handle))
     }

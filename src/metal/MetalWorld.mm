@@ -3,6 +3,7 @@
 #import <TargetConditionals.h>
 
 #include "metalrobo/MetalWorld.hpp"
+#include "ResidentArticulatedWorld.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/ParallelABASchedule.hpp"
 #include "metalrobo/unified_quality_shared.h"
@@ -24,6 +25,7 @@
 #include <new>
 #include <set>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <system_error>
 #include <utility>
@@ -477,6 +479,8 @@ struct MetalWorldContextState {
     std::uint64_t boundPolicyFingerprint = 0u;
     std::uint64_t boundMulticopterFingerprint = 0u;
     std::uint64_t stateArenaGeneration = 0u;
+    __strong id<MTLComputePipelineState> compactArticulationPipeline = nil;
+    bool triedCompactArticulationPipeline = false;
     std::weak_ptr<MetalWorldResidentStateData> residentOwner;
     MetalWorldContextStats stats{};
 };
@@ -535,6 +539,8 @@ struct MetalWorldResidentStateData {
     bool supportsReset = false;
     bool initialized = false;
     bool pending = false;
+    __strong id<MTLBuffer> compactProgram = nil;
+    __strong id<MTLBuffer> compactWarmState = nil;
 };
 
 struct MetalWorldResidentReservation {
@@ -9062,6 +9068,127 @@ bool encodeStreamedArticulatedResponses(
     return true;
 }
 
+bool requestsCompactArticulation(
+    const CompiledWorld& world,
+    const MetalWorldBatch& batch,
+    const MetalWorldStepConfig& config
+) {
+    const auto& task = config.taskProgram;
+    constexpr auto unsupportedTaskFlags =
+        MR_TASK_PROGRAM_THREAT_TEACHER | MR_TASK_PROGRAM_TERRAIN |
+        MR_TASK_PROGRAM_INTERACTION_RESET | MR_TASK_PROGRAM_INTERACTION_REFERENCE;
+    return config.preferCompactArticulation && batch.environmentCount == 1u &&
+        task.valid() && task.randomizationOperators().empty() &&
+        task.impactEvents().empty() &&
+        (task.header().schedule.w & unsupportedTaskFlags) == 0u &&
+        task.header().dynamics.x == 0.0f && task.header().projectile.y == 0.0f &&
+        !config.deviceMechanicsProgram.valid() && !config.multicopterProgram.valid() &&
+        batch.kinematicTargets.empty() && world.sceneBodyCount() != 0u &&
+        config.ccdMode == MetalWorldCCDMode::disabled &&
+        config.solverMode == MetalWorldSolverMode::temporalCone &&
+        config.actuationMode == MetalWorldActuationMode::implicitPositionDrive &&
+        config.warmStart && config.applyBodyDamping &&
+        config.physicsSubsteps != 0u;
+}
+
+// Compact selection is fixed for this resident token. General task passes
+// still own target generation, resets, observations, rewards and presentation.
+void prepareCompactArticulation(
+    detail::MetalWorldResidentStateData& resident,
+    detail::MetalWorldContextState& context,
+    const CompiledWorld& world,
+    const MetalWorldBatch& batch,
+    const MetalWorldStepConfig& config,
+    const MetalWorldLayout& layout
+) {
+    if (!requestsCompactArticulation(world, batch, config)) return;
+
+    MRResidentProgramGPU program{};
+    try {
+        program = detail::compileResidentArticulation(world, batch.initialSceneBodies);
+        detail::bindResidentArticulationActions(config.taskProgram, config.timestepSeconds, program);
+    } catch (const std::invalid_argument&) {
+        return;
+    }
+    program.gravityAndTimestep.w =
+        config.timestepSeconds / static_cast<float>(config.physicsSubsteps);
+    program.schedule.y = config.physicsSubsteps;
+    program.schedule.z = 1u;
+    program.controls.y = std::min(
+        {MR_RESIDENT_CONTACT_CAPACITY, layout.contactDispatch.rawContactCapacity,
+         layout.contactDispatch.constraintCapacity}
+    );
+    if (program.controls.y == 0u) return;
+
+    if (!context.triedCompactArticulationPipeline) {
+        context.triedCompactArticulationPipeline = true;
+        const std::filesystem::path base = context.config.metallibPath.empty()
+            ? defaultMetallibPath() : context.config.metallibPath;
+        const auto path = base.parent_path() / "resident_articulated_world.metallib";
+        NSString* file = [NSString stringWithUTF8String:path.c_str()];
+        id<MTLLibrary> library = [context.device newLibraryWithURL:
+            [NSURL fileURLWithPath:file] error:nil];
+        id<MTLFunction> function = [library newFunctionWithName:@"mr_resident_articulated_control"];
+        if (function != nil) {
+            MTLComputePipelineDescriptor* descriptor = [MTLComputePipelineDescriptor new];
+            descriptor.computeFunction = function;
+            descriptor.threadGroupSizeIsMultipleOfThreadExecutionWidth = YES;
+            id<MTLComputePipelineState> pipeline = [context.device
+                newComputePipelineStateWithDescriptor:descriptor
+                options:MTLPipelineOptionNone reflection:nil error:nil];
+            if (pipeline.threadExecutionWidth == 32u &&
+                pipeline.maxTotalThreadsPerThreadgroup >= 96u &&
+                pipeline.staticThreadgroupMemoryLength <= context.device.maxThreadgroupMemoryLength) {
+                context.compactArticulationPipeline = pipeline;
+            }
+        }
+    }
+    if (context.compactArticulationPipeline == nil) return;
+    id<MTLBuffer> programBuffer = [context.device newBufferWithBytes:&program
+        length:sizeof(program) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> warmBuffer = [context.device newBufferWithLength:sizeof(MRResidentWarmStateGPU)
+        options:MTLResourceStorageModePrivate];
+    if (programBuffer != nil && warmBuffer != nil) {
+        programBuffer.label = @"Compact articulated program";
+        warmBuffer.label = @"Accepted compact contact warm starts";
+        resident.compactProgram = programBuffer;
+        resident.compactWarmState = warmBuffer;
+    }
+}
+
+bool encodeCompactArticulation(
+    const detail::MetalWorldResidentStateData& resident,
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    MRMetalWorldPassGPU pass,
+    std::size_t qState,
+    std::size_t vState,
+    std::size_t sceneState,
+    bool firstControl
+) {
+    id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+    if (encoder == nil) return false;
+    encoder.label = @"Compact resident articulated physics";
+    [encoder setComputePipelineState:context.compactArticulationPipeline];
+    pass.reserved0 = firstControl ? 1u : 0u;
+    [encoder setBuffer:resident.compactProgram offset:0u atIndex:0u];
+    [encoder setBuffer:resident.compactWarmState offset:0u atIndex:5u];
+    [encoder setBytes:&pass length:sizeof(pass) atIndex:8u];
+    const std::pair<NSUInteger, std::size_t> bindings[] = {
+        {1u, kEffortTrajectory}, {2u, qState}, {3u, vState}, {4u, sceneState},
+        {6u, kWorldDispatch}, {7u, kResetMasks}, {9u, kEnvironmentStatuses},
+        {10u, kContactStatuses}, {11u, kContacts}, {12u, kWorkingEffort},
+        {13u, kCandidateAcceleration},
+    };
+    for (const auto& [slot, buffer] : bindings) {
+        [encoder setBuffer:context.buffers[buffer] offset:0u atIndex:slot];
+    }
+    [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(96u, 1u, 1u)];
+    [encoder endEncoding];
+    return true;
+}
+
 bool encodePrepare(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -9238,6 +9365,46 @@ bool encodeTaskObserve(
     );
 }
 
+bool encodeWorldBodyProjection(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    std::size_t qState,
+    std::size_t sceneState,
+    std::size_t environmentCount
+) {
+    return encodeArticulatedOperator(
+            context,
+            commandBuffer,
+            kOperatorKinematicsDispatch,
+            qState,
+            kPointQueries,
+            kBodyPoses,
+            environmentCount,
+            @"MetalWorld observation-time articulation kinematics",
+            false
+        ) &&
+        encodeContactThreadKernel(
+            context,
+            commandBuffer,
+            context.bodyProjectionPipeline,
+            @"MetalWorld observation-time global body projection",
+            {
+                {0u, kContactDispatch},
+                {1u, kArticulations},
+                {2u, kBodies},
+                {3u, kSceneBodyIndices},
+                {4u, kBodyPoses},
+                {5u, kOperatorStatuses},
+                {6u, sceneState},
+                {7u, kCurrentBodies},
+                {8u, kContactStatuses},
+            },
+            nullptr,
+            0u,
+            environmentCount
+        );
+}
+
 bool encodeDeviceObservationBodies(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -9269,36 +9436,8 @@ bool encodeDeviceObservationBodies(
                2u,
                environmentCount
            ) &&
-        encodeArticulatedOperator(
-            context,
-            commandBuffer,
-            kOperatorKinematicsDispatch,
-            observationQ,
-            kPointQueries,
-            kBodyPoses,
-            environmentCount,
-            @"MetalWorld observation-time articulation kinematics",
-            false
-        ) &&
-        encodeContactThreadKernel(
-            context,
-            commandBuffer,
-            context.bodyProjectionPipeline,
-            @"MetalWorld observation-time global body projection",
-            {
-                {0u, kContactDispatch},
-                {1u, kArticulations},
-                {2u, kBodies},
-                {3u, kSceneBodyIndices},
-                {4u, kBodyPoses},
-                {5u, kOperatorStatuses},
-                {6u, observationScene},
-                {7u, kCurrentBodies},
-                {8u, kContactStatuses},
-            },
-            nullptr,
-            0u,
-            environmentCount
+        encodeWorldBodyProjection(
+            context, commandBuffer, observationQ, observationScene, environmentCount
         );
 }
 
@@ -9918,6 +10057,7 @@ bool encodeTaskComplete(
     const std::size_t qState,
     const std::size_t vState,
     const std::size_t sceneState,
+    const std::size_t bodyState,
     const std::size_t environmentCount
 ) {
     return encodeContactThreadKernel(
@@ -9933,7 +10073,7 @@ bool encodeTaskComplete(
             {4u, kContactDispatch},
             {6u, qState},
             {7u, vState},
-            {8u, kCandidateBodies},
+            {8u, bodyState},
             {9u, kContacts},
             {10u, kContactStatuses},
             {11u, kEnvironmentStatuses},
@@ -16196,7 +16336,9 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                         staged.layout.dispatch.environmentCount
                     );
                 }
-                if (pending->captureContactEvidence) {
+                if (pending->captureContactEvidence && diagnostics.usedCompactArticulation) {
+                    staged.contactEvidence.contacts.resize(staged.layout.contactConstraintElements);
+                } else if (pending->captureContactEvidence) {
                     auto& evidence = staged.contactEvidence;
                     evidence.manifoldHeaders.resize(
                         staged.layout.manifoldHeaderElements
@@ -16367,7 +16509,12 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                     staged.qualityStatuses,
                     buffers[kQualityStatuses]
                 );
-                if (pending->captureContactEvidence) {
+                if (pending->captureContactEvidence && diagnostics.usedCompactArticulation) {
+                    auto& contacts = staged.contactEvidence.contacts;
+                    copyOutput(contacts, stateOutputBuffer(kContacts));
+                    contacts.resize(std::min<std::size_t>(contacts.size(),
+                        staged.contactStatuses.back().activeContacts));
+                } else if (pending->captureContactEvidence) {
                     auto& evidence = staged.contactEvidence;
                     copyOutput(
                         evidence.manifoldHeaders,
@@ -16825,6 +16972,29 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             const bool uploadInitialState =
                 !residentContinuation;
             const bool nativeTask = config.taskProgram.valid();
+            if (initializeResidentState) {
+                prepareCompactArticulation(
+                    *residentData, *selectedState, world, batch, config, diagnostics.layout
+                );
+            }
+            const bool compactArticulation =
+                residentData != nullptr && residentData->compactProgram != nil;
+            if (compactArticulation && residentContinuation) {
+                const auto& program = *static_cast<const MRResidentProgramGPU*>(
+                    residentData->compactProgram.contents
+                );
+                if (!requestsCompactArticulation(world, batch, config) ||
+                    config.physicsSubsteps != program.schedule.y ||
+                    config.timestepSeconds / static_cast<float>(config.physicsSubsteps) !=
+                        program.gravityAndTimestep.w) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::invalidDimensions,
+                        "compact articulation configuration changed during a resident rollout"
+                    );
+                }
+            }
+            diagnostics.usedCompactArticulation = compactArticulation;
             const bool taskTracksImpactContacts =
                 nativeTask &&
                 !config.taskProgram.impactEvents().empty();
@@ -17196,8 +17366,22 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     );
                 }
 
+                if (compactArticulation &&
+                    (!encodeCompactArticulation(
+                         *residentData, *selectedState, commandBuffer, pass,
+                         sourceQ, sourceV, sourceScene, uploadInitialState && controlStep == 0u
+                     ) ||
+                     !encodeWorldBodyProjection(
+                         *selectedState, commandBuffer, sourceQ, sourceScene, batch.environmentCount
+                     ))) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::metalCommandFailure,
+                        "failed to encode compact articulated control"
+                    );
+                }
                 for (std::uint32_t physicsSubstep = 0u;
-                     physicsSubstep < config.physicsSubsteps;
+                     !compactArticulation && physicsSubstep < config.physicsSubsteps;
                      ++physicsSubstep) {
                     pass.physicsSubstep = physicsSubstep;
                     const bool useHybridContact =
@@ -17542,6 +17726,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                              sourceQ,
                              sourceV,
                              sourceScene,
+                             compactArticulation ? kCurrentBodies : kCandidateBodies,
                              batch.environmentCount
                          ) ||
                          !encodeTaskEvidence(
@@ -17686,7 +17871,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     readbackIndices.push_back(sourceRodEdges);
                 }
             }
-            if (config.captureContactEvidence) {
+            if (config.captureContactEvidence && compactArticulation) {
+                readbackIndices.push_back(kContacts);
+            } else if (config.captureContactEvidence) {
                 readbackIndices.push_back(
                     sourceManifoldHeaders
                 );

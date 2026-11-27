@@ -10,6 +10,7 @@ repo=$(CDPATH= cd "$(dirname "$0")/.." && pwd -P)
 rollout="$app/Contents/MacOS/metalrobo_task_rollout"
 compiler="$app/Contents/Helpers/metalrobo_numi_window_catalog_compile"
 library="$app/Contents/Resources/MetalRobo.metallib"
+test -s "$app/Contents/Resources/resident_articulated_world.metallib"
 work=$(mktemp -d "${TMPDIR:-/tmp}/numi-workbench.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 trap 'exit 1' HUP INT TERM
@@ -44,6 +45,7 @@ positions = {}
 for name in ("original", "repeat", "control", "zero-gravity"):
     stats = json.loads((folder / f"{name}.json").read_text())
     assert stats["failed_environment_steps"] == 0, stats
+    assert stats["physics_backend"] == "metal-general", stats
     rows = (folder / f"{name}.tsv").read_text().splitlines()[1:]
     assert len(rows) == 100
     positions[name] = [float(row.split()[1]) for row in rows]
